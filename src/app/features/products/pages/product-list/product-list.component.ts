@@ -1,11 +1,15 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { CatalogService, VendorProduct, MasterProduct } from '../../../../services/catalog.service';
 import { MasterProductSelectorModalComponent } from '../../components/master-product-selector-modal/master-product-selector-modal.component';
 import { AddProductModalComponent } from '../../components/add-product-modal/add-product-modal.component';
+import { ProductStatusBadgeComponent } from '../../components/product-status-badge/product-status-badge.component';
+import { ProductRequestModalComponent } from '../../components/product-request-modal/product-request-modal.component';
+import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
 
 @Component({
   selector: 'app-product-list',
@@ -15,7 +19,11 @@ import { AddProductModalComponent } from '../../components/add-product-modal/add
     FormsModule, 
     TranslateModule, 
     MasterProductSelectorModalComponent, 
-    AddProductModalComponent
+    AddProductModalComponent,
+    ProductStatusBadgeComponent,
+    ProductRequestModalComponent,
+    RouterModule,
+    AppPaginationComponent
   ],
   template: `
     <div class="space-y-6" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
@@ -48,7 +56,7 @@ import { AddProductModalComponent } from '../../components/add-product-modal/add
             <input 
               type="text" 
               [(ngModel)]="searchTerm"
-              (input)="loadProducts()"
+              (input)="onSearchChange()"
               [placeholder]="'PRODUCTS.SEARCH_PLACEHOLDER' | translate"
               class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 pe-4 ps-11 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
           </div>
@@ -101,13 +109,13 @@ import { AddProductModalComponent } from '../../components/add-product-modal/add
                             {{ currentLang === 'ar' ? product.nameAr : product.nameEn }}
                           </span>
                           <span class="text-[0.62rem] font-bold text-slate-400">
-                            {{ currentLang === 'ar' ? (product.brandNameAr || 'مركة عامة') : (product.brandNameEn || 'General') }}
+                            {{ currentLang === 'ar' ? (product.brandNameAr || ('COMMON.BRAND_GENERAL' | translate)) : (product.brandNameEn || ('COMMON.BRAND_GENERAL' | translate)) }}
                           </span>
                         </div>
                       </div>
                     </td>
                     <td class="px-3 py-2.5">
-                      <span class="inline-flex rounded-lg bg-slate-100 px-2 py-0.5 text-[0.6rem] font-black text-slate-600">
+                      <span class="inline-flex rounded-lg bg-slate-100 px-2.5 py-0.5 text-[0.6rem] font-black text-slate-600">
                         {{ currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn }}
                       </span>
                     </td>
@@ -121,26 +129,25 @@ import { AddProductModalComponent } from '../../components/add-product-modal/add
                       <div class="flex items-center gap-1.5">
                         <div class="h-1.2 w-1.2 rounded-full" [ngClass]="product.stockQty > 20 ? 'bg-emerald-500' : 'bg-orange-500'"></div>
                         <span class="text-[0.75rem] font-black text-slate-700 leading-none">{{ product.stockQty }}</span>
-                        <small class="text-[0.58rem] font-bold text-slate-400 uppercase">{{ currentLang === 'ar' ? product.unitNameAr : product.unitNameEn }}</small>
+                        <small class="text-[0.58rem] font-bold text-slate-400 uppercase">
+                          {{ currentLang === 'ar' ? (product.unitNameAr || ('PRODUCTS.UNIT_PIECE' | translate)) : (product.unitNameEn || ('PRODUCTS.UNIT_PIECE' | translate)) }}
+                        </small>
                       </div>
                     </td>
                     <td class="px-3 py-2.5">
-                      <span 
-                        [class]="product.isActive ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-slate-50 text-slate-500 border-slate-100'"
-                        class="inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[0.6rem] font-black">
-                        <span class="h-1.5 w-1.5 rounded-full" [class]="product.isActive ? 'bg-emerald-500' : 'bg-slate-400'"></span>
-                        {{ (product.isActive ? 'COMMON.STATUS_ACTIVE' : 'COMMON.STATUS_INACTIVE') | translate }}
-                      </span>
+                      <app-product-status-badge [isActive]="product.isActive"></app-product-status-badge>
                     </td>
                     <td class="px-3 py-2.5">
                       <div class="flex items-center justify-center gap-1">
-                        <button class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-400 transition hover:bg-zadna-primary/10 hover:border-zadna-primary/20 hover:text-zadna-primary">
-                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button 
+                          [routerLink]="['/products', product.id]"
+                          class="flex h-7 w-7 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-400 transition hover:bg-zadna-primary/10 hover:border-zadna-primary/20 hover:text-zadna-primary">
+                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                           </svg>
                         </button>
-                        <button class="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-400 transition hover:bg-rose-50 hover:border-rose-100 hover:text-rose-500">
-                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <button class="flex h-7 w-7 items-center justify-center rounded-xl bg-slate-50 border border-slate-100 text-slate-400 transition hover:bg-rose-50 hover:border-rose-100 hover:text-rose-500">
+                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
                           </svg>
                         </button>
@@ -152,6 +159,21 @@ import { AddProductModalComponent } from '../../components/add-product-modal/add
             </table>
           }
         </div>
+
+        <!-- Pagination -->
+        @if (products.length > 0) {
+          <div class="border-t border-slate-50 px-6">
+            <app-pagination
+              [currentPage]="currentPage"
+              [totalCount]="totalCount"
+              [totalItemsLabel]="'PAGINATION.TOTAL_PRODUCTS' | translate:{count: totalCount}"
+              [pageSize]="pageSize"
+              [totalPages]="totalPages"
+              [isRTL]="currentLang === 'ar'"
+              (pageChange)="onPageChange($event)">
+            </app-pagination>
+          </div>
+        }
       </div>
     </div>
 
@@ -159,7 +181,8 @@ import { AddProductModalComponent } from '../../components/add-product-modal/add
     @if (isSelectorModalOpen) {
       <app-master-product-selector-modal
         (close)="isSelectorModalOpen = false"
-        (selected)="onProductSelected($event)">
+        (selected)="onProductSelected($event)"
+        (requestProduct)="onRequestProduct($event)">
       </app-master-product-selector-modal>
     }
 
@@ -169,6 +192,14 @@ import { AddProductModalComponent } from '../../components/add-product-modal/add
         (close)="isPricingModalOpen = false"
         (confirm)="onPricingConfirm($event)">
       </app-add-product-modal>
+    }
+
+    @if (isRequestModalOpen) {
+      <app-product-request-modal
+        [initialName]="requestInitialName"
+        (close)="isRequestModalOpen = false"
+        (submitted)="onRequestSubmitted()">
+      </app-product-request-modal>
     }
   `,
   styles: [`
@@ -187,7 +218,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
   // Modal States
   isSelectorModalOpen = false;
   isPricingModalOpen = false;
+  isRequestModalOpen = false;
+  requestInitialName = '';
   selectedMasterProduct: MasterProduct | null = null;
+  
+  // Pagination State
+  currentPage = 1;
+  pageSize = 10;
+  totalCount = 0;
+  totalPages = 1;
 
   constructor(
     private catalogService: CatalogService,
@@ -208,16 +247,30 @@ export class ProductListComponent implements OnInit, OnDestroy {
   loadProducts(): void {
     this.isLoading = true;
     this.catalogService.getVendorProducts({
-      searchTerm: this.searchTerm
+      searchTerm: this.searchTerm,
+      pageNumber: this.currentPage,
+      pageSize: this.pageSize
     }).subscribe({
       next: (data) => {
         this.products = data.items;
+        this.totalCount = data.totalCount;
+        this.totalPages = data.totalPages;
         this.isLoading = false;
       },
       error: () => {
         this.isLoading = false;
       }
     });
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadProducts();
+  }
+
+  onSearchChange(): void {
+    this.currentPage = 1;
+    this.loadProducts();
   }
 
   // --- Modal Workflow ---
@@ -232,13 +285,25 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.isPricingModalOpen = true;
   }
 
-  onPricingConfirm(event: { sellingPrice: number, stockQuantity: number }): void {
+  onRequestProduct(searchTerm: string): void {
+    this.requestInitialName = searchTerm;
+    this.isSelectorModalOpen = false;
+    this.isRequestModalOpen = true;
+  }
+
+  onRequestSubmitted(): void {
+    this.isRequestModalOpen = false;
+    this.translate.get('PRODUCTS.REQUEST_SUCCESS').subscribe(msg => alert(msg));
+  }
+
+  onPricingConfirm(event: { sellingPrice: number, stockQuantity: number, discountPercentage: number }): void {
     if (!this.selectedMasterProduct) return;
 
     const request = {
       masterProductId: this.selectedMasterProduct.id,
       sellingPrice: event.sellingPrice,
-      stockQty: event.stockQuantity
+      stockQty: event.stockQuantity,
+      discountPercentage: event.discountPercentage
     };
 
     this.catalogService.addToStore(request).subscribe({
@@ -247,7 +312,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.loadProducts(); // Refresh the list
       },
       error: () => {
-        alert(this.currentLang === 'ar' ? 'حدث خطأ أثناء الإضافة' : 'Error adding product');
+        this.translate.get('PRODUCTS.ERROR_ADDING_MSG').subscribe(msg => alert(msg));
       }
     });
   }
@@ -255,6 +320,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   closeAllModals(): void {
     this.isSelectorModalOpen = false;
     this.isPricingModalOpen = false;
+    this.isRequestModalOpen = false;
     this.selectedMasterProduct = null;
   }
 }

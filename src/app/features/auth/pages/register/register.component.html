@@ -6,12 +6,12 @@
             <button (click)="switchLanguage('en')"
                 [ngClass]="{'bg-white text-zadna-primaryDark shadow-md scale-105': !isRTL, 'text-gray-500 hover:text-zadna-primary hover:bg-white/40': isRTL}"
                 class="px-5 py-2 rounded-full text-xs font-black tracking-widest uppercase transition-all duration-300">
-                EN
+                {{ 'COMMON.ENGLISH' | translate }}
             </button>
             <button (click)="switchLanguage('ar')"
                 [ngClass]="{'bg-white text-zadna-primaryDark shadow-md scale-105': isRTL, 'text-gray-500 hover:text-zadna-primary hover:bg-white/40': !isRTL}"
                 class="px-5 py-2 rounded-full text-xs font-black tracking-widest uppercase transition-all duration-300">
-                عربي
+                {{ 'COMMON.ARABIC' | translate }}
             </button>
         </div>
     </div>

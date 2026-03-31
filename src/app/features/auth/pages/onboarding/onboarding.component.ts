@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
@@ -210,12 +210,12 @@ export class OnboardingComponent implements OnInit {
     return Math.round((completed / this.totalSteps) * 100);
   }
 
-  get reviewStatusLabel(): string {
-    return this.isRTL ? this.vendorSeed.meta.reviewStatusAr : this.vendorSeed.meta.reviewStatusEn;
+  get reviewStatusLabelKey(): string {
+    return 'DASHBOARD.STATUS_LIVE'; // Or similar status key
   }
 
-  get syncedFromLabel(): string {
-    return this.isRTL ? this.vendorSeed.meta.syncedFromAr : this.vendorSeed.meta.syncedFromEn;
+  get syncedFromLabelKey(): string {
+    return 'ONBOARDING.SYNC_SOURCE_HELP'; 
   }
 
   switchLanguage(lang: string): void {
@@ -315,11 +315,12 @@ export class OnboardingComponent implements OnInit {
 
     console.log('Final Registration Data:', finalData);
 
-    const bizName = this.isRTL 
-      ? this.getStepGroup(1).get('businessNameAr')?.value 
-      : this.getStepGroup(1).get('businessNameEn')?.value;
+    const bizNameAr = this.getStepGroup(1).get('businessNameAr')?.value;
+    const bizNameEn = this.getStepGroup(1).get('businessNameEn')?.value;
+    const currentBizName = this.isRTL ? bizNameAr : bizNameEn;
     
-    localStorage.setItem('onboarding_biz_name', bizName || 'Your Store');
+    // Save to localStorage for layout-wide updates
+    localStorage.setItem('onboarding_biz_name', currentBizName || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
 
     setTimeout(() => {
       this.isSubmitting = false;
@@ -511,10 +512,13 @@ export class OnboardingComponent implements OnInit {
   }
 
   private patchSeedData(): void {
+    const defaultAr = this.translate.instant('COMMON.DEFAULT_VENDOR_NAME');
+    const defaultEn = 'Modern Tech Trading Est.';
+
     this.onboardingForm.patchValue({
       step1: {
-        businessNameAr: this.vendorSeed.store.businessNameAr,
-        businessNameEn: this.vendorSeed.store.businessNameEn,
+        businessNameAr: defaultAr || this.vendorSeed.store.businessNameAr,
+        businessNameEn: defaultEn || this.vendorSeed.store.businessNameEn,
         businessType: this.vendorSeed.store.businessType,
         contactPhone: this.vendorSeed.store.contactPhone,
         description: this.vendorSeed.store.description,
@@ -542,6 +546,12 @@ export class OnboardingComponent implements OnInit {
         paymentCycle: this.vendorSeed.banking.paymentCycle
       }
     });
+
+    // Reset localStorage if it was broken so the header updates immediately
+    const stored = localStorage.getItem('onboarding_biz_name');
+    if (stored && (stored.includes('Ù') || stored.includes('Ø'))) {
+       localStorage.setItem('onboarding_biz_name', this.isRTL ? defaultAr : defaultEn);
+    }
   }
 
   private getStepGroup(step: number): FormGroup {

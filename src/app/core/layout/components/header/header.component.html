@@ -4,7 +4,7 @@
       type="button"
       (click)="onToggleMobileMenu()"
       class="flex h-10 w-10 items-center justify-center rounded-[14px] border border-slate-200/80 bg-white/90 text-slate-600 transition hover:-translate-y-0.5 hover:border-zadna-primary/20 hover:text-zadna-primary hover:shadow-sm lg:hidden"
-      [attr.aria-label]="currentLang === 'ar' ? 'فتح القائمة' : 'Open menu'">
+      [attr.aria-label]="'HEADER.OPEN_MENU' | translate">
       <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path *ngIf="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
         <path *ngIf="isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
@@ -19,11 +19,11 @@
         <div class="flex items-center gap-2">
             <h1 class="truncate text-[1rem] font-extrabold text-slate-900">{{ userName }}</h1>
             <span class="hidden md:inline-flex items-center rounded-full bg-teal-50 px-2 py-0.5 text-[0.65rem] font-bold text-teal-600 ring-1 ring-inset ring-teal-500/10">
-              {{ currentLang === 'ar' ? 'حساب نشط' : 'Active Account' }}
+              {{ 'HEADER.ACTIVE_ACCOUNT' | translate }}
             </span>
         </div>
         <p class="text-[0.7rem] leading-tight text-slate-500">
-          {{ currentLang === 'ar' ? 'لوحة تحكم التاجر' : 'Vendor Dashboard' }}
+          {{ 'HEADER.VENDOR_DASHBOARD' | translate }}
         </p>
       </div>
     </div>
@@ -40,10 +40,10 @@
       </div>
       <input
         type="text"
-        [placeholder]="currentLang === 'ar' ? 'بحث...' : 'Search...'"
+        [placeholder]="'HEADER.SEARCH_PLACEHOLDER' | translate"
         class="w-full h-10 ps-9 pe-14 bg-white/50 border border-slate-200/80 rounded-[14px] text-[0.8rem] font-bold text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:bg-white focus:border-zadna-primary/30 focus:shadow-[0_8px_20px_rgba(18,124,140,0.06)]">
       <div class="absolute inset-y-0 end-1.5 flex items-center pointer-events-none transition-opacity group-focus-within:opacity-0">
-         <span class="rounded bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[0.65rem] font-bold text-slate-500">Ctrl K</span>
+         <span class="rounded bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[0.65rem] font-bold text-slate-500">{{ 'COMMON.SHORTCUT_CTRL_K' | translate }}</span>
       </div>
     </div>
 
@@ -68,14 +68,14 @@
       <svg class="h-[15px] w-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"></path>
       </svg>
-      <span>{{ currentLang === 'ar' ? 'English' : 'العربية' }}</span>
+      <span>{{ (currentLang === 'ar' ? ('COMMON.ENGLISH' | translate) : ('COMMON.ARABIC' | translate)) }}</span>
     </button>
 
     <button
       type="button"
       (click)="onLogout()"
       class="flex h-11 w-11 items-center justify-center rounded-[18px] border border-rose-200 bg-rose-50/90 text-rose-600 transition hover:-translate-y-0.5 hover:border-rose-300 hover:text-rose-700 hover:shadow-[0_14px_26px_rgba(15,23,42,0.08)]"
-      [attr.aria-label]="currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout'">
+      [attr.aria-label]="'COMMON.LOGOUT' | translate">
       <svg class="h-[1.1rem] w-[1.1rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
       </svg>

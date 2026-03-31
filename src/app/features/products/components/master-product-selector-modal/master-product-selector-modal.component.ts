@@ -18,8 +18,8 @@ import { CatalogService, MasterProduct, Category } from '../../../../services/ca
         <div class="border-b border-slate-100 p-6 pb-4">
           <div class="mb-4 flex items-center justify-between">
             <div>
-              <h2 class="text-xl font-black text-slate-900 tracking-tight">{{ currentLang === 'ar' ? 'اختر المنتج من بنك المنتجات' : 'Select Product from Catalog' }}</h2>
-              <p class="mt-0.5 text-[0.8rem] font-bold text-slate-500">{{ currentLang === 'ar' ? 'ابحث عن المنتج الذي تود إضافته لمتجرك' : 'Search for the product you want to add to your store' }}</p>
+              <h2 class="text-xl font-black text-slate-900 tracking-tight">{{ 'PRODUCTS.BANK_TITLE' | translate }}</h2>
+              <p class="mt-0.5 text-[0.8rem] font-bold text-slate-500">{{ 'PRODUCTS.BANK_SUBTITLE' | translate }}</p>
             </div>
             <button 
               (click)="onClose()"
@@ -42,7 +42,7 @@ import { CatalogService, MasterProduct, Category } from '../../../../services/ca
                 type="text" 
                 [(ngModel)]="searchTerm" 
                 (keyup.enter)="loadProducts()"
-                [placeholder]="currentLang === 'ar' ? 'ابحث باسم المنتج...' : 'Search by product name...'"
+                [placeholder]="'PRODUCTS.SEARCH_PLACEHOLDER' | translate"
                 class="h-12 w-full rounded-[18px] border border-slate-200 bg-slate-50 pe-4 ps-12 text-[0.85rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-[6px] focus:ring-zadna-primary/5 outline-none">
             </div>
             
@@ -51,7 +51,7 @@ import { CatalogService, MasterProduct, Category } from '../../../../services/ca
                 (click)="filterByCategory('')"
                 [class]="selectedCategoryId === '' ? 'bg-zadna-primary text-white shadow-lg shadow-zadna-primary/25' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'"
                 class="whitespace-nowrap px-4 py-2.5 text-[0.78rem] font-black rounded-xl transition-all active:scale-95">
-                {{ currentLang === 'ar' ? 'الكل' : 'All' }}
+                {{ 'COMMON.ALL' | translate }}
               </button>
               @for (cat of categories; track cat.id) {
                 <button 
@@ -70,28 +70,41 @@ import { CatalogService, MasterProduct, Category } from '../../../../services/ca
           @if (isLoading) {
             <div class="flex h-64 w-full flex-col items-center justify-center gap-3">
               <div class="h-10 w-10 animate-spin rounded-full border-4 border-zadna-primary/20 border-t-zadna-primary"></div>
-              <span class="text-sm font-bold text-slate-400">{{ currentLang === 'ar' ? 'جاري البحث...' : 'Searching catalog...' }}</span>
+              <span class="text-sm font-bold text-slate-400">{{ 'COMMON.LOADING' | translate }}</span>
             </div>
           } @else if (products.length === 0) {
-            <div class="flex h-64 flex-col items-center justify-center p-8 text-center text-slate-400">
-              <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-50">
-                <svg class="h-8 w-8 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            <div class="flex h-80 flex-col items-center justify-center p-8 text-center animate-in fade-in zoom-in-95 duration-500">
+              <div class="mb-6 flex h-24 w-24 items-center justify-center rounded-[32px] bg-slate-50 border border-slate-100 shadow-sm">
+                <svg class="h-10 w-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                 </svg>
               </div>
-              <h3 class="text-base font-black text-slate-900">{{ currentLang === 'ar' ? 'لا يوجد نتائج' : 'No products found' }}</h3>
-              <p class="text-sm font-bold">{{ currentLang === 'ar' ? 'جرب البحث بكلمة أخرى أو تصفية مختلفة' : 'Try searching for something else' }}</p>
+              <h3 class="text-lg font-black text-slate-900 tracking-tight">
+                {{ 'PRODUCTS.NO_RESULTS_FOR' | translate:{ term: searchTerm } }}
+              </h3>
+              <p class="mt-2 max-w-xs text-[0.8rem] font-bold text-slate-500 leading-relaxed">
+                {{ 'PRODUCTS.REQUEST_HINT' | translate }}
+              </p>
+              
+              <button 
+                (click)="onRequestNew()"
+                class="mt-8 flex items-center gap-2 rounded-2xl bg-zadna-primary px-8 py-3.5 text-[0.82rem] font-black text-white shadow-xl shadow-zadna-primary/25 transition-all hover:scale-105 active:scale-95">
+                <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                {{ 'PRODUCTS.REQUEST_NEW_TITLE' | translate }}
+              </button>
             </div>
           } @else {
             <div class="p-6">
               <table class="w-full text-start">
                 <thead>
                   <tr class="border-b border-slate-50 text-[0.68rem] font-black uppercase tracking-[0.12em] text-slate-400">
-                    <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'المنتج' : 'Product' }}</th>
-                    <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'البرند' : 'Brand' }}</th>
-                    <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'التصنيف' : 'Category' }}</th>
-                    <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'القياس' : 'Unit' }}</th>
-                    <th class="pb-3 text-end">{{ currentLang === 'ar' ? 'إجراء' : 'Action' }}</th>
+                    <th class="pb-3 text-start">{{ 'COMMON.HEADER_PRODUCT' | translate }}</th>
+                    <th class="pb-3 text-start">{{ 'PRODUCTS.BRAND' | translate }}</th>
+                    <th class="pb-3 text-start">{{ 'PRODUCTS.CATEGORY' | translate }}</th>
+                    <th class="pb-3 text-start">{{ 'PRODUCTS.UNIT' | translate }}</th>
+                    <th class="pb-3 text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
@@ -106,13 +119,13 @@ import { CatalogService, MasterProduct, Category } from '../../../../services/ca
                           </div>
                           <div>
                             <span class="block text-[0.85rem] font-black text-slate-900 group-hover:text-zadna-primary transition-colors">{{ currentLang === 'ar' ? product.nameAr : product.nameEn }}</span>
-                            <span class="text-[0.68rem] font-bold text-slate-400">SKU: {{ product.id.substring(0, 8) }}</span>
+                            <span class="text-[0.68rem] font-bold text-slate-400">{{ 'PRODUCTS.SKU' | translate }}: {{ product.id.substring(0, 8) }}</span>
                           </div>
                         </div>
                       </td>
                       <td class="py-3.5">
                         <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600">
-                          {{ currentLang === 'ar' ? (product.brandNameAr || 'برند عام') : (product.brandNameEn || 'General') }}
+                          {{ currentLang === 'ar' ? (product.brandNameAr || ('COMMON.BRAND_GENERAL' | translate)) : (product.brandNameEn || ('COMMON.BRAND_GENERAL' | translate)) }}
                         </span>
                       </td>
                       <td class="py-3.5">
@@ -122,12 +135,12 @@ import { CatalogService, MasterProduct, Category } from '../../../../services/ca
                       </td>
                       <td class="py-3.5">
                         <span class="text-[0.72rem] font-bold text-slate-600">
-                          {{ currentLang === 'ar' ? (product.unitNameAr || 'قطعة') : (product.unitNameEn || 'Piece') }}
+                          {{ currentLang === 'ar' ? (product.unitNameAr || ('PRODUCTS.UNIT_PIECE' | translate)) : (product.unitNameEn || ('PRODUCTS.UNIT_PIECE' | translate)) }}
                         </span>
                       </td>
                       <td class="py-3.5 text-end">
                         <button class="rounded-xl bg-zadna-primary/10 px-3 py-2 text-[0.72rem] font-black text-zadna-primary hover:bg-zadna-primary hover:text-white transition-all transform active:scale-90">
-                           {{ currentLang === 'ar' ? 'اختيار' : 'Select' }}
+                           {{ 'PRODUCTS.BTN_SELECT' | translate }}
                         </button>
                       </td>
                     </tr>
@@ -149,6 +162,7 @@ import { CatalogService, MasterProduct, Category } from '../../../../services/ca
 export class MasterProductSelectorModalComponent implements OnInit {
   @Output() close = new EventEmitter<void>();
   @Output() selected = new EventEmitter<MasterProduct>();
+  @Output() requestProduct = new EventEmitter<string>();
 
   products: MasterProduct[] = [];
   categories: Category[] = [];
@@ -206,6 +220,10 @@ export class MasterProductSelectorModalComponent implements OnInit {
 
   onClose() {
     this.close.emit();
+  }
+
+  onRequestNew(): void {
+    this.requestProduct.emit(this.searchTerm);
   }
 
   getMockProducts(): MasterProduct[] {

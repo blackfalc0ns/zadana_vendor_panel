@@ -8,7 +8,7 @@
           </div>
 
           <div>
-            <p class="text-[11px] font-black uppercase tracking-[0.28em] text-zadna-primary">ZADANA</p>
+            <p class="text-[11px] font-black uppercase tracking-[0.28em] text-zadna-primary">{{ 'SIDEBAR.APP_NAME' | translate }}</p>
             <h1 class="mt-1 text-lg font-black text-slate-950 sm:text-[22px]">{{ 'ONBOARDING.TITLE' | translate }}</h1>
             <p class="mt-1 max-w-3xl text-[11px] font-bold leading-5 text-slate-500 sm:text-xs">{{ activeStepDescriptionKey | translate }}</p>
           </div>
@@ -16,12 +16,12 @@
 
         <div class="flex flex-wrap items-center gap-2.5">
           <app-badge variant="primary" size="sm" [dot]="true">
-            {{ reviewStatusLabel }}
+            {{ reviewStatusLabelKey | translate }}
           </app-badge>
 
           <div class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 p-1">
-            <button type="button" (click)="switchLanguage('ar')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">عربي</button>
-            <button type="button" (click)="switchLanguage('en')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="!isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">EN</button>
+            <button type="button" (click)="switchLanguage('ar')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">{{ 'COMMON.ARABIC' | translate }}</button>
+            <button type="button" (click)="switchLanguage('en')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="!isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">{{ 'COMMON.ENGLISH' | translate }}</button>
           </div>
         </div>
       </div>
@@ -376,7 +376,7 @@
                 <app-input 
                   formControlName="iban" 
                   [label]="'ONBOARDING.FIELDS.IBAN'" 
-                  [placeholder]="'SA...'"
+                  [placeholder]="'ONBOARDING.PLACEHOLDERS.IBAN'"
                   [isRequired]="true"
                   [error]="isInvalid('4', 'iban') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step4.iban')?.touched || false"
@@ -386,7 +386,7 @@
                 <app-input 
                   formControlName="swiftCode" 
                   [label]="'ONBOARDING.FIELDS.SWIFT'" 
-                  [placeholder]="'SWIFT...'"
+                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SWIFT'"
                   [isRequired]="true"
                   [error]="isInvalid('4', 'swiftCode') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step4.swiftCode')?.touched || false"
@@ -424,7 +424,9 @@
                       <p class="truncate text-xs font-black text-slate-900">{{ storeLogo.name }}</p>
                       <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(storeLogo) }} MB</p>
                     </div>
-                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('logo')">{{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}</button>
+                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('logo')">
+                      {{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}
+                    </button>
                   </div>
 
                   <ng-template #emptyLogoState>
@@ -516,7 +518,7 @@
               <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}</p>
               <p [attr.dir]="storeLogo?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="storeLogo?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ storeLogo?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
               <p [attr.dir]="crDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="crDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ crDocument?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
-              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ vendorSeed.meta.lastUpdate }}</p>
+              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ syncedFromLabelKey | translate }}</p>
             </div>
           </section>
         </aside>

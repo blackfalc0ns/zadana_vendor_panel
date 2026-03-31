@@ -51,9 +51,9 @@ export class VendorDashboardComponent implements OnDestroy {
   };
 
   readonly metrics = [
-    { value: 'EGP 128K', labelKey: 'DASHBOARD.TOTAL_SALES', noteKey: 'DASHBOARD.TOTAL_SALES_NOTE' },
-    { value: '18', labelKey: 'DASHBOARD.ACTIVE_OFFERS', noteKey: 'DASHBOARD.ACTIVE_OFFERS_NOTE' },
-    { value: '24', labelKey: 'DASHBOARD.PENDING_ORDERS', noteKey: 'DASHBOARD.PENDING_ORDERS_NOTE' }
+    { value: '128,000', labelKey: 'DASHBOARD.TOTAL_SALES', noteKey: 'DASHBOARD.TOTAL_SALES_NOTE', isCurrency: true },
+    { value: '18', labelKey: 'DASHBOARD.ACTIVE_OFFERS', noteKey: 'DASHBOARD.ACTIVE_OFFERS_NOTE', isCurrency: false },
+    { value: '24', labelKey: 'DASHBOARD.PENDING_ORDERS', noteKey: 'DASHBOARD.PENDING_ORDERS_NOTE', isCurrency: false }
   ];
 
   readonly checklist = [
@@ -131,12 +131,12 @@ export class VendorDashboardComponent implements OnDestroy {
 
     this.catalogService.addToStore(request).subscribe({
       next: () => {
-        // Success feedback (using alert for now per previous code)
-        alert(this.currentLang === 'ar' ? 'تمت إضافة المنتج بنجاح!' : 'Product added successfully!');
+        // Success feedback
+        this.translate.get('COMMON.SUCCESS').subscribe(msg => alert(msg));
         this.closeAllModals();
       },
       error: () => {
-        alert(this.currentLang === 'ar' ? 'حدث خطأ أثناء الإضافة' : 'Error adding product');
+        this.translate.get('COMMON.ERROR').subscribe(msg => alert(msg));
       }
     });
   }

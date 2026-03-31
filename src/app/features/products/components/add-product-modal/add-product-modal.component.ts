@@ -1,21 +1,22 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MasterProduct } from '../../../../services/catalog.service';
+import { ProductPriceStockFormComponent } from '../product-price-stock-form/product-price-stock-form.component';
 
 @Component({
   selector: 'app-add-product-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, ProductPriceStockFormComponent],
   template: `
     <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-sm bg-slate-900/40 animate-in fade-in duration-300">
       <div 
-        class="w-full max-w-md overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-slate-900/20 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
+        class="w-full max-w-2xl overflow-hidden rounded-[28px] bg-white shadow-2xl shadow-slate-900/20 animate-in zoom-in-95 slide-in-from-bottom-4 duration-300"
         [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
         
         <!-- Header -->
-        <div class="relative p-6 pb-0">
+        <div class="relative p-6 pb-2">
           <button 
             (click)="onClose()"
             class="absolute end-6 top-6 flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-600">
@@ -24,47 +25,27 @@ import { MasterProduct } from '../../../../services/catalog.service';
             </svg>
           </button>
 
-          <div class="mb-4 flex items-center gap-4">
+          <div class="flex items-center gap-4">
             <div class="h-16 w-16 overflow-hidden rounded-[18px] bg-slate-50 border border-slate-100">
               <img [src]="product?.imageUrl || 'assets/images/placeholders/product.png'" class="h-full w-full object-cover">
             </div>
             <div>
-              <h2 class="text-base font-black text-slate-900">{{ currentLang === 'ar' ? product?.nameAr : product?.nameEn }}</h2>
+              <h2 class="text-base font-black text-slate-900 truncate max-w-sm">{{ currentLang === 'ar' ? product?.nameAr : product?.nameEn }}</h2>
               <p class="text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider">{{ currentLang === 'ar' ? product?.categoryNameAr : product?.categoryNameEn }}</p>
             </div>
           </div>
         </div>
 
         <!-- Body -->
-        <div class="p-6 pt-2">
-          <form (submit)="onSubmit($event)" class="grid gap-4">
-            <div class="grid gap-1.5">
-              <label class="text-[0.72rem] font-black uppercase tracking-tight text-slate-500 px-1">
-                {{ currentLang === 'ar' ? 'سعر البيع (ج.م)' : 'Selling Price (EGP)' }}
-              </label>
-              <input 
-                type="number" 
-                [(ngModel)]="sellingPrice" 
-                name="sellingPrice"
-                required
-                placeholder="0.00"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.9rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-[4px] focus:ring-zadna-primary/5">
-            </div>
+        <div class="p-6">
+          <form [formGroup]="productForm" (submit)="onSubmit($event)" class="space-y-6">
+            
+            <app-product-price-stock-form 
+              [form]="productForm" 
+              [unitName]="(currentLang === 'ar' ? product?.unitNameAr : product?.unitNameEn) || ''">
+            </app-product-price-stock-form>
 
-            <div class="grid gap-1.5">
-              <label class="text-[0.72rem] font-black uppercase tracking-tight text-slate-500 px-1">
-                {{ currentLang === 'ar' ? 'الكمية المتوفرة' : 'Stock Quantity' }}
-              </label>
-              <input 
-                type="number" 
-                [(ngModel)]="stockQuantity" 
-                name="stockQuantity"
-                required
-                placeholder="100"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.9rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-[4px] focus:ring-zadna-primary/5">
-            </div>
-
-            <div class="mt-2 flex items-center gap-3">
+            <div class="flex items-center gap-3 pt-2">
               <button 
                 type="button"
                 (click)="onClose()"
@@ -73,9 +54,9 @@ import { MasterProduct } from '../../../../services/catalog.service';
               </button>
               <button 
                 type="submit"
-                [disabled]="!sellingPrice || stockQuantity < 0"
+                [disabled]="productForm.invalid"
                 class="flex-[2] rounded-[16px] bg-zadna-primary py-3 text-[0.8rem] font-black text-white shadow-lg shadow-zadna-primary/25 transition-all hover:bg-zadna-primary-dark active:scale-[0.98] disabled:opacity-50 disabled:pointer-events-none">
-                {{ currentLang === 'ar' ? 'إضافة للمتجر الآن' : 'Add to store now' }}
+                {{ 'PRODUCTS.ADD_TO_STORE_NOW' | translate }}
               </button>
             </div>
           </form>
@@ -84,7 +65,7 @@ import { MasterProduct } from '../../../../services/catalog.service';
         <!-- Footer Hint -->
         <div class="bg-slate-50/50 p-4 text-center">
           <p class="text-[0.65rem] font-medium text-slate-400">
-            {{ currentLang === 'ar' ? 'بإضافتك للمنتج، فإنك توافق على سياسات التسعير الخاصة بالمنصة.' : 'By adding this product, you agree to the platform pricing policies.' }}
+            {{ 'PRODUCTS.AGREE_POLICIES' | translate }}
           </p>
         </div>
       </div>
@@ -98,10 +79,17 @@ export class AddProductModalComponent {
   @Input() product: MasterProduct | null = null;
   @Input() currentLang: string = 'ar';
   @Output() close = new EventEmitter<void>();
-  @Output() confirm = new EventEmitter<{ sellingPrice: number, stockQuantity: number }>();
+  @Output() confirm = new EventEmitter<{ sellingPrice: number, stockQuantity: number, discountPercentage: number }>();
 
-  sellingPrice: number | null = null;
-  stockQuantity: number = 0;
+  productForm: FormGroup;
+
+  constructor(private fb: FormBuilder) {
+    this.productForm = this.fb.group({
+      sellingPrice: [null, [Validators.required, Validators.min(0.01)]],
+      stockQty: [0, [Validators.required, Validators.min(0)]],
+      discountPercentage: [0, [Validators.min(0), Validators.max(100)]]
+    });
+  }
 
   onClose() {
     this.close.emit();
@@ -109,10 +97,12 @@ export class AddProductModalComponent {
 
   onSubmit(event: Event) {
     event.preventDefault();
-    if (this.sellingPrice !== null) {
+    if (this.productForm.valid) {
+      const formValue = this.productForm.value;
       this.confirm.emit({ 
-        sellingPrice: this.sellingPrice, 
-        stockQuantity: this.stockQuantity 
+        sellingPrice: formValue.sellingPrice, 
+        stockQuantity: formValue.stockQty,
+        discountPercentage: formValue.discountPercentage
       });
     }
   }

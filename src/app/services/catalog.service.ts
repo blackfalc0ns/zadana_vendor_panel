@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { catchError } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
 
 export interface MasterProduct {
@@ -33,6 +33,7 @@ export interface VendorProduct {
   unitNameAr?: string;
   unitNameEn?: string;
   sellingPrice: number;
+  discountPercentage?: number;
   stockQty: number;
   isActive: boolean;
 }
@@ -51,6 +52,23 @@ export interface Category {
   nameAr: string;
   nameEn: string;
   imageUrl?: string;
+  parentCategoryId?: string | null;
+  displayOrder?: number;
+  level?: number;
+}
+
+export interface BrandOption {
+  id: string;
+  nameAr: string;
+  nameEn: string;
+  logoUrl?: string;
+  isActive?: boolean;
+}
+
+export interface UnitOption {
+  id: string;
+  nameAr: string;
+  nameEn: string;
 }
 
 @Injectable({
@@ -95,18 +113,64 @@ export class CatalogService {
     );
   }
 
+  getVendorProductById(id: string): Observable<VendorProduct> {
+    return this.http.get<VendorProduct>(`${this.baseUrl}/products/${id}`).pipe(
+      catchError(() => {
+        const mock = this.getMockVendorProducts().items.find((product) => product.id === id);
+        if (mock) {
+          return of(mock);
+        }
+
+        throw new Error('Product not found');
+      })
+    );
+  }
+
   getCategories(): Observable<Category[]> {
     return this.http.get<Category[]>(`${this.baseUrl}/catalog/categories`).pipe(
-      catchError(() => of([
-        { id: 'cat1', nameAr: 'خضروات وفواكه', nameEn: 'Fruits & Vegetables' },
-        { id: 'cat2', nameAr: 'زيوت وطعام', nameEn: 'Oils & Food' },
-        { id: 'cat3', nameAr: 'منظفات', nameEn: 'Cleaning' }
-      ]))
+      catchError(() =>
+        of([
+          { id: 'cat-root-1', nameAr: 'الأغذية', nameEn: 'Food', parentCategoryId: null, displayOrder: 1, level: 1 },
+          { id: 'cat-root-2', nameAr: 'المشروبات', nameEn: 'Beverages', parentCategoryId: null, displayOrder: 2, level: 1 },
+          { id: 'cat1', nameAr: 'خضروات وفواكه', nameEn: 'Fruits & Vegetables', parentCategoryId: 'cat-root-1', displayOrder: 1, level: 2 },
+          { id: 'cat2', nameAr: 'زيوت وأطعمة', nameEn: 'Oils & Food', parentCategoryId: 'cat-root-1', displayOrder: 2, level: 2 },
+          { id: 'cat3', nameAr: 'منظفات', nameEn: 'Cleaning', parentCategoryId: null, displayOrder: 3, level: 1 }
+        ])
+      )
     );
+  }
+
+  getUnits(): Observable<UnitOption[]> {
+    return of([
+      { id: 'u1', nameAr: 'كيلوجرام', nameEn: 'KG' },
+      { id: 'u2', nameAr: 'قطعة', nameEn: 'Piece' },
+      { id: 'u3', nameAr: 'زجاجة', nameEn: 'Bottle' },
+      { id: 'u4', nameAr: 'كيس', nameEn: 'Bag' },
+      { id: 'u5', nameAr: 'كرتونة', nameEn: 'Carton' }
+    ]);
+  }
+
+  getBrands(): Observable<BrandOption[]> {
+    return of([
+      { id: 'brand1', nameAr: 'مزارع زادنا', nameEn: 'Zadana Farms', isActive: true },
+      { id: 'brand2', nameAr: 'عافية', nameEn: 'Afia', isActive: true },
+      { id: 'brand3', nameAr: 'صحارى', nameEn: 'Sahara', isActive: true },
+      { id: 'brand4', nameAr: 'أبو سنبلتين', nameEn: 'Abu Sumbulatein', isActive: true }
+    ]);
+  }
+
+  submitProductRequest(data: any): Observable<void> {
+    // In production: this.http.post<void>(`${this.baseUrl}/catalog/product-requests`, data)
+    console.log('Submitting Product Request:', data);
+    return of(void 0);
   }
 
   addToStore(request: any): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/products`, request);
+  }
+
+  updateVendorProduct(id: string, data: any): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/products/${id}`, data);
   }
 
   private getMockVendorProducts(search?: string): PaginatedList<VendorProduct> {
@@ -120,10 +184,11 @@ export class CatalogService {
         categoryNameEn: 'Fruits & Vegetables',
         brandNameAr: 'مزارع زادنا',
         brandNameEn: 'Zadana Farms',
-        unitNameAr: 'كيلو جرام',
+        unitNameAr: 'كيلوجرام',
         unitNameEn: 'KG',
         imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200&auto=format&fit=crop',
         sellingPrice: 12.5,
+        discountPercentage: 10,
         stockQty: 150,
         isActive: true
       },
@@ -132,7 +197,7 @@ export class CatalogService {
         masterProductId: '3',
         nameAr: 'زيت دوار الشمس عافية (1.5 لتر)',
         nameEn: 'Afia Sunflower Oil (1.5L)',
-        categoryNameAr: 'زيوت وطعام',
+        categoryNameAr: 'زيوت وأطعمة',
         categoryNameEn: 'Oils & Food',
         brandNameAr: 'عافية',
         brandNameEn: 'Afia',
@@ -146,11 +211,11 @@ export class CatalogService {
     ];
 
     if (search) {
-      items = items.filter(i => i.nameAr.includes(search) || i.nameEn.toLowerCase().includes(search.toLowerCase()));
+      items = items.filter((item) => item.nameAr.includes(search) || item.nameEn.toLowerCase().includes(search.toLowerCase()));
     }
 
     return {
-      items: items,
+      items,
       pageNumber: 1,
       totalPages: 1,
       totalCount: items.length,
@@ -160,7 +225,7 @@ export class CatalogService {
   }
 
   private getMockPaginatedProducts(search?: string, catId?: string): PaginatedList<MasterProduct> {
-    let items = [
+    let items: MasterProduct[] = [
       {
         id: '1',
         nameAr: 'طماطم طازجة درجة أولى',
@@ -169,7 +234,7 @@ export class CatalogService {
         categoryNameEn: 'Fruits & Vegetables',
         brandNameAr: 'مزارع زادنا',
         brandNameEn: 'Zadana Farms',
-        unitNameAr: 'كيلو جرام',
+        unitNameAr: 'كيلوجرام',
         unitNameEn: 'KG',
         imageUrl: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=200&auto=format&fit=crop',
         categoryId: 'cat1'
@@ -191,7 +256,7 @@ export class CatalogService {
         id: '3',
         nameAr: 'زيت دوار الشمس عافية (1.5 لتر)',
         nameEn: 'Afia Sunflower Oil (1.5L)',
-        categoryNameAr: 'زيوت وطعام',
+        categoryNameAr: 'زيوت وأطعمة',
         categoryNameEn: 'Oils & Food',
         brandNameAr: 'عافية',
         brandNameEn: 'Afia',
@@ -204,9 +269,9 @@ export class CatalogService {
         id: '4',
         nameAr: 'أرز بسمتي هندي (5 كجم)',
         nameEn: 'Indian Basmati Rice (5KG)',
-        categoryNameAr: 'زيوت وطعام',
+        categoryNameAr: 'زيوت وأطعمة',
         categoryNameEn: 'Oils & Food',
-        brandNameAr: 'أبوسنبلتين',
+        brandNameAr: 'أبو سنبلتين',
         brandNameEn: 'Abu Sumbulatein',
         unitNameAr: 'شيكارة',
         unitNameEn: 'Sack',
@@ -216,14 +281,15 @@ export class CatalogService {
     ];
 
     if (search) {
-      items = items.filter(i => i.nameAr.includes(search) || i.nameEn.toLowerCase().includes(search.toLowerCase()));
+      items = items.filter((item) => item.nameAr.includes(search) || item.nameEn.toLowerCase().includes(search.toLowerCase()));
     }
+
     if (catId) {
-      items = items.filter(i => i.categoryId === catId);
+      items = items.filter((item) => item.categoryId === catId);
     }
 
     return {
-      items: items,
+      items,
       pageNumber: 1,
       totalPages: 1,
       totalCount: items.length,

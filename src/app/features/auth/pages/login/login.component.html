@@ -6,12 +6,12 @@
             <button (click)="switchLanguage('en')"
                 [ngClass]="{'bg-white text-zadna-primaryDark shadow-md scale-105': !isRTL, 'text-gray-500 hover:text-zadna-primary hover:bg-white/40': isRTL}"
                 class="px-5 py-2 rounded-full text-xs font-black tracking-widest uppercase transition-all duration-300">
-                EN
+                {{ 'COMMON.ENGLISH' | translate }}
             </button>
             <button (click)="switchLanguage('ar')"
                 [ngClass]="{'bg-white text-zadna-primaryDark shadow-md scale-105': isRTL, 'text-gray-500 hover:text-zadna-primary hover:bg-white/40': !isRTL}"
                 class="px-5 py-2 rounded-full text-xs font-black tracking-widest uppercase transition-all duration-300">
-                عربي
+                {{ 'COMMON.ARABIC' | translate }}
             </button>
         </div>
     </div>
@@ -108,7 +108,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                             </svg>
                         </div>
-                        <input id="email" formControlName="email" type="text" autocomplete="email" placeholder="name@company.com"
+                        <input id="email" formControlName="email" type="text" autocomplete="email" [placeholder]="'LOGIN.EMAIL_PLACEHOLDER' | translate"
                             [ngClass]="[
                                 isRTL ? 'pr-11 pl-4' : 'pl-11 pr-4',
                                 (loginForm.get('email')?.touched || submitted) && loginForm.get('email')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100'
@@ -139,7 +139,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
                             </svg>
                         </div>
-                        <input id="password" formControlName="password" [type]="showPassword ? 'text' : 'password'" autocomplete="current-password" placeholder="••••••••"
+                        <input id="password" formControlName="password" [type]="showPassword ? 'text' : 'password'" autocomplete="current-password" [placeholder]="'LOGIN.PASSWORD_PLACEHOLDER' | translate"
                             [ngClass]="[
                                 isRTL ? 'pr-11 pl-11' : 'pl-11 pr-11',
                                 (loginForm.get('password')?.touched || submitted) && loginForm.get('password')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100'

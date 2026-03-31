@@ -24,11 +24,11 @@
           <div class="mt-3 space-y-3">
             <div class="rounded-xl bg-white/10 p-3">
               <span class="text-xs text-white/70">{{ 'DASHBOARD.PENDING_ORDERS' | translate }}</span>
-              <strong class="mt-0.5 block text-2xl font-black">24</strong>
+              <strong class="mt-0.5 block text-2xl font-black">{{ metrics[2].value }}</strong>
             </div>
             <div class="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
               <span class="text-xs text-white/70">{{ 'DASHBOARD.ACTIVE_OFFERS' | translate }}</span>
-              <strong class="text-base font-black">18</strong>
+              <strong class="text-base font-black">{{ metrics[1].value }}</strong>
             </div>
           </div>
         </div>
@@ -63,9 +63,14 @@
       <article class="group rounded-[20px] border border-slate-200/70 bg-white/90 p-4 shadow-[0_16px_34px_rgba(15,23,42,0.05)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(18,124,140,0.12)]">
         <div class="flex items-start justify-between gap-2">
           <span class="text-[0.8rem] font-bold text-slate-500">{{ metric.labelKey | translate }}</span>
-          <span class="rounded-[12px] bg-zadna-primary/10 px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-zadna-primary">Live</span>
+          <span class="rounded-[12px] bg-zadna-primary/10 px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-zadna-primary">{{ 'COMMON.LIVE' | translate }}</span>
         </div>
-        <strong class="mt-3 block text-2xl font-black tracking-tight text-slate-900">{{ metric.value }}</strong>
+        <div class="mt-3 flex items-baseline gap-1">
+          @if (metric.isCurrency) {
+            <span class="text-[0.7rem] font-black text-slate-400">{{ 'COMMON.EGP' | translate }}</span>
+          }
+          <strong class="block text-2xl font-black tracking-tight text-slate-900">{{ metric.value }}</strong>
+        </div>
         <p class="mt-1.5 text-[0.72rem] leading-5 text-slate-500">{{ metric.noteKey | translate }}</p>
       </article>
     }
@@ -78,7 +83,7 @@
           <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70">{{ 'COMMON.TODAY' | translate }}</p>
           <h2 class="mt-0.5 text-[0.95rem] font-black text-slate-900">{{ 'DASHBOARD.QUICK_EXECUTION' | translate }}</h2>
         </div>
-        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[0.68rem] font-extrabold text-slate-500">{{ checklist.length }} items</span>
+        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[0.68rem] font-extrabold text-slate-500">{{ checklist.length }} {{ 'COMMON.ITEMS' | translate }}</span>
       </div>
 
       <div class="grid gap-3">
@@ -104,7 +109,7 @@
           <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70">{{ 'COMMON.OPEN' | translate }}</p>
           <h2 class="mt-0.5 text-[0.95rem] font-black text-slate-900">{{ 'DASHBOARD.TODAYS_PULSE' | translate }}</h2>
         </div>
-        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-emerald-600">Live</span>
+        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-emerald-600">{{ 'COMMON.LIVE' | translate }}</span>
       </div>
 
       <div class="grid gap-3">
