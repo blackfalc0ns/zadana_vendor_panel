@@ -1,0 +1,18 @@
+:host {
+    display: block;
+    min-height: 100vh;
+}
+
+/* Custom animation overrides or specific tweaks */
+.animate-pulse-slow {
+    animation: pulse-slow 8s ease-in-out infinite;
+}
+
+@keyframes pulse-slow {
+    0%, 100% { opacity: 0.05; transform: scale(1); }
+    50% { opacity: 0.15; transform: scale(1.05); }
+}
+
+input[type="checkbox"] {
+    @apply cursor-pointer;
+}

@@ -1,0 +1,17 @@
+:host {
+    display: inline-block;
+}
+
+button {
+    user-select: none;
+    cursor: pointer;
+    
+    &:disabled {
+        cursor: not-allowed;
+    }
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-101%); }
+    100% { transform: translateX(101%); }
+}

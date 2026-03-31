@@ -1,0 +1,84 @@
+<header class="sticky top-0 z-40 mx-4 mt-4 mb-2 flex flex-col gap-4 rounded-[20px] border border-slate-200/70 bg-white/80 px-4 py-3 shadow-[0_8px_30px_rgba(15,23,42,0.04)] backdrop-blur-xl md:flex-row md:items-center md:justify-between md:px-5 md:py-3.5 md:gap-0">
+  <div class="flex min-w-0 flex-1 items-center gap-3">
+    <button
+      type="button"
+      (click)="onToggleMobileMenu()"
+      class="flex h-10 w-10 items-center justify-center rounded-[14px] border border-slate-200/80 bg-white/90 text-slate-600 transition hover:-translate-y-0.5 hover:border-zadna-primary/20 hover:text-zadna-primary hover:shadow-sm lg:hidden"
+      [attr.aria-label]="currentLang === 'ar' ? 'فتح القائمة' : 'Open menu'">
+      <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path *ngIf="!isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        <path *ngIf="isMobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+      </svg>
+    </button>
+
+    <div class="flex items-center gap-2.5 min-w-0">
+      <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[12px] bg-gradient-to-br from-zadna-primary to-zadna-primaryLight text-[0.76rem] font-extrabold text-white shadow-sm">
+        {{ initials }}
+      </div>
+      <div class="min-w-0">
+        <div class="flex items-center gap-2">
+            <h1 class="truncate text-[1rem] font-extrabold text-slate-900">{{ userName }}</h1>
+            <span class="hidden md:inline-flex items-center rounded-full bg-teal-50 px-2 py-0.5 text-[0.65rem] font-bold text-teal-600 ring-1 ring-inset ring-teal-500/10">
+              {{ currentLang === 'ar' ? 'حساب نشط' : 'Active Account' }}
+            </span>
+        </div>
+        <p class="text-[0.7rem] leading-tight text-slate-500">
+          {{ currentLang === 'ar' ? 'لوحة تحكم التاجر' : 'Vendor Dashboard' }}
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="flex items-center justify-between gap-2.5 sm:justify-end">
+
+
+    <div class="relative group hidden sm:flex items-center w-[200px] transition-all duration-300 focus-within:w-[280px] xl:w-[240px] xl:focus-within:w-[320px]">
+      <div class="absolute inset-y-0 start-3.5 flex items-center pointer-events-none">
+        <svg class="h-4 w-4 text-slate-400 transition-colors group-focus-within:text-zadna-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 1 0 5.2 5.2a7.5 7.5 0 0 0 10.6 10.6Z"></path>
+        </svg>
+      </div>
+      <input
+        type="text"
+        [placeholder]="currentLang === 'ar' ? 'بحث...' : 'Search...'"
+        class="w-full h-10 ps-9 pe-14 bg-white/50 border border-slate-200/80 rounded-[14px] text-[0.8rem] font-bold text-slate-900 outline-none transition-all placeholder:text-slate-400 focus:bg-white focus:border-zadna-primary/30 focus:shadow-[0_8px_20px_rgba(18,124,140,0.06)]">
+      <div class="absolute inset-y-0 end-1.5 flex items-center pointer-events-none transition-opacity group-focus-within:opacity-0">
+         <span class="rounded bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[0.65rem] font-bold text-slate-500">Ctrl K</span>
+      </div>
+    </div>
+
+    <!-- Mobile Search Icon -->
+    <button type="button" class="flex sm:hidden h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-slate-200/80 bg-white/90 text-slate-600 transition hover:-translate-y-0.5 hover:border-zadna-primary/20 hover:text-zadna-primary hover:shadow-[0_14px_26px_rgba(15,23,42,0.08)]">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 1 0 5.2 5.2a7.5 7.5 0 0 0 10.6 10.6Z"></path>
+      </svg>
+    </button>
+
+    <button type="button" class="relative flex h-10 w-10 items-center justify-center rounded-[16px] border border-slate-200/80 bg-white/90 text-slate-900 transition hover:-translate-y-0.5 hover:border-zadna-primary/20 hover:text-zadna-primary hover:shadow-[0_14px_26px_rgba(15,23,42,0.08)]">
+      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"></path>
+      </svg>
+      <span class="absolute end-2.5 top-2.5 h-2 w-2 rounded-full border-2 border-white bg-rose-500"></span>
+    </button>
+
+    <button
+      type="button"
+      (click)="onLanguageSwitch()"
+      class="flex h-10 flex-1 items-center justify-center gap-2 rounded-[16px] border border-zadna-primary/10 bg-gradient-to-b from-cyan-50 to-white px-4 text-[0.82rem] font-bold text-zadna-primaryDark transition hover:-translate-y-0.5 hover:border-zadna-primary/25 hover:shadow-[0_14px_26px_rgba(18,124,140,0.14)] sm:h-10 sm:flex-initial">
+      <svg class="h-[15px] w-[15px]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"></path>
+      </svg>
+      <span>{{ currentLang === 'ar' ? 'English' : 'العربية' }}</span>
+    </button>
+
+    <button
+      type="button"
+      (click)="onLogout()"
+      class="flex h-11 w-11 items-center justify-center rounded-[18px] border border-rose-200 bg-rose-50/90 text-rose-600 transition hover:-translate-y-0.5 hover:border-rose-300 hover:text-rose-700 hover:shadow-[0_14px_26px_rgba(15,23,42,0.08)]"
+      [attr.aria-label]="currentLang === 'ar' ? 'تسجيل الخروج' : 'Logout'">
+      <svg class="h-[1.1rem] w-[1.1rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+    </button>
+  </div>
+</header>

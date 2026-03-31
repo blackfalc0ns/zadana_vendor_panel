@@ -1,0 +1,163 @@
+<div class="min-h-[100dvh] relative font-sans flex flex-col lg:flex-row bg-zadna-bgLight overflow-hidden selection:bg-zadna-primary selection:text-white" [dir]="isRTL ? 'rtl' : 'ltr'">
+
+    <!-- ================= TOP NAVIGATION (Language Switcher) ================= -->
+    <div class="absolute top-6 sm:top-8 rtl:left-6 rtl:right-auto ltr:right-6 ltr:left-auto xl:rtl:left-12 xl:ltr:right-12 z-50 flex items-center animate-puzzle-down stagger-1">
+        <div class="flex items-center bg-white/70 backdrop-blur-xl border border-white/80 p-1.5 rounded-full shadow-sm dir-ltr" style="direction: ltr;">
+            <button (click)="switchLanguage('en')"
+                [ngClass]="{'bg-white text-zadna-primaryDark shadow-md scale-105': !isRTL, 'text-gray-500 hover:text-zadna-primary hover:bg-white/40': isRTL}"
+                class="px-5 py-2 rounded-full text-xs font-black tracking-widest uppercase transition-all duration-300">
+                EN
+            </button>
+            <button (click)="switchLanguage('ar')"
+                [ngClass]="{'bg-white text-zadna-primaryDark shadow-md scale-105': isRTL, 'text-gray-500 hover:text-zadna-primary hover:bg-white/40': !isRTL}"
+                class="px-5 py-2 rounded-full text-xs font-black tracking-widest uppercase transition-all duration-300">
+                عربي
+            </button>
+        </div>
+    </div>
+
+    <!-- ================= RIGHT PANEL: EPIC MARKETPLACE VISION (Image + Text) ================= -->
+    <div class="hidden lg:flex w-full lg:w-1/2 relative flex-col justify-center items-center py-12 px-8 xl:px-16 overflow-hidden animate-puzzle-left stagger-2">
+        <div class="absolute inset-0 z-0">
+            <img alt="Marketplace scene" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEW1c60Z9X6PmVaxPRNpxHur_LO28-RO0ykfGZxmL_U2d1obOjpzSaSELpZN4atHiahI64IQAkXKH4A-d3juNylCvj1adw5iVpTUU6iyDXcfePY-ugqzrgDCEto5JV8-2joyg0-HuGx2arCdm9s9Qx0-1Cvle1qFT4CjlFam86vwe3kIu5g7Q1vOdyrDNY0kEfJwxibrO6mnhaFP7d2EmRGFaXMqiHq3x6-MPaRphiy-Q2ZBix3vgcz9bYP9TFtYoKW0Z9C-WOFg" />
+            <div class="absolute inset-0 bg-gradient-to-b from-black/0 via-black/10 to-black/60"></div>
+        </div>
+
+        <div class="relative z-10 w-full max-w-lg mx-auto text-start">
+            <div class="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-black/30 border border-white/20 backdrop-blur-[2px] shadow-lg mb-10 transform hover:scale-105 transition-transform cursor-default animate-puzzle-up stagger-3">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-zadna-accent opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-zadna-accent"></span>
+                </span>
+                <span class="text-xs font-black tracking-widest text-white uppercase drop-shadow-md">
+                    {{ 'REGISTER.PORTAL_TITLE' | translate }}
+                </span>
+            </div>
+
+            <h1 class="text-4xl xl:text-[3rem] font-black text-white leading-[1.2] tracking-tight mb-6 animate-puzzle-up stagger-4 drop-shadow-xl">
+                <div class="mb-2 md:mb-3">{{ 'REGISTER.HERO_TITLE' | translate }}</div>
+                <span class="relative inline-block mt-2 md:mt-3">
+                    <span class="relative z-10 text-white drop-shadow-md">
+                        {{ 'REGISTER.HERO_SUBTITLE' | translate }}
+                    </span>
+                    <svg class="absolute w-full h-3 md:h-4 -bottom-1 rtl:-right-2 ltr:-left-2 z-0 text-zadna-primary" viewBox="0 0 100 20" preserveAspectRatio="none">
+                        <path d="M0 10 Q 50 20 100 10" stroke="currentColor" stroke-width="8" fill="none" stroke-linecap="round" />
+                    </svg>
+                </span>
+            </h1>
+
+            <p class="text-lg text-white/90 font-bold leading-relaxed max-w-xl mb-12 tracking-wide animate-puzzle-up stagger-5 drop-shadow-xl">
+                {{ 'REGISTER.HERO_DESC' | translate }}
+            </p>
+        </div>
+    </div>
+
+    <!-- ================= LEFT PANEL: THE FORM CONDUIT (Visually on Left in RTL) ================= -->
+    <div class="w-full lg:w-1/2 min-h-[100dvh] shrink-0 relative flex justify-center items-center py-10 px-6 sm:px-12 animate-puzzle-right stagger-2">
+        <div class="absolute -top-32 -right-32 w-96 h-96 bg-zadna-accent/5 rounded-full blur-3xl opacity-60"></div>
+        <div class="absolute -bottom-32 -left-32 w-96 h-96 bg-zadna-primary/5 rounded-full blur-3xl opacity-60"></div>
+
+        <div class="w-full max-w-[500px] mt-8 bg-white/90 backdrop-blur-2xl border border-white rounded-[1.5rem] p-6 sm:p-8 shadow-[0_30px_60px_-15px_rgba(18,124,140,0.1)] relative z-10">
+            <div class="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-zadna-primary via-zadna-accent to-zadna-primary"></div>
+
+            <div class="flex flex-col items-center mb-6 text-center animate-puzzle-scale-rotate stagger-4">
+                <div class="w-full h-12 relative flex items-center justify-center group cursor-default">
+                    <div class="absolute inset-0 bg-zadna-primary/10 rounded-full blur-2xl scale-75 group-hover:scale-110 transition-transform duration-700"></div>
+                    <img src="assets/i18n/images/logo/شفاف (1).png" alt="Zadna Logo" class="w-full h-full object-contain filter drop-shadow-[0_4px_8px_rgba(18,124,140,0.15)] z-10 transition-transform duration-500 hover:scale-110">
+                </div>
+                <h2 class="text-2xl font-black text-gray-900 tracking-tight mt-4 animate-puzzle-up stagger-5">{{ 'REGISTER.CARD_TITLE' | translate }}</h2>
+            </div>
+
+            <div *ngIf="errorMessage" class="rounded-2xl bg-red-50/40 backdrop-blur-md border border-red-100/50 p-4 mb-6 flex items-center gap-4 shadow-sm animate-puzzle-up">
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                </div>
+                <p class="text-[12px] font-bold text-red-900 leading-relaxed">{{ errorMessage }}</p>
+            </div>
+
+            <form class="space-y-4" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+                <!-- Name Row -->
+                <div class="flex gap-4 animate-puzzle-up stagger-5">
+                    <div class="flex-1 space-y-1.5">
+                        <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'REGISTER.FIRST_NAME' | translate }}</label>
+                        <input formControlName="firstName" type="text" [ngClass]="[(registerForm.get('firstName')?.touched || submitted) && registerForm.get('firstName')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100']"
+                            class="block w-full py-2.5 px-4 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl placeholder-gray-300 focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-sm shadow-sm hover:shadow-md">
+                    </div>
+                    <div class="flex-1 space-y-1.5">
+                        <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'REGISTER.LAST_NAME' | translate }}</label>
+                        <input formControlName="lastName" type="text" [ngClass]="[(registerForm.get('lastName')?.touched || submitted) && registerForm.get('lastName')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100']"
+                            class="block w-full py-2.5 px-4 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl placeholder-gray-300 focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-sm shadow-sm hover:shadow-md">
+                    </div>
+                </div>
+
+                <!-- Store Name -->
+                <div class="space-y-1.5 animate-puzzle-up stagger-6">
+                    <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'REGISTER.STORE_NAME' | translate }}</label>
+                    <input formControlName="storeName" type="text" [ngClass]="[(registerForm.get('storeName')?.touched || submitted) && registerForm.get('storeName')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100']"
+                        class="block w-full py-2.5 px-4 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl placeholder-gray-300 focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-sm shadow-sm hover:shadow-md">
+                </div>
+
+                <!-- Email -->
+                <div class="space-y-1.5 animate-puzzle-up stagger-6">
+                    <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'LOGIN.EMAIL' | translate }}</label>
+                    <input formControlName="email" type="email" [ngClass]="[(registerForm.get('email')?.touched || submitted) && registerForm.get('email')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100']"
+                        class="block w-full py-2.5 px-4 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl placeholder-gray-300 focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-sm shadow-sm hover:shadow-md">
+                </div>
+
+                <!-- Password -->
+                <div class="space-y-1.5 animate-puzzle-up stagger-7">
+                    <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'LOGIN.PASSWORD' | translate }}</label>
+                    <div class="relative group">
+                        <input formControlName="password" [type]="showPassword ? 'text' : 'password'" [ngClass]="[(registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100']"
+                            class="block w-full py-2.5 px-4 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
+                    </div>
+                </div>
+
+                <!-- Confirm Password -->
+                <div class="space-y-1.5 animate-puzzle-up stagger-7">
+                    <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'REGISTER.CONFIRM_PASSWORD' | translate }}</label>
+                    <div class="relative group">
+                        <input formControlName="confirmPassword" [type]="showPassword ? 'text' : 'password'" [ngClass]="[(registerForm.get('confirmPassword')?.touched || submitted) && registerForm.get('confirmPassword')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100']"
+                            class="block w-full py-2.5 px-4 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
+                    </div>
+                </div>
+
+                <div *ngIf="submitted && registerForm.errors?.['mismatch']" class="px-1 animate-puzzle-up">
+                    <span class="text-[10px] font-bold text-red-500">{{ 'REGISTER.ERR_MISMATCH' | translate }}</span>
+                </div>
+
+                <!-- Submit -->
+                <div class="pt-3 animate-puzzle-up stagger-8">
+                    <button type="submit" [disabled]="isLoading" class="group relative w-full flex justify-center items-center py-3.5 px-4 overflow-hidden rounded-xl shadow-[0_8px_20px_rgba(18,124,140,0.3)] font-black text-white bg-zadna-primary focus:outline-none tracking-widest uppercase transition-transform active:scale-[0.98]">
+                        <div class="absolute inset-0 bg-gradient-to-r from-zadna-primaryDark via-zadna-primary to-zadna-primaryDark opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        <span *ngIf="isLoading" class="mr-3 relative z-10">...</span>
+                        <span *ngIf="!isLoading" class="relative z-10">{{ 'REGISTER.BTN_SUBMIT' | translate }}</span>
+                    </button>
+
+                    <!-- OR Divider -->
+                    <div class="mt-4 mb-3 flex items-center justify-between">
+                        <span class="w-1/5 border-b border-gray-200/60 lg:w-1/4"></span>
+                        <span class="text-[10px] text-center text-gray-400 uppercase tracking-widest font-black">{{ 'REGISTER.OR' | translate }}</span>
+                        <span class="w-1/5 border-b border-gray-200/60 lg:w-1/4"></span>
+                    </div>
+
+                    <!-- Google Reg -->
+                    <button type="button" class="group flex items-center justify-center w-full py-3.5 px-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 bg-white hover:bg-gray-50/50 transition-all font-black text-gray-700 shadow-sm hover:shadow-md active:scale-[0.98]">
+                        <svg class="w-5 h-5 transition-transform group-hover:scale-110" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
+                        <span [ngClass]="isRTL ? 'mr-3' : 'ml-3'" class="tracking-widest uppercase text-xs">{{ 'REGISTER.BTN_REGISTER_GOOGLE' | translate }}</span>
+                    </button>
+                </div>
+            </form>
+
+            <div class="mt-6 flex flex-col items-center justify-center gap-2 text-xs font-bold text-gray-500">
+                <div class="flex flex-wrap items-center justify-center gap-1.5" [dir]="isRTL ? 'rtl' : 'ltr'">
+                    <span>{{ 'REGISTER.ALREADY_HAVE_ACCOUNT' | translate }}</span>
+                    <a routerLink="/login" class="text-zadna-primary hover:text-zadna-primaryDark focus:outline-none transition hover:underline underline-offset-4 decoration-2">
+                        {{ 'REGISTER.SIGN_IN' | translate }}
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>

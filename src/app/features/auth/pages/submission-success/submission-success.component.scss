@@ -1,0 +1,54 @@
+@keyframes draw {
+  0% { stroke-dasharray: 0 100; stroke-dashoffset: 0; }
+  100% { stroke-dasharray: 100 100; stroke-dashoffset: 0; }
+}
+
+.animate-draw {
+  animation: draw 0.8s ease-out 0.4s both;
+  stroke-dasharray: 100;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+:host {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideInUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.fade-in {
+  animation-name: fadeIn;
+}
+
+.slide-in-from-bottom-5 {
+  animation-name: slideInUp;
+}
+
+.duration-700 {
+  animation-duration: 0.7s;
+}
+
+/* Stagger animations for details */
+.stagger-1 { animation-delay: 0.1s; animation: slideInUp 0.7s both 0.1s; }
+.stagger-2 { animation-delay: 0.2s; animation: slideInUp 0.7s both 0.2s; }
+.stagger-3 { animation-delay: 0.3s; animation: slideInUp 0.7s both 0.3s; }
+.stagger-4 { animation-delay: 0.4s; animation: slideInUp 0.7s both 0.4s; }

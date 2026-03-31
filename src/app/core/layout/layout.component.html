@@ -1,0 +1,56 @@
+<div
+  class="relative flex min-h-screen bg-slate-50 text-slate-900"
+  [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+
+  <div
+    (click)="isMobileMenuOpen = false"
+    class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
+    [class.opacity-100]="isMobileMenuOpen"
+    [class.pointer-events-auto]="isMobileMenuOpen"
+    [class.opacity-0]="!isMobileMenuOpen"
+    [class.pointer-events-none]="!isMobileMenuOpen">
+  </div>
+
+  <app-vendor-sidebar
+    [currentLang]="currentLang"
+    [userName]="userName"
+    [userRole]="userRole"
+    [initials]="initials"
+    class="fixed inset-y-0 start-0 z-50 h-screen w-[280px] max-w-[calc(100vw-1.5rem)] transform transition-transform duration-300 lg:sticky lg:top-4 lg:h-[calc(100vh-2rem)] lg:ms-4 lg:me-0 lg:max-w-none lg:translate-x-0"
+    [ngClass]="{
+      'translate-x-0': isMobileMenuOpen,
+      '-translate-x-full': !isMobileMenuOpen && currentLang === 'en',
+      'translate-x-full': !isMobileMenuOpen && currentLang === 'ar'
+    }">
+  </app-vendor-sidebar>
+
+  <main class="relative z-10 flex min-w-0 flex-1 flex-col w-full transition-all duration-300">
+    <app-vendor-header
+      [currentLang]="currentLang"
+      [isMobileMenuOpen]="isMobileMenuOpen"
+      [userName]="userName"
+      [userRole]="userRole"
+      [initials]="initials"
+      (languageSwitch)="switchLanguage()"
+      (toggleMobileMenu)="toggleMobileMenu()"
+      (logoutAction)="logout()">
+    </app-vendor-header>
+
+    <section class="w-full px-4 pb-20 sm:px-5 md:px-6">
+      <router-outlet></router-outlet>
+    </section>
+
+    <button
+      type="button"
+      title="Help & Support"
+      class="fixed bottom-4 end-4 z-40 inline-flex h-14 w-14 items-center justify-center rounded-full border border-zadna-primary/15 bg-white/95 text-zadna-primary shadow-[0_22px_45px_rgba(18,124,140,0.18)] transition duration-200 hover:-translate-y-1 hover:text-zadna-primaryDark hover:shadow-[0_26px_50px_rgba(18,124,140,0.24)] md:bottom-8 md:end-8 md:h-16 md:w-16">
+      <span class="absolute inset-[0.45rem] rounded-full border border-zadna-primary/10"></span>
+      <svg class="relative z-10 h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+      </svg>
+    </button>
+  </main>
+</div>

@@ -1,0 +1,90 @@
+<div class="min-h-screen bg-slate-50 flex items-center justify-center p-4" [dir]="isRTL ? 'rtl' : 'ltr'">
+  <div class="w-full max-w-2xl stagger-1 animate-in fade-in slide-in-from-bottom-5 duration-700">
+    
+    <!-- Success Icon Container -->
+    <div class="flex flex-col items-center text-center mb-8">
+      <div class="relative mb-6">
+        <!-- Pulse Rings -->
+        <div class="absolute inset-0 rounded-full bg-emerald-500/10 animate-ping duration-[3s]"></div>
+        <div class="absolute inset-[-10px] rounded-full bg-emerald-500/5 animate-pulse duration-[2s]"></div>
+        
+        <div class="relative h-24 w-24 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-2xl shadow-emerald-500/40">
+          <svg viewBox="0 0 24 24" class="h-12 w-12" fill="none" stroke="currentColor">
+            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="3" class="animate-draw"></path>
+          </svg>
+        </div>
+      </div>
+      
+      <h1 class="text-3xl md:text-4xl font-black text-slate-900 mb-4 tracking-tight">
+        {{ 'ONBOARDING.SUCCESS_PAGE.TITLE' | translate }}
+      </h1>
+      
+      <p class="text-slate-500 font-bold leading-relaxed max-w-lg">
+        {{ 'ONBOARDING.SUCCESS_PAGE.DESCRIPTION' | translate }}
+      </p>
+    </div>
+
+    <!-- Summary Card -->
+    <app-card [variant]="'default'" padding="lg" [rounded]="'xl'" customClass="shadow-xl bg-white/80 backdrop-blur-xl border-white/50 mb-8">
+      <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
+        <h2 class="text-lg font-black text-slate-900">{{ 'ONBOARDING.SUMMARY.TITLE' | translate }}</h2>
+        <app-badge variant="warning" [dot]="true">
+          {{ 'ONBOARDING.SUMMARY.IN_REVIEW' | translate }}
+        </app-badge>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
+        <div class="space-y-1">
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ 'ONBOARDING.SUMMARY.BIZ_NAME' | translate }}</p>
+          <p class="text-base font-black text-slate-900">{{ businessName }}</p>
+        </div>
+        
+        <div class="space-y-1">
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ 'ONBOARDING.SUMMARY.APP_ID' | translate }}</p>
+          <p class="text-base font-black font-mono text-slate-900">{{ applicationId }}</p>
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ 'ONBOARDING.REG_DATE' | translate }}</p>
+          <p class="text-base font-black text-slate-900">{{ today | date:'mediumDate' }}</p>
+        </div>
+
+        <div class="space-y-1">
+          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ 'ONBOARDING.SUMMARY.STATUS' | translate }}</p>
+          <p class="text-base font-black text-emerald-600 flex items-center gap-2">
+            <span class="h-2 w-2 rounded-full bg-emerald-600 animate-pulse"></span>
+            {{ 'ONBOARDING.SUMMARY.IN_REVIEW' | translate }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Hint box -->
+      <div class="mt-8 flex gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-100/50">
+        <div class="h-5 w-5 shrink-0 text-amber-600 mt-0.5">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+            <path d="M12 8v4" stroke-width="2" stroke-linecap="round"></path>
+            <path d="M12 16h.01" stroke-width="2" stroke-linecap="round"></path>
+          </svg>
+        </div>
+        <p class="text-xs font-bold text-amber-800 leading-relaxed">
+          {{ 'ONBOARDING.SUCCESS_PAGE.PENDING_HINT' | translate }}
+        </p>
+      </div>
+    </app-card>
+
+    <!-- Footer Actions -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+      <app-button variant="primary" size="lg" customClass="!rounded-2xl px-12 order-1 sm:order-2 w-full sm:w-auto shadow-xl shadow-zadna-primary/30" (btnClick)="goDashboard()">
+        {{ 'ONBOARDING.SUCCESS_PAGE.GO_DASHBOARD' | translate }}
+        <svg viewBox="0 0 24 24" class="h-4 w-4 ms-2" [class.rotate-180]="isRTL" fill="none" stroke="currentColor">
+          <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+        </svg>
+      </app-button>
+
+      <app-button variant="outline" size="lg" customClass="!rounded-2xl px-12 order-2 sm:order-1 w-full sm:w-auto bg-white" (btnClick)="logout()">
+        {{ 'ONBOARDING.SUCCESS_PAGE.LOGOUT' | translate }}
+      </app-button>
+    </div>
+  </div>
+</div>

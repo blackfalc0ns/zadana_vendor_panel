@@ -1,0 +1,49 @@
+<div class="space-y-2 w-full" [ngClass]="customClass">
+    <label *ngIf="label" class="form-label-base">
+        {{ label | translate }} <span *ngIf="isRequired" class="text-red-500">*</span>
+    </label>
+    
+    <div class="relative group">
+        <!-- Icon Slot -->
+        <div *ngIf="hasIcon" class="absolute inset-y-0 ltr:left-4 rtl:right-4 flex items-center pointer-events-none text-slate-400 group-focus-within:text-zadna-primary transition-colors z-20">
+            <ng-content select="[icon]"></ng-content>
+        </div>
+
+        <textarea
+            *ngIf="type === 'textarea'"
+            [value]="value"
+            [disabled]="disabled"
+            [attr.dir]="dir"
+            [rows]="rows"
+            (input)="onInput($event)"
+            (blur)="onBlur()"
+            [placeholder]="placeholder | translate"
+            class="form-input-base w-full relative z-10 !h-auto py-3 resize-none"
+            [ngClass]="[inputClass, hasIcon ? (dir === 'rtl' ? '!pr-16 !pl-4' : '!pl-16 !pr-4') : '!px-4']"
+            [ngStyle]="{'text-align': dir === 'rtl' ? 'right' : 'left'}"
+            [class.ring-2]="isTouched && error"
+            [class.ring-red-500]="isTouched && error"
+        ></textarea>
+
+        <input
+            *ngIf="type !== 'textarea'"
+            [type]="type"
+            [value]="value"
+            [disabled]="disabled"
+            [attr.dir]="dir"
+            (input)="onInput($event)"
+            (blur)="onBlur()"
+            [placeholder]="placeholder | translate"
+            class="form-input-base w-full relative z-10"
+            [ngClass]="[inputClass, hasIcon ? (dir === 'rtl' ? '!pr-16 !pl-4' : '!pl-16 !pr-4') : '!px-4']"
+            [ngStyle]="{'text-align': dir === 'rtl' ? 'right' : 'left'}"
+            [class.ring-2]="isTouched && error"
+            [class.ring-red-500]="isTouched && error"
+        >
+    </div>
+
+    <!-- Error Message -->
+    <div *ngIf="isTouched && error" class="px-1 stagger-1 animate-in fade-in duration-300">
+        <p class="text-[10px] font-bold text-red-500 italic">{{ error | translate }}</p>
+    </div>
+</div>

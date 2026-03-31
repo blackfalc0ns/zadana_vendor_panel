@@ -1,0 +1,565 @@
+<div class="min-h-screen bg-slate-100 px-3 py-3 sm:px-4 lg:px-5" [dir]="isRTL ? 'rtl' : 'ltr'">
+  <div class="mx-auto max-w-[1120px] rounded-[22px] border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
+    <div class="border-b border-slate-200 px-4 py-3 sm:px-5 lg:px-6">
+      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div class="flex items-center gap-3">
+          <div class="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50">
+            <img [src]="logoPath" alt="Zadana" class="h-9 w-9 object-contain" />
+          </div>
+
+          <div>
+            <p class="text-[11px] font-black uppercase tracking-[0.28em] text-zadna-primary">ZADANA</p>
+            <h1 class="mt-1 text-lg font-black text-slate-950 sm:text-[22px]">{{ 'ONBOARDING.TITLE' | translate }}</h1>
+            <p class="mt-1 max-w-3xl text-[11px] font-bold leading-5 text-slate-500 sm:text-xs">{{ activeStepDescriptionKey | translate }}</p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2.5">
+          <app-badge variant="primary" size="sm" [dot]="true">
+            {{ reviewStatusLabel }}
+          </app-badge>
+
+          <div class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 p-1">
+            <button type="button" (click)="switchLanguage('ar')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">عربي</button>
+            <button type="button" (click)="switchLanguage('en')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="!isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">EN</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+        <div
+          *ngFor="let step of stepItems; trackBy: trackStep"
+          class="cursor-pointer transition-all duration-300"
+          (click)="setStep(step.id)"
+        >
+          <app-card 
+            [variant]="currentStep === step.id ? 'glass' : 'default'" 
+            padding="sm" 
+            [rounded]="'xl'"
+            [customClass]="'!border-2 ' + (currentStep === step.id ? '!border-zadna-primary/30' : (onboardingForm.get('step' + step.id)?.valid ? '!border-emerald-200 !bg-emerald-50/30' : '!border-slate-100'))"
+          >
+            <div class="flex items-start gap-2.5">
+              <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-black transition-all duration-300" 
+                [ngClass]="getStepIndexClasses(step.id)">
+                <ng-container *ngIf="onboardingForm.get('step' + step.id)?.valid; else stepNumber">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.8"></path>
+                  </svg>
+                </ng-container>
+                <ng-template #stepNumber>{{ step.id }}</ng-template>
+              </span>
+
+              <div class="min-w-0">
+                <span class="block text-xs font-black text-slate-900 truncate">{{ step.labelKey | translate }}</span>
+                <span class="mt-0.5 block text-[10px] font-bold leading-4 text-slate-500 truncate">{{ step.sectionKey | translate }}</span>
+              </div>
+            </div>
+          </app-card>
+        </div>
+      </div>
+    </div>
+
+    <form [formGroup]="onboardingForm" class="px-4 py-4 sm:px-5 lg:px-6">
+      <div class="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_280px]">
+        <div class="space-y-4">
+          <div class="rounded-[18px] border border-slate-200 bg-slate-50/70 p-3">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p class="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-slate-400">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-zadna-primary" fill="none" stroke="currentColor">
+                    <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    <path d="M22 12A10 10 0 1 1 12 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                  </svg>
+                  {{ 'ONBOARDING.PROGRESS_LABEL' | translate }}
+                </p>
+                <p class="mt-1 text-[15px] font-black text-slate-950">{{ activeStep.sectionKey | translate }}</p>
+              </div>
+              <div class="rounded-lg bg-white px-2.5 py-1.5 text-[11px] font-black text-slate-700 shadow-sm">
+                {{ currentStep }} / {{ totalSteps }} • {{ progressPercentage }}%
+              </div>
+            </div>
+
+            <div class="mt-4 h-2 overflow-hidden rounded-full bg-slate-200">
+              <div class="h-full rounded-full bg-zadna-primary" [style.width.%]="progressPercentage"></div>
+            </div>
+          </div>
+
+          <div *ngIf="currentStep === 1" formGroupName="step1" class="space-y-6">
+            <app-card [variant]="'default'" padding="md" [rounded]="'xl'">
+              <app-section-header 
+                [title]="'ONBOARDING.STORE_CARD_TITLE' | translate" 
+                [description]="'ONBOARDING.STEP_DESCRIPTIONS.BASIC' | translate"
+              >
+                <span title class="flex items-center gap-2">
+                   <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+                      <path d="M3 10.5 12 4l9 6.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      <path d="M5 9.5V20h14V9.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                  </div>
+                  {{ 'ONBOARDING.STORE_CARD_TITLE' | translate }}
+                </span>
+              </app-section-header>
+
+              <div class="grid gap-4 md:grid-cols-2">
+                <app-input 
+                  formControlName="businessNameAr" 
+                  [label]="'ONBOARDING.FIELDS.STORE_AR'" 
+                  [placeholder]="'ONBOARDING.FIELDS.STORE_AR'"
+                  [isRequired]="true"
+                  [error]="isInvalid('1', 'businessNameAr') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step1.businessNameAr')?.touched || false"
+                  dir="rtl"
+                ></app-input>
+
+                <app-input 
+                  formControlName="businessNameEn" 
+                  [label]="'ONBOARDING.FIELDS.STORE_EN'" 
+                  [placeholder]="'ONBOARDING.FIELDS.STORE_EN'"
+                  [isRequired]="true"
+                  [error]="isInvalid('1', 'businessNameEn') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step1.businessNameEn')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+
+                <app-select 
+                  formControlName="businessType" 
+                  [label]="'ONBOARDING.FIELDS.BIZ_TYPE'" 
+                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_BIZ'"
+                  [options]="businessTypes"
+                  [isRequired]="true"
+                  [error]="isInvalid('1', 'businessType') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step1.businessType')?.touched || false"
+                ></app-select>
+
+                <app-input 
+                  formControlName="contactPhone" 
+                  [label]="'ONBOARDING.FIELDS.PHONE'" 
+                  [placeholder]="'ONBOARDING.FIELDS.PHONE'"
+                  [isRequired]="true"
+                  [error]="isInvalid('1', 'contactPhone') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step1.contactPhone')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+
+                <app-input 
+                  formControlName="description" 
+                  type="textarea"
+                  [rows]="3"
+                  [label]="'ONBOARDING.FIELDS.DESC'"
+                  customClass="md:col-span-2"
+                  [error]="isInvalid('1', 'description') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step1.description')?.touched || false"
+                ></app-input>
+              </div>
+            </app-card>
+
+            <app-card [variant]="'default'" padding="md" [rounded]="'xl'">
+              <app-section-header 
+                [title]="'ONBOARDING.OWNER_CARD_TITLE' | translate" 
+              >
+                 <span title class="flex items-center gap-2">
+                   <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+                      <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      <circle cx="12" cy="8" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+                    </svg>
+                  </div>
+                  {{ 'ONBOARDING.OWNER_CARD_TITLE' | translate }}
+                </span>
+              </app-section-header>
+
+              <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <app-input 
+                  formControlName="ownerName" 
+                  [label]="'ONBOARDING.FIELDS.OWNER_NAME'" 
+                  [placeholder]="'ONBOARDING.FIELDS.OWNER_NAME'"
+                  [isRequired]="true"
+                  [error]="isInvalid('1', 'ownerName') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step1.ownerName')?.touched || false"
+                ></app-input>
+
+                <app-input 
+                  formControlName="ownerEmail" 
+                  [label]="'ONBOARDING.FIELDS.OWNER_EMAIL'" 
+                  [placeholder]="'ONBOARDING.FIELDS.OWNER_EMAIL'"
+                  [isRequired]="true"
+                  [error]="isInvalid('1', 'ownerEmail') ? 'LOGIN.ERR_EMAIL_INVALID' : ''"
+                  [isTouched]="onboardingForm.get('step1.ownerEmail')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+
+                <app-input 
+                  formControlName="ownerPhone" 
+                  [label]="'ONBOARDING.FIELDS.OWNER_PHONE'" 
+                  [placeholder]="'ONBOARDING.FIELDS.OWNER_PHONE'"
+                  [isRequired]="true"
+                  [error]="isInvalid('1', 'ownerPhone') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step1.ownerPhone')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+              </div>
+            </app-card>
+          </div>
+
+          <div *ngIf="currentStep === 2" formGroupName="step2">
+            <app-card variant="default" padding="md" rounded="xl">
+              <app-section-header 
+                [title]="'ONBOARDING.LOCATION_CARD_TITLE' | translate" 
+                [description]="'ONBOARDING.STEP_DESCRIPTIONS.LOCATION' | translate"
+              >
+                <span title class="flex items-center gap-2">
+                  <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+                      <path d="M12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      <circle cx="12" cy="10" r="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+                    </svg>
+                  </div>
+                  {{ 'ONBOARDING.LOCATION_CARD_TITLE' | translate }}
+                </span>
+              </app-section-header>
+
+              <div class="grid gap-4 md:grid-cols-2">
+                <app-select 
+                  formControlName="region" 
+                  [label]="'ONBOARDING.FIELDS.REGION'" 
+                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_REGION'"
+                  [options]="regions"
+                  [isRequired]="true"
+                  [error]="isInvalid('2', 'region') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step2.region')?.touched || false"
+                ></app-select>
+
+                <app-select 
+                  formControlName="city" 
+                  [label]="'ONBOARDING.FIELDS.CITY'" 
+                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_CITY'"
+                  [options]="cities"
+                  [isRequired]="true"
+                  [error]="isInvalid('2', 'city') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step2.city')?.touched || false"
+                ></app-select>
+
+                <app-input 
+                  formControlName="nationalAddress" 
+                  type="textarea"
+                  [rows]="3"
+                  [label]="'ONBOARDING.FIELDS.NATIONAL_ADDRESS'"
+                  [placeholder]="'ONBOARDING.PLACEHOLDERS.NAT_ADDRESS'"
+                  customClass="md:col-span-2"
+                  [error]="isInvalid('2', 'nationalAddress') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step2.nationalAddress')?.touched || false"
+                ></app-input>
+              </div>
+            </app-card>
+          </div>
+
+          <div *ngIf="currentStep === 3" formGroupName="step3">
+            <app-card variant="default" padding="md" rounded="xl">
+               <app-section-header 
+                [title]="'ONBOARDING.LEGAL_CARD_TITLE' | translate" 
+                [description]="'ONBOARDING.STEP_DESCRIPTIONS.LEGAL' | translate"
+              >
+                <span title class="flex items-center gap-2">
+                  <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+                      <path d="M12 3v18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      <path d="M17 8H9.5a2.5 2.5 0 0 1 0-5H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                  </div>
+                  {{ 'ONBOARDING.LEGAL_CARD_TITLE' | translate }}
+                </span>
+              </app-section-header>
+
+              <div class="grid gap-4 md:grid-cols-2">
+                <app-input 
+                  formControlName="idNumber" 
+                  [label]="'ONBOARDING.FIELDS.ID_NUMBER'" 
+                  [placeholder]="'ONBOARDING.FIELDS.ID_NUMBER'"
+                  [isRequired]="true"
+                  [error]="isInvalid('3', 'idNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step3.idNumber')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+
+                <app-select 
+                  formControlName="nationality" 
+                  [label]="'ONBOARDING.FIELDS.NATIONALITY'" 
+                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_NAT'"
+                  [options]="nationalities"
+                  [isRequired]="true"
+                  [error]="isInvalid('3', 'nationality') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step3.nationality')?.touched || false"
+                ></app-select>
+
+                <app-input 
+                  formControlName="commercialRegistrationNumber" 
+                  [label]="'ONBOARDING.FIELDS.CR_NUMBER'" 
+                  [placeholder]="'ONBOARDING.FIELDS.CR_NUMBER'"
+                  [isRequired]="true"
+                  [error]="isInvalid('3', 'commercialRegistrationNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step3.commercialRegistrationNumber')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+
+                <app-input 
+                  formControlName="expiryDate" 
+                  type="date"
+                  [label]="'ONBOARDING.FIELDS.CR_EXPIRY'" 
+                  [placeholder]="'ONBOARDING.FIELDS.CR_EXPIRY'"
+                  [isRequired]="true"
+                  [error]="isInvalid('3', 'expiryDate') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step3.expiryDate')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+
+                <app-input 
+                  formControlName="taxId" 
+                  [label]="'ONBOARDING.FIELDS.TAX_ID'" 
+                  [placeholder]="'ONBOARDING.FIELDS.TAX_ID'"
+                  [isRequired]="true"
+                  [error]="isInvalid('3', 'taxId') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step3.taxId')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+
+                <app-input 
+                  formControlName="licenseNumber" 
+                  [label]="'ONBOARDING.FIELDS.LICENSE'" 
+                  [placeholder]="'ONBOARDING.FIELDS.LICENSE'"
+                  [error]="isInvalid('3', 'licenseNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step3.licenseNumber')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+              </div>
+            </app-card>
+          </div>
+
+          <div *ngIf="currentStep === 4" formGroupName="step4">
+            <app-card variant="default" padding="md" rounded="xl">
+               <app-section-header 
+                [title]="'ONBOARDING.BANK_CARD_TITLE' | translate" 
+                [description]="'ONBOARDING.STEP_DESCRIPTIONS.FINANCE' | translate"
+              >
+                <span title class="flex items-center gap-2">
+                  <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+                      <path d="M3 10h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      <path d="M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                  </div>
+                  {{ 'ONBOARDING.BANK_CARD_TITLE' | translate }}
+                </span>
+              </app-section-header>
+
+              <div class="grid gap-4 md:grid-cols-2">
+                <app-select 
+                  formControlName="bankName" 
+                  [label]="'ONBOARDING.FIELDS.BANK_NAME'" 
+                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_BANK'"
+                  [options]="banks"
+                  [isRequired]="true"
+                  [error]="isInvalid('4', 'bankName') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step4.bankName')?.touched || false"
+                ></app-select>
+
+                <app-select 
+                  formControlName="paymentCycle" 
+                  [label]="'ONBOARDING.FIELDS.PAYMENT_CYCLE'" 
+                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_PAYMENT'"
+                  [options]="paymentCycles"
+                  [isRequired]="true"
+                  [error]="isInvalid('4', 'paymentCycle') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step4.paymentCycle')?.touched || false"
+                ></app-select>
+
+                <app-input 
+                  formControlName="iban" 
+                  [label]="'ONBOARDING.FIELDS.IBAN'" 
+                  [placeholder]="'SA...'"
+                  [isRequired]="true"
+                  [error]="isInvalid('4', 'iban') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step4.iban')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+
+                <app-input 
+                  formControlName="swiftCode" 
+                  [label]="'ONBOARDING.FIELDS.SWIFT'" 
+                  [placeholder]="'SWIFT...'"
+                  [isRequired]="true"
+                  [error]="isInvalid('4', 'swiftCode') ? 'REGISTER.ERR_GENERAL' : ''"
+                  [isTouched]="onboardingForm.get('step4.swiftCode')?.touched || false"
+                  dir="ltr"
+                ></app-input>
+              </div>
+            </app-card>
+          </div>
+
+          <div *ngIf="currentStep === 5" formGroupName="step5">
+            <app-card variant="default" padding="md" rounded="xl">
+               <app-section-header 
+                [title]="'ONBOARDING.DOCS_CARD_TITLE' | translate" 
+                [description]="'ONBOARDING.STEP_DESCRIPTIONS.DOCS' | translate"
+              >
+                <span title class="flex items-center gap-2">
+                  <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
+                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+                      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                  </div>
+                  {{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}
+                </span>
+              </app-section-header>
+
+              <div class="grid gap-4 lg:grid-cols-2">
+                <div [class]="getUploadCardClasses('5', 'hasLogo')">
+                  <input id="logoInput" type="file" accept="image/*" class="hidden" (change)="onLogoSelected($event)" />
+                  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ 'ONBOARDING.FIELDS.LOGO' | translate }}</p>
+                  <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.UPLOAD_LOGO_TITLE' | translate }}</h3>
+                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">{{ 'ONBOARDING.UPLOAD_LOGO_HELP' | translate }}</p>
+
+                  <div *ngIf="storeLogo; else emptyLogoState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                    <div class="min-w-0">
+                      <p class="truncate text-xs font-black text-slate-900">{{ storeLogo.name }}</p>
+                      <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(storeLogo) }} MB</p>
+                    </div>
+                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('logo')">{{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}</button>
+                  </div>
+
+                  <ng-template #emptyLogoState>
+                    <app-button 
+                      variant="primary" 
+                      size="sm" 
+                      customClass="mt-4 !rounded-xl" 
+                      (btnClick)="triggerFileInput('logoInput')"
+                    >
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+                        <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      </svg>
+                      {{ 'ONBOARDING.UPLOAD_ACTION' | translate }}
+                    </app-button>
+                  </ng-template>
+                </div>
+
+                <div [class]="getUploadCardClasses('5', 'hasCRDoc')">
+                  <input id="crInput" type="file" accept=".pdf,image/*" class="hidden" (change)="onCRDocSelected($event)" />
+                  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ 'ONBOARDING.FIELDS.CR_DOC' | translate }}</p>
+                  <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.UPLOAD_CR_TITLE' | translate }}</h3>
+                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">{{ 'ONBOARDING.UPLOAD_CR_HELP' | translate }}</p>
+
+                  <div *ngIf="crDocument; else emptyCRState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                    <div class="min-w-0">
+                      <p class="truncate text-xs font-black text-slate-900">{{ crDocument.name }}</p>
+                      <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(crDocument) }} MB</p>
+                    </div>
+                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('cr')">{{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}</button>
+                  </div>
+
+                  <ng-template #emptyCRState>
+                    <app-button 
+                      variant="primary" 
+                      size="sm" 
+                      customClass="mt-4 !rounded-xl" 
+                      (btnClick)="triggerFileInput('crInput')"
+                    >
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+                        <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      </svg>
+                      {{ 'ONBOARDING.UPLOAD_ACTION' | translate }}
+                    </app-button>
+                  </ng-template>
+                </div>
+              </div>
+            </app-card>
+          </div>
+        </div>
+
+        <aside class="space-y-2.5 lg:sticky lg:top-6 lg:self-start">
+          <section [class]="getPreviewCardClasses(isPreviewActive('store'))">
+            <div class="space-y-3">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.STORE_CARD_TITLE' | translate }}</span>
+                <span class="rounded-full bg-white px-2 py-1 text-[10px] font-black text-slate-700 shadow-sm">{{ completionPercentage }}%</span>
+              </div>
+              <div class="space-y-2 text-sm font-bold text-slate-600">
+                <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ valueOrFallback(onboardingForm.get('step1.businessNameAr')?.value) }}</p>
+                <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step1.businessNameEn')?.value) }}</p>
+                <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(cities, onboardingForm.get('step2.city')?.value) | translate }}</p>
+                <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step1.contactPhone')?.value) }}</p>
+              </div>
+            </div>
+          </section>
+
+          <section [class]="getPreviewCardClasses(isPreviewActive('legal'))">
+            <div class="space-y-2 text-sm font-bold text-slate-600">
+              <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.LEGAL_CARD_TITLE' | translate }}</p>
+              <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ valueOrFallback(onboardingForm.get('step1.ownerName')?.value) }}</p>
+              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step3.commercialRegistrationNumber')?.value) }}</p>
+              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step3.taxId')?.value) }}</p>
+            </div>
+          </section>
+
+          <section [class]="getPreviewCardClasses(isPreviewActive('bank'))">
+            <div class="space-y-2 text-sm font-bold text-slate-600">
+              <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.BANK_CARD_TITLE' | translate }}</p>
+              <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(banks, onboardingForm.get('step4.bankName')?.value) | translate }}</p>
+              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr') + ' break-all'">{{ valueOrFallback(onboardingForm.get('step4.iban')?.value) }}</p>
+              <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(paymentCycles, onboardingForm.get('step4.paymentCycle')?.value) | translate }}</p>
+            </div>
+          </section>
+
+          <section [class]="getPreviewCardClasses(isPreviewActive('docs'))">
+            <div class="space-y-2 text-sm font-bold text-slate-600">
+              <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}</p>
+              <p [attr.dir]="storeLogo?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="storeLogo?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ storeLogo?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
+              <p [attr.dir]="crDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="crDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ crDocument?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
+              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ vendorSeed.meta.lastUpdate }}</p>
+            </div>
+          </section>
+        </aside>
+      </div>
+
+      <div class="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+        <app-button 
+          *ngIf="currentStep > 1" 
+          variant="outline" 
+          size="md" 
+          (btnClick)="prevStep()" 
+          [disabled]="isSubmitting"
+          customClass="!rounded-xl px-6"
+        >
+          {{ 'ONBOARDING.BTN_PREV' | translate }}
+        </app-button>
+
+        <div *ngIf="currentStep === 1" class="hidden sm:block"></div>
+
+        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <app-button 
+            *ngIf="currentStep < totalSteps" 
+            variant="primary" 
+            size="md" 
+            (btnClick)="nextStep()" 
+            [disabled]="isSubmitting"
+            customClass="!rounded-xl px-8 shadow-lg shadow-zadna-primary/20"
+          >
+            {{ 'ONBOARDING.BTN_NEXT' | translate }}
+          </app-button>
+
+          <app-button 
+            *ngIf="currentStep === totalSteps" 
+            variant="primary" 
+            size="md" 
+            (btnClick)="onSubmit()" 
+            [isLoading]="isSubmitting"
+            customClass="!rounded-xl px-8 shadow-lg shadow-zadna-primary/20"
+          >
+             {{ 'ONBOARDING.BTN_SUBMIT' | translate }}
+          </app-button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>

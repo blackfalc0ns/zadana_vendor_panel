@@ -1,0 +1,153 @@
+<section class="grid gap-3.5 pb-2">
+  <div class="grid gap-3.5 xl:grid-cols-[1.6fr_minmax(260px,0.9fr)]">
+    <article class="relative overflow-hidden rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,rgba(9,92,104,0.95),rgba(18,124,140,0.86),rgba(242,161,69,0.22))] p-5 text-white shadow-[0_26px_60px_rgba(18,124,140,0.25)] md:p-6">
+      <div class="pointer-events-none absolute -end-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
+      <div class="pointer-events-none absolute -bottom-12 start-10 h-32 w-32 rounded-full bg-orange-300/20 blur-2xl"></div>
+      <div class="relative z-10 grid gap-5 lg:grid-cols-[1.4fr_0.8fr] lg:items-end">
+        <div class="space-y-2.5">
+          <p class="text-[0.72rem] font-extrabold uppercase tracking-[0.16em] text-white/70">{{ 'COMMON.WELCOME' | translate }}</p>
+          <h1 class="max-w-2xl text-[clamp(1.8rem,3vw,2.5rem)] font-black leading-tight">{{ 'DASHBOARD.TITLE' | translate }}</h1>
+          <p class="max-w-2xl text-[0.86rem] leading-6 text-white/78">{{ 'DASHBOARD.SUBTITLE' | translate }}</p>
+
+          <div class="flex flex-wrap gap-2 pt-2">
+            <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[0.75rem] font-bold text-white/90">
+              {{ 'COMMON.READY_TODAY' | translate }}
+            </span>
+            <span class="rounded-full border border-orange-200/20 bg-orange-300/10 px-3 py-1.5 text-[0.75rem] font-bold text-orange-50">
+              {{ 'COMMON.OPERATIONAL_PRIORITIES' | translate }}
+            </span>
+          </div>
+        </div>
+
+        <div class="rounded-[20px] border border-white/10 bg-slate-950/20 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+          <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-white/60">{{ 'COMMON.TODAY' | translate }}</p>
+          <div class="mt-3 space-y-3">
+            <div class="rounded-xl bg-white/10 p-3">
+              <span class="text-xs text-white/70">{{ 'DASHBOARD.PENDING_ORDERS' | translate }}</span>
+              <strong class="mt-0.5 block text-2xl font-black">24</strong>
+            </div>
+            <div class="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
+              <span class="text-xs text-white/70">{{ 'DASHBOARD.ACTIVE_OFFERS' | translate }}</span>
+              <strong class="text-base font-black">18</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(244,248,251,0.92))] p-5 shadow-[0_22px_45px_rgba(15,23,42,0.06)]">
+      <div class="flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/75">{{ 'COMMON.LIVE' | translate }}</p>
+          <h2 class="mt-0.5 text-[0.95rem] font-black text-slate-900">{{ 'DASHBOARD.TODAYS_PULSE' | translate }}</h2>
+        </div>
+        <span class="inline-flex h-8 w-8 items-center justify-center rounded-[12px] bg-zadna-primary/10 text-zadna-primary">
+          <span class="h-2 w-2 rounded-full bg-zadna-primary"></span>
+        </span>
+      </div>
+
+      <div class="mt-4 space-y-3">
+        @for (event of timeline; track event.time) {
+          <div class="relative overflow-hidden rounded-[16px] border border-slate-200/80 bg-white p-3 shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
+            <div class="absolute start-0 top-0 h-full w-1 rounded-s-[16px] bg-gradient-to-b from-zadna-primary to-zadna-accent"></div>
+            <span class="inline-flex rounded-full bg-orange-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-orange-700">{{ event.time }}</span>
+            <p class="mt-2 ps-1 text-[0.78rem] font-bold leading-5 text-slate-700">{{ event.titleKey | translate }}</p>
+          </div>
+        }
+      </div>
+    </article>
+  </div>
+
+  <section class="grid gap-3.5 md:grid-cols-3">
+    @for (metric of metrics; track metric.labelKey) {
+      <article class="group rounded-[20px] border border-slate-200/70 bg-white/90 p-4 shadow-[0_16px_34px_rgba(15,23,42,0.05)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(18,124,140,0.12)]">
+        <div class="flex items-start justify-between gap-2">
+          <span class="text-[0.8rem] font-bold text-slate-500">{{ metric.labelKey | translate }}</span>
+          <span class="rounded-[12px] bg-zadna-primary/10 px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-zadna-primary">Live</span>
+        </div>
+        <strong class="mt-3 block text-2xl font-black tracking-tight text-slate-900">{{ metric.value }}</strong>
+        <p class="mt-1.5 text-[0.72rem] leading-5 text-slate-500">{{ metric.noteKey | translate }}</p>
+      </article>
+    }
+  </section>
+
+  <section class="grid gap-3.5 xl:grid-cols-[1.2fr_0.8fr]">
+    <article class="rounded-[24px] border border-slate-200/70 bg-white/95 p-5 shadow-[0_18px_36px_rgba(15,23,42,0.05)]">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70">{{ 'COMMON.TODAY' | translate }}</p>
+          <h2 class="mt-0.5 text-[0.95rem] font-black text-slate-900">{{ 'DASHBOARD.QUICK_EXECUTION' | translate }}</h2>
+        </div>
+        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[0.68rem] font-extrabold text-slate-500">{{ checklist.length }} items</span>
+      </div>
+
+      <div class="grid gap-3">
+        @for (item of checklist; track item.titleKey) {
+          <div class="flex gap-3 rounded-[16px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff,#f9fbfc)] p-3 transition hover:border-zadna-primary/20 hover:shadow-[0_14px_28px_rgba(18,124,140,0.08)]">
+            <div class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-zadna-primary/10 text-zadna-primary">
+              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m5 13 4 4L19 7"></path>
+              </svg>
+            </div>
+            <div>
+              <strong class="block text-[0.82rem] font-extrabold text-slate-900">{{ item.titleKey | translate }}</strong>
+              <p class="mt-0.5 text-[0.72rem] leading-5 text-slate-500">{{ item.bodyKey | translate }}</p>
+            </div>
+          </div>
+        }
+      </div>
+    </article>
+
+    <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(247,250,251,0.92))] p-5 shadow-[0_18px_36px_rgba(15,23,42,0.05)]">
+      <div class="mb-4 flex items-center justify-between gap-3">
+        <div>
+          <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70">{{ 'COMMON.OPEN' | translate }}</p>
+          <h2 class="mt-0.5 text-[0.95rem] font-black text-slate-900">{{ 'DASHBOARD.TODAYS_PULSE' | translate }}</h2>
+        </div>
+        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-emerald-600">Live</span>
+      </div>
+
+      <div class="grid gap-3">
+        @for (action of quickActions; track action.titleKey) {
+          <article
+            class="rounded-[18px] border p-4 transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_32px_rgba(15,23,42,0.08)]"
+            [ngClass]="getActionCardClasses(action.accent)">
+            <h3 class="text-[0.9rem] font-extrabold" [class.text-slate-900]="action.accent !== 'dark'">{{ action.titleKey | translate }}</h3>
+            <p class="mt-1.5 text-[0.72rem] leading-5" [ngClass]="action.accent === 'dark' ? 'text-white/75' : 'text-slate-500'">
+              {{ action.bodyKey | translate }}
+            </p>
+            <button
+              type="button"
+              (click)="action.titleKey === 'DASHBOARD.ADD_PRODUCTS' ? onAddProductClick() : null"
+              class="mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.72rem] font-bold transition"
+              [class.bg-slate-900]="action.accent !== 'dark'"
+              [class.text-white]="action.accent !== 'dark'"
+              [class.bg-white]="action.accent === 'dark'"
+              [class.text-slate-900]="action.accent === 'dark'">
+              {{ 'COMMON.OPEN' | translate }}
+              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 12h14m-6-6 6 6-6 6"></path>
+              </svg>
+            </button>
+          </article>
+        }
+      </div>
+    </article>
+  </section>
+</section>
+
+<!-- Modals -->
+@if (isSelectorModalOpen) {
+  <app-master-product-selector-modal
+    (close)="isSelectorModalOpen = false"
+    (selected)="onProductSelected($event)">
+  </app-master-product-selector-modal>
+}
+
+@if (isPricingModalOpen && selectedMasterProduct) {
+  <app-add-product-modal
+    [product]="selectedMasterProduct"
+    (close)="isPricingModalOpen = false"
+    (confirm)="onPricingConfirm($event)">
+  </app-add-product-modal>
+}

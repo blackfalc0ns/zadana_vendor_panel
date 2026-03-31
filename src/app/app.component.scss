@@ -1,0 +1,15 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.app-shell {
+  min-height: 100vh;
+  /* Removed padding to allow full edge-to-edge layouts */
+  padding: 0;
+}
+
+.content-frame {
+  display: block;
+  height: 100%;
+}
