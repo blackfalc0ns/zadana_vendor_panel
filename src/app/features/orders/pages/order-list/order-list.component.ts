@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -7,61 +7,105 @@ import { Subscription } from 'rxjs';
 import { OrdersService } from '../../services/orders.service';
 import { OrderListItem, OrderStatus } from '../../models/orders.models';
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
+import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
+import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
 
 @Component({
   selector: 'app-order-list',
   standalone: true,
   imports: [
-    CommonModule, 
-    FormsModule, 
-    TranslateModule, 
+    CommonModule,
+    FormsModule,
+    TranslateModule,
     OrderStatusBadgeComponent,
+    AppPanelHeaderComponent,
+    AppPageHeaderComponent,
     AppPaginationComponent,
     RouterModule
   ],
   template: `
     <div class="space-y-6" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-      <!-- Header Section -->
-      <div>
-        <h1 class="text-2xl font-black text-slate-900 tracking-tight">{{ 'ORDERS.LIST_TITLE' | translate }}</h1>
-        <p class="text-[0.85rem] font-bold text-slate-500">{{ 'ORDERS.LIST_SUBTITLE' | translate }}</p>
-      </div>
+      <app-page-header
+        [title]="'ORDERS.LIST_TITLE' | translate"
+        [description]="'ORDERS.LIST_SUBTITLE' | translate"
+        customClass="mb-0"
+      ></app-page-header>
 
-      <!-- Filters & Stats Bar -->
-      <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-        <!-- Status Tabs -->
-        <div class="flex items-center gap-1 overflow-x-auto no-scrollbar rounded-[20px] bg-slate-100/80 p-1.5 border border-slate-200/50 backdrop-blur-sm">
-          <button 
-            *ngFor="let tab of statusTabs"
-            (click)="onStatusChange(tab.value)"
-            [ngClass]="{
-              'bg-white text-zadna-primary shadow-sm': currentStatus === tab.value,
-              'text-slate-500 hover:text-zadna-primary/70': currentStatus !== tab.value
-            }"
-            class="whitespace-nowrap rounded-[14px] px-4 py-2 text-[0.78rem] font-black transition-all">
-            {{ tab.labelKey | translate }}
-          </button>
-        </div>
-
-        <!-- Search -->
-        <div class="relative w-full max-w-xs group">
-          <span class="absolute inset-y-0 start-4 flex items-center text-slate-400 group-focus-within:text-zadna-primary transition-colors">
-            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
-            </svg>
-          </span>
-          <input 
-            type="text" 
-            [(ngModel)]="searchTerm"
-            (input)="onSearchChange()"
-            [placeholder]="'ORDERS.SEARCH_PLACEHOLDER' | translate"
-            class="h-11 w-full rounded-[16px] border border-slate-100 bg-white pe-4 ps-11 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:ring-4 focus:ring-zadna-primary/5 outline-none shadow-sm">
-        </div>
-      </div>
-
-      <!-- Main Content / Table -->
       <div class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50 transition-all duration-500">
+        <app-panel-header
+          containerClass="border-b border-slate-100 px-6 py-5"
+          contentClass="flex flex-col gap-4"
+        >
+          <div actions class="grid w-full gap-4 xl:grid-cols-[minmax(260px,1.6fr)_repeat(3,minmax(170px,1fr))_auto]">
+            <label class="space-y-2">
+              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ORDERS.FILTERS.SEARCH' | translate }}</span>
+              <div class="relative group">
+                <span class="absolute inset-y-0 start-4 flex items-center text-slate-400 group-focus-within:text-zadna-primary transition-colors">
+                  <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  [(ngModel)]="searchTerm"
+                  (ngModelChange)="onFiltersChange()"
+                  [placeholder]="'ORDERS.SEARCH_PLACEHOLDER' | translate"
+                  class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 pe-4 ps-11 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
+              </div>
+            </label>
+
+            <label class="space-y-2">
+              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ORDERS.FILTERS.STATUS' | translate }}</span>
+              <select
+                [(ngModel)]="filters.status"
+                (ngModelChange)="onFiltersChange()"
+                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
+                <option value="ALL">{{ 'ORDERS.FILTERS.ALL_STATUSES' | translate }}</option>
+                <option value="NEW">{{ 'ORDERS.STATUS_NEW' | translate }}</option>
+                <option value="CONFIRMED">{{ 'ORDERS.STATUS_CONFIRMED' | translate }}</option>
+                <option value="IN_PROGRESS">{{ 'ORDERS.STATUS_IN_PROGRESS' | translate }}</option>
+                <option value="READY_FOR_PICKUP">{{ 'ORDERS.STATUS_READY' | translate }}</option>
+                <option value="COMPLETED">{{ 'ORDERS.STATUS_COMPLETED' | translate }}</option>
+                <option value="CANCELLED">{{ 'ORDERS.STATUS_CANCELLED' | translate }}</option>
+              </select>
+            </label>
+
+            <label class="space-y-2">
+              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ORDERS.FILTERS.PAYMENT_METHOD' | translate }}</span>
+              <select
+                [(ngModel)]="filters.paymentMethod"
+                (ngModelChange)="onFiltersChange()"
+                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
+                <option value="ALL">{{ 'ORDERS.FILTERS.ALL_PAYMENT_METHODS' | translate }}</option>
+                <option value="CARD">{{ 'ORDERS.FILTERS.PAYMENT_CARD' | translate }}</option>
+                <option value="COD">{{ 'ORDERS.FILTERS.PAYMENT_COD' | translate }}</option>
+              </select>
+            </label>
+
+            <label class="space-y-2">
+              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ORDERS.FILTERS.TIMING' | translate }}</span>
+              <select
+                [(ngModel)]="filters.lateState"
+                (ngModelChange)="onFiltersChange()"
+                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
+                <option value="ALL">{{ 'ORDERS.FILTERS.ALL_TIMING' | translate }}</option>
+                <option value="LATE">{{ 'ORDERS.FILTERS.TIMING_LATE' | translate }}</option>
+                <option value="ONTIME">{{ 'ORDERS.FILTERS.TIMING_ONTIME' | translate }}</option>
+              </select>
+            </label>
+
+            <div class="flex items-end">
+              <button
+                type="button"
+                (click)="resetFilters()"
+                class="inline-flex h-11 items-center justify-center rounded-[16px] border border-rose-200 bg-rose-50 px-5 text-[0.78rem] font-black text-rose-600 transition hover:bg-rose-100">
+                {{ 'ORDERS.FILTERS.RESET' | translate }}
+              </button>
+            </div>
+          </div>
+        </app-panel-header>
+
         <div class="overflow-x-auto no-scrollbar">
           @if (isLoading) {
             <div class="flex h-64 flex-col items-center justify-center gap-3">
@@ -81,7 +125,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
           } @else {
             <table class="w-full text-start border-collapse animate-in slide-in-from-bottom-2 duration-500">
               <thead>
-                <tr class="bg-slate-50/50 text-[0.62rem] font-black uppercase tracking-widest text-slate-400 border-b border-slate-50">
+                <tr class="border-b border-slate-50 bg-slate-50/50 text-[0.62rem] font-black uppercase tracking-widest text-slate-400">
                   <th class="px-6 py-4 text-start">{{ 'ORDERS.HEADER_ORDER_ID' | translate }}</th>
                   <th class="px-6 py-4 text-start">{{ 'ORDERS.HEADER_CUSTOMER' | translate }}</th>
                   <th class="px-6 py-4 text-start">{{ 'ORDERS.HEADER_DATE' | translate }}</th>
@@ -96,7 +140,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
                   <tr class="group transition-all hover:bg-slate-50/30">
                     <td class="px-6 py-4">
                       <div class="flex items-center gap-2">
-                        <span class="text-[0.78rem] font-black text-slate-900 group-hover:text-zadna-primary transition-colors">#{{ order.displayId }}</span>
+                        <span class="text-[0.78rem] font-black text-slate-900 transition-colors group-hover:text-zadna-primary">#{{ order.displayId }}</span>
                         @if (order.isLate) {
                           <span class="inline-flex h-2 w-2 rounded-full bg-rose-500 animate-pulse" [title]="'ORDERS.LATE_ALERT' | translate"></span>
                         }
@@ -116,36 +160,36 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
                     </td>
                     <td class="px-6 py-4">
                       <span class="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600">
-                         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                         </svg>
-                         {{ (order.itemCount === 1 ? 'ORDERS.ITEM_COUNT' : 'ORDERS.ITEMS_COUNT') | translate:{count: order.itemCount} }}
+                        <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                        {{ (order.itemCount === 1 ? 'ORDERS.ITEM_COUNT' : 'ORDERS.ITEMS_COUNT') | translate:{count: order.itemCount} }}
                       </span>
                     </td>
                     <td class="px-6 py-4">
                       <div class="flex flex-col items-start leading-tight">
                         <span class="text-[0.85rem] font-black text-slate-900">{{ order.total | number:'1.2-2' }}</span>
-                        <span class="text-[0.6rem] font-black text-zadna-primary uppercase tracking-tighter">{{ 'ORDERS.CURRENCY' | translate }}</span>
+                        <span class="text-[0.6rem] font-black uppercase tracking-tighter text-zadna-primary">{{ 'ORDERS.CURRENCY' | translate }}</span>
                       </div>
                     </td>
                     <td class="px-6 py-4">
                       <app-order-status-badge [status]="order.status"></app-order-status-badge>
                     </td>
                     <td class="px-6 py-4">
-                      <div class="flex items-center justify-center gap-1.5 opacity-40 group-hover:opacity-100 transition-opacity">
-                         <button 
-                           [routerLink]="['/orders', order.id]"
-                           class="flex h-8 w-8 items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-500 transition-all hover:bg-zadna-primary/10 hover:border-zadna-primary/30 hover:text-zadna-primary shadow-sm">
-                           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                             <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                           </svg>
-                         </button>
-                         <button class="flex h-8 w-8 items-center justify-center rounded-xl bg-white border border-slate-100 text-slate-500 transition-all hover:bg-emerald-50 hover:border-emerald-200 hover:text-emerald-600 shadow-sm">
-                           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                             <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-                           </svg>
-                         </button>
+                      <div class="flex items-center justify-center gap-1.5 opacity-40 transition-opacity group-hover:opacity-100">
+                        <button
+                          [routerLink]="['/orders', order.id]"
+                          class="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-100 bg-white text-slate-500 shadow-sm transition-all hover:border-zadna-primary/30 hover:bg-zadna-primary/10 hover:text-zadna-primary">
+                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                            <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                          </svg>
+                        </button>
+                        <button class="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-100 bg-white text-slate-500 shadow-sm transition-all hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600">
+                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                          </svg>
+                        </button>
                       </div>
                     </td>
                   </tr>
@@ -155,9 +199,8 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
           }
         </div>
 
-        <!-- Pagination -->
         @if (orders.length > 0) {
-          <div class="border-t border-slate-50 px-6 bg-slate-50/20">
+          <div class="border-t border-slate-50 bg-slate-50/20 px-6">
             <app-pagination
               [currentPage]="currentPage"
               [totalCount]="totalCount"
@@ -183,30 +226,24 @@ export class OrderListComponent implements OnInit, OnDestroy {
   isLoading = true;
   searchTerm = '';
   currentLang = 'ar';
+  filters = {
+    status: 'ALL' as OrderStatus | 'ALL',
+    paymentMethod: 'ALL' as 'ALL' | 'CARD' | 'COD',
+    lateState: 'ALL' as 'ALL' | 'LATE' | 'ONTIME'
+  };
   private langSub: Subscription;
 
-  // Pagination State
   currentPage = 1;
   pageSize = 10;
   totalCount = 0;
   totalPages = 1;
-
-  // Status Filter State
-  currentStatus: OrderStatus | 'ALL' = 'ALL';
-  statusTabs = [
-    { labelKey: 'ORDERS.TAB_ALL', value: 'ALL' as const },
-    { labelKey: 'ORDERS.TAB_NEW', value: 'NEW' as const },
-    { labelKey: 'ORDERS.TAB_PREPARING', value: 'IN_PROGRESS' as const },
-    { labelKey: 'ORDERS.TAB_READY', value: 'READY_FOR_PICKUP' as const },
-    { labelKey: 'ORDERS.TAB_COMPLETED', value: 'COMPLETED' as const },
-  ];
 
   constructor(
     private ordersService: OrdersService,
     private translate: TranslateService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
-    this.langSub = this.translate.onLangChange.subscribe(event => this.currentLang = event.lang);
+    this.langSub = this.translate.onLangChange.subscribe((event) => this.currentLang = event.lang);
   }
 
   ngOnInit(): void {
@@ -214,7 +251,9 @@ export class OrderListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    if (this.langSub) this.langSub.unsubscribe();
+    if (this.langSub) {
+      this.langSub.unsubscribe();
+    }
   }
 
   loadOrders(): void {
@@ -222,8 +261,10 @@ export class OrderListComponent implements OnInit, OnDestroy {
     this.ordersService.getOrders({
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
-      status: this.currentStatus === 'ALL' ? undefined : this.currentStatus,
-      searchTerm: this.searchTerm
+      status: this.filters.status === 'ALL' ? undefined : this.filters.status,
+      searchTerm: this.searchTerm,
+      paymentMethod: this.filters.paymentMethod,
+      lateState: this.filters.lateState
     }).subscribe({
       next: (data) => {
         this.orders = data.items;
@@ -242,13 +283,18 @@ export class OrderListComponent implements OnInit, OnDestroy {
     this.loadOrders();
   }
 
-  onStatusChange(status: OrderStatus | 'ALL'): void {
-    this.currentStatus = status;
+  onFiltersChange(): void {
     this.currentPage = 1;
     this.loadOrders();
   }
 
-  onSearchChange(): void {
+  resetFilters(): void {
+    this.searchTerm = '';
+    this.filters = {
+      status: 'ALL',
+      paymentMethod: 'ALL',
+      lateState: 'ALL'
+    };
     this.currentPage = 1;
     this.loadOrders();
   }

@@ -6,34 +6,32 @@ import { Subscription } from 'rxjs';
 import { OrdersService } from '../../services/orders.service';
 import { OrderDetail, OrderStatus } from '../../models/orders.models';
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
+import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
+import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 
 @Component({
   selector: 'app-order-details',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, OrderStatusBadgeComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, OrderStatusBadgeComponent, AppPanelHeaderComponent, AppPageHeaderComponent],
   template: `
     <div class="space-y-6" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-      <!-- Header -->
-      <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div class="flex items-center gap-4">
-          <button 
+      <app-page-header
+        [description]="(order?.date || '') + ' - ' + (order?.time || '')"
+        customClass="sticky top-0 z-20 -mx-4 border-b border-slate-100 bg-slate-50/80 px-4 py-4 backdrop-blur-md sm:mx-0 sm:rounded-[24px] sm:border sm:px-6"
+      >
+        <span title>#{{ order?.displayId }}</span>
+
+        <div actions class="flex flex-wrap items-center gap-3">
+          <button
             routerLink="/orders"
-            class="flex h-10 w-10 items-center justify-center rounded-xl bg-white border border-slate-200 text-slate-500 transition-all hover:bg-slate-50 active:scale-95 shadow-sm">
+            class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition-all hover:bg-slate-50 active:scale-95">
             <svg class="h-5 w-5" [class.rotate-180]="currentLang === 'ar'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
             </svg>
           </button>
-          <div>
-            <div class="flex items-center gap-3">
-              <h1 class="text-2xl font-black text-slate-900 tracking-tight">#{{ order?.displayId }}</h1>
-              <app-order-status-badge *ngIf="order" [status]="order.status"></app-order-status-badge>
-            </div>
-            <p class="text-[0.82rem] font-bold text-slate-400">{{ order?.date }} - {{ order?.time }}</p>
-          </div>
-        </div>
 
-        <!-- Desktop Actions -->
-        <div class="hidden sm:flex items-center gap-3">
+          <app-order-status-badge *ngIf="order" [status]="order.status"></app-order-status-badge>
+
           <button 
             *ngIf="canConfirm()"
             (click)="updateStatus('CONFIRMED')"
@@ -53,7 +51,7 @@ import { OrderStatusBadgeComponent } from '../../components/order-status-badge/o
             {{ 'ORDERS.ACTION_MARK_READY' | translate }}
           </button>
         </div>
-      </div>
+      </app-page-header>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left: Journey & Details -->
@@ -61,7 +59,12 @@ import { OrderStatusBadgeComponent } from '../../components/order-status-badge/o
           
           <!-- Timeline Card -->
           <div class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-            <h3 class="mb-8 text-sm font-black text-slate-800 uppercase tracking-wider">{{ 'ORDERS.DETAIL_TIMELINE' | translate }}</h3>
+            <app-panel-header
+              [title]="'ORDERS.DETAIL_TIMELINE'"
+              containerClass="mb-8 border-b border-slate-50 pb-4"
+              contentClass="flex items-center justify-between gap-3"
+              titleClass="text-sm font-black uppercase tracking-wider text-slate-800"
+            ></app-panel-header>
             
             <div class="relative ps-8 space-y-8 before:absolute before:inset-y-0 before:start-2 before:w-0.5 before:bg-slate-100">
               <div *ngFor="let step of order?.timeline; let last = last" class="relative">
@@ -81,9 +84,12 @@ import { OrderStatusBadgeComponent } from '../../components/order-status-badge/o
 
           <!-- Items Card -->
           <div class="rounded-[28px] border border-slate-100 bg-white overflow-hidden shadow-sm">
-             <div class="p-6 border-b border-slate-50">
-               <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider">{{ 'ORDERS.DETAIL_ITEMS' | translate }}</h3>
-             </div>
+             <app-panel-header
+               [title]="'ORDERS.DETAIL_ITEMS'"
+               containerClass="border-b border-slate-50 px-6 py-6"
+               contentClass="flex items-center justify-between gap-3"
+               titleClass="text-sm font-black uppercase tracking-wider text-slate-800"
+             ></app-panel-header>
              <table class="w-full text-start">
                <thead class="bg-slate-50/50 text-[0.62rem] font-black uppercase tracking-widest text-slate-400">
                  <tr>
@@ -121,7 +127,12 @@ import { OrderStatusBadgeComponent } from '../../components/order-status-badge/o
         <div class="space-y-6">
           <!-- Customer Card -->
           <div class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-            <h3 class="mb-6 text-sm font-black text-slate-800 uppercase tracking-wider">{{ 'ORDERS.DETAIL_CUSTOMER' | translate }}</h3>
+            <app-panel-header
+              [title]="'ORDERS.DETAIL_CUSTOMER'"
+              containerClass="mb-6 border-b border-slate-50 pb-4"
+              contentClass="flex items-center justify-between gap-3"
+              titleClass="text-sm font-black uppercase tracking-wider text-slate-800"
+            ></app-panel-header>
             <div class="space-y-4">
               <div class="flex items-start gap-4">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600">
@@ -151,15 +162,19 @@ import { OrderStatusBadgeComponent } from '../../components/order-status-badge/o
 
           <!-- Driver Card -->
           <div class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm overflow-hidden relative">
-            <div class="flex items-center justify-between mb-6">
-              <h3 class="text-sm font-black text-slate-800 uppercase tracking-wider">{{ 'ORDERS.DETAIL_DRIVER' | translate }}</h3>
-              <div *ngIf="order?.driverRating" class="flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-amber-600 border border-amber-100/50">
+            <app-panel-header
+              [title]="'ORDERS.DETAIL_DRIVER'"
+              containerClass="mb-6 border-b border-slate-50 pb-4"
+              contentClass="flex items-center justify-between gap-3"
+              titleClass="text-sm font-black uppercase tracking-wider text-slate-800"
+            >
+              <div *ngIf="order?.driverRating" actions class="flex items-center gap-1.5 rounded-full bg-amber-50 px-2.5 py-1 text-amber-600 border border-amber-100/50">
                 <svg class="h-3 w-3 fill-current" viewBox="0 0 20 20">
                   <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
                 </svg>
                 <span class="text-[0.7rem] font-black">{{ order?.driverRating }}</span>
               </div>
-            </div>
+            </app-panel-header>
             
             <div *ngIf="order?.driverName; else noDriver" class="space-y-6">
               <!-- Identity -->
@@ -215,7 +230,12 @@ import { OrderStatusBadgeComponent } from '../../components/order-status-badge/o
 
           <!-- Billing Card -->
           <div class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
-             <h3 class="mb-6 text-sm font-black text-slate-800 uppercase tracking-wider">{{ 'ORDERS.DETAIL_SUMMARY' | translate }}</h3>
+             <app-panel-header
+               [title]="'ORDERS.DETAIL_SUMMARY'"
+               containerClass="mb-6 border-b border-slate-50 pb-4"
+               contentClass="flex items-center justify-between gap-3"
+               titleClass="text-sm font-black uppercase tracking-wider text-slate-800"
+             ></app-panel-header>
              <div class="space-y-3">
                <div class="flex justify-between text-[0.8rem] font-bold text-slate-500">
                  <span>{{ 'ORDERS.SUBTOTAL' | translate }}</span>

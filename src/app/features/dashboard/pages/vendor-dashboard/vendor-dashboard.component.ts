@@ -5,11 +5,13 @@ import { MasterProductSelectorModalComponent } from '../../../products/component
 import { AddProductModalComponent } from '../../../products/components/add-product-modal/add-product-modal.component';
 import { CatalogService, MasterProduct } from '../../../../services/catalog.service';
 import { Subscription } from 'rxjs';
+import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
+import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 
 @Component({
   selector: 'app-vendor-dashboard',
   standalone: true,
-  imports: [CommonModule, NgClass, TranslateModule, MasterProductSelectorModalComponent, AddProductModalComponent],
+  imports: [CommonModule, NgClass, TranslateModule, MasterProductSelectorModalComponent, AddProductModalComponent, AppPanelHeaderComponent, AppPageHeaderComponent],
   templateUrl: './vendor-dashboard.component.html',
   styleUrl: './vendor-dashboard.component.scss'
 })
@@ -120,13 +122,14 @@ export class VendorDashboardComponent implements OnDestroy {
     this.isPricingModalOpen = true;
   }
 
-  onPricingConfirm(event: { sellingPrice: number, stockQuantity: number }): void {
+  onPricingConfirm(event: { sellingPrice: number, stockQuantity: number, discountPercentage: number }): void {
     if (!this.selectedMasterProduct) return;
 
     const request = {
       masterProductId: this.selectedMasterProduct.id,
       sellingPrice: event.sellingPrice,
-      stockQty: event.stockQuantity
+      stockQty: event.stockQuantity,
+      compareAtPrice: this.catalogService.calculateCompareAtPrice(event.sellingPrice, event.discountPercentage)
     };
 
     this.catalogService.addToStore(request).subscribe({

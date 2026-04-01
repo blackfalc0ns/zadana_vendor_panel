@@ -18,6 +18,10 @@ export type OrderPaymentStatus =
   | 'PARTIALLY_REFUNDED'
   | 'COD_PENDING';
 
+export type OrderPaymentMethod =
+  | 'CARD'
+  | 'COD';
+
 export type OrderFulfillmentStatus =
   | 'QUEUED'
   | 'PREPARING'
@@ -58,6 +62,7 @@ export interface OrderListItem {
   time: string;
   status: OrderStatus;
   paymentStatus: OrderPaymentStatus;
+  paymentMethodType: OrderPaymentMethod;
   fulfillmentStatus: OrderFulfillmentStatus;
   paymentMethodLabel: string;
   total: number;

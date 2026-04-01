@@ -8,6 +8,8 @@ import { CatalogService, VendorProduct } from '../../../../services/catalog.serv
 import { ProductStatusBadgeComponent } from '../../components/product-status-badge/product-status-badge.component';
 import { ProductMediaCardComponent } from '../../components/product-media-card/product-media-card.component';
 import { ProductPriceStockFormComponent } from '../../components/product-price-stock-form/product-price-stock-form.component';
+import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
+import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 
 @Component({
   selector: 'app-product-detail',
@@ -19,13 +21,18 @@ import { ProductPriceStockFormComponent } from '../../components/product-price-s
     RouterModule,
     ProductStatusBadgeComponent,
     ProductMediaCardComponent,
-    ProductPriceStockFormComponent
+    ProductPriceStockFormComponent,
+    AppPanelHeaderComponent,
+    AppPageHeaderComponent
   ],
   template: `
     <div class="px-2 pb-12 sm:px-0" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-      <!-- Sticky Action Header -->
-      <div class="sticky top-0 z-20 -mx-4 mb-8 flex items-center justify-between border-b border-slate-100 bg-slate-50/80 px-4 py-4 backdrop-blur-md sm:mx-0 sm:rounded-[24px] sm:border sm:px-6">
-        <div class="flex items-center gap-4">
+      <app-page-header
+        [title]="'PRODUCTS.DETAILS_TITLE' | translate"
+        [description]="'PRODUCTS.DETAILS_SUBTITLE' | translate"
+        customClass="sticky top-0 z-20 -mx-4 mb-8 border-b border-slate-100 bg-slate-50/80 px-4 py-4 backdrop-blur-md sm:mx-0 sm:rounded-[24px] sm:border sm:px-6"
+      >
+        <div actions class="flex flex-wrap items-center gap-3">
           <button 
             routerLink="/products"
             class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm transition-all hover:text-zadna-primary hover:shadow-md active:scale-95">
@@ -33,14 +40,7 @@ import { ProductPriceStockFormComponent } from '../../components/product-price-s
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" [attr.d]="currentLang === 'ar' ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'"></path>
             </svg>
           </button>
-          <div>
-            <h1 class="text-[0.95rem] font-black text-slate-900 tracking-tight sm:text-xl">{{ 'PRODUCTS.DETAILS_TITLE' | translate }}</h1>
-            <p class="hidden text-[0.7rem] font-bold text-slate-400 sm:block">{{ 'PRODUCTS.DETAILS_SUBTITLE' | translate }}</p>
-          </div>
-        </div>
 
-        <div class="flex items-center gap-3">
-          <!-- Status Toggle -->
           <button 
             (click)="toggleStatus()"
             class="hidden transition-all hover:scale-105 active:scale-95 sm:block">
@@ -57,7 +57,7 @@ import { ProductPriceStockFormComponent } from '../../components/product-price-s
             {{ 'PRODUCTS.SAVE_CHANGES' | translate }}
           </button>
         </div>
-      </div>
+      </app-page-header>
 
       @if (isLoading) {
         <div class="flex h-96 flex-col items-center justify-center gap-4">
@@ -77,19 +77,30 @@ import { ProductPriceStockFormComponent } from '../../components/product-price-s
 
             <!-- Basic Info Summary -->
             <div class="rounded-[32px] border border-slate-100 bg-white p-6 shadow-sm">
-              <h3 class="mb-4 text-[0.8rem] font-black uppercase tracking-widest text-slate-400">{{ 'PRODUCTS.BASIC_INFO' | translate }}</h3>
+              <app-panel-header
+                [title]="'PRODUCTS.BASIC_INFO'"
+                containerClass="mb-4 border-b border-slate-50 pb-4"
+                contentClass="flex items-center justify-between gap-3"
+                titleClass="text-[0.8rem] font-black uppercase tracking-widest text-slate-400"
+              ></app-panel-header>
               <div class="space-y-4">
                 <div class="flex items-center justify-between">
                   <span class="text-[0.8rem] font-bold text-slate-500">{{ 'PRODUCTS.BRAND' | translate }}</span>
-                  <span class="text-[0.8rem] font-black text-slate-900">{{ currentLang === 'ar' ? product.brandNameAr : product.brandNameEn }}</span>
+                  <span class="text-[0.8rem] font-black text-slate-900">
+                    {{ currentLang === 'ar' ? (product.brandNameAr || ('COMMON.BRAND_GENERAL' | translate)) : (product.brandNameEn || ('COMMON.BRAND_GENERAL' | translate)) }}
+                  </span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-[0.8rem] font-bold text-slate-500">{{ 'PRODUCTS.CATEGORY' | translate }}</span>
-                  <span class="inline-flex rounded-lg bg-slate-50 px-2 py-1 text-[0.75rem] font-black text-zadna-primary">{{ currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn }}</span>
+                  <span class="inline-flex rounded-lg bg-slate-50 px-2 py-1 text-[0.75rem] font-black text-zadna-primary">
+                    {{ currentLang === 'ar' ? (product.categoryNameAr || ('COMMON.NO_DATA' | translate)) : (product.categoryNameEn || ('COMMON.NO_DATA' | translate)) }}
+                  </span>
                 </div>
                 <div class="flex items-center justify-between">
                   <span class="text-[0.8rem] font-bold text-slate-500">{{ 'PRODUCTS.UNIT' | translate }}</span>
-                  <span class="text-[0.8rem] font-black text-slate-900">{{ currentLang === 'ar' ? product.unitNameAr : product.unitNameEn }}</span>
+                  <span class="text-[0.8rem] font-black text-slate-900">
+                    {{ currentLang === 'ar' ? (product.unitNameAr || ('PRODUCTS.UNIT_PIECE' | translate)) : (product.unitNameEn || ('PRODUCTS.UNIT_PIECE' | translate)) }}
+                  </span>
                 </div>
               </div>
             </div>
@@ -101,14 +112,18 @@ import { ProductPriceStockFormComponent } from '../../components/product-price-s
               
               <!-- Pricing & Stock Card -->
               <div class="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
-                <div class="mb-6 flex items-center justify-between border-b border-slate-50 pb-4">
-                  <h3 class="text-[0.9rem] font-black text-slate-900">{{ 'PRODUCTS.PRICING_STOCK' | translate }}</h3>
-                  <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
+                <app-panel-header
+                  [title]="'PRODUCTS.PRICING_STOCK'"
+                  containerClass="mb-6 border-b border-slate-50 pb-4"
+                  contentClass="flex items-center justify-between gap-3"
+                  titleClass="text-[0.9rem] font-black text-slate-900"
+                >
+                  <div actions class="flex h-10 w-10 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-500">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                   </div>
-                </div>
+                </app-panel-header>
 
                 <app-product-price-stock-form 
                   [form]="productForm" 
@@ -118,14 +133,18 @@ import { ProductPriceStockFormComponent } from '../../components/product-price-s
 
               <!-- Catalog Details -->
               <div class="rounded-[32px] border border-slate-100 bg-white p-8 shadow-sm">
-                <div class="mb-6 flex items-center justify-between border-b border-slate-50 pb-4">
-                  <h3 class="text-[0.9rem] font-black text-slate-900">{{ 'PRODUCTS.CATALOG_INFO' | translate }}</h3>
-                  <div class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
+                <app-panel-header
+                  [title]="'PRODUCTS.CATALOG_INFO'"
+                  containerClass="mb-6 border-b border-slate-50 pb-4"
+                  contentClass="flex items-center justify-between gap-3"
+                  titleClass="text-[0.9rem] font-black text-slate-900"
+                >
+                  <div actions class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-50 text-slate-400">
                     <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                     </svg>
                   </div>
-                </div>
+                </app-panel-header>
 
                 <div class="space-y-6">
                   <div class="space-y-2">
@@ -200,7 +219,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.product = data;
         this.productForm.patchValue({
           sellingPrice: data.sellingPrice,
-          discountPercentage: data.discountPercentage || 0,
+          discountPercentage: this.catalogService.calculateDiscountPercentage(data.sellingPrice, data.compareAtPrice),
           stockQty: data.stockQty
         });
         this.isLoading = false;
@@ -227,8 +246,12 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
     this.isSaving = true;
     const updateData = {
-      ...this.productForm.value,
-      isActive: this.product.isActive
+      sellingPrice: this.productForm.value.sellingPrice,
+      stockQty: this.productForm.value.stockQty,
+      compareAtPrice: this.catalogService.calculateCompareAtPrice(
+        this.productForm.value.sellingPrice,
+        this.productForm.value.discountPercentage
+      )
     };
 
     this.catalogService.updateVendorProduct(this.product.id, updateData).subscribe({

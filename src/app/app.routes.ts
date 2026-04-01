@@ -53,12 +53,40 @@ export const routes: Routes = [
         loadComponent: () => import('./features/products/pages/product-detail/product-detail.component').then(m => m.ProductDetailComponent)
       },
       {
+        path: 'offers',
+        loadComponent: () => import('./features/offers/pages/offers-list/offers-list.component').then(m => m.OffersListComponent)
+      },
+      {
         path: 'orders',
         loadComponent: () => import('./features/orders/pages/order-list/order-list.component').then(m => m.OrderListComponent)
       },
       {
         path: 'orders/:id',
         loadComponent: () => import('./features/orders/pages/order-details/order-details.component').then(m => m.OrderDetailsComponent)
+      },
+      {
+        path: 'finance',
+        loadComponent: () => import('./features/finance/pages/finance-dashboard/vendor-finance-dashboard.component').then(m => m.VendorFinanceDashboardComponent)
+      },
+      {
+        path: 'staff/branches/:id',
+        loadComponent: () => import('./features/staff/pages/branch-detail/branch-detail.component').then(m => m.BranchDetailComponent)
+      },
+      {
+        path: 'staff/employees/:id',
+        loadComponent: () => import('./features/staff/pages/employee-detail/employee-detail.component').then(m => m.EmployeeDetailComponent)
+      },
+      {
+        path: 'staff/invitations/:id',
+        loadComponent: () => import('./features/staff/pages/invitation-detail/invitation-detail.component').then(m => m.InvitationDetailComponent)
+      },
+      {
+        path: 'staff',
+        loadComponent: () => import('./features/staff/pages/staff-branches/staff-branches.page').then(m => m.StaffBranchesPageComponent)
+      },
+      {
+        path: 'profile',
+        loadComponent: () => import('./features/settings/pages/vendor-profile/vendor-profile.component').then(m => m.VendorProfileComponent)
       }
     ]
   },

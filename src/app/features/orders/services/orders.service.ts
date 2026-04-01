@@ -7,7 +7,8 @@ import {
   OrderStatus, 
   PaginatedOrdersResponse,
   OrderItem,
-  OrderTimelineEntry
+  OrderTimelineEntry,
+  OrderPaymentMethod
 } from '../models/orders.models';
 
 @Injectable({
@@ -27,7 +28,9 @@ export class OrdersService {
     pageNumber: number; 
     pageSize: number; 
     status?: OrderStatus | 'ALL'; 
-    searchTerm?: string 
+    searchTerm?: string;
+    paymentMethod?: OrderPaymentMethod | 'ALL';
+    lateState?: 'ALL' | 'LATE' | 'ONTIME';
   }): Observable<PaginatedOrdersResponse> {
     
     let filtered = [...this.mockOrders];
@@ -42,6 +45,18 @@ export class OrdersService {
         o.displayId.toLowerCase().includes(term) || 
         o.customerName.toLowerCase().includes(term)
       );
+    }
+
+    if (params.paymentMethod && params.paymentMethod !== 'ALL') {
+      filtered = filtered.filter((order) => order.paymentMethodType === params.paymentMethod);
+    }
+
+    if (params.lateState === 'LATE') {
+      filtered = filtered.filter((order) => order.isLate);
+    }
+
+    if (params.lateState === 'ONTIME') {
+      filtered = filtered.filter((order) => !order.isLate);
     }
 
     const totalCount = filtered.length;
@@ -140,6 +155,7 @@ export class OrdersService {
           time: '14:30',
           status,
           paymentStatus: 'PAID',
+          paymentMethodType: i % 2 === 0 ? 'CARD' : 'COD',
           fulfillmentStatus: 'QUEUED',
           paymentMethodLabel: i % 2 === 0 ? 'بطاقة بنكية' : 'نقداً عند الاستلام',
           total,

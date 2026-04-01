@@ -283,6 +283,23 @@
     "LIST_SUBTITLE": "View and edit your product stock and prices",
     "ADD_BUTTON": "Add Product",
     "SEARCH_PLACEHOLDER": "Search by name or barcode...",
+    "FILTERS": {
+      "SEARCH": "Search",
+      "RESET": "Reset",
+      "CATEGORY": "Category",
+      "ALL_CATEGORIES": "All categories",
+      "STATUS": "Status",
+      "ALL_STATUSES": "All statuses",
+      "STOCK": "Stock",
+      "ALL_STOCK": "All stock",
+      "HEALTHY_STOCK": "Healthy stock",
+      "LOW_STOCK": "Low stock",
+      "OUT_OF_STOCK": "Out of stock",
+      "OFFERS": "Offers",
+      "ALL_OFFERS": "All offers",
+      "WITH_OFFERS": "With offers",
+      "WITHOUT_OFFERS": "Without offers"
+    },
     "HEADER_PRODUCT": "Product",
     "HEADER_CATEGORY": "Category",
     "HEADER_PRICE": "Price",
@@ -347,8 +364,13 @@
     "DETAILS_SUBTITLE": "Review product details, pricing, and stock.",
     "DETAILS_TITLE": "Product Details",
     "DISCOUNT_LABEL": "Discount Percentage",
+    "DISCOUNT_HELPER": "Enter the discount percentage to calculate the original price automatically.",
     "NAME_AR": "Product Name in Arabic",
     "NAME_EN": "Product Name in English",
+    "FINAL_PRICE": "Final Price",
+    "ORIGINAL_PRICE": "Original Price",
+    "SAVINGS_VALUE": "Savings Value",
+    "OFFER_BADGE": "{{value}}% OFF",
     "PRICE_LABEL": "Selling Price",
     "PRICING_STOCK": "Pricing & Stock",
     "REQUEST_NEW_SUBTITLE": "Submit a request to add a new product to the master catalog.",
@@ -360,10 +382,128 @@
     "UPDATE_SUCCESS": "Product details updated successfully.",
     "UPLOAD_PHOTO": "Upload Product Photo"
   },
+  "OFFERS": {
+    "TITLE": "Offers & Discounts",
+    "SUBTITLE": "Track discounted products and update their offers quickly.",
+    "SEARCH_PLACEHOLDER": "Search inside offers...",
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Filter results through separate fields similar to super admin pages.",
+      "RESET": "Reset",
+      "SEARCH": "Search",
+      "CATEGORY": "Category",
+      "MIN_DISCOUNT": "Minimum Discount",
+      "STOCK": "Stock",
+      "STATUS": "Status",
+      "TYPE": "Type",
+      "EXPIRY": "Expiry",
+      "URGENCY": "Urgency",
+      "STOCK_LIMIT": "Stock Limit",
+      "ALL_CATEGORIES": "All categories",
+      "ALL_DISCOUNTS": "All discounts",
+      "ALL_STOCK": "All stock states",
+      "LOW_STOCK": "Low stock",
+      "HEALTHY_STOCK": "Healthy stock",
+      "ALL_STATUSES": "All statuses",
+      "ALL_TYPES": "All types",
+      "TYPE_PERCENTAGE": "Percentage",
+      "TYPE_FIXED": "Fixed amount",
+      "ALL_EXPIRY": "All expiry windows",
+      "EXPIRING_SOON": "Expiring soon",
+      "EXPIRING_LATER": "Expiring later",
+      "ALL_URGENCY": "All urgency levels",
+      "URGENCY_CRITICAL": "Critical",
+      "URGENCY_WARNING": "Warning",
+      "PIECES_OR_LESS": "pieces or less"
+    },
+    "VIEWS": {
+      "DIRECT": "Product Offers",
+      "COUPONS": "Coupons",
+      "CATEGORIES": "Categories",
+      "CLEARANCE": "Last Pieces"
+    },
+    "TABLE": {
+      "PRODUCT": "Product",
+      "CATEGORY": "Category",
+      "ORIGINAL_PRICE": "Original Price",
+      "FINAL_PRICE": "Final Price",
+      "DISCOUNT": "Discount",
+      "STOCK": "Stock",
+      "COUPON_CODE": "Coupon Code",
+      "DISCOUNT_VALUE": "Discount Value",
+      "MIN_ORDER": "Minimum Order",
+      "AUDIENCE": "Audience",
+      "USAGE": "Usage",
+      "ENDS_AT": "End Date",
+      "CAMPAIGN": "Campaign",
+      "INCLUDED_PRODUCTS": "Included Products",
+      "STOCK_LEFT": "Stock Left",
+      "RECOMMENDED_DISCOUNT": "Suggested Discount"
+    },
+    "DIRECT_OFFERS": "Direct Product Offers",
+    "DIRECT_OFFERS_HINT": "Live offer prices currently applied to your products.",
+    "DIRECT_SECTION_HINT": "Review products with active discounts and compare original versus final price.",
+    "ACTIVE_COUNT": "Active Offers",
+    "ACTIVE_COUNT_HINT": "Products currently carrying a real offer price.",
+    "COUPONS_COUNT": "Active Coupons",
+    "COUPONS_COUNT_HINT": "Discount codes ready for campaigns and traffic pushes.",
+    "AVG_DISCOUNT": "Average Discount",
+    "AVG_DISCOUNT_HINT": "Average discount percentage across listed offers.",
+    "CATEGORY_OFFERS": "Category Offers",
+    "CATEGORY_OFFERS_HINT": "Campaigns focused on specific categories.",
+    "CLEARANCE_OFFERS": "Last Pieces Offers",
+    "CLEARANCE_OFFERS_HINT": "Low-stock products that need a faster push.",
+    "TOTAL_SAVINGS": "Customer Savings",
+    "TOTAL_SAVINGS_HINT": "Total gap between both prices in {{currency}} per unit.",
+    "SAVINGS_PER_UNIT": "Save {{amount}} EGP per unit",
+    "SAVINGS_LABEL": "Savings Value",
+    "STOCK_STATUS": "Current stock: {{count}}",
+    "EDIT_OFFER": "Edit Offer",
+    "COUPONS_TITLE": "Discount Coupons",
+    "COUPONS_SUBTITLE": "Discount codes for campaigns, ads, and order stimulation.",
+    "COUPON_CODE": "Coupon Code",
+    "DISCOUNT_VALUE": "Discount Value",
+    "MIN_ORDER": "Minimum Order",
+    "USAGE_PROGRESS": "Usage Progress",
+    "ENDS_AT": "Ends {{date}}",
+    "CATEGORY_TITLE": "Category Campaigns",
+    "CATEGORY_SUBTITLE": "Quick campaigns that activate a whole category instead of a single product.",
+    "CAMPAIGN_DISCOUNT": "Campaign Discount",
+    "CAMPAIGN_PRODUCTS": "Included Products",
+    "REVIEW_PRODUCTS": "Review Products",
+    "CLEARANCE_TITLE": "Last Pieces Offers",
+    "CLEARANCE_SUBTITLE": "Low-stock products that can move faster through a focused clearance offer.",
+    "LAST_PIECES_BADGE": "Last Pieces",
+    "LOW_STOCK_BADGE": "Low Stock",
+    "RECOMMENDED_DISCOUNT": "Suggested Discount",
+    "PIECES_LEFT": "{{count}} pieces left",
+    "ACTIVATE_CLEARANCE": "Activate Offer",
+    "EMPTY_DIRECT": "No direct product offers match the current search.",
+    "EMPTY_COUPONS": "No coupons match the current search.",
+    "EMPTY_CATEGORIES": "No category campaigns match the current search.",
+    "EMPTY_CLEARANCE": "No low-stock products match the current search.",
+    "EMPTY_TITLE": "No active offers right now",
+    "EMPTY_DESC": "Add a discount to any product from the products page or product details and it will appear here.",
+    "EMPTY_CTA": "Go to Products"
+  },
   "ORDERS": {
     "LIST_TITLE": "Order Management",
     "LIST_SUBTITLE": "Track and prepare incoming orders",
     "SEARCH_PLACEHOLDER": "Search by order ID or customer...",
+    "FILTERS": {
+      "SEARCH": "Search",
+      "RESET": "Reset",
+      "STATUS": "Status",
+      "ALL_STATUSES": "All statuses",
+      "PAYMENT_METHOD": "Payment method",
+      "ALL_PAYMENT_METHODS": "All methods",
+      "PAYMENT_CARD": "Card",
+      "PAYMENT_COD": "Cash on delivery",
+      "TIMING": "Timing",
+      "ALL_TIMING": "All timing",
+      "TIMING_LATE": "Delayed only",
+      "TIMING_ONTIME": "On time"
+    },
     "HEADER_ORDER_ID": "Order ID",
     "HEADER_CUSTOMER": "Customer",
     "HEADER_DATE": "Date",
@@ -404,6 +544,63 @@
     "DRIVER_PLATE": "Plate Number",
     "ESTIMATED_DELIVERY": "Estimated Time",
     "DRIVER_NOT_ASSIGNED": "No driver assigned yet"
+  },
+  "SETTINGS_PROFILE": {
+    "TITLE": "Vendor Profile",
+    "SUBTITLE": "Manage all store, owner, legal and payout details in one place",
+    "ROLE_LABEL": "Verified Vendor",
+    "SAVE": "Save Profile",
+    "STATUS_ACTIVE": "Profile active",
+    "STATUS_PENDING": "Pending review",
+    "OPEN_NOW": "Open",
+    "OVERVIEW": {
+      "STORE_NAME": "Store name",
+      "OWNER": "Owner",
+      "JOINED_AT": "Joined at"
+    },
+    "SECTIONS": {
+      "STORE": "Store details",
+      "STORE_HINT": "Core business information shown across the vendor panel.",
+      "OWNER": "Owner details",
+      "OWNER_HINT": "Personal and contact information for the account owner.",
+      "CONTACT": "Contact and address",
+      "CONTACT_HINT": "Support contacts and full merchant address.",
+      "LEGAL": "Legal documents",
+      "LEGAL_HINT": "Commercial and tax identifiers for the merchant account.",
+      "BANKING": "Payout details",
+      "BANKING_HINT": "Settlement account and payout schedule.",
+      "HOURS": "Operating hours",
+      "HOURS_HINT": "Weekly availability for receiving and preparing orders."
+    },
+    "FIELDS": {
+      "STORE_NAME_AR": "Store name (Arabic)",
+      "STORE_NAME_EN": "Store name (English)",
+      "BUSINESS_TYPE": "Business type",
+      "SUPPORT_PHONE": "Support phone",
+      "SUPPORT_EMAIL": "Support email",
+      "DESCRIPTION_AR": "Description (Arabic)",
+      "DESCRIPTION_EN": "Description (English)",
+      "OWNER_NAME": "Owner name",
+      "OWNER_EMAIL": "Owner email",
+      "OWNER_PHONE": "Owner phone",
+      "REGION": "Region",
+      "CITY": "City",
+      "NATIONAL_ADDRESS": "National address",
+      "COMMERCIAL_REGISTRATION": "Commercial registration",
+      "TAX_ID": "Tax ID",
+      "BANK_NAME": "Bank name",
+      "IBAN": "IBAN",
+      "PAYOUT_CYCLE": "Payout cycle"
+    },
+    "DAYS": {
+      "SATURDAY": "Saturday",
+      "SUNDAY": "Sunday",
+      "MONDAY": "Monday",
+      "TUESDAY": "Tuesday",
+      "WEDNESDAY": "Wednesday",
+      "THURSDAY": "Thursday",
+      "FRIDAY": "Friday"
+    }
   },
   "HEADER": {
     "OPEN_MENU": "Open Menu",
@@ -448,5 +645,331 @@
     "BTN_REGISTER_GOOGLE": "Register with Google",
     "ALREADY_HAVE_ACCOUNT": "Already have an account?",
     "SIGN_IN": "Sign In"
+  },
+  "STAFF_BRANCHES": {
+    "TITLE": "Branches & Staff",
+    "SUBTITLE": "Manage branches, operating teams, and invitation flows from one operational workspace.",
+    "HEADER": {
+      "BRANCHES_COUNT": "{{count}} branches",
+      "EMPLOYEES_COUNT": "{{count}} team members"
+    },
+    "VIEWS": {
+      "BRANCHES": "Branches",
+      "EMPLOYEES": "Employees",
+      "INVITATIONS": "Invitations"
+    },
+    "SECTIONS": {
+      "BRANCHES_TITLE": "Branch operations map",
+      "BRANCHES_SUBTITLE": "Track your main branch, new branches under review, and operating readiness.",
+      "EMPLOYEES_TITLE": "Store team",
+      "EMPLOYEES_SUBTITLE": "Manage operational roles, branch access, and the current employee status.",
+      "INVITATIONS_TITLE": "Invitation control center",
+      "INVITATIONS_SUBTITLE": "Resend, revoke, and follow every pending branch manager or employee invitation."
+    },
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Use focused filters to narrow the current table without leaving the page.",
+      "SEARCH": "Search",
+      "STATUS": "Status",
+      "CITY": "City",
+      "MANAGER": "Manager",
+      "TEMPLATE": "Template",
+      "BRANCH": "Branch",
+      "TYPE": "Invitation type",
+      "ALL_STATUSES": "All statuses",
+      "ALL_CITIES": "All cities",
+      "ALL_MANAGERS": "All managers",
+      "ALL_TEMPLATES": "All templates",
+      "ALL_BRANCHES": "All branches",
+      "ALL_TYPES": "All types",
+      "RESET": "Reset"
+    },
+    "SEARCH": {
+      "BRANCHES": "Search by branch, manager, or code",
+      "EMPLOYEES": "Search by employee name or contact",
+      "INVITATIONS": "Search by invitation target or contact"
+    },
+    "TABLE": {
+      "BRANCH": "Branch",
+      "TYPE": "Type",
+      "CITY": "City",
+      "MANAGER": "Manager",
+      "WORKING_DAYS": "Working days",
+      "CONTACT": "Contact",
+      "EMPLOYEE": "Employee",
+      "TEMPLATE": "Role template",
+      "BRANCH_ACCESS": "Branch access",
+      "LAST_ACTIVE": "Last activity",
+      "INVITATION_TYPE": "Invitation type",
+      "TARGET": "Target",
+      "SENT_AT": "Sent at",
+      "EXPIRES_AT": "Expires at",
+      "DAYS_VALUE": "{{count}} days",
+      "NO_ACTIVITY": "No activity yet"
+    },
+    "ACTIONS": {
+      "ADD_BRANCH": "Add branch",
+      "INVITE_EMPLOYEE": "Invite employee",
+      "CREATE_EMPLOYEE": "Create employee",
+      "VIEW_DETAILS": "View details",
+      "ACTIVATE": "Activate",
+      "SUSPEND": "Suspend",
+      "REACTIVATE": "Reactivate",
+      "ARCHIVE": "Archive",
+      "EDIT_PERMISSIONS": "Edit permissions",
+      "COPY_LINK": "Copy link",
+      "RESEND": "Resend",
+      "REVOKE": "Revoke",
+      "CREATE_BRANCH": "Create branch",
+      "SEND_INVITATION": "Send invitation",
+      "SAVE_PERMISSIONS": "Save permissions"
+    },
+    "BRANCH_TYPES": {
+      "PRIMARY": "Primary branch",
+      "BRANCH": "Sub-branch"
+    },
+    "STATUSES": {
+      "BRANCH_ACTIVE": "Active",
+      "BRANCH_PENDING": "Pending review",
+      "BRANCH_SUSPENDED": "Suspended",
+      "BRANCH_ARCHIVED": "Archived",
+      "EMPLOYEE_ACTIVE": "Active",
+      "EMPLOYEE_INVITED": "Invited",
+      "EMPLOYEE_SUSPENDED": "Suspended",
+      "INVITATION_PENDING": "Pending",
+      "INVITATION_ACCEPTED": "Accepted",
+      "INVITATION_EXPIRED": "Expired",
+      "INVITATION_REVOKED": "Revoked"
+    },
+    "INVITATION_TYPES": {
+      "BRANCH_MANAGER": "Branch manager",
+      "EMPLOYEE": "Employee"
+    },
+    "EMPTY": {
+      "BRANCHES": "No branches match the active filters.",
+      "EMPLOYEES": "No employees match the active filters.",
+      "INVITATIONS": "No invitations match the active filters."
+    },
+    "BRANCH_WIZARD": {
+      "EYEBROW": "New branch",
+      "TITLE": "Create a sub-branch under the main store",
+      "SUBTITLE": "Add operational details, assign coverage, and invite the branch manager in one flow.",
+      "STEPS": {
+        "INFO": "Branch info",
+        "LOCATION": "Location & operations",
+        "MANAGER": "Manager invitation"
+      },
+      "FIELDS": {
+        "NAME": "Branch name",
+        "CODE": "Branch code",
+        "PHONE": "Branch phone",
+        "TYPE": "Branch type",
+        "MANAGER_NAME": "Branch manager name",
+        "ADDRESS": "Address details",
+        "DELIVERY_RADIUS": "Delivery radius (km)",
+        "MANAGER_CONTACT": "Manager email or phone",
+        "MESSAGE": "Internal invitation note"
+      },
+      "PRIMARY_WARNING": "A primary branch already exists. New entries will be created as sub-branches pending review.",
+      "OPERATING_HOURS_TITLE": "Operating hours",
+      "OPERATING_HOURS_HINT": "Choose the operating days for this branch before it goes live.",
+      "SUMMARY_BRANCH": "Branch",
+      "SUMMARY_CITY": "City",
+      "SUMMARY_MANAGER": "Manager"
+    },
+    "EMPLOYEE_MODAL": {
+      "EYEBROW": "Team access",
+      "TITLE": "Create a new employee",
+      "SUBTITLE": "Add an employee directly, assign branch access, and start from a ready-made permission template.",
+      "EDIT_TITLE": "Adjust employee permissions",
+      "EDIT_SUBTITLE": "Review the role template and fine-tune permissions for the selected employee.",
+      "IDENTITY_TITLE": "Employee identity",
+      "FIELDS": {
+        "NAME": "Full name",
+        "CONTACT": "Email or mobile"
+      },
+      "TEMPLATE_TITLE": "Role template",
+      "BRANCH_ACCESS_TITLE": "Branch access",
+      "BRANCH_ACCESS_HINT": "Select the branches this employee can operate in.",
+      "BRANCH_ACCESS_LOCKED": "Branch access stays locked while editing an existing employee in this v1 flow.",
+      "PERMISSIONS_TITLE": "Permission matrix",
+      "PERMISSIONS_HINT": "Keep the ready template or switch to advanced customization for specific modules.",
+      "CUSTOMIZE": "Advanced customization",
+      "USING_TEMPLATE": "Using template"
+    },
+    "TEMPLATES": {
+      "BRANCH_MANAGER": "Branch manager",
+      "BRANCH_MANAGER_HINT": "Best for supervising orders, stock, and offers at one or more branches.",
+      "ORDERS_CLERK": "Orders clerk",
+      "ORDERS_CLERK_HINT": "Focused on order queue handling, approvals, and shipment follow-up.",
+      "INVENTORY_CLERK": "Inventory clerk",
+      "INVENTORY_CLERK_HINT": "Designed for stock updates, inventory checks, and availability changes."
+    },
+    "PERMISSIONS": {
+      "MODULE": "Module",
+      "ACTIONS": {
+        "VIEW": "View",
+        "MANAGE": "Manage",
+        "APPROVE": "Approve",
+        "EXPORT": "Export"
+      },
+      "MODULES": {
+        "DASHBOARD": "Dashboard",
+        "PRODUCTS": "Products",
+        "INVENTORY": "Inventory",
+        "ORDERS": "Orders",
+        "OFFERS": "Offers",
+        "BRANCHES_STAFF": "Branches & staff",
+        "PROFILE": "Profile",
+        "FINANCE": "Finance"
+      }
+    },
+    "FEEDBACK": {
+      "BRANCH_CREATED": "The new branch was added and a manager invitation was created.",
+      "PERMISSIONS_UPDATED": "Employee permissions were updated.",
+      "EMPLOYEE_CREATED": "The employee was created successfully.",
+      "EMPLOYEE_INVITED": "The employee invitation was sent successfully.",
+      "EMPLOYEE_ACTIVATED": "The employee was activated.",
+      "EMPLOYEE_SUSPENDED": "The employee was suspended.",
+      "BRANCH_STATUS_UPDATED": "Branch status was updated.",
+      "LINK_COPIED": "Invitation link copied.",
+      "LINK_COPY_FALLBACK": "Copy failed here. You can still copy the link manually.",
+      "INVITATION_RESENT": "Invitation resent successfully.",
+      "INVITATION_REVOKED": "Invitation was revoked."
+    },
+    "DETAILS": {
+      "BRANCH": {
+        "OVERVIEW_TITLE": "Branch overview",
+        "OVERVIEW_SUBTITLE": "Key operational information for this branch and its current readiness.",
+        "FIELDS": {
+          "CODE": "Branch code",
+          "PHONE": "Branch phone",
+          "CITY": "City",
+          "REGION": "Region",
+          "DELIVERY_RADIUS": "Delivery radius"
+        },
+        "KM": "km",
+        "HOURS_TITLE": "Operating hours",
+        "HOURS_SUBTITLE": "The active schedule used by this branch across the week.",
+        "TEAM_TITLE": "Assigned team",
+        "TEAM_SUBTITLE": "Employees currently linked to this branch and their operational role.",
+        "EMPTY_TEAM": "No employees are linked to this branch yet.",
+        "MANAGER_TITLE": "Branch manager",
+        "MANAGER_SUBTITLE": "Primary contact responsible for this branch.",
+        "SUMMARY_TITLE": "Quick summary",
+        "SUMMARY_SUBTITLE": "Operational numbers to understand branch readiness at a glance.",
+        "METRICS": {
+          "TEAM_SIZE": "Team size",
+          "PENDING_INVITATIONS": "Pending invitations",
+          "WORKING_DAYS": "Working days",
+          "DELIVERY_RADIUS": "Delivery radius"
+        },
+        "INVITATIONS_TITLE": "Invitation activity",
+        "INVITATIONS_SUBTITLE": "Recent branch-related invitations and their current status.",
+        "EMPTY_INVITATIONS": "No invitations are linked to this branch."
+      },
+      "EMPLOYEE": {
+        "IDENTITY_TITLE": "Employee profile",
+        "IDENTITY_SUBTITLE": "Identity, role template, and the latest operational activity.",
+        "BRANCH_ACCESS_TITLE": "Branch access",
+        "BRANCH_ACCESS_SUBTITLE": "Branches this employee can currently operate in.",
+        "EMPTY_BRANCHES": "No branches are assigned to this employee.",
+        "INVITATIONS_TITLE": "Invitation history",
+        "INVITATIONS_SUBTITLE": "Invitation records connected to this employee identity.",
+        "EMPTY_INVITATIONS": "No invitations are linked to this employee.",
+        "PERMISSIONS_TITLE": "Permission matrix",
+        "PERMISSIONS_SUBTITLE": "A read-only view of the effective permissions across operational modules.",
+        "SUMMARY_TITLE": "Operational footprint",
+        "SUMMARY_SUBTITLE": "A compact summary of branch access and invitation coverage.",
+        "METRICS": {
+          "BRANCHES": "Branches",
+          "INVITATIONS": "Invitations"
+        }
+      },
+      "INVITATION": {
+        "OVERVIEW_TITLE": "Invitation overview",
+        "OVERVIEW_SUBTITLE": "Track the target, delivery window, and invitation lifecycle details.",
+        "BRANCHES_TITLE": "Linked branches",
+        "BRANCHES_SUBTITLE": "Branches this invitation currently grants access to.",
+        "EMPTY_BRANCHES": "No branches are linked to this invitation.",
+        "LINK_TITLE": "Invitation link",
+        "LINK_SUBTITLE": "Use this direct link when you need to resend or share access manually.",
+        "MATCH_TITLE": "Matched employee",
+        "MATCH_SUBTITLE": "If the invited person already exists in the team workspace, it appears here.",
+        "NO_MATCH": "No matching employee was found yet for this invitation.",
+        "TIMELINE_TITLE": "Invitation timeline",
+        "TIMELINE_SUBTITLE": "A quick view of when the invitation was sent and where it stands now.",
+        "TIMELINE": {
+          "SENT": "Invitation sent"
+        }
+      }
+    }
+  },
+  "VENDOR_FINANCE": {
+    "TITLE": "Financial Overview",
+    "SUBTITLE": "Track payouts, fees, holds, and recent movements with the same operational clarity used in super admin.",
+    "PERIODS": {
+      "TODAY": "Today",
+      "WEEK": "Week",
+      "MONTH": "Month",
+      "QUARTER": "Quarter"
+    },
+    "ACTIONS": {
+      "DOWNLOAD_STATEMENT": "Download Statement",
+      "REVIEW_ORDERS": "Review Orders"
+    },
+    "OVERVIEW": {
+      "AVAILABLE_BALANCE": "Available Balance",
+      "READY_FOR_TRANSFER": "Ready for your next transfer",
+      "PENDING_SETTLEMENT": "Pending Settlement",
+      "IN_NEXT_CYCLE": "Will be included in the next cycle",
+      "PAYOUT_PROFILE": "Payout Profile",
+      "NEXT_PAYOUT": "Next payout",
+      "HOLD_AMOUNT": "Held amount"
+    },
+    "KPIS": {
+      "NET_SALES": "Net Sales",
+      "PAYOUTS": "Vendor Payouts",
+      "FEES": "Platform Fees",
+      "REFUNDS": "Refunds"
+    },
+    "CHART": {
+      "TITLE": "Sales vs payouts trend",
+      "SUBTITLE": "Compare what was sold against what is already moving into settlement.",
+      "SALES": "Sales",
+      "PAYOUTS": "Payouts"
+    },
+    "SETTLEMENTS": {
+      "TITLE": "Upcoming Settlements",
+      "SUBTITLE": "The latest settlement batches scheduled for your account.",
+      "ORDERS": "orders",
+      "SCHEDULED": "Scheduled",
+      "PROCESSING": "Processing",
+      "PAID": "Paid"
+    },
+    "LEDGER": {
+      "TITLE": "Recent Ledger",
+      "SUBTITLE": "Your latest financial movements across sales, fees, refunds, and payouts.",
+      "SALE": "Sale",
+      "PAYOUT": "Payout",
+      "FEE": "Fee",
+      "REFUND": "Refund"
+    },
+    "ALERTS": {
+      "TITLE": "Finance Alerts",
+      "SUBTITLE": "Items that may need action before the next payout cycle.",
+      "HOLD_TITLE": "A portion of this week balance is on hold",
+      "HOLD_BODY": "Some orders are still within the return window, so part of the settlement remains temporarily reserved.",
+      "PAYOUT_TITLE": "Your next payout file is almost ready",
+      "PAYOUT_BODY": "The statement for the upcoming transfer cycle is ready for review before settlement is released."
+    },
+    "MONTHS": {
+      "JAN": "Jan",
+      "FEB": "Feb",
+      "MAR": "Mar",
+      "APR": "Apr",
+      "MAY": "May",
+      "JUN": "Jun"
+    }
   }
 }

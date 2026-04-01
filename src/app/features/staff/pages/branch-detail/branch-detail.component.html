@@ -1,0 +1,279 @@
+<div class="space-y-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <app-page-header
+    [description]="branch?.addressLine || ''"
+    customClass="sticky top-0 z-20 -mx-4 border-b border-slate-100 bg-slate-50/80 px-4 py-4 backdrop-blur-md sm:mx-0 sm:rounded-[24px] sm:border sm:px-6"
+  >
+    <span title>{{ branch?.name || '' }}</span>
+
+    <div actions class="flex flex-wrap items-center gap-3">
+      <button
+        routerLink="/staff"
+        class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition-all hover:bg-slate-50 active:scale-95">
+        <svg class="h-5 w-5" [class.rotate-180]="currentLang === 'ar'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </button>
+
+      <a
+        routerLink="/staff"
+        [queryParams]="{ action: 'branch' }"
+        class="group inline-flex min-h-11 items-center gap-3 whitespace-nowrap rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-[0.76rem] font-black text-slate-700 shadow-sm transition hover:-translate-y-0.5 hover:border-zadna-primary/20 hover:bg-slate-50 hover:text-zadna-primary">
+        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-slate-200 bg-slate-50 text-slate-500 transition-all group-hover:border-zadna-primary/15 group-hover:bg-zadna-primary/[0.06] group-hover:text-zadna-primary">
+          <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 5v14m-7-7h14"></path>
+          </svg>
+        </span>
+        <span>{{ 'STAFF_BRANCHES.ACTIONS.ADD_BRANCH' | translate }}</span>
+      </a>
+
+      <a
+        routerLink="/staff"
+        [queryParams]="{ action: 'employee' }"
+        class="group inline-flex min-h-11 items-center gap-3 whitespace-nowrap rounded-[18px] bg-zadna-primary px-4 py-2.5 text-[0.76rem] font-black text-white shadow-[0_16px_30px_rgba(14,116,144,0.24)] transition hover:-translate-y-0.5">
+        <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-white/15 bg-white/10 text-white">
+          <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 5v14m-7-7h14"></path>
+          </svg>
+        </span>
+        <span>{{ 'STAFF_BRANCHES.ACTIONS.CREATE_EMPLOYEE' | translate }}</span>
+      </a>
+
+      @if (branch) {
+        <span class="inline-flex rounded-full px-3 py-1.5 text-[0.72rem] font-black"
+          [ngClass]="branch.isPrimary ? 'bg-zadna-primary/10 text-zadna-primary' : 'bg-slate-100 text-slate-600'">
+          {{ branchTypeKey(branch) | translate }}
+        </span>
+
+        <span class="inline-flex rounded-full border px-3 py-1.5 text-[0.72rem] font-black" [ngClass]="statusBadgeClass(branch.status)">
+          {{ branchStatusKey(branch.status) | translate }}
+        </span>
+
+        @if (branch.status === 'pending') {
+          <button
+            type="button"
+            (click)="updateBranchStatus('active')"
+            class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-[0.75rem] font-black text-emerald-700 transition hover:bg-emerald-100">
+            {{ 'STAFF_BRANCHES.ACTIONS.ACTIVATE' | translate }}
+          </button>
+        } @else if (branch.status === 'active') {
+          <button
+            type="button"
+            (click)="updateBranchStatus('suspended')"
+            class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-[0.75rem] font-black text-amber-700 transition hover:bg-amber-100">
+            {{ 'STAFF_BRANCHES.ACTIONS.SUSPEND' | translate }}
+          </button>
+        } @else if (branch.status === 'suspended' || branch.status === 'archived') {
+          <button
+            type="button"
+            (click)="updateBranchStatus('active')"
+            class="rounded-xl border border-sky-200 bg-sky-50 px-4 py-2.5 text-[0.75rem] font-black text-sky-700 transition hover:bg-sky-100">
+            {{ 'STAFF_BRANCHES.ACTIONS.REACTIVATE' | translate }}
+          </button>
+        }
+
+        @if (canArchive) {
+          <button
+            type="button"
+            (click)="updateBranchStatus('archived')"
+            class="rounded-xl border border-rose-200 bg-rose-50 px-4 py-2.5 text-[0.75rem] font-black text-rose-700 transition hover:bg-rose-100">
+            {{ 'STAFF_BRANCHES.ACTIONS.ARCHIVE' | translate }}
+          </button>
+        }
+      }
+    </div>
+  </app-page-header>
+
+  @if (!branch) {
+    <div class="flex h-72 items-center justify-center rounded-[28px] border border-slate-200 bg-white text-[0.85rem] font-black text-slate-500 shadow-sm">
+      {{ 'COMMON.LOADING' | translate }}
+    </div>
+  } @else {
+    <div class="grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+      <div class="space-y-6">
+        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+          <app-panel-header
+            [title]="'STAFF_BRANCHES.DETAILS.BRANCH.OVERVIEW_TITLE'"
+            [subtitle]="'STAFF_BRANCHES.DETAILS.BRANCH.OVERVIEW_SUBTITLE'"
+          ></app-panel-header>
+
+          <div class="grid gap-4 px-6 py-6 md:grid-cols-2">
+            <div class="rounded-[20px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.DETAILS.BRANCH.FIELDS.CODE' | translate }}</p>
+              <p class="mt-2 text-[0.88rem] font-black text-slate-900">{{ branch.code }}</p>
+            </div>
+            <div class="rounded-[20px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.DETAILS.BRANCH.FIELDS.PHONE' | translate }}</p>
+              <p class="mt-2 text-[0.88rem] font-black text-slate-900" dir="ltr">{{ branch.phone }}</p>
+            </div>
+            <div class="rounded-[20px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.DETAILS.BRANCH.FIELDS.CITY' | translate }}</p>
+              <p class="mt-2 text-[0.88rem] font-black text-slate-900">{{ cityLabel(branch.city) }}</p>
+            </div>
+            <div class="rounded-[20px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.DETAILS.BRANCH.FIELDS.REGION' | translate }}</p>
+              <p class="mt-2 text-[0.88rem] font-black text-slate-900">{{ regionLabel(branch.region) }}</p>
+            </div>
+            <div class="rounded-[20px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.DETAILS.BRANCH.FIELDS.DELIVERY_RADIUS' | translate }}</p>
+              <p class="mt-2 text-[0.88rem] font-black text-slate-900">{{ branch.deliveryRadiusKm }} {{ 'STAFF_BRANCHES.DETAILS.BRANCH.KM' | translate }}</p>
+            </div>
+            <div class="rounded-[20px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.CREATED_AT' | translate }}</p>
+              <p class="mt-2 text-[0.88rem] font-black text-slate-900">{{ formatDate(branch.createdAt) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+          <app-panel-header
+            [title]="'STAFF_BRANCHES.DETAILS.BRANCH.HOURS_TITLE'"
+            [subtitle]="'STAFF_BRANCHES.DETAILS.BRANCH.HOURS_SUBTITLE'"
+          ></app-panel-header>
+
+          <div class="space-y-3 px-6 py-6">
+            @for (day of branch.operatingHours; track day.dayKey) {
+              <div class="flex items-center justify-between rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-3">
+                <div class="flex items-center gap-3">
+                  <span class="h-2.5 w-2.5 rounded-full" [ngClass]="day.isOpen ? 'bg-emerald-500' : 'bg-slate-300'"></span>
+                  <span class="text-[0.82rem] font-black text-slate-800">{{ day.dayKey | translate }}</span>
+                </div>
+
+                <span class="text-[0.76rem] font-bold" [ngClass]="day.isOpen ? 'text-emerald-700' : 'text-slate-400'">
+                  {{ day.isOpen ? (day.from + ' - ' + day.to) : ('COMMON.CLOSE' | translate) }}
+                </span>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+          <app-panel-header
+            [title]="'STAFF_BRANCHES.DETAILS.BRANCH.TEAM_TITLE'"
+            [subtitle]="'STAFF_BRANCHES.DETAILS.BRANCH.TEAM_SUBTITLE'"
+          ></app-panel-header>
+
+          @if (branchEmployees.length > 0) {
+            <div class="divide-y divide-slate-100">
+              @for (employee of branchEmployees; track employee.id) {
+                <a
+                  [routerLink]="['/staff/employees', employee.id]"
+                  class="flex items-center justify-between gap-4 px-6 py-4 transition hover:bg-slate-50/60">
+                  <div class="min-w-0">
+                    <p class="truncate text-[0.84rem] font-black text-slate-900">{{ employee.fullName }}</p>
+                    <p class="mt-1 truncate text-[0.72rem] font-bold text-slate-400">{{ employee.contact }}</p>
+                  </div>
+
+                  <div class="flex items-center gap-3">
+                    <span class="text-[0.76rem] font-black text-slate-600">{{ employee.jobTitle | translate }}</span>
+                    <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black"
+                      [ngClass]="employee.status === 'active'
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                        : employee.status === 'invited'
+                          ? 'border-amber-200 bg-amber-50 text-amber-700'
+                          : 'border-rose-200 bg-rose-50 text-rose-700'">
+                      {{ employee.status === 'active'
+                        ? ('STAFF_BRANCHES.STATUSES.EMPLOYEE_ACTIVE' | translate)
+                        : employee.status === 'invited'
+                          ? ('STAFF_BRANCHES.STATUSES.EMPLOYEE_INVITED' | translate)
+                          : ('STAFF_BRANCHES.STATUSES.EMPLOYEE_SUSPENDED' | translate) }}
+                    </span>
+                  </div>
+                </a>
+              }
+            </div>
+          } @else {
+            <div class="px-6 py-8 text-center text-[0.8rem] font-bold text-slate-500">
+              {{ 'STAFF_BRANCHES.DETAILS.BRANCH.EMPTY_TEAM' | translate }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+          <app-panel-header
+            [title]="'STAFF_BRANCHES.DETAILS.BRANCH.MANAGER_TITLE'"
+            [subtitle]="'STAFF_BRANCHES.DETAILS.BRANCH.MANAGER_SUBTITLE'"
+          ></app-panel-header>
+
+          <div class="px-6 py-6">
+            <div class="rounded-[22px] border border-zadna-primary/15 bg-zadna-primary/[0.05] px-5 py-5">
+              <p class="text-[1rem] font-black text-slate-900">{{ branch.managerName }}</p>
+              <p class="mt-1 text-[0.78rem] font-bold text-slate-500" dir="ltr">{{ branch.managerContact }}</p>
+              <p class="mt-3 text-[0.74rem] font-bold leading-6 text-slate-600">{{ branch.addressLine }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+          <app-panel-header
+            [title]="'STAFF_BRANCHES.DETAILS.BRANCH.SUMMARY_TITLE'"
+            [subtitle]="'STAFF_BRANCHES.DETAILS.BRANCH.SUMMARY_SUBTITLE'"
+          ></app-panel-header>
+
+          <div class="grid gap-3 px-6 py-6">
+            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.DETAILS.BRANCH.METRICS.TEAM_SIZE' | translate }}</p>
+              <p class="mt-2 text-[1rem] font-black text-slate-900">{{ branchEmployees.length }}</p>
+            </div>
+            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.DETAILS.BRANCH.METRICS.PENDING_INVITATIONS' | translate }}</p>
+              <p class="mt-2 text-[1rem] font-black text-slate-900">{{ pendingInvitationsCount }}</p>
+            </div>
+            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.DETAILS.BRANCH.METRICS.WORKING_DAYS' | translate }}</p>
+              <p class="mt-2 text-[1rem] font-black text-slate-900">{{ branch.workingDays }}</p>
+            </div>
+            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.DETAILS.BRANCH.METRICS.DELIVERY_RADIUS' | translate }}</p>
+              <p class="mt-2 text-[1rem] font-black text-slate-900">{{ branch.deliveryRadiusKm }} {{ 'STAFF_BRANCHES.DETAILS.BRANCH.KM' | translate }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+          <app-panel-header
+            [title]="'STAFF_BRANCHES.DETAILS.BRANCH.INVITATIONS_TITLE'"
+            [subtitle]="'STAFF_BRANCHES.DETAILS.BRANCH.INVITATIONS_SUBTITLE'"
+          ></app-panel-header>
+
+          @if (branchInvitations.length > 0) {
+            <div class="divide-y divide-slate-100">
+              @for (invitation of branchInvitations; track invitation.id) {
+                <a
+                  [routerLink]="['/staff/invitations', invitation.id]"
+                  class="flex items-center justify-between gap-3 px-6 py-4 transition hover:bg-slate-50/60">
+                  <div class="min-w-0">
+                    <p class="truncate text-[0.82rem] font-black text-slate-900">{{ invitation.targetName }}</p>
+                    <p class="mt-1 text-[0.72rem] font-bold text-slate-400">{{ formatDateTime(invitation.sentAt) }}</p>
+                  </div>
+
+                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black"
+                    [ngClass]="invitation.status === 'accepted'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                      : invitation.status === 'pending'
+                        ? 'border-amber-200 bg-amber-50 text-amber-700'
+                        : invitation.status === 'expired'
+                          ? 'border-rose-200 bg-rose-50 text-rose-700'
+                          : 'border-slate-200 bg-slate-100 text-slate-600'">
+                    {{ invitation.status === 'accepted'
+                      ? ('STAFF_BRANCHES.STATUSES.INVITATION_ACCEPTED' | translate)
+                      : invitation.status === 'pending'
+                        ? ('STAFF_BRANCHES.STATUSES.INVITATION_PENDING' | translate)
+                        : invitation.status === 'expired'
+                          ? ('STAFF_BRANCHES.STATUSES.INVITATION_EXPIRED' | translate)
+                          : ('STAFF_BRANCHES.STATUSES.INVITATION_REVOKED' | translate) }}
+                  </span>
+                </a>
+              }
+            </div>
+          } @else {
+            <div class="px-6 py-8 text-center text-[0.8rem] font-bold text-slate-500">
+              {{ 'STAFF_BRANCHES.DETAILS.BRANCH.EMPTY_INVITATIONS' | translate }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -1,4 +1,11 @@
 <section class="grid gap-3.5 pb-2">
+  <app-page-header
+    [title]="'DASHBOARD.TITLE' | translate"
+    [description]="'DASHBOARD.SUBTITLE' | translate"
+    [eyebrow]="'COMMON.WELCOME' | translate"
+    customClass="mb-1"
+  ></app-page-header>
+
   <div class="grid gap-3.5 xl:grid-cols-[1.6fr_minmax(260px,0.9fr)]">
     <article class="relative overflow-hidden rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,rgba(9,92,104,0.95),rgba(18,124,140,0.86),rgba(242,161,69,0.22))] p-5 text-white shadow-[0_26px_60px_rgba(18,124,140,0.25)] md:p-6">
       <div class="pointer-events-none absolute -end-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
@@ -36,15 +43,18 @@
     </article>
 
     <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(244,248,251,0.92))] p-5 shadow-[0_22px_45px_rgba(15,23,42,0.06)]">
-      <div class="flex items-center justify-between gap-3">
-        <div>
-          <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/75">{{ 'COMMON.LIVE' | translate }}</p>
-          <h2 class="mt-0.5 text-[0.95rem] font-black text-slate-900">{{ 'DASHBOARD.TODAYS_PULSE' | translate }}</h2>
-        </div>
-        <span class="inline-flex h-8 w-8 items-center justify-center rounded-[12px] bg-zadna-primary/10 text-zadna-primary">
+      <app-panel-header
+        [eyebrow]="'COMMON.LIVE'"
+        [title]="'DASHBOARD.TODAYS_PULSE'"
+        containerClass="mb-4"
+        contentClass="flex items-center justify-between gap-3"
+        eyebrowClass="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/75"
+        titleClass="mt-0.5 text-[0.95rem] font-black text-slate-900"
+      >
+        <span actions class="inline-flex h-8 w-8 items-center justify-center rounded-[12px] bg-zadna-primary/10 text-zadna-primary">
           <span class="h-2 w-2 rounded-full bg-zadna-primary"></span>
         </span>
-      </div>
+      </app-panel-header>
 
       <div class="mt-4 space-y-3">
         @for (event of timeline; track event.time) {
@@ -78,13 +88,16 @@
 
   <section class="grid gap-3.5 xl:grid-cols-[1.2fr_0.8fr]">
     <article class="rounded-[24px] border border-slate-200/70 bg-white/95 p-5 shadow-[0_18px_36px_rgba(15,23,42,0.05)]">
-      <div class="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70">{{ 'COMMON.TODAY' | translate }}</p>
-          <h2 class="mt-0.5 text-[0.95rem] font-black text-slate-900">{{ 'DASHBOARD.QUICK_EXECUTION' | translate }}</h2>
-        </div>
-        <span class="rounded-full bg-slate-100 px-2 py-0.5 text-[0.68rem] font-extrabold text-slate-500">{{ checklist.length }} {{ 'COMMON.ITEMS' | translate }}</span>
-      </div>
+      <app-panel-header
+        [eyebrow]="'COMMON.TODAY'"
+        [title]="'DASHBOARD.QUICK_EXECUTION'"
+        containerClass="mb-4"
+        contentClass="flex items-center justify-between gap-3"
+        eyebrowClass="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70"
+        titleClass="mt-0.5 text-[0.95rem] font-black text-slate-900"
+      >
+        <span actions class="rounded-full bg-slate-100 px-2 py-0.5 text-[0.68rem] font-extrabold text-slate-500">{{ checklist.length }} {{ 'COMMON.ITEMS' | translate }}</span>
+      </app-panel-header>
 
       <div class="grid gap-3">
         @for (item of checklist; track item.titleKey) {
@@ -104,13 +117,16 @@
     </article>
 
     <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(247,250,251,0.92))] p-5 shadow-[0_18px_36px_rgba(15,23,42,0.05)]">
-      <div class="mb-4 flex items-center justify-between gap-3">
-        <div>
-          <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70">{{ 'COMMON.OPEN' | translate }}</p>
-          <h2 class="mt-0.5 text-[0.95rem] font-black text-slate-900">{{ 'DASHBOARD.TODAYS_PULSE' | translate }}</h2>
-        </div>
-        <span class="rounded-full bg-emerald-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-emerald-600">{{ 'COMMON.LIVE' | translate }}</span>
-      </div>
+      <app-panel-header
+        [eyebrow]="'COMMON.OPEN'"
+        [title]="'DASHBOARD.TODAYS_PULSE'"
+        containerClass="mb-4"
+        contentClass="flex items-center justify-between gap-3"
+        eyebrowClass="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70"
+        titleClass="mt-0.5 text-[0.95rem] font-black text-slate-900"
+      >
+        <span actions class="rounded-full bg-emerald-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-emerald-600">{{ 'COMMON.LIVE' | translate }}</span>
+      </app-panel-header>
 
       <div class="grid gap-3">
         @for (action of quickActions; track action.titleKey) {

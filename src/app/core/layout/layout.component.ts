@@ -1,9 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription } from 'rxjs';
 import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
+import { VendorProfileService } from '../../features/settings/services/vendor-profile.service';
 
 @Component({
   selector: 'app-vendor-layout',
@@ -12,52 +14,50 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent implements OnInit, OnDestroy {
   isMobileMenuOpen = false;
   currentLang = 'ar';
   userName = 'Vendor User';
-  userRole = 'VENDOR_ACCOUNT';
+  userRole = 'Vendor Account';
   initials = 'VU';
+  private langSub?: Subscription;
+  private profileSub?: Subscription;
 
   constructor(
-    private translate: TranslateService,
-    private router: Router
-  ) { }
+    private readonly translate: TranslateService,
+    private readonly router: Router,
+    private readonly profileService: VendorProfileService
+  ) {}
 
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang || 'ar';
     this.updateHtmlAttributes(this.currentLang);
+    this.userRole = this.translate.instant('SETTINGS_PROFILE.ROLE_LABEL');
 
-    // Sync current lang on language change event
-    this.translate.onLangChange.subscribe(event => {
+    this.langSub = this.translate.onLangChange.subscribe((event) => {
       this.currentLang = event.lang;
       this.updateHtmlAttributes(this.currentLang);
-      
-      // Update default name if not customized
-      if (!localStorage.getItem('onboarding_biz_name')) {
-        this.userName = this.translate.instant('COMMON.DEFAULT_VENDOR_NAME');
-        this.initials = this.userName.substring(0, 2).toUpperCase();
-      }
+      this.userRole = this.translate.instant('SETTINGS_PROFILE.ROLE_LABEL');
+
+      const profile = this.profileService.getProfileSnapshot();
+      this.userName = this.currentLang === 'ar'
+        ? (profile.storeNameAr || profile.storeNameEn || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'))
+        : (profile.storeNameEn || profile.storeNameAr || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
+      this.initials = this.buildInitials(this.userName);
     });
 
-    // Heal broken Arabic text if present in localStorage
-    const storedName = localStorage.getItem('onboarding_biz_name');
-    
-    // Check for common Mojibake patterns (broken UTF-8 interpreted as ANSI/Latin1)
-    const isBroken = storedName && (storedName.includes('Ù') || storedName.includes('Ø') || storedName.includes('Ø§'));
+    this.profileSub = this.profileService.getProfile().subscribe((profile) => {
+      this.userName = this.currentLang === 'ar'
+        ? (profile.storeNameAr || profile.storeNameEn || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'))
+        : (profile.storeNameEn || profile.storeNameAr || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
+      this.initials = this.buildInitials(this.userName);
+      localStorage.setItem('onboarding_biz_name', this.userName);
+    });
+  }
 
-    if (isBroken) {
-      // Detected Mojibake - reset to correct default for better UX
-      const healedName = this.translate.instant('COMMON.DEFAULT_VENDOR_NAME');
-      localStorage.setItem('onboarding_biz_name', healedName);
-      this.userName = healedName;
-    } else if (storedName) {
-      this.userName = storedName;
-    } else {
-      this.userName = this.translate.instant('COMMON.DEFAULT_VENDOR_NAME');
-    }
-
-    this.initials = (this.userName || 'VU').substring(0, 2).toUpperCase();
+  ngOnDestroy(): void {
+    this.langSub?.unsubscribe();
+    this.profileSub?.unsubscribe();
   }
 
   toggleMobileMenu(): void {
@@ -70,14 +70,23 @@ export class LayoutComponent implements OnInit {
     this.currentLang = newLang;
   }
 
+  logout(): void {
+    localStorage.clear();
+    this.router.navigate(['/login']);
+  }
+
   private updateHtmlAttributes(lang: string): void {
     const htmlTag = document.getElementsByTagName('html')[0];
     htmlTag.dir = lang === 'ar' ? 'rtl' : 'ltr';
     htmlTag.lang = lang;
   }
 
-  logout(): void {
-    localStorage.clear();
-    this.router.navigate(['/login']);
+  private buildInitials(name: string): string {
+    const words = name.trim().split(/\s+/).filter(Boolean);
+    if (words.length >= 2) {
+      return `${words[0][0] || ''}${words[1][0] || ''}`.toUpperCase();
+    }
+
+    return (name || 'VU').substring(0, 2).toUpperCase();
   }
 }
