@@ -1,0 +1,163 @@
+<div class="space-y-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <app-page-header
+    [description]="article ? localized(article.summary) : ''"
+    customClass="sticky top-0 z-20 -mx-4 border-b border-slate-100 bg-slate-50/80 px-4 py-4 backdrop-blur-md sm:mx-0 sm:rounded-[24px] sm:border sm:px-6"
+  >
+    <span title>{{ article ? localized(article.title) : '' }}</span>
+
+    <div actions class="flex flex-wrap items-center gap-3">
+      <a
+        routerLink="/support"
+        [queryParams]="{ view: 'reference' }"
+        class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition-all hover:bg-slate-50 active:scale-95">
+        <svg class="h-5 w-5" [class.rotate-180]="currentLang === 'ar'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+        </svg>
+      </a>
+
+      @if (article) {
+        <a
+          routerLink="/support"
+          [queryParams]="{ view: 'support', action: 'ticket', category: article.category }"
+          class="group inline-flex min-h-11 items-center gap-3 whitespace-nowrap rounded-[18px] bg-zadna-primary px-4 py-2.5 text-[0.76rem] font-black text-white shadow-[0_16px_30px_rgba(14,116,144,0.24)] transition hover:-translate-y-0.5">
+          <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-white/15 bg-white/10 text-white">
+            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 5v14m-7-7h14"></path>
+            </svg>
+          </span>
+          <span>{{ 'SUPPORT_CENTER.ACTIONS.OPEN_SUPPORT_FROM_REFERENCE' | translate }}</span>
+        </a>
+      }
+    </div>
+  </app-page-header>
+
+  @if (!article) {
+    <div class="flex h-72 items-center justify-center rounded-[28px] border border-slate-200 bg-white text-[0.85rem] font-black text-slate-500 shadow-sm">
+      {{ 'COMMON.LOADING' | translate }}
+    </div>
+  } @else {
+    <div class="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
+      <div class="space-y-6">
+        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+          <app-panel-header
+            [title]="'SUPPORT_CENTER.SECTIONS.REFERENCE_TITLE'"
+            [subtitle]="'SUPPORT_CENTER.SECTIONS.REFERENCE_SUBTITLE'"
+          ></app-panel-header>
+
+          <div class="space-y-5 px-6 py-6">
+            @for (section of article.sections; track section.title.ar) {
+              <div class="rounded-[20px] border border-slate-200 bg-slate-50 px-5 py-5">
+                <h3 class="text-[0.9rem] font-black text-slate-900">{{ localized(section.title) }}</h3>
+                <div class="mt-4 space-y-3">
+                  @for (point of section.points; track point.ar) {
+                    <div class="flex items-start gap-3">
+                      <span class="mt-2 h-2 w-2 shrink-0 rounded-full bg-zadna-primary"></span>
+                      <p class="text-[0.8rem] font-bold leading-7 text-slate-700">{{ localized(point) }}</p>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <div class="grid gap-6 lg:grid-cols-2">
+          <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+            <app-panel-header
+              [title]="'SUPPORT_CENTER.REFERENCE.RELATED_PATHS'"
+              [subtitle]="'SUPPORT_CENTER.DETAIL.RELATED_REFERENCE_SUBTITLE'"
+            ></app-panel-header>
+
+            <div class="flex flex-wrap gap-3 px-6 py-6">
+              @for (link of article.relatedLinks; track link.route) {
+                <a
+                  [routerLink]="link.route"
+                  class="inline-flex rounded-full border border-slate-200 bg-slate-50 px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                  {{ link.labelKey | translate }}
+                </a>
+              }
+            </div>
+          </div>
+
+          <div class="rounded-[28px] border border-amber-200 bg-amber-50 shadow-sm">
+            <app-panel-header
+              [title]="'SUPPORT_CENTER.REFERENCE.ESCALATION_NOTE'"
+              [subtitle]="'SUPPORT_CENTER.SECTIONS.SUPPORT_SUBTITLE'"
+              containerClass="border-b border-amber-200/60 px-6 py-5"
+              titleClass="text-[1rem] font-black text-amber-900"
+              subtitleClass="mt-1 text-[0.75rem] font-bold text-amber-800/70"
+            ></app-panel-header>
+
+            <div class="px-6 py-6">
+              <p class="text-[0.8rem] font-bold leading-7 text-amber-900/90">{{ localized(article.escalationNote) }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+          <app-panel-header
+            [title]="'SUPPORT_CENTER.TABS.REFERENCE'"
+            [subtitle]="'SUPPORT_CENTER.SUMMARY.REFERENCE_COUNT_HINT'"
+          ></app-panel-header>
+
+          <div class="grid gap-4 px-6 py-6">
+            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.TYPE' | translate }}</p>
+              <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ articleTypeKey(article.type) | translate }}</p>
+            </div>
+
+            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}</p>
+              <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ categoryKey(article.category) | translate }}</p>
+            </div>
+
+            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.REFERENCE.READ_TIME' | translate:{ count: article.readTimeMinutes } }}</p>
+              <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ formatDate(article.updatedAt) }}</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+          <app-panel-header
+            [title]="'SUPPORT_CENTER.REFERENCE.RELATED_TICKETS_TITLE'"
+            [subtitle]="'SUPPORT_CENTER.REFERENCE.RELATED_TICKETS_SUBTITLE'"
+          ></app-panel-header>
+
+          @if (relatedTickets.length > 0) {
+            <div class="space-y-3 px-6 py-6">
+              @for (ticket of relatedTickets; track trackByTicketId($index, ticket)) {
+                <a
+                  [routerLink]="['/support/tickets', ticket.id]"
+                  class="block rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4 transition hover:border-zadna-primary/20 hover:bg-white">
+                  <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="min-w-0">
+                      <p class="text-[0.82rem] font-black text-slate-900">{{ localized(ticket.subject) }}</p>
+                      <p class="mt-1 text-[0.72rem] font-bold text-slate-400" dir="ltr">{{ ticket.reference }}</p>
+                    </div>
+                    <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="statusClass(ticket.status)">
+                      {{ statusKey(ticket.status) | translate }}
+                    </span>
+                  </div>
+
+                  <div class="mt-3 flex flex-wrap items-center gap-2">
+                    <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.66rem] font-black" [ngClass]="priorityClass(ticket.priority)">
+                      {{ priorityKey(ticket.priority) | translate }}
+                    </span>
+                    <span class="text-[0.68rem] font-bold text-slate-400">{{ formatDateTime(ticket.updatedAt) }}</span>
+                  </div>
+                </a>
+              }
+            </div>
+          } @else {
+            <div class="px-6 py-8 text-center text-[0.8rem] font-bold text-slate-500">
+              {{ 'SUPPORT_CENTER.EMPTY.RELATED_TICKETS' | translate }}
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>

@@ -3,6 +3,8 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, RouterLinkActive } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
+import { Observable } from 'rxjs';
+import { AlertsCenterService } from '../../../../features/alerts/services/alerts-center.service';
 
 export interface SidebarItem {
   icon: string | SafeHtml;
@@ -22,8 +24,10 @@ export interface SidebarItem {
 })
 export class SidebarComponent implements OnInit {
   private sanitizer = inject(DomSanitizer);
+  private alertsCenterService = inject(AlertsCenterService);
 
   @Input() currentLang: string = 'ar';
+  readonly unreadCount$: Observable<number> = this.alertsCenterService.getUnreadCount();
   @Input() userName: string = 'Ember Crest';
   @Input() userRole: string = 'Vendor';
   @Input() initials: string = 'مت';

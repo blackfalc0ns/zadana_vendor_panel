@@ -4,12 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
-import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import {
   DetailTabNavItem,
   DetailTabsNavComponent
 } from '../../../../shared/components/ui/navigation/detail-tabs-nav/detail-tabs-nav.component';
+import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
+import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
+import { AppMetricCardComponent } from '../../../../shared/components/ui/data-display/metric-card/metric-card.component';
+import { AppEmptyStateComponent } from '../../../../shared/components/ui/data-display/empty-state/empty-state.component';
+import { AppFilterPanelComponent } from '../../../../shared/components/ui/layout/filter-panel/filter-panel.component';
+import { AppPageSectionShellComponent } from '../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
+import { AppDrawerShellComponent } from '../../../../shared/components/ui/overlay/drawer-shell/drawer-shell.component';
 import {
   CustomerReviewVm,
   ReviewFiltersVm,
@@ -32,8 +38,14 @@ import { ReviewsService } from '../../services/reviews.service';
     TranslateModule,
     NgClass,
     AppPageHeaderComponent,
-    AppPanelHeaderComponent,
-    DetailTabsNavComponent
+    DetailTabsNavComponent,
+    AppPaginationComponent,
+    AppFlashBannerComponent,
+    AppMetricCardComponent,
+    AppEmptyStateComponent,
+    AppFilterPanelComponent,
+    AppPageSectionShellComponent,
+    AppDrawerShellComponent
   ],
   templateUrl: './reviews-center.page.html'
 })
@@ -67,6 +79,8 @@ export class ReviewsCenterPageComponent implements OnInit, OnDestroy {
   };
 
   readonly stars = [1, 2, 3, 4, 5];
+  readonly pageSize = 10;
+  currentPage = 1;
 
   private langSub: Subscription;
   private dataSub?: Subscription;
@@ -143,6 +157,19 @@ export class ReviewsCenterPageComponent implements OnInit, OnDestroy {
     return this.reviews.find((review) => review.id === this.selectedReviewId) || null;
   }
 
+  get totalPages(): number {
+    return Math.max(1, Math.ceil(this.filteredReviews.length / this.pageSize));
+  }
+
+  get currentPageValue(): number {
+    return Math.min(this.currentPage, this.totalPages);
+  }
+
+  get pagedReviews(): CustomerReviewVm[] {
+    const startIndex = (this.currentPageValue - 1) * this.pageSize;
+    return this.filteredReviews.slice(startIndex, startIndex + this.pageSize);
+  }
+
   get hasActiveFilters(): boolean {
     return !!this.filters.search.trim()
       || this.filters.type !== 'all'
@@ -156,6 +183,7 @@ export class ReviewsCenterPageComponent implements OnInit, OnDestroy {
 
   setActiveQuickView(viewId: string): void {
     this.activeQuickView = viewId as ReviewQuickView;
+    this.currentPage = 1;
   }
 
   resetFilters(): void {
@@ -167,6 +195,11 @@ export class ReviewsCenterPageComponent implements OnInit, OnDestroy {
     this.filters.dateFrom = '';
     this.filters.dateTo = '';
     this.filters.sortBy = 'newest';
+    this.currentPage = 1;
+  }
+
+  onPageChange(page: number): void {
+    this.currentPage = page;
   }
 
   openReview(review: CustomerReviewVm): void {

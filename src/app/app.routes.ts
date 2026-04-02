@@ -57,6 +57,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/offers/pages/offers-list/offers-list.component').then(m => m.OffersListComponent)
       },
       {
+        path: 'alerts',
+        loadComponent: () => import('./features/alerts/pages/alerts-center/alerts-center.page').then(m => m.AlertsCenterPageComponent)
+      },
+      {
         path: 'reviews',
         loadComponent: () => import('./features/reviews/pages/reviews-center/reviews-center.page').then(m => m.ReviewsCenterPageComponent)
       },
@@ -87,6 +91,18 @@ export const routes: Routes = [
       {
         path: 'staff',
         loadComponent: () => import('./features/staff/pages/staff-branches/staff-branches.page').then(m => m.StaffBranchesPageComponent)
+      },
+      {
+        path: 'support/tickets/:id',
+        loadComponent: () => import('./features/support/pages/support-ticket-detail/support-ticket-detail.component').then(m => m.SupportTicketDetailComponent)
+      },
+      {
+        path: 'support/reference/:id',
+        loadComponent: () => import('./features/support/pages/support-reference-detail/support-reference-detail.component').then(m => m.SupportReferenceDetailComponent)
+      },
+      {
+        path: 'support',
+        loadComponent: () => import('./features/support/pages/support-center/support-center.page').then(m => m.SupportCenterPageComponent)
       },
       {
         path: 'profile',

@@ -54,12 +54,111 @@
       </svg>
     </button>
 
-    <button type="button" class="relative flex h-10 w-10 items-center justify-center rounded-[16px] border border-slate-200/80 bg-white/90 text-slate-900 transition hover:-translate-y-0.5 hover:border-zadna-primary/20 hover:text-zadna-primary hover:shadow-[0_14px_26px_rgba(15,23,42,0.08)]">
-      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0"></path>
-      </svg>
-      <span class="absolute end-2.5 top-2.5 h-2 w-2 rounded-full border-2 border-white bg-rose-500"></span>
-    </button>
+    <div #alertsContainer class="relative">
+      <button
+        type="button"
+        (click)="onAlertsButtonClick()"
+        class="relative flex h-10 w-10 items-center justify-center rounded-[16px] border border-slate-200/80 bg-white/90 text-slate-900 transition hover:-translate-y-0.5 hover:border-zadna-primary/20 hover:text-zadna-primary hover:shadow-[0_14px_26px_rgba(15,23,42,0.08)]"
+        [attr.aria-label]="'SIDEBAR.ALERTS' | translate">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022 23.848 23.848 0 0 0 5.454 1.31m5.715 0a24.255 24.255 0 0 1-5.715 0m5.715 0a3 3 0 1 1-5.715 0"></path>
+        </svg>
+        @if (unreadCount$ | async; as unreadCount) {
+          @if (unreadCount > 0) {
+            <span class="absolute -end-1.5 -top-1.5 inline-flex min-h-[1.15rem] min-w-[1.15rem] items-center justify-center rounded-full border-2 border-white bg-rose-500 px-1 text-[0.6rem] font-black text-white">
+              {{ displayUnreadCount(unreadCount) }}
+            </span>
+          }
+        }
+      </button>
+
+      @if (alertsPanelOpen) {
+        <div class="absolute end-0 top-[calc(100%+0.85rem)] z-50 hidden w-[360px] overflow-hidden rounded-[24px] border border-slate-200/80 bg-white shadow-[0_24px_60px_rgba(15,23,42,0.18)] sm:block">
+          <div class="border-b border-slate-100 px-4 py-4">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-zadna-primary/75">{{ 'SIDEBAR.ALERTS' | translate }}</p>
+                <p class="mt-1 text-[0.75rem] font-bold text-slate-500">{{ 'ALERTS_CENTER.POPOVER.SUBTITLE' | translate }}</p>
+              </div>
+
+              <button
+                type="button"
+                (click)="markAllAsRead($event)"
+                class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-[0.65rem] font-black text-slate-600 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                {{ 'ALERTS_CENTER.ACTIONS.MARK_ALL_READ' | translate }}
+              </button>
+            </div>
+          </div>
+
+          @if (bellAlerts$ | async; as bellAlerts) {
+            @if (bellAlerts.length > 0) {
+              <div class="max-h-[420px] overflow-y-auto p-3">
+                <div class="space-y-2">
+                  @for (alert of bellAlerts; track alert.id) {
+                    <button
+                      type="button"
+                      (click)="openAlert(alert)"
+                      class="w-full rounded-[18px] border border-slate-200/70 bg-slate-50/70 p-3 text-start transition hover:border-zadna-primary/20 hover:bg-white">
+                      <div class="flex items-start gap-3">
+                        <span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full" [ngClass]="severityClass(alert.severity)"></span>
+
+                        <div class="min-w-0 flex-1">
+                          <div class="flex flex-wrap items-center gap-2">
+                            <span class="text-[0.74rem] font-black text-slate-900">{{ alertText(alert.title) }}</span>
+                            @if (alert.count !== undefined) {
+                              <span class="inline-flex min-w-[22px] items-center justify-center rounded-full bg-slate-200/70 px-1.5 py-0.5 text-[0.6rem] font-black text-slate-600">
+                                {{ alert.count }}
+                              </span>
+                            }
+                            @if (alert.state === 'unread') {
+                              <span class="inline-flex rounded-full bg-zadna-primary/10 px-2 py-0.5 text-[0.58rem] font-black text-zadna-primary">
+                                {{ 'ALERTS_CENTER.STATE.UNREAD' | translate }}
+                              </span>
+                            }
+                          </div>
+
+                          <p class="mt-1.5 text-[0.7rem] font-bold leading-5 text-slate-500">{{ alertText(alert.summary) }}</p>
+
+                          <div class="mt-2 flex items-center justify-between gap-3">
+                            <div class="flex flex-wrap items-center gap-2">
+                              <span class="inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[0.58rem] font-black text-slate-500">
+                                {{ sourceLabelKey(alert.source) | translate }}
+                              </span>
+                              <span class="text-[0.62rem] font-black text-slate-400">{{ formatDateTime(alert.createdAt) }}</span>
+                            </div>
+
+                            <button
+                              type="button"
+                              (click)="markAlertReadState(alert, $event)"
+                              class="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[0.58rem] font-black text-slate-600 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                              {{ (alert.state === 'unread' ? 'ALERTS_CENTER.ACTIONS.MARK_READ' : 'ALERTS_CENTER.ACTIONS.MARK_UNREAD') | translate }}
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  }
+                </div>
+              </div>
+            } @else {
+              <div class="px-4 py-8 text-center">
+                <p class="text-[0.88rem] font-black text-slate-900">{{ 'ALERTS_CENTER.POPOVER.EMPTY_TITLE' | translate }}</p>
+                <p class="mt-1.5 text-[0.74rem] font-bold text-slate-500">{{ 'ALERTS_CENTER.POPOVER.EMPTY_SUBTITLE' | translate }}</p>
+              </div>
+            }
+          }
+
+          <div class="border-t border-slate-100 p-3">
+            <button
+              type="button"
+              (click)="openAlertsCenter()"
+              class="inline-flex w-full items-center justify-center gap-2 rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.74rem] font-black text-white transition hover:bg-zadna-primaryDark">
+              {{ 'ALERTS_CENTER.ACTIONS.VIEW_ALL' | translate }}
+            </button>
+          </div>
+        </div>
+      }
+    </div>
 
     <button
       type="button"

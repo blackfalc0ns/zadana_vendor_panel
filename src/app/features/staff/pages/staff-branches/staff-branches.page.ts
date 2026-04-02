@@ -6,12 +6,16 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
 import { CITIES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
-import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import {
   DetailTabNavItem,
   DetailTabsNavComponent
 } from '../../../../shared/components/ui/navigation/detail-tabs-nav/detail-tabs-nav.component';
+import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
+import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
+import { AppFilterPanelComponent } from '../../../../shared/components/ui/layout/filter-panel/filter-panel.component';
+import { AppPageSectionShellComponent } from '../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
+import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
 import {
   BranchCreationInput,
   BranchOperatingHourVm,
@@ -93,8 +97,12 @@ interface EmployeeModalDraft {
     TranslateModule,
     NgClass,
     AppPageHeaderComponent,
-    AppPanelHeaderComponent,
-    DetailTabsNavComponent
+    DetailTabsNavComponent,
+    AppPaginationComponent,
+    AppFlashBannerComponent,
+    AppFilterPanelComponent,
+    AppPageSectionShellComponent,
+    AppModalShellComponent
   ],
   templateUrl: './staff-branches.page.html'
 })
@@ -142,6 +150,12 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
   isBranchWizardOpen = false;
   branchWizardStep = 1;
   branchDraft = this.createEmptyBranchDraft();
+  readonly pageSize = 10;
+  private readonly currentPages: Record<StaffView, number> = {
+    branches: 1,
+    employees: 1,
+    invitations: 1
+  };
 
   isEmployeeModalOpen = false;
   editingEmployee: EmployeeVm | null = null;
@@ -201,28 +215,25 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
     this.routeSub?.unsubscribe();
   }
 
-  get viewTabs(): DetailTabNavItem[] {
+  get primaryViewTabs(): Array<Record<string, unknown>> {
     return [
       {
         id: 'branches',
-        labelKey: 'STAFF_BRANCHES.VIEWS.BRANCHES',
-        icon: 'storefront',
-        count: this.filteredBranches.length
+        label: `${this.translate.instant('STAFF_BRANCHES.VIEWS.BRANCHES')} · ${this.filteredBranches.length}`,
+        translateLabel: false
       },
       {
         id: 'employees',
-        labelKey: 'STAFF_BRANCHES.VIEWS.EMPLOYEES',
-        icon: 'person',
-        count: this.filteredEmployees.length
-      },
-      {
-        id: 'invitations',
-        labelKey: 'STAFF_BRANCHES.VIEWS.INVITATIONS',
-        icon: 'verified_user',
-        count: this.filteredInvitations.length,
-        attention: this.pendingInvitationsCount > 0
+        label: `${this.translate.instant('STAFF_BRANCHES.VIEWS.EMPLOYEES')} · ${this.filteredEmployees.length}`,
+        translateLabel: false
       }
     ];
+  }
+
+  get primaryViewValue(): string {
+    return this.activeView === 'branches' || this.activeView === 'employees'
+      ? this.activeView
+      : '';
   }
 
   get activePanelTitle(): string {
@@ -249,6 +260,10 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
 
   get pendingInvitationsCount(): number {
     return this.invitations.filter((invitation) => invitation.status === 'pending').length;
+  }
+
+  get invitationsToggleLabel(): string {
+    return `${this.translate.instant('STAFF_BRANCHES.VIEWS.INVITATIONS')} · ${this.filteredInvitations.length}`;
   }
 
   get hasPrimaryBranch(): boolean {
@@ -358,6 +373,38 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
     });
   }
 
+  get pagedBranches(): BranchVm[] {
+    return this.paginateItems(this.filteredBranches, 'branches');
+  }
+
+  get pagedEmployees(): EmployeeVm[] {
+    return this.paginateItems(this.filteredEmployees, 'employees');
+  }
+
+  get pagedInvitations(): InvitationVm[] {
+    return this.paginateItems(this.filteredInvitations, 'invitations');
+  }
+
+  get activeTotalCount(): number {
+    if (this.activeView === 'branches') {
+      return this.filteredBranches.length;
+    }
+
+    if (this.activeView === 'employees') {
+      return this.filteredEmployees.length;
+    }
+
+    return this.filteredInvitations.length;
+  }
+
+  get activeTotalPages(): number {
+    return this.totalPagesForCount(this.activeTotalCount);
+  }
+
+  get activeCurrentPage(): number {
+    return this.getClampedPage(this.activeView, this.activeTotalCount);
+  }
+
   get branchCityOptions(): Array<{ value: string; label: string }> {
     return this.uniqueOptions(
       this.branches.map((branch) => ({
@@ -420,6 +467,14 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
     this.invitationFilters.status = 'all';
     this.invitationFilters.type = 'all';
     this.invitationFilters.branchId = 'all';
+
+    this.currentPages.branches = 1;
+    this.currentPages.employees = 1;
+    this.currentPages.invitations = 1;
+  }
+
+  onPageChange(page: number): void {
+    this.currentPages[this.activeView] = page;
   }
 
   openBranchWizard(): void {
@@ -808,6 +863,20 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
 
   private isValidEmail(value: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  }
+
+  private totalPagesForCount(count: number): number {
+    return Math.max(1, Math.ceil(count / this.pageSize));
+  }
+
+  private getClampedPage(view: StaffView, count: number): number {
+    return Math.min(this.currentPages[view], this.totalPagesForCount(count));
+  }
+
+  private paginateItems<T>(items: T[], view: StaffView): T[] {
+    const currentPage = this.getClampedPage(view, items.length);
+    const startIndex = (currentPage - 1) * this.pageSize;
+    return items.slice(startIndex, startIndex + this.pageSize);
   }
 
   private showFlash(key: string, tone: 'success' | 'info'): void {

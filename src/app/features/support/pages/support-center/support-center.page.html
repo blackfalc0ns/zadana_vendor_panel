@@ -1,0 +1,414 @@
+<div class="space-y-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <app-page-header
+    [title]="'SUPPORT_CENTER.TITLE' | translate"
+    [description]="'SUPPORT_CENTER.SUBTITLE' | translate"
+  >
+    <div actions class="flex flex-wrap items-center gap-3">
+      @if (activeView === 'support') {
+        <button
+          type="button"
+          (click)="openCreateTicket()"
+          class="group inline-flex min-h-12 items-center gap-3 whitespace-nowrap rounded-[18px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white shadow-[0_16px_30px_rgba(14,116,144,0.24)] transition-all hover:-translate-y-0.5">
+          <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-white/15 bg-white/10 text-white">
+            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 5v14m-7-7h14"></path>
+            </svg>
+          </span>
+          <span>{{ 'SUPPORT_CENTER.ACTIONS.CREATE_TICKET' | translate }}</span>
+        </button>
+      }
+
+      <button
+        type="button"
+        (click)="resetDemoState()"
+        class="inline-flex min-h-11 items-center gap-2 rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-[0.76rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 4.5v6h6M19.5 19.5v-6h-6M19.364 10.636A7.5 7.5 0 0 0 6.75 6.75L4.5 10.5m15-1.5-2.25 3.75A7.5 7.5 0 0 1 4.636 13.364"></path>
+        </svg>
+        <span>{{ 'SUPPORT_CENTER.ACTIONS.RESET_DEMO' | translate }}</span>
+      </button>
+    </div>
+  </app-page-header>
+
+  <app-flash-banner
+    [message]="flashMessage"
+    [tone]="flashTone">
+  </app-flash-banner>
+
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <app-metric-card
+      [label]="'SUPPORT_CENTER.SUMMARY.OPEN_TICKETS'"
+      [value]="summary.openTickets"
+      [hint]="'SUPPORT_CENTER.SUMMARY.OPEN_TICKETS_HINT'">
+    </app-metric-card>
+
+    <app-metric-card
+      [label]="'SUPPORT_CENTER.SUMMARY.PENDING_FOLLOWUPS'"
+      [value]="summary.pendingFollowUps"
+      [hint]="'SUPPORT_CENTER.SUMMARY.PENDING_FOLLOWUPS_HINT'">
+    </app-metric-card>
+
+    <app-metric-card
+      [label]="'SUPPORT_CENTER.SUMMARY.AVG_RESPONSE'"
+      [value]="summary.averageResponseHours"
+      [hint]="'SUPPORT_CENTER.SUMMARY.AVG_RESPONSE_HINT'">
+    </app-metric-card>
+
+    <app-metric-card
+      [label]="'SUPPORT_CENTER.SUMMARY.REFERENCE_COUNT'"
+      [value]="summary.referenceCount"
+      [hint]="'SUPPORT_CENTER.SUMMARY.REFERENCE_COUNT_HINT'">
+    </app-metric-card>
+  </div>
+
+  @if (isFiltersExpanded) {
+    <app-filter-panel
+      [title]="'SUPPORT_CENTER.FILTERS.TITLE'"
+      [subtitle]="'SUPPORT_CENTER.FILTERS.SUBTITLE'">
+      <div actions>
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-[0.72rem] font-black text-rose-600 transition hover:bg-rose-100">
+          {{ 'SUPPORT_CENTER.FILTERS.RESET' | translate }}
+        </button>
+      </div>
+
+      @if (activeView === 'support') {
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.SEARCH' | translate }}</span>
+          <input
+            type="text"
+            [(ngModel)]="supportFilters.search"
+            [placeholder]="'SUPPORT_CENTER.SEARCH.TICKETS' | translate"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
+          <select
+            [(ngModel)]="supportFilters.status"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_STATUSES' | translate }}</option>
+            <option value="open">{{ 'SUPPORT_CENTER.STATUSES.OPEN' | translate }}</option>
+            <option value="in_progress">{{ 'SUPPORT_CENTER.STATUSES.IN_PROGRESS' | translate }}</option>
+            <option value="waiting_vendor">{{ 'SUPPORT_CENTER.STATUSES.WAITING_VENDOR' | translate }}</option>
+            <option value="resolved">{{ 'SUPPORT_CENTER.STATUSES.RESOLVED' | translate }}</option>
+          </select>
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.PRIORITY' | translate }}</span>
+          <select
+            [(ngModel)]="supportFilters.priority"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_PRIORITIES' | translate }}</option>
+            @for (priority of priorityOptions; track priority) {
+              <option [value]="priority">{{ priorityKey(priority) | translate }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}</span>
+          <select
+            [(ngModel)]="supportFilters.category"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_CATEGORIES' | translate }}</option>
+            @for (category of categoryOptions; track category) {
+              <option [value]="category">{{ categoryKey(category) | translate }}</option>
+            }
+          </select>
+        </label>
+      } @else {
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.SEARCH' | translate }}</span>
+          <input
+            type="text"
+            [(ngModel)]="referenceFilters.search"
+            [placeholder]="'SUPPORT_CENTER.SEARCH.ARTICLES' | translate"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}</span>
+          <select
+            [(ngModel)]="referenceFilters.category"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_CATEGORIES' | translate }}</option>
+            @for (category of categoryOptions; track category) {
+              <option [value]="category">{{ categoryKey(category) | translate }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.TYPE' | translate }}</span>
+          <select
+            [(ngModel)]="referenceFilters.type"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_TYPES' | translate }}</option>
+            @for (type of articleTypeOptions; track type) {
+              <option [value]="type">{{ articleTypeKey(type) | translate }}</option>
+            }
+          </select>
+        </label>
+      }
+    </app-filter-panel>
+  }
+
+  <app-page-section-shell
+    [title]="currentPanelTitle"
+    [subtitle]="currentPanelSubtitle">
+    <div actions class="flex w-full flex-nowrap items-center gap-3">
+      <div class="min-w-0 flex-1">
+        <app-detail-tabs-nav
+          [tabs]="viewTabs"
+          [activeTab]="activeView"
+          (tabChange)="setActiveView($event)">
+        </app-detail-tabs-nav>
+      </div>
+
+      <button
+        type="button"
+        (click)="isFiltersExpanded = !isFiltersExpanded"
+        class="inline-flex shrink-0 items-center gap-3 rounded-full border border-slate-200/70 bg-white px-5 py-2.5 text-[0.74rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary"
+        [ngClass]="isFiltersExpanded ? 'border-zadna-primary/20 bg-teal-50 text-zadna-primary' : ''">
+        <svg class="h-4.5 w-4.5 transition-transform" [ngClass]="isFiltersExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 5h18M6 12h12M10 19h4"></path>
+        </svg>
+        <span>{{ 'SUPPORT_CENTER.FILTERS.TITLE' | translate }}</span>
+        @if (hasActiveFilters) {
+          <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-100 px-1.5 text-[0.62rem] font-black text-rose-600">!</span>
+        }
+      </button>
+    </div>
+
+    @if (activeView === 'support') {
+      <div class="p-6">
+        <section class="overflow-hidden rounded-[24px] border border-slate-200 bg-white">
+          @if (filteredTickets.length > 0) {
+            <div class="overflow-x-auto">
+              <table class="w-full min-w-[760px] text-start">
+                <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
+                  <tr>
+                    <th class="px-6 py-4 text-start">{{ 'SUPPORT_CENTER.TABLE.REFERENCE' | translate }}</th>
+                    <th class="px-4 py-4 text-start">{{ 'SUPPORT_CENTER.TABLE.SUBJECT' | translate }}</th>
+                    <th class="px-4 py-4 text-start">{{ 'COMMON.STATUS' | translate }}</th>
+                    <th class="px-4 py-4 text-start">{{ 'SUPPORT_CENTER.TABLE.PRIORITY' | translate }}</th>
+                    <th class="px-4 py-4 text-start">{{ 'SUPPORT_CENTER.TABLE.UPDATED' | translate }}</th>
+                    <th class="px-4 py-4 text-start">{{ 'COMMON.ACTIONS' | translate }}</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  @for (ticket of pagedTickets; track trackByTicketId($index, ticket)) {
+                    <tr class="hover:bg-slate-50/50">
+                      <td class="px-6 py-4">
+                        <div class="min-w-0">
+                          <a
+                            [routerLink]="['/support/tickets', ticket.id]"
+                            class="text-[0.84rem] font-black text-zadna-primary transition hover:text-zadna-primaryDark"
+                            dir="ltr">
+                            {{ ticket.reference }}
+                          </a>
+                          <div class="mt-1 text-[0.72rem] font-bold text-slate-400">{{ categoryKey(ticket.category) | translate }}</div>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4">
+                        <div class="max-w-[250px]">
+                          <p class="text-[0.82rem] font-black text-slate-900">{{ localized(ticket.subject) }}</p>
+                          <p class="mt-1 text-[0.72rem] font-bold leading-6 text-slate-500">{{ localized(ticket.summary) }}</p>
+                        </div>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="statusClass(ticket.status)">
+                          {{ statusKey(ticket.status) | translate }}
+                        </span>
+                      </td>
+                      <td class="px-4 py-4">
+                        <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="priorityClass(ticket.priority)">
+                          {{ priorityKey(ticket.priority) | translate }}
+                        </span>
+                      </td>
+                      <td class="px-4 py-4 text-[0.76rem] font-bold text-slate-600">{{ formatDateTime(ticket.updatedAt) }}</td>
+                      <td class="px-4 py-4">
+                        <a
+                          [routerLink]="['/support/tickets', ticket.id]"
+                          class="inline-flex rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                          {{ 'SUPPORT_CENTER.ACTIONS.OPEN_TICKET' | translate }}
+                        </a>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <app-empty-state
+              [title]="'SUPPORT_CENTER.EMPTY.TICKETS_TITLE'"
+              [subtitle]="'SUPPORT_CENTER.EMPTY.TICKETS_SUBTITLE'"
+              [compact]="true">
+            </app-empty-state>
+          }
+
+          @if (filteredTickets.length > 0) {
+            <div class="border-t border-slate-100 px-6">
+              <app-pagination
+                [currentPage]="activeView === 'support' ? activeCurrentPage : 1"
+                [totalCount]="filteredTickets.length"
+                [totalItemsLabel]="'PAGINATION.TOTAL_ITEMS' | translate:{count: filteredTickets.length}"
+                [pageSize]="pageSize"
+                [totalPages]="ticketTotalPages"
+                [isRTL]="currentLang === 'ar'"
+                (pageChange)="onPageChange($event)">
+              </app-pagination>
+            </div>
+          }
+        </section>
+      </div>
+    } @else {
+      <div class="p-6">
+        <div class="space-y-4">
+          @if (filteredArticles.length > 0) {
+            <div class="grid gap-4 xl:grid-cols-2">
+              @for (article of pagedArticles; track trackByArticleId($index, article)) {
+                <section class="rounded-[24px] border border-slate-200 bg-white px-5 py-5 transition-all hover:border-zadna-primary/20 hover:shadow-sm">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[0.66rem] font-black text-slate-600">
+                      {{ articleTypeKey(article.type) | translate }}
+                    </span>
+                    <span class="inline-flex rounded-full border border-slate-200 px-2.5 py-1 text-[0.66rem] font-black text-slate-500">
+                      {{ categoryKey(article.category) | translate }}
+                    </span>
+                  </div>
+
+                  <h3 class="mt-4 text-[0.96rem] font-black text-slate-900">{{ localized(article.title) }}</h3>
+                  <p class="mt-2 text-[0.76rem] font-bold leading-7 text-slate-500">{{ localized(article.summary) }}</p>
+
+                  <div class="mt-5 grid gap-3 md:grid-cols-2">
+                    <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+                      <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">
+                        {{ 'SUPPORT_CENTER.REFERENCE.READ_TIME' | translate:{ count: article.readTimeMinutes } }}
+                      </p>
+                      <p class="mt-2 text-[0.84rem] font-black text-slate-900">{{ formatDate(article.updatedAt) }}</p>
+                    </div>
+
+                    <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+                      <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">
+                        {{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}
+                      </p>
+                      <p class="mt-2 text-[0.84rem] font-black text-slate-900">{{ categoryKey(article.category) | translate }}</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-5 flex flex-wrap items-center gap-3">
+                    <a
+                      [routerLink]="['/support/reference', article.id]"
+                      class="inline-flex rounded-[16px] border border-slate-200 bg-white px-4 py-2.5 text-[0.74rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                      {{ 'SUPPORT_CENTER.ACTIONS.OPEN_REFERENCE' | translate }}
+                    </a>
+
+                    <button
+                      type="button"
+                      (click)="openCreateTicket(article.category)"
+                      class="inline-flex rounded-[16px] border border-zadna-primary/20 bg-zadna-primary/[0.06] px-4 py-2.5 text-[0.74rem] font-black text-zadna-primary transition hover:bg-zadna-primary/[0.10]">
+                      {{ 'SUPPORT_CENTER.ACTIONS.OPEN_SUPPORT_FROM_REFERENCE' | translate }}
+                    </button>
+                  </div>
+                </section>
+              }
+            </div>
+          } @else {
+            <app-empty-state
+              [title]="'SUPPORT_CENTER.EMPTY.ARTICLES_TITLE'"
+              [subtitle]="'SUPPORT_CENTER.EMPTY.ARTICLES_SUBTITLE'"
+              [dashed]="true">
+            </app-empty-state>
+          }
+
+          @if (filteredArticles.length > 0) {
+            <div class="mt-4 rounded-[24px] border border-slate-200 bg-white px-5">
+              <app-pagination
+                [currentPage]="activeView === 'reference' ? activeCurrentPage : 1"
+                [totalCount]="filteredArticles.length"
+                [totalItemsLabel]="'PAGINATION.TOTAL_ITEMS' | translate:{count: filteredArticles.length}"
+                [pageSize]="pageSize"
+                [totalPages]="referenceTotalPages"
+                [isRTL]="currentLang === 'ar'"
+                (pageChange)="onPageChange($event)">
+              </app-pagination>
+            </div>
+          }
+        </div>
+      </div>
+    }
+  </app-page-section-shell>
+
+  @if (isCreateTicketModalOpen) {
+    <app-modal-shell
+      [eyebrow]="'SUPPORT_CENTER.CREATE.EYEBROW'"
+      [title]="'SUPPORT_CENTER.CREATE.TITLE'"
+      [subtitle]="'SUPPORT_CENTER.CREATE.SUBTITLE'"
+      [hasFooter]="true"
+      closeAriaLabel="Close support ticket modal"
+      (close)="closeCreateTicketModal()">
+      <div class="grid gap-4 md:grid-cols-2">
+        <label class="space-y-2 md:col-span-2">
+          <span class="text-[0.75rem] font-black text-slate-500">{{ 'SUPPORT_CENTER.CREATE.FIELDS.SUBJECT' | translate }}</span>
+          <input
+            type="text"
+            [(ngModel)]="ticketDraft.subject"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.75rem] font-black text-slate-500">{{ 'SUPPORT_CENTER.CREATE.FIELDS.CATEGORY' | translate }}</span>
+          <select
+            [(ngModel)]="ticketDraft.category"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            @for (category of categoryOptions; track category) {
+              <option [value]="category">{{ categoryKey(category) | translate }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.75rem] font-black text-slate-500">{{ 'SUPPORT_CENTER.CREATE.FIELDS.PRIORITY' | translate }}</span>
+          <select
+            [(ngModel)]="ticketDraft.priority"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            @for (priority of priorityOptions; track priority) {
+              <option [value]="priority">{{ priorityKey(priority) | translate }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="space-y-2 md:col-span-2">
+          <span class="text-[0.75rem] font-black text-slate-500">{{ 'SUPPORT_CENTER.CREATE.FIELDS.MESSAGE' | translate }}</span>
+          <textarea
+            rows="6"
+            [(ngModel)]="ticketDraft.message"
+            [placeholder]="'SUPPORT_CENTER.CREATE.MESSAGE_PLACEHOLDER' | translate"
+            class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-[0.8rem] font-bold text-slate-900 outline-none transition-all resize-none focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5"></textarea>
+        </label>
+      </div>
+
+      <div footer class="flex flex-wrap items-center justify-between gap-3">
+        <button
+          type="button"
+          (click)="closeCreateTicketModal()"
+          class="inline-flex items-center justify-center rounded-[16px] border border-slate-200 bg-white px-4 py-2.5 text-[0.78rem] font-black text-slate-700 transition hover:border-slate-300 hover:bg-slate-50">
+          {{ 'COMMON.CANCEL' | translate }}
+        </button>
+
+        <button
+          type="button"
+          (click)="submitCreateTicket()"
+          [disabled]="!canSubmitTicket"
+          class="inline-flex items-center justify-center rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
+          {{ 'SUPPORT_CENTER.ACTIONS.SUBMIT_TICKET' | translate }}
+        </button>
+      </div>
+    </app-modal-shell>
+  }
+</div>

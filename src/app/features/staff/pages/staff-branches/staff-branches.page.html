@@ -34,37 +34,25 @@
     </div>
   </app-page-header>
 
-  @if (flashMessage) {
-    <div
-      class="rounded-[20px] border px-4 py-3 text-[0.82rem] font-black shadow-sm"
-      [ngClass]="flashTone === 'success'
-        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-        : 'border-sky-200 bg-sky-50 text-sky-700'">
-      {{ flashMessage }}
-    </div>
-  }
+  <app-flash-banner
+    [message]="flashMessage"
+    [tone]="flashTone">
+  </app-flash-banner>
 
   @if (isFiltersExpanded) {
-    <div class="overflow-hidden rounded-[28px] border border-slate-200/70 bg-white shadow-sm animate-in slide-in-from-top-2 duration-300">
-      <app-panel-header
-        [title]="'STAFF_BRANCHES.FILTERS.TITLE'"
-        [subtitle]="'STAFF_BRANCHES.FILTERS.SUBTITLE'"
-        containerClass="border-b border-slate-100 px-6 py-4"
-        contentClass="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-        titleClass="text-[0.95rem] font-black text-slate-900"
-        subtitleClass="text-[0.72rem] font-bold text-slate-500"
-      >
-        <div actions>
-          <button
-            type="button"
-            (click)="resetFilters()"
-            class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-[0.72rem] font-black text-rose-600 transition hover:bg-rose-100">
-            {{ 'STAFF_BRANCHES.FILTERS.RESET' | translate }}
-          </button>
-        </div>
-      </app-panel-header>
+    <app-filter-panel
+      [title]="'STAFF_BRANCHES.FILTERS.TITLE'"
+      [subtitle]="'STAFF_BRANCHES.FILTERS.SUBTITLE'">
+      <div actions>
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-[0.72rem] font-black text-rose-600 transition hover:bg-rose-100">
+          {{ 'STAFF_BRANCHES.FILTERS.RESET' | translate }}
+        </button>
+      </div>
 
-      <div class="grid gap-4 px-6 py-5 md:grid-cols-2 xl:grid-cols-4">
+      <div class="contents">
         @if (activeView === 'branches') {
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.SEARCH' | translate }}</span>
@@ -207,22 +195,90 @@
           </label>
         }
       </div>
-    </div>
+    </app-filter-panel>
   }
 
-  <div class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
-    <app-panel-header
-      [title]="activePanelTitle"
-      [subtitle]="activePanelSubtitle"
-    >
-      <div actions class="flex w-full flex-nowrap items-center gap-3">
-        <div class="min-w-0 flex-1">
-          <app-detail-tabs-nav
-            [tabs]="viewTabs"
-            [activeTab]="activeView"
-            (tabChange)="setActiveView($event)"
-          ></app-detail-tabs-nav>
+  <app-page-section-shell
+    [title]="activePanelTitle"
+    [subtitle]="activePanelSubtitle">
+    <div actions class="flex max-w-full flex-wrap items-center gap-3">
+      <div class="flex max-w-full flex-wrap items-center gap-3">
+        <div class="w-full max-w-full overflow-x-auto pb-1 scroll-smooth [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
+          <div class="flex w-max items-center gap-1 rounded-xl border border-slate-900/5 bg-slate-900/[0.04] p-[3px]">
+            <button
+              type="button"
+              (click)="setActiveView('branches')"
+              class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
+              [ngClass]="activeView === 'branches'
+                ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
+                : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
+              @if (activeView === 'branches') {
+                <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
+                  <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
+                </div>
+              }
+
+              <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
+                <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
+                  <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
+                    <path d="M3.75 9h16.5M5.25 9V6.75A1.5 1.5 0 0 1 6.75 5.25h10.5a1.5 1.5 0 0 1 1.5 1.5V9m-12 0v8.25A1.5 1.5 0 0 0 8.25 18.75h7.5a1.5 1.5 0 0 0 1.5-1.5V9m-7.5 9.75v-4.5h4.5v4.5"></path>
+                  </svg>
+                </span>
+                <span class="whitespace-nowrap">{{ 'STAFF_BRANCHES.VIEWS.BRANCHES' | translate }}</span>
+                <span
+                  class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
+                  [class]="activeView === 'branches' ? 'bg-white/20 text-white' : 'bg-slate-200/50 text-slate-500'">
+                  {{ filteredBranches.length }}
+                </span>
+              </div>
+            </button>
+
+            <button
+              type="button"
+              (click)="setActiveView('employees')"
+              class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
+              [ngClass]="activeView === 'employees'
+                ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
+                : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
+              @if (activeView === 'employees') {
+                <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
+                  <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
+                </div>
+              }
+
+              <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
+                <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
+                  <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
+                    <path d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 19.5a7.5 7.5 0 0 1 15 0"></path>
+                  </svg>
+                </span>
+                <span class="whitespace-nowrap">{{ 'STAFF_BRANCHES.VIEWS.EMPLOYEES' | translate }}</span>
+                <span
+                  class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
+                  [class]="activeView === 'employees' ? 'bg-white/20 text-white' : 'bg-slate-200/50 text-slate-500'">
+                  {{ filteredEmployees.length }}
+                </span>
+              </div>
+            </button>
+          </div>
         </div>
+
+        <button
+          type="button"
+          (click)="setActiveView('invitations')"
+          class="inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-[0.74rem] font-black transition-all"
+          [ngClass]="activeView === 'invitations'
+            ? 'border-zadna-primary bg-zadna-primary text-white shadow-sm shadow-zadna-primary/20'
+            : 'border-slate-200 bg-white text-slate-600 hover:border-zadna-primary/20 hover:text-zadna-primary'">
+          <span>{{ invitationsToggleLabel }}</span>
+          @if (pendingInvitationsCount > 0) {
+            <span
+              class="inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.62rem] font-black"
+              [ngClass]="activeView === 'invitations' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-600'">
+              {{ pendingInvitationsCount }}
+            </span>
+          }
+        </button>
 
         <button
           type="button"
@@ -232,13 +288,13 @@
           <svg class="h-4.5 w-4.5 transition-transform" [ngClass]="isFiltersExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 5h18M6 12h12M10 19h4"></path>
           </svg>
-          <span>{{ 'STAFF_BRANCHES.FILTERS.TITLE' | translate }}</span>
+            <span>{{ 'STAFF_BRANCHES.FILTERS.TITLE' | translate }}</span>
           @if (hasActiveFilters) {
             <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-100 px-1.5 text-[0.62rem] font-black text-rose-600">!</span>
           }
         </button>
       </div>
-    </app-panel-header>
+    </div>
 
     <div class="overflow-x-auto">
       @if (activeView === 'branches') {
@@ -257,7 +313,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              @for (branch of filteredBranches; track branch.id) {
+              @for (branch of pagedBranches; track branch.id) {
                 <tr class="hover:bg-slate-50/40">
                   <td class="px-6 py-4">
                     <div class="min-w-0">
@@ -353,7 +409,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              @for (employee of filteredEmployees; track employee.id) {
+              @for (employee of pagedEmployees; track employee.id) {
                 <tr class="hover:bg-slate-50/40">
                   <td class="px-6 py-4">
                     <div class="min-w-0">
@@ -424,7 +480,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-              @for (invitation of filteredInvitations; track invitation.id) {
+              @for (invitation of pagedInvitations; track invitation.id) {
                 <tr class="hover:bg-slate-50/40">
                   <td class="px-6 py-4 text-[0.8rem] font-black text-slate-700">{{ invitationTypeKey(invitation.type) | translate }}</td>
                   <td class="px-4 py-4">
@@ -486,7 +542,21 @@
         }
       }
     </div>
-  </div>
+
+    @if (activeTotalCount > 0) {
+      <div class="border-t border-slate-100 px-6">
+        <app-pagination
+          [currentPage]="activeCurrentPage"
+          [totalCount]="activeTotalCount"
+          [totalItemsLabel]="'PAGINATION.TOTAL_ITEMS' | translate:{count: activeTotalCount}"
+          [pageSize]="pageSize"
+          [totalPages]="activeTotalPages"
+          [isRTL]="currentLang === 'ar'"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+    }
+  </app-page-section-shell>
 
   @if (isBranchWizardOpen) {
     <div class="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">

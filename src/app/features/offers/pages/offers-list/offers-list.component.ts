@@ -8,6 +8,7 @@ import { CatalogService, VendorProduct } from '../../../../services/catalog.serv
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPillTabsComponent } from '../../../../shared/components/ui/navigation/pill-tabs/pill-tabs.component';
+import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
 import {
   CategoryCampaign,
   ClearanceOffer,
@@ -28,7 +29,8 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
     NgClass,
     AppPageHeaderComponent,
     AppPanelHeaderComponent,
-    AppPillTabsComponent
+    AppPillTabsComponent,
+    AppPaginationComponent
   ],
   template: `
     <div class="space-y-6" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
@@ -274,7 +276,7 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    @for (product of filteredProductOffers; track product.id) {
+                    @for (product of pagedProductOffers; track product.id) {
                       <tr class="hover:bg-slate-50/50">
                         <td class="px-6 py-4">
                           <div class="flex items-center gap-3">
@@ -333,7 +335,7 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    @for (coupon of filteredCoupons; track coupon.id) {
+                    @for (coupon of pagedCoupons; track coupon.id) {
                       <tr class="hover:bg-slate-50/50">
                         <td class="px-6 py-4">
                           <div class="text-[0.86rem] font-black text-slate-900">{{ coupon.code }}</div>
@@ -375,7 +377,7 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    @for (campaign of filteredCategoryCampaigns; track campaign.id) {
+                    @for (campaign of pagedCategoryCampaigns; track campaign.id) {
                       <tr class="hover:bg-slate-50/50">
                         <td class="px-6 py-4 text-[0.82rem] font-black text-slate-900">{{ currentLang === 'ar' ? campaign.categoryNameAr : campaign.categoryNameEn }}</td>
                         <td class="px-4 py-4">
@@ -416,7 +418,7 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    @for (item of filteredClearanceOffers; track item.productId) {
+                    @for (item of pagedClearanceOffers; track item.productId) {
                       <tr class="hover:bg-slate-50/50">
                         <td class="px-6 py-4">
                           <div class="flex items-center gap-3">
@@ -457,6 +459,20 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
               }
             }
           </div>
+
+          @if (activeTotalCount > 0) {
+            <div class="border-t border-slate-100 px-6">
+              <app-pagination
+                [currentPage]="activeCurrentPage"
+                [totalCount]="activeTotalCount"
+                [totalItemsLabel]="'PAGINATION.TOTAL_ITEMS' | translate:{count: activeTotalCount}"
+                [pageSize]="pageSize"
+                [totalPages]="activeTotalPages"
+                [isRTL]="currentLang === 'ar'"
+                (pageChange)="onPageChange($event)">
+              </app-pagination>
+            </div>
+          }
         }
       </div>
     </div>
@@ -476,6 +492,13 @@ export class OffersListComponent implements OnInit, OnDestroy {
   couponFilters = { status: 'all', type: 'all', expiry: 'all' };
   categoryFilters = { category: '', discountBand: 'all', expiry: 'all' };
   clearanceFilters = { urgency: 'all', stockLimit: 'all', category: '' };
+  readonly pageSize = 10;
+  private readonly currentPages: Record<OffersView, number> = {
+    direct: 1,
+    coupons: 1,
+    categories: 1,
+    clearance: 1
+  };
   private langSub: Subscription;
 
   readonly views: Array<{ value: OffersView; label: string }> = [
@@ -569,6 +592,43 @@ export class OffersListComponent implements OnInit, OnDestroy {
     );
   }
 
+  get pagedProductOffers(): VendorProduct[] {
+    return this.paginateItems(this.filteredProductOffers, 'direct');
+  }
+
+  get pagedCoupons(): CouponOffer[] {
+    return this.paginateItems(this.filteredCoupons, 'coupons');
+  }
+
+  get pagedCategoryCampaigns(): CategoryCampaign[] {
+    return this.paginateItems(this.filteredCategoryCampaigns, 'categories');
+  }
+
+  get pagedClearanceOffers(): ClearanceOffer[] {
+    return this.paginateItems(this.filteredClearanceOffers, 'clearance');
+  }
+
+  get activeTotalCount(): number {
+    switch (this.activeView) {
+      case 'coupons':
+        return this.filteredCoupons.length;
+      case 'categories':
+        return this.filteredCategoryCampaigns.length;
+      case 'clearance':
+        return this.filteredClearanceOffers.length;
+      default:
+        return this.filteredProductOffers.length;
+    }
+  }
+
+  get activeTotalPages(): number {
+    return this.totalPagesForCount(this.activeTotalCount);
+  }
+
+  get activeCurrentPage(): number {
+    return this.getClampedPage(this.activeView, this.activeTotalCount);
+  }
+
   get hasActiveFilters(): boolean {
     return !!this.searchTerm.trim()
       || !!this.directFilters.category
@@ -649,12 +709,20 @@ export class OffersListComponent implements OnInit, OnDestroy {
     this.activeView = view as OffersView;
   }
 
+  onPageChange(page: number): void {
+    this.currentPages[this.activeView] = page;
+  }
+
   resetFilters(): void {
     this.searchTerm = '';
     this.directFilters = { category: '', discountBand: 'all', stockBand: 'all' };
     this.couponFilters = { status: 'all', type: 'all', expiry: 'all' };
     this.categoryFilters = { category: '', discountBand: 'all', expiry: 'all' };
     this.clearanceFilters = { urgency: 'all', stockLimit: 'all', category: '' };
+    this.currentPages.direct = 1;
+    this.currentPages.coupons = 1;
+    this.currentPages.categories = 1;
+    this.currentPages.clearance = 1;
   }
 
   private matchesDirectFilters(product: VendorProduct): boolean {
@@ -760,5 +828,19 @@ export class OffersListComponent implements OnInit, OnDestroy {
     }
 
     return values.some((value) => (value || '').toLowerCase().includes(term));
+  }
+
+  private totalPagesForCount(count: number): number {
+    return Math.max(1, Math.ceil(count / this.pageSize));
+  }
+
+  private getClampedPage(view: OffersView, count: number): number {
+    return Math.min(this.currentPages[view], this.totalPagesForCount(count));
+  }
+
+  private paginateItems<T>(items: T[], view: OffersView): T[] {
+    const currentPage = this.getClampedPage(view, items.length);
+    const startIndex = (currentPage - 1) * this.pageSize;
+    return items.slice(startIndex, startIndex + this.pageSize);
   }
 }

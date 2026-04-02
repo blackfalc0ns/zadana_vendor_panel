@@ -1,0 +1,260 @@
+<div class="space-y-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <app-page-header
+    [title]="'ALERTS_CENTER.TITLE' | translate"
+    [description]="'ALERTS_CENTER.SUBTITLE' | translate"
+  >
+    <div actions class="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        (click)="markAllAsRead()"
+        [disabled]="summary.unreadCount === 0"
+        class="inline-flex min-h-11 items-center gap-2 rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-[0.76rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary disabled:cursor-not-allowed disabled:opacity-50">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m4.5 12.75 6 6 9-13.5"></path>
+        </svg>
+        <span>{{ 'ALERTS_CENTER.ACTIONS.MARK_ALL_READ' | translate }}</span>
+      </button>
+    </div>
+  </app-page-header>
+
+  <app-flash-banner
+    [message]="flashMessage"
+    [tone]="flashTone">
+  </app-flash-banner>
+
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <app-metric-card [label]="'ALERTS_CENTER.SUMMARY.UNREAD'" [value]="summary.unreadCount" [hint]="'ALERTS_CENTER.SUMMARY.UNREAD_HINT'">
+      <span icon class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-zadna-primary/10 text-zadna-primary">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022 23.848 23.848 0 0 0 5.454 1.31m5.715 0a24.255 24.255 0 0 1-5.715 0m5.715 0a3 3 0 1 1-5.715 0"></path>
+        </svg>
+      </span>
+    </app-metric-card>
+
+    <app-metric-card [label]="'ALERTS_CENTER.SUMMARY.CRITICAL'" [value]="summary.criticalCount" [hint]="'ALERTS_CENTER.SUMMARY.CRITICAL_HINT'">
+      <span icon class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-rose-50 text-rose-500">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 6.75h.008v.008H12v-.008Z"></path>
+        </svg>
+      </span>
+    </app-metric-card>
+
+    <app-metric-card [label]="'ALERTS_CENTER.SUMMARY.NEEDS_ACTION'" [value]="summary.needsActionCount" [hint]="'ALERTS_CENTER.SUMMARY.NEEDS_ACTION_HINT'">
+      <span icon class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-amber-50 text-amber-600">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6h4.5m4.5 0A9 9 0 1 1 3 12a9 9 0 0 1 18 0Z"></path>
+        </svg>
+      </span>
+    </app-metric-card>
+
+    <app-metric-card [label]="'ALERTS_CENTER.SUMMARY.ARCHIVED'" [value]="summary.archivedCount" [hint]="'ALERTS_CENTER.SUMMARY.ARCHIVED_HINT'">
+      <span icon class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-slate-100 text-slate-600">
+        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.75 7.5h16.5m-15 3.75h13.5m-12 3.75h10.5M4.5 4.5h15A1.5 1.5 0 0 1 21 6v12a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18V6A1.5 1.5 0 0 1 4.5 4.5Z"></path>
+        </svg>
+      </span>
+    </app-metric-card>
+  </div>
+
+  @if (isFiltersExpanded) {
+    <app-filter-panel
+      [title]="'ALERTS_CENTER.FILTERS.TITLE'"
+      [subtitle]="'ALERTS_CENTER.FILTERS.SUBTITLE'">
+      <div actions>
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-[0.72rem] font-black text-rose-600 transition hover:bg-rose-100">
+          {{ 'ALERTS_CENTER.FILTERS.RESET' | translate }}
+        </button>
+      </div>
+
+      <label class="space-y-2">
+        <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ALERTS_CENTER.FILTERS.SEARCH' | translate }}</span>
+        <input
+          type="text"
+          [(ngModel)]="filters.search"
+          [placeholder]="'ALERTS_CENTER.SEARCH.PLACEHOLDER' | translate"
+          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+      </label>
+
+      <label class="space-y-2">
+        <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ALERTS_CENTER.FILTERS.SOURCE' | translate }}</span>
+        <select
+          [(ngModel)]="filters.source"
+          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+          <option value="all">{{ 'ALERTS_CENTER.FILTERS.ALL_SOURCES' | translate }}</option>
+          @for (source of sourceOptions; track source) {
+            <option [value]="source">{{ sourceLabelKey(source) | translate }}</option>
+          }
+        </select>
+      </label>
+
+      <label class="space-y-2">
+        <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ALERTS_CENTER.FILTERS.SEVERITY' | translate }}</span>
+        <select
+          [(ngModel)]="filters.severity"
+          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+          <option value="all">{{ 'ALERTS_CENTER.FILTERS.ALL_SEVERITY' | translate }}</option>
+          <option value="critical">{{ 'ALERTS_CENTER.SEVERITY.CRITICAL' | translate }}</option>
+          <option value="warning">{{ 'ALERTS_CENTER.SEVERITY.WARNING' | translate }}</option>
+          <option value="info">{{ 'ALERTS_CENTER.SEVERITY.INFO' | translate }}</option>
+        </select>
+      </label>
+
+      <label class="space-y-2">
+        <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ALERTS_CENTER.FILTERS.STATE' | translate }}</span>
+        <select
+          [(ngModel)]="filters.state"
+          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+          <option value="all">{{ 'ALERTS_CENTER.FILTERS.ALL_STATES' | translate }}</option>
+          <option value="unread">{{ 'ALERTS_CENTER.STATE.UNREAD' | translate }}</option>
+          <option value="read">{{ 'ALERTS_CENTER.STATE.READ' | translate }}</option>
+          <option value="archived">{{ 'ALERTS_CENTER.STATE.ARCHIVED' | translate }}</option>
+        </select>
+      </label>
+    </app-filter-panel>
+  }
+
+  <app-page-section-shell
+      [title]="'ALERTS_CENTER.SECTION_TITLE'"
+      [subtitle]="'ALERTS_CENTER.SECTION_SUBTITLE'">
+    <div actions class="flex w-full flex-nowrap items-center gap-3">
+      <div class="min-w-0 flex-1">
+        <app-detail-tabs-nav
+          [tabs]="quickTabs"
+          [activeTab]="activeQuickView"
+          (tabChange)="setActiveQuickView($event)"
+        ></app-detail-tabs-nav>
+      </div>
+
+      <button
+        type="button"
+        (click)="isFiltersExpanded = !isFiltersExpanded"
+        class="inline-flex shrink-0 items-center gap-3 rounded-full border border-slate-200/70 bg-white px-5 py-2.5 text-[0.74rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary"
+        [ngClass]="isFiltersExpanded ? 'border-zadna-primary/20 bg-teal-50 text-zadna-primary' : ''">
+        <svg class="h-4.5 w-4.5 transition-transform" [ngClass]="isFiltersExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 5h18M6 12h12M10 19h4"></path>
+        </svg>
+        <span>{{ 'ALERTS_CENTER.FILTERS.TITLE' | translate }}</span>
+        @if (hasActiveFilters) {
+          <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-100 px-1.5 text-[0.62rem] font-black text-rose-600">!</span>
+        }
+      </button>
+    </div>
+
+    <div class="overflow-x-auto">
+      @if (filteredAlerts.length > 0) {
+        <table class="w-full min-w-[1180px] text-start">
+          <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
+            <tr>
+              <th class="px-6 py-4 text-start">{{ 'ALERTS_CENTER.TABLE.ALERT' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'ALERTS_CENTER.TABLE.SOURCE' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'ALERTS_CENTER.TABLE.SEVERITY' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'ALERTS_CENTER.TABLE.STATE' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'ALERTS_CENTER.TABLE.TIME' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'COMMON.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-slate-100">
+            @for (alert of pagedAlerts; track trackByAlertId($index, alert)) {
+              <tr class="hover:bg-slate-50/40" [ngClass]="alert.state === 'unread' ? 'bg-zadna-primary/[0.02]' : ''">
+                <td class="px-6 py-4">
+                  <div class="min-w-0 max-w-[420px]">
+                    <div class="flex flex-wrap items-center gap-2">
+                      <button
+                        type="button"
+                        (click)="openAlert(alert)"
+                        class="text-start text-[0.86rem] font-black text-slate-900 transition hover:text-zadna-primary">
+                        {{ alertText(alert.title) }}
+                      </button>
+                      @if (alert.count !== undefined) {
+                        <span class="inline-flex min-w-[24px] items-center justify-center rounded-full bg-slate-100 px-2 py-1 text-[0.66rem] font-black text-slate-600">
+                          {{ alert.count }}
+                        </span>
+                      }
+                    </div>
+                    <p class="mt-2 text-[0.76rem] font-bold leading-6 text-slate-500">{{ alertText(alert.summary) }}</p>
+                  </div>
+                </td>
+
+                <td class="px-4 py-4">
+                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="sourceBadgeClass(alert.source)">
+                    {{ sourceLabelKey(alert.source) | translate }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-4">
+                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="severityBadgeClass(alert.severity)">
+                    {{ severityLabelKey(alert.severity) | translate }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-4">
+                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="stateBadgeClass(alert.state)">
+                    {{ stateLabelKey(alert.state) | translate }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-4 text-[0.78rem] font-bold text-slate-600">
+                  {{ formatDateTime(alert.createdAt) }}
+                </td>
+
+                <td class="px-4 py-4">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="openAlert(alert)"
+                      class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                      {{ 'ALERTS_CENTER.ACTIONS.OPEN' | translate }}
+                    </button>
+
+                    @if (alert.state !== 'archived') {
+                      <button
+                        type="button"
+                        (click)="toggleReadState(alert)"
+                        class="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-[0.72rem] font-black text-sky-700 transition hover:bg-sky-100">
+                        {{ (alert.state === 'unread' ? 'ALERTS_CENTER.ACTIONS.MARK_READ' : 'ALERTS_CENTER.ACTIONS.MARK_UNREAD') | translate }}
+                      </button>
+                    }
+
+                    <button
+                      type="button"
+                      (click)="toggleArchiveState(alert)"
+                      class="rounded-xl border px-3 py-2 text-[0.72rem] font-black transition"
+                      [ngClass]="alert.state === 'archived'
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                        : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'">
+                      {{ (alert.state === 'archived' ? 'ALERTS_CENTER.ACTIONS.RESTORE' : 'ALERTS_CENTER.ACTIONS.ARCHIVE') | translate }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <app-empty-state
+          [title]="'ALERTS_CENTER.EMPTY.TITLE'"
+          [subtitle]="'ALERTS_CENTER.EMPTY.SUBTITLE'"
+          [compact]="true">
+        </app-empty-state>
+      }
+    </div>
+
+    @if (filteredAlerts.length > 0) {
+      <div class="border-t border-slate-100 px-6">
+        <app-pagination
+          [currentPage]="currentPageValue"
+          [totalCount]="filteredAlerts.length"
+          [totalItemsLabel]="'PAGINATION.TOTAL_ITEMS' | translate:{count: filteredAlerts.length}"
+          [pageSize]="pageSize"
+          [totalPages]="totalPages"
+          [isRTL]="currentLang === 'ar'"
+          (pageChange)="onPageChange($event)">
+        </app-pagination>
+      </div>
+    }
+  </app-page-section-shell>
+</div>

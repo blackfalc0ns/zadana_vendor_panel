@@ -1022,6 +1022,237 @@
       "SEED_RESET": "The demo reviews data was reset."
     }
   },
+  "ALERTS_CENTER": {
+    "TITLE": "Alerts Center",
+    "SUBTITLE": "Track operational alerts derived from orders, products, finance, support, and the rest of the vendor workspace.",
+    "ACTIONS": {
+      "MARK_ALL_READ": "Mark all as read",
+      "MARK_READ": "Mark as read",
+      "MARK_UNREAD": "Mark as unread",
+      "ARCHIVE": "Archive",
+      "RESTORE": "Restore",
+      "OPEN": "Open",
+      "VIEW_ALL": "View all alerts"
+    },
+    "SUMMARY": {
+      "UNREAD": "Unread",
+      "UNREAD_HINT": "Items that still have not been reviewed in the alerts center.",
+      "CRITICAL": "Critical",
+      "CRITICAL_HINT": "Alerts that need immediate intervention.",
+      "NEEDS_ACTION": "Needs action",
+      "NEEDS_ACTION_HINT": "Alerts with warning or operational weight.",
+      "ARCHIVED": "Archived",
+      "ARCHIVED_HINT": "Alerts you kept for later reference."
+    },
+    "QUICK_TABS": {
+      "ALL": "All",
+      "UNREAD": "Unread",
+      "CRITICAL": "Critical",
+      "ARCHIVED": "Archived"
+    },
+    "SECTION_TITLE": "Alerts log",
+    "SECTION_SUBTITLE": "Track sources, severity, and state, then open the related page directly from the alert.",
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Refine alerts by source, severity, and state from one place.",
+      "RESET": "Reset",
+      "SEARCH": "Search",
+      "SOURCE": "Source",
+      "SEVERITY": "Severity",
+      "STATE": "State",
+      "ALL_SOURCES": "All sources",
+      "ALL_SEVERITY": "All severity levels",
+      "ALL_STATES": "All states"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Search alert titles and summaries"
+    },
+    "TABLE": {
+      "ALERT": "Alert",
+      "SOURCE": "Source",
+      "SEVERITY": "Severity",
+      "STATE": "State",
+      "TIME": "Time"
+    },
+    "SOURCES": {
+      "ORDERS": "Orders",
+      "PRODUCTS": "Products",
+      "OFFERS": "Offers",
+      "FINANCE": "Finance",
+      "SUPPORT": "Support",
+      "STAFF": "Branches & staff",
+      "REVIEWS": "Reviews",
+      "PROFILE": "Store profile"
+    },
+    "SEVERITY": {
+      "INFO": "Info",
+      "WARNING": "Warning",
+      "CRITICAL": "Critical"
+    },
+    "STATE": {
+      "UNREAD": "Unread",
+      "READ": "Read",
+      "ARCHIVED": "Archived"
+    },
+    "POPOVER": {
+      "SUBTITLE": "Highest current priorities that are not archived",
+      "EMPTY_TITLE": "No new alerts",
+      "EMPTY_SUBTITLE": "Any new alert will show up here as soon as it is generated."
+    },
+    "EMPTY": {
+      "TITLE": "No matching alerts",
+      "SUBTITLE": "Try adjusting the filters or revisit when the operational data changes."
+    },
+    "FEEDBACK": {
+      "MARKED_READ": "The alert was marked as read.",
+      "MARKED_UNREAD": "The alert was marked as unread again.",
+      "ARCHIVED": "The alert was archived.",
+      "RESTORED": "The alert was restored from the archive.",
+      "ALL_READ": "All alerts were marked as read."
+    }
+  },
+  "SUPPORT_CENTER": {
+    "TITLE": "Support & Reference Center",
+    "SUBTITLE": "Track active support tickets and browse operational guides from one page with the same clear super admin-inspired structure.",
+    "TABS": {
+      "SUPPORT": "Support",
+      "REFERENCE": "Reference"
+    },
+    "SUMMARY": {
+      "OPEN_TICKETS": "Open Tickets",
+      "OPEN_TICKETS_HINT": "Cases that still require follow-up or final closure from support.",
+      "PENDING_FOLLOWUPS": "Waiting for You",
+      "PENDING_FOLLOWUPS_HINT": "Tickets that still need a document or clarification from your team.",
+      "AVG_RESPONSE": "Avg First Reply",
+      "AVG_RESPONSE_HINT": "Approximate average time for the first response from support.",
+      "REFERENCE_COUNT": "Reference Articles",
+      "REFERENCE_COUNT_HINT": "Quick guides and policies you can review before opening a new case."
+    },
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Refine the current view by status, category, priority, or article type.",
+      "RESET": "Reset",
+      "SEARCH": "Search",
+      "CATEGORY": "Category",
+      "PRIORITY": "Priority",
+      "TYPE": "Type",
+      "ALL_STATUSES": "All statuses",
+      "ALL_PRIORITIES": "All priorities",
+      "ALL_CATEGORIES": "All categories",
+      "ALL_TYPES": "All types"
+    },
+    "SEARCH": {
+      "TICKETS": "Search by ticket reference, subject, or summary",
+      "ARTICLES": "Search article titles and summaries"
+    },
+    "SECTIONS": {
+      "SUPPORT_TITLE": "Active Support Cases",
+      "SUPPORT_SUBTITLE": "Review current tickets and continue the conversation from the same screen.",
+      "REFERENCE_TITLE": "Operational Reference",
+      "REFERENCE_SUBTITLE": "Short guides and policies to check before opening a new ticket."
+    },
+    "TABLE": {
+      "REFERENCE": "Reference",
+      "SUBJECT": "Subject",
+      "PRIORITY": "Priority",
+      "UPDATED": "Updated"
+    },
+    "STATUSES": {
+      "OPEN": "Open",
+      "IN_PROGRESS": "In Progress",
+      "WAITING_VENDOR": "Waiting for Vendor",
+      "RESOLVED": "Resolved"
+    },
+    "PRIORITIES": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    },
+    "CATEGORIES": {
+      "ORDERS": "Orders",
+      "PRODUCTS": "Products",
+      "FINANCE": "Finance",
+      "OFFERS": "Offers",
+      "STAFF": "Branches & Staff",
+      "PROFILE": "Store Profile",
+      "TECHNICAL": "Technical",
+      "GENERAL": "General"
+    },
+    "ARTICLE_TYPES": {
+      "GUIDE": "Guide",
+      "POLICY": "Policy",
+      "CHECKLIST": "Checklist"
+    },
+    "TAGS": {
+      "ESCALATED": "Escalated",
+      "SLA_ACTIVE": "Active SLA",
+      "FINANCE_REVIEW": "Finance Review",
+      "WAITING_VENDOR": "Waiting for Your Input",
+      "DOCS_REQUIRED": "Docs Required",
+      "RESOLVED": "Resolved",
+      "NEW_CASE": "New Case"
+    },
+    "ACTIONS": {
+      "CREATE_TICKET": "Create Ticket",
+      "RESET_DEMO": "Reset Demo Data",
+      "OPEN_TICKET": "Open Case",
+      "OPEN_REFERENCE": "Open Reference",
+      "OPEN_LINKED_PATH": "Open Related Page",
+      "SEND_MESSAGE": "Send Reply",
+      "OPEN_SUPPORT_FROM_REFERENCE": "Open Ticket from This Reference",
+      "SUBMIT_TICKET": "Submit Ticket"
+    },
+    "DETAIL": {
+      "SUMMARY_TITLE": "Case Summary",
+      "ASSIGNED_AGENT": "Assigned Agent",
+      "REFERENCE": "Ticket Reference",
+      "THREAD_TITLE": "Support Thread",
+      "THREAD_SUBTITLE": "Every reply between your team and support appears here in time order.",
+      "RELATED_REFERENCE_TITLE": "Related References",
+      "RELATED_REFERENCE_SUBTITLE": "Guides and policies from the same category that can help close the case faster.",
+      "COMPOSER_TITLE": "Add a New Reply",
+      "COMPOSER_SUBTITLE": "Send the update or clarification needed to move the case forward.",
+      "MESSAGE_FIELD": "Message",
+      "MESSAGE_PLACEHOLDER": "Write your reply or the clarification you want to add to this ticket"
+    },
+    "REFERENCE": {
+      "READ_TIME": "{{count}} min read",
+      "RELATED_PATHS": "Related Pages",
+      "ESCALATION_NOTE": "When to Escalate",
+      "RELATED_TICKETS_TITLE": "Related Support Cases",
+      "RELATED_TICKETS_SUBTITLE": "Recent tickets from the same category so the reference stays connected to similar cases."
+    },
+    "CREATE": {
+      "EYEBROW": "New Ticket",
+      "TITLE": "Open a Support Case",
+      "SUBTITLE": "Provide a clear summary so the request reaches the right team quickly.",
+      "FIELDS": {
+        "SUBJECT": "Case Subject",
+        "CATEGORY": "Category",
+        "PRIORITY": "Priority",
+        "MESSAGE": "Case Details"
+      },
+      "MESSAGE_PLACEHOLDER": "Explain the issue, request, and the steps already taken before contacting support"
+    },
+    "EMPTY": {
+      "TICKETS_TITLE": "No tickets match the current view",
+      "TICKETS_SUBTITLE": "Try lighter filters or create a new ticket from the top action.",
+      "SELECT_TICKET_TITLE": "Select a case to view its details",
+      "SELECT_TICKET_SUBTITLE": "Choose a ticket from the table to load its summary and conversation.",
+      "ARTICLES_TITLE": "No articles match the current filters",
+      "ARTICLES_SUBTITLE": "Adjust the search or filters to surface the right guides.",
+      "SELECT_ARTICLE_TITLE": "Select a reference article",
+      "SELECT_ARTICLE_SUBTITLE": "Pick any article from the list to load its operational details.",
+      "RELATED_REFERENCE": "There are no related references for this category right now.",
+      "RELATED_TICKETS": "There are no related tickets for this category right now."
+    },
+    "FEEDBACK": {
+      "TICKET_CREATED": "The support ticket was created successfully.",
+      "MESSAGE_SENT": "Your reply was sent to the ticket.",
+      "SEED_RESET": "The demo support workspace was reset."
+    }
+  },
   "VENDOR_FINANCE": {
     "TITLE": "Financial Overview",
     "SUBTITLE": "Track payouts, fees, holds, and recent movements with the same operational clarity used in super admin.",
