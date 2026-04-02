@@ -1,14 +1,15 @@
-<div class="space-y-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+<div class="space-y-5 pb-10" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
   <app-page-header
     [title]="'STAFF_BRANCHES.TITLE' | translate"
     [description]="'STAFF_BRANCHES.SUBTITLE' | translate"
+    [customClass]="'gap-3 sm:items-start'"
   >
-    <div actions class="flex flex-wrap items-center gap-3">
+    <div actions class="flex flex-wrap items-center gap-2">
       @if (activeView === 'branches') {
         <button
           type="button"
           (click)="openBranchWizard()"
-          class="group inline-flex min-h-12 items-center gap-3 whitespace-nowrap rounded-[18px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white shadow-[0_16px_30px_rgba(14,116,144,0.24)] transition-all hover:-translate-y-0.5">
+          class="group inline-flex min-h-11 items-center gap-3 whitespace-nowrap rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white shadow-[0_16px_30px_rgba(14,116,144,0.20)] transition-all hover:-translate-y-0.5">
           <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-white/15 bg-white/10 text-white">
             <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 5v14m-7-7h14"></path>
@@ -22,7 +23,7 @@
         <button
           type="button"
           (click)="openEmployeeInvite()"
-          class="group inline-flex min-h-12 items-center gap-3 whitespace-nowrap rounded-[18px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white shadow-[0_16px_30px_rgba(14,116,144,0.24)] transition-all hover:-translate-y-0.5">
+          class="group inline-flex min-h-11 items-center gap-3 whitespace-nowrap rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white shadow-[0_16px_30px_rgba(14,116,144,0.20)] transition-all hover:-translate-y-0.5">
           <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-white/15 bg-white/10 text-white">
             <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 5v14m-7-7h14"></path>
@@ -200,100 +201,112 @@
 
   <app-page-section-shell
     [title]="activePanelTitle"
-    [subtitle]="activePanelSubtitle">
-    <div actions class="flex max-w-full flex-wrap items-center gap-3">
-      <div class="flex max-w-full flex-wrap items-center gap-3">
-        <div class="w-full max-w-full overflow-x-auto pb-1 scroll-smooth [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
-          <div class="flex w-max items-center gap-1 rounded-xl border border-slate-900/5 bg-slate-900/[0.04] p-[3px]">
-            <button
-              type="button"
-              (click)="setActiveView('branches')"
-              class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
-              [ngClass]="activeView === 'branches'
-                ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
-                : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
-              @if (activeView === 'branches') {
-                <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
-                  <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
-                </div>
-              }
+    [subtitle]="activePanelSubtitle"
+    [headerContainerClass]="'border-b border-slate-100 px-6 py-4'"
+    [headerContentClass]="'flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between'">
+    <div actions class="flex flex-wrap items-center gap-2">
+      <div class="inline-flex items-center gap-1 rounded-xl border border-slate-900/5 bg-slate-900/[0.04] p-[3px]">
+        <button
+          type="button"
+          (click)="setActiveView('branches')"
+          class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
+          [ngClass]="activeView === 'branches'
+            ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
+            : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
+          @if (activeView === 'branches') {
+            <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
+              <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
+            </div>
+          }
 
-              <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
-                <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
-                  <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
-                    <path d="M3.75 9h16.5M5.25 9V6.75A1.5 1.5 0 0 1 6.75 5.25h10.5a1.5 1.5 0 0 1 1.5 1.5V9m-12 0v8.25A1.5 1.5 0 0 0 8.25 18.75h7.5a1.5 1.5 0 0 0 1.5-1.5V9m-7.5 9.75v-4.5h4.5v4.5"></path>
-                  </svg>
-                </span>
-                <span class="whitespace-nowrap">{{ 'STAFF_BRANCHES.VIEWS.BRANCHES' | translate }}</span>
-                <span
-                  class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
-                  [class]="activeView === 'branches' ? 'bg-white/20 text-white' : 'bg-slate-200/50 text-slate-500'">
-                  {{ filteredBranches.length }}
-                </span>
-              </div>
-            </button>
-
-            <button
-              type="button"
-              (click)="setActiveView('employees')"
-              class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
-              [ngClass]="activeView === 'employees'
-                ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
-                : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
-              @if (activeView === 'employees') {
-                <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
-                  <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
-                </div>
-              }
-
-              <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
-                <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
-                  <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
-                    <path d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 19.5a7.5 7.5 0 0 1 15 0"></path>
-                  </svg>
-                </span>
-                <span class="whitespace-nowrap">{{ 'STAFF_BRANCHES.VIEWS.EMPLOYEES' | translate }}</span>
-                <span
-                  class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
-                  [class]="activeView === 'employees' ? 'bg-white/20 text-white' : 'bg-slate-200/50 text-slate-500'">
-                  {{ filteredEmployees.length }}
-                </span>
-              </div>
-            </button>
+          <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
+            <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
+              <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
+                <path d="M3.75 9h16.5M5.25 9V6.75A1.5 1.5 0 0 1 6.75 5.25h10.5a1.5 1.5 0 0 1 1.5 1.5V9m-12 0v8.25A1.5 1.5 0 0 0 8.25 18.75h7.5a1.5 1.5 0 0 0 1.5-1.5V9m-7.5 9.75v-4.5h4.5v4.5"></path>
+              </svg>
+            </span>
+            <span class="whitespace-nowrap">{{ 'STAFF_BRANCHES.VIEWS.BRANCHES' | translate }}</span>
+            <span
+              class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
+              [class]="activeView === 'branches' ? 'bg-white/20 text-white' : 'bg-slate-200/50 text-slate-500'">
+              {{ filteredBranches.length }}
+            </span>
           </div>
-        </div>
+        </button>
+
+        <button
+          type="button"
+          (click)="setActiveView('employees')"
+          class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
+          [ngClass]="activeView === 'employees'
+            ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
+            : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
+          @if (activeView === 'employees') {
+            <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
+              <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
+            </div>
+          }
+
+          <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
+            <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
+              <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
+                <path d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 19.5a7.5 7.5 0 0 1 15 0"></path>
+              </svg>
+            </span>
+            <span class="whitespace-nowrap">{{ 'STAFF_BRANCHES.VIEWS.EMPLOYEES' | translate }}</span>
+            <span
+              class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
+              [class]="activeView === 'employees' ? 'bg-white/20 text-white' : 'bg-slate-200/50 text-slate-500'">
+              {{ filteredEmployees.length }}
+            </span>
+          </div>
+        </button>
 
         <button
           type="button"
           (click)="setActiveView('invitations')"
-          class="inline-flex items-center gap-2 rounded-full border px-4 py-2.5 text-[0.74rem] font-black transition-all"
+          class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
           [ngClass]="activeView === 'invitations'
-            ? 'border-zadna-primary bg-zadna-primary text-white shadow-sm shadow-zadna-primary/20'
-            : 'border-slate-200 bg-white text-slate-600 hover:border-zadna-primary/20 hover:text-zadna-primary'">
-          <span>{{ invitationsToggleLabel }}</span>
-          @if (pendingInvitationsCount > 0) {
-            <span
-              class="inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.62rem] font-black"
-              [ngClass]="activeView === 'invitations' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-600'">
-              {{ pendingInvitationsCount }}
-            </span>
+            ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
+            : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
+          @if (activeView === 'invitations') {
+            <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
+              <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
+            </div>
           }
+
+          <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
+            <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
+              <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
+                <path d="M12 6.75v6l4.5 2.25M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
+              </svg>
+            </span>
+            <span class="whitespace-nowrap">{{ invitationsToggleLabel }}</span>
+            @if (pendingInvitationsCount > 0) {
+              <span
+                class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
+                [class]="activeView === 'invitations' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-600'">
+                {{ pendingInvitationsCount }}
+              </span>
+            }
+          </div>
         </button>
 
-        <button
-          type="button"
-          (click)="isFiltersExpanded = !isFiltersExpanded"
-          class="inline-flex shrink-0 items-center gap-3 rounded-full border border-slate-200/70 bg-white px-5 py-2.5 text-[0.74rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary"
-          [ngClass]="isFiltersExpanded ? 'border-zadna-primary/20 bg-teal-50 text-zadna-primary' : ''">
-          <svg class="h-4.5 w-4.5 transition-transform" [ngClass]="isFiltersExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 5h18M6 12h12M10 19h4"></path>
-          </svg>
-            <span>{{ 'STAFF_BRANCHES.FILTERS.TITLE' | translate }}</span>
-          @if (hasActiveFilters) {
-            <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-100 px-1.5 text-[0.62rem] font-black text-rose-600">!</span>
-          }
-        </button>
       </div>
+
+      <button
+        type="button"
+        (click)="isFiltersExpanded = !isFiltersExpanded"
+        class="inline-flex shrink-0 items-center gap-3 rounded-full border border-slate-200/70 bg-white px-5 py-2.5 text-[0.74rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary"
+        [ngClass]="isFiltersExpanded ? 'border-zadna-primary/20 bg-teal-50 text-zadna-primary' : ''">
+        <svg class="h-4.5 w-4.5 transition-transform" [ngClass]="isFiltersExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 5h18M6 12h12M10 19h4"></path>
+        </svg>
+        <span>{{ 'STAFF_BRANCHES.FILTERS.TITLE' | translate }}</span>
+        @if (hasActiveFilters) {
+          <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-100 px-1.5 text-[0.62rem] font-black text-rose-600">!</span>
+        }
+      </button>
     </div>
 
     <div class="overflow-x-auto">

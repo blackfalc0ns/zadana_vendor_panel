@@ -7,10 +7,6 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
 import { CITIES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
-import {
-  DetailTabNavItem,
-  DetailTabsNavComponent
-} from '../../../../shared/components/ui/navigation/detail-tabs-nav/detail-tabs-nav.component';
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
 import { AppFilterPanelComponent } from '../../../../shared/components/ui/layout/filter-panel/filter-panel.component';
@@ -97,7 +93,6 @@ interface EmployeeModalDraft {
     TranslateModule,
     NgClass,
     AppPageHeaderComponent,
-    DetailTabsNavComponent,
     AppPaginationComponent,
     AppFlashBannerComponent,
     AppFilterPanelComponent,
