@@ -779,14 +779,14 @@
     },
     "EMPLOYEE_MODAL": {
       "EYEBROW": "Team access",
-      "TITLE": "Create a new employee",
-      "SUBTITLE": "Add an employee directly, assign branch access, and start from a ready-made permission template.",
+      "TITLE": "Invite an employee",
+      "SUBTITLE": "Send an invitation to a regular email address, assign branch access, and start from a ready-made permission template.",
       "EDIT_TITLE": "Adjust employee permissions",
       "EDIT_SUBTITLE": "Review the role template and fine-tune permissions for the selected employee.",
       "IDENTITY_TITLE": "Employee identity",
       "FIELDS": {
         "NAME": "Full name",
-        "CONTACT": "Email or mobile"
+        "CONTACT": "Email address"
       },
       "TEMPLATE_TITLE": "Role template",
       "BRANCH_ACCESS_TITLE": "Branch access",
@@ -903,6 +903,123 @@
           "SENT": "Invitation sent"
         }
       }
+    }
+  },
+  "REVIEWS": {
+    "TITLE": "Customer Reviews Center",
+    "SUBTITLE": "Track product and order experience reviews from one workspace, reply as the vendor, and hide reviews when needed without deleting them.",
+    "ACTIONS": {
+      "RESET_DEMO": "Reset demo data",
+      "VIEW": "View",
+      "REPLY": "Reply",
+      "EDIT_REPLY": "Edit reply",
+      "HIDE": "Hide",
+      "SHOW": "Show",
+      "OPEN_REFERENCE": "Open reference",
+      "UPDATE_REPLY": "Update reply",
+      "SEND_REPLY": "Send reply"
+    },
+    "SUMMARY": {
+      "AVERAGE_RATING": "Average rating",
+      "TOTAL_REVIEWS": "Total reviews",
+      "TOTAL_HINT": "All reviews currently stored in this workspace",
+      "PENDING_REPLY": "Pending reply",
+      "PENDING_HINT": "Reviews that still need an official vendor response",
+      "HIDDEN": "Hidden",
+      "HIDDEN_HINT": "Reviews currently hidden from the operational view"
+    },
+    "QUICK_TABS": {
+      "ALL": "All",
+      "NEEDS_REPLY": "Needs reply",
+      "LOW_RATING": "Low rating",
+      "HIDDEN": "Hidden"
+    },
+    "SECTION_TITLE": "Unified reviews log",
+    "SECTION_SUBTITLE": "Review every rating, open details, respond to customers, and track what needs attention.",
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Filter by type, stars, visibility, reply state, and date within the same table.",
+      "RESET": "Reset",
+      "SEARCH": "Search",
+      "TYPE": "Type",
+      "ALL_TYPES": "All types",
+      "RATING": "Rating",
+      "ALL_RATINGS": "All ratings",
+      "STARS_VALUE": "{{count}} stars",
+      "VISIBILITY": "Visibility",
+      "ALL_VISIBILITY": "All visibility states",
+      "REPLY_STATUS": "Reply status",
+      "ALL_REPLY_STATUS": "All reply states",
+      "DATE_FROM": "Date from",
+      "DATE_TO": "Date to",
+      "SORT": "Sort"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Search by customer, product, order number, or comment text"
+    },
+    "SORT": {
+      "NEWEST": "Newest",
+      "RATING_LOW": "Lowest rated",
+      "RATING_HIGH": "Highest rated"
+    },
+    "TABLE": {
+      "CUSTOMER": "Customer",
+      "TYPE": "Type",
+      "REFERENCE": "Reference",
+      "RATING": "Rating",
+      "COMMENT": "Comment",
+      "VISIBILITY": "Visibility",
+      "REPLY_STATUS": "Reply status",
+      "DATE": "Date"
+    },
+    "BADGES": {
+      "VERIFIED": "Verified purchase",
+      "NEEDS_ATTENTION": "Needs attention"
+    },
+    "TYPES": {
+      "PRODUCT": "Product review",
+      "ORDER": "Order review"
+    },
+    "VISIBILITY": {
+      "PUBLISHED": "Published",
+      "HIDDEN": "Hidden"
+    },
+    "REPLY_STATUS": {
+      "NONE": "No reply",
+      "REPLIED": "Replied"
+    },
+    "EMPTY": {
+      "TITLE": "No matching reviews",
+      "SUBTITLE": "Try adjusting the filters or reset the demo data to reload the full review log."
+    },
+    "DRAWER": {
+      "EYEBROW": "Review details",
+      "REFERENCE": "Linked reference",
+      "CUSTOMER": "Customer",
+      "COMMENT": "Review comment",
+      "ORDER_BREAKDOWN_TITLE": "Order experience breakdown",
+      "ORDER_BREAKDOWN_SUBTITLE": "Internal view of delivery, packaging, and accuracy for this review.",
+      "MEDIA_TITLE": "Customer attachments",
+      "MEDIA_SUBTITLE": "Images or screenshots attached to the current review.",
+      "REPLY_TITLE": "Official vendor reply",
+      "REPLY_SUBTITLE": "Write a clear professional response that appears as the vendor reply and can be updated later.",
+      "CURRENT_REPLY": "Current reply",
+      "REPLY_UPDATED_AT": "Last updated: {{date}}",
+      "REPLY_SENT_AT": "Replied at: {{date}}",
+      "REPLY_FIELD": "Reply message",
+      "REPLY_PLACEHOLDER": "Write a short professional reply that explains the action taken or the relevant clarification..."
+    },
+    "BREAKDOWN": {
+      "DELIVERY": "Delivery",
+      "PACKAGING": "Packaging",
+      "ACCURACY": "Accuracy"
+    },
+    "FEEDBACK": {
+      "REPLY_UPDATED": "The review reply was updated.",
+      "REPLY_SENT": "The reply was sent successfully.",
+      "REVIEW_PUBLISHED": "The review is visible again.",
+      "REVIEW_HIDDEN": "The review was hidden from the current view.",
+      "SEED_RESET": "The demo reviews data was reset."
     }
   },
   "VENDOR_FINANCE": {

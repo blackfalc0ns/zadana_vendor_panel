@@ -6,7 +6,6 @@ import { Subscription, combineLatest } from 'rxjs';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import {
-  EmailProvisioningStatus,
   EmployeeStatus,
   EmployeeVm,
   InvitationVm,
@@ -98,7 +97,6 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
 
     return this.invitations.filter((invitation) =>
       invitation.contact === this.employee!.contact
-      || invitation.contact === this.employee!.workEmail
       || invitation.targetName === this.employee!.fullName
     );
   }
@@ -137,18 +135,6 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
       default:
         return 'border-rose-200 bg-rose-50 text-rose-700';
     }
-  }
-
-  workEmailStatusKey(status: EmailProvisioningStatus): string {
-    return status === 'connected'
-      ? 'STAFF_BRANCHES.WORK_EMAIL.STATUSES.CONNECTED'
-      : 'STAFF_BRANCHES.WORK_EMAIL.STATUSES.NOT_PROVISIONED';
-  }
-
-  workEmailStatusBadgeClass(status: EmailProvisioningStatus): string {
-    return status === 'connected'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-      : 'border-amber-200 bg-amber-50 text-amber-700';
   }
 
   canUseAction(module: PermissionModuleConfig, actionId: string): boolean {

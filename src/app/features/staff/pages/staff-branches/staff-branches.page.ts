@@ -5,7 +5,6 @@ import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
-import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 import { CITIES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
@@ -18,7 +17,6 @@ import {
   BranchOperatingHourVm,
   BranchStatus,
   BranchVm,
-  EmailProvisioningStatus,
   EmployeeStatus,
   EmployeeVm,
   InvitationStatus,
@@ -39,11 +37,6 @@ import {
   defaultOperatingHours
 } from '../../models/staff-branches.models';
 import { StaffBranchesService } from '../../services/staff-branches.service';
-import {
-  buildWorkEmail,
-  normalizeCompanyDomain,
-  resolveWorkEmailProvisioningStatus
-} from '../../../../shared/utils/work-email.utils';
 
 interface BranchFilters {
   search: string;
@@ -109,7 +102,6 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
   currentLang = 'ar';
   activeView: StaffView = 'branches';
   isFiltersExpanded = true;
-  companyDomain = '';
 
   branches: BranchVm[] = [];
   employees: EmployeeVm[] = [];
@@ -166,7 +158,6 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly staffBranchesService: StaffBranchesService,
-    private readonly vendorProfileService: VendorProfileService,
     private readonly translate: TranslateService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
@@ -180,12 +171,10 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.dataSub = combineLatest([
-      this.vendorProfileService.getProfile(),
       this.staffBranchesService.getBranches(),
       this.staffBranchesService.getEmployees(),
       this.staffBranchesService.getInvitations()
-    ]).subscribe(([profile, branches, employees, invitations]) => {
-      this.companyDomain = normalizeCompanyDomain(profile.companyDomain);
+    ]).subscribe(([branches, employees, invitations]) => {
       this.branches = branches;
       this.employees = employees;
       this.invitations = invitations;
@@ -270,24 +259,14 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
     return !!this.editingEmployee;
   }
 
-  get hasConfiguredCompanyDomain(): boolean {
-    return !!this.companyDomain;
-  }
-
-  get employeeWorkEmailPreview(): string {
+  get canSubmitEmployeeModal(): boolean {
     if (this.isEditingEmployee) {
-      return this.editingEmployee?.workEmail || '';
+      return true;
     }
 
-    return buildWorkEmail(this.employeeDraft.fullName, this.companyDomain, this.employeeDraft.contact);
-  }
-
-  get employeeWorkEmailStatus(): EmailProvisioningStatus {
-    if (this.isEditingEmployee) {
-      return this.editingEmployee?.emailProvisioningStatus || 'not_provisioned';
-    }
-
-    return resolveWorkEmailProvisioningStatus(this.companyDomain);
+    return !!this.employeeDraft.fullName.trim()
+      && this.isValidEmail(this.employeeDraft.contact)
+      && this.employeeDraft.branchIds.length > 0;
   }
 
   get filteredBranches(): BranchVm[] {
@@ -327,7 +306,6 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
         [
           employee.fullName,
           employee.contact,
-          employee.workEmail,
           this.translate.instant(employee.jobTitle)
         ],
         this.employeeFilters.search
@@ -587,15 +565,13 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
       return;
     }
 
-    if (!this.employeeDraft.fullName.trim() || !this.employeeDraft.contact.trim() || this.employeeDraft.branchIds.length === 0) {
+    if (!this.canSubmitEmployeeModal) {
       return;
     }
 
-    this.staffBranchesService.createEmployee({
+    this.staffBranchesService.inviteEmployee({
       fullName: this.employeeDraft.fullName,
       contact: this.employeeDraft.contact,
-      workEmail: this.employeeWorkEmailPreview,
-      emailProvisioningStatus: this.employeeWorkEmailStatus,
       roleTemplate: this.employeeDraft.roleTemplate,
       branchIds: [...this.employeeDraft.branchIds],
       permissions: clonePermissionMatrix(this.employeeDraft.permissions)
@@ -603,7 +579,7 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
 
     this.closeEmployeeModal();
     this.activeView = 'employees';
-    this.showFlash('STAFF_BRANCHES.FEEDBACK.EMPLOYEE_CREATED', 'success');
+    this.showFlash('STAFF_BRANCHES.FEEDBACK.EMPLOYEE_INVITED', 'success');
   }
 
   toggleEmployeeStatus(employee: EmployeeVm): void {
@@ -748,18 +724,6 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
     }
   }
 
-  workEmailStatusKey(status: EmailProvisioningStatus): string {
-    return status === 'connected'
-      ? 'STAFF_BRANCHES.WORK_EMAIL.STATUSES.CONNECTED'
-      : 'STAFF_BRANCHES.WORK_EMAIL.STATUSES.NOT_PROVISIONED';
-  }
-
-  workEmailStatusBadgeClass(status: EmailProvisioningStatus): string {
-    return status === 'connected'
-      ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
-      : 'border-amber-200 bg-amber-50 text-amber-700';
-  }
-
   linkedBranchNames(branchIds: string[]): string {
     return branchIds
       .map((branchId) => this.branches.find((branch) => branch.id === branchId)?.name)
@@ -840,6 +804,10 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
     }
 
     return values.some((value) => (value || '').toLowerCase().includes(normalizedTerm));
+  }
+
+  private isValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
   }
 
   private showFlash(key: string, tone: 'success' | 'info'): void {

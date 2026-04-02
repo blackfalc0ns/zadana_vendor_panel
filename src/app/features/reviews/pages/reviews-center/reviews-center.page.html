@@ -1,0 +1,581 @@
+<div class="space-y-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <app-page-header
+    [title]="'REVIEWS.TITLE' | translate"
+    [description]="'REVIEWS.SUBTITLE' | translate"
+  >
+    <div actions class="flex flex-wrap items-center gap-3">
+      <button
+        type="button"
+        (click)="resetDemoState()"
+        class="inline-flex min-h-11 items-center gap-2 rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-[0.76rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary">
+        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 4.5v6h6M19.5 19.5v-6h-6M19.364 10.636A7.5 7.5 0 0 0 6.75 6.75L4.5 10.5m15-1.5-2.25 3.75A7.5 7.5 0 0 1 4.636 13.364"></path>
+        </svg>
+        <span>{{ 'REVIEWS.ACTIONS.RESET_DEMO' | translate }}</span>
+      </button>
+    </div>
+  </app-page-header>
+
+  @if (flashMessage) {
+    <div
+      class="rounded-[20px] border px-4 py-3 text-[0.82rem] font-black shadow-sm"
+      [ngClass]="flashTone === 'success'
+        ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+        : 'border-sky-200 bg-sky-50 text-sky-700'">
+      {{ flashMessage }}
+    </div>
+  }
+
+  <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+    <div class="rounded-[24px] border border-slate-200/80 bg-white px-5 py-5 shadow-sm">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-[0.7rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">
+            {{ 'REVIEWS.SUMMARY.AVERAGE_RATING' | translate }}
+          </p>
+          <p class="mt-3 text-[1.65rem] font-black text-slate-900">{{ averageLabel(summary.averageRating) }}</p>
+          <div class="mt-2 flex items-center gap-1">
+            @for (star of stars; track star) {
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                [ngClass]="star <= roundedAverageRating() ? 'text-amber-400' : 'text-slate-200'"
+                fill="currentColor">
+                <path d="M11.48 3.499a.563.563 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321 1.01l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61L12 17.771l-4.777 2.79a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557L3.282 10.406a.562.562 0 0 1 .321-1.01l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"></path>
+              </svg>
+            }
+          </div>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-amber-50 text-amber-500">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m11.48 3.499 2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321 1.01l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61L12 17.771l-4.777 2.79a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.601a.562.562 0 0 1 .321-1.01l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"></path>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="rounded-[24px] border border-slate-200/80 bg-white px-5 py-5 shadow-sm">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-[0.7rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">
+            {{ 'REVIEWS.SUMMARY.TOTAL_REVIEWS' | translate }}
+          </p>
+          <p class="mt-3 text-[1.65rem] font-black text-slate-900">{{ summary.totalReviews }}</p>
+          <p class="mt-2 text-[0.75rem] font-bold text-slate-500">{{ 'REVIEWS.SUMMARY.TOTAL_HINT' | translate }}</p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-sky-50 text-sky-500">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 8.25h9m-9 3h6m-8.25 9h13.5a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18.75 3.75H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z"></path>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="rounded-[24px] border border-slate-200/80 bg-white px-5 py-5 shadow-sm">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-[0.7rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">
+            {{ 'REVIEWS.SUMMARY.PENDING_REPLY' | translate }}
+          </p>
+          <p class="mt-3 text-[1.65rem] font-black text-slate-900">{{ summary.pendingReplyCount }}</p>
+          <p class="mt-2 text-[0.75rem] font-bold text-slate-500">{{ 'REVIEWS.SUMMARY.PENDING_HINT' | translate }}</p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-rose-50 text-rose-500">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 9.75h6.75m-6.75 3h4.5m5.25 8.25-4.031-2.016a2.25 2.25 0 0 0-1.006-.234H6.75A2.25 2.25 0 0 1 4.5 16.5V6.75A2.25 2.25 0 0 1 6.75 4.5h10.5a2.25 2.25 0 0 1 2.25 2.25v12.234a.516.516 0 0 1-.75.461Z"></path>
+          </svg>
+        </span>
+      </div>
+    </div>
+
+    <div class="rounded-[24px] border border-slate-200/80 bg-white px-5 py-5 shadow-sm">
+      <div class="flex items-start justify-between gap-4">
+        <div>
+          <p class="text-[0.7rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">
+            {{ 'REVIEWS.SUMMARY.HIDDEN' | translate }}
+          </p>
+          <p class="mt-3 text-[1.65rem] font-black text-slate-900">{{ summary.hiddenCount }}</p>
+          <p class="mt-2 text-[0.75rem] font-bold text-slate-500">{{ 'REVIEWS.SUMMARY.HIDDEN_HINT' | translate }}</p>
+        </div>
+
+        <span class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-amber-50 text-amber-600">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M10.73 5.08A10.744 10.744 0 0 1 12 5.001c5.105 0 9.455 3.283 11.076 7.875a11.826 11.826 0 0 1-2.424 3.992M6.61 6.61A12.224 12.224 0 0 0 .924 12.876 11.948 11.948 0 0 0 12 20.75a10.89 10.89 0 0 0 5.227-1.273M9.88 9.88A3 3 0 1 0 14.12 14.12"></path>
+          </svg>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  @if (isFiltersExpanded) {
+    <div class="overflow-hidden rounded-[28px] border border-slate-200/70 bg-white shadow-sm animate-in slide-in-from-top-2 duration-300">
+      <app-panel-header
+        [title]="'REVIEWS.FILTERS.TITLE'"
+        [subtitle]="'REVIEWS.FILTERS.SUBTITLE'"
+        containerClass="border-b border-slate-100 px-6 py-4"
+        contentClass="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
+        titleClass="text-[0.95rem] font-black text-slate-900"
+        subtitleClass="text-[0.72rem] font-bold text-slate-500"
+      >
+        <div actions>
+          <button
+            type="button"
+            (click)="resetFilters()"
+            class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-[0.72rem] font-black text-rose-600 transition hover:bg-rose-100">
+            {{ 'REVIEWS.FILTERS.RESET' | translate }}
+          </button>
+        </div>
+      </app-panel-header>
+
+      <div class="grid gap-4 px-6 py-5 md:grid-cols-2 xl:grid-cols-4">
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.SEARCH' | translate }}</span>
+          <input
+            type="text"
+            [(ngModel)]="filters.search"
+            [placeholder]="'REVIEWS.SEARCH.PLACEHOLDER' | translate"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.TYPE' | translate }}</span>
+          <select
+            [(ngModel)]="filters.type"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="all">{{ 'REVIEWS.FILTERS.ALL_TYPES' | translate }}</option>
+            <option value="product">{{ 'REVIEWS.TYPES.PRODUCT' | translate }}</option>
+            <option value="order">{{ 'REVIEWS.TYPES.ORDER' | translate }}</option>
+          </select>
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.RATING' | translate }}</span>
+          <select
+            [(ngModel)]="filters.rating"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="all">{{ 'REVIEWS.FILTERS.ALL_RATINGS' | translate }}</option>
+            @for (star of stars; track star) {
+              <option [ngValue]="star">{{ 'REVIEWS.FILTERS.STARS_VALUE' | translate:{ count: star } }}</option>
+            }
+          </select>
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.VISIBILITY' | translate }}</span>
+          <select
+            [(ngModel)]="filters.visibility"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="all">{{ 'REVIEWS.FILTERS.ALL_VISIBILITY' | translate }}</option>
+            <option value="published">{{ 'REVIEWS.VISIBILITY.PUBLISHED' | translate }}</option>
+            <option value="hidden">{{ 'REVIEWS.VISIBILITY.HIDDEN' | translate }}</option>
+          </select>
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.REPLY_STATUS' | translate }}</span>
+          <select
+            [(ngModel)]="filters.replyStatus"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="all">{{ 'REVIEWS.FILTERS.ALL_REPLY_STATUS' | translate }}</option>
+            <option value="none">{{ 'REVIEWS.REPLY_STATUS.NONE' | translate }}</option>
+            <option value="replied">{{ 'REVIEWS.REPLY_STATUS.REPLIED' | translate }}</option>
+          </select>
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.DATE_FROM' | translate }}</span>
+          <input
+            type="date"
+            [(ngModel)]="filters.dateFrom"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.DATE_TO' | translate }}</span>
+          <input
+            type="date"
+            [(ngModel)]="filters.dateTo"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+        </label>
+
+        <label class="space-y-2">
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.SORT' | translate }}</span>
+          <select
+            [(ngModel)]="filters.sortBy"
+            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
+            <option value="newest">{{ 'REVIEWS.SORT.NEWEST' | translate }}</option>
+            <option value="rating_low">{{ 'REVIEWS.SORT.RATING_LOW' | translate }}</option>
+            <option value="rating_high">{{ 'REVIEWS.SORT.RATING_HIGH' | translate }}</option>
+          </select>
+        </label>
+      </div>
+    </div>
+  }
+
+  <div class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
+    <app-panel-header
+      [title]="'REVIEWS.SECTION_TITLE'"
+      [subtitle]="'REVIEWS.SECTION_SUBTITLE'"
+    >
+      <div actions class="flex w-full flex-nowrap items-center gap-3">
+        <div class="min-w-0 flex-1">
+          <app-detail-tabs-nav
+            [tabs]="quickTabs"
+            [activeTab]="activeQuickView"
+            (tabChange)="setActiveQuickView($event)"
+          ></app-detail-tabs-nav>
+        </div>
+
+        <button
+          type="button"
+          (click)="isFiltersExpanded = !isFiltersExpanded"
+          class="inline-flex shrink-0 items-center gap-3 rounded-full border border-slate-200/70 bg-white px-5 py-2.5 text-[0.74rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary"
+          [ngClass]="isFiltersExpanded ? 'border-zadna-primary/20 bg-teal-50 text-zadna-primary' : ''">
+          <svg class="h-4.5 w-4.5 transition-transform" [ngClass]="isFiltersExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 5h18M6 12h12M10 19h4"></path>
+          </svg>
+          <span>{{ 'REVIEWS.FILTERS.TITLE' | translate }}</span>
+          @if (hasActiveFilters) {
+            <span class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-100 px-1.5 text-[0.62rem] font-black text-rose-600">!</span>
+          }
+        </button>
+      </div>
+    </app-panel-header>
+
+    <div class="overflow-x-auto">
+      @if (filteredReviews.length > 0) {
+        <table class="w-full min-w-[1200px] text-start">
+          <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
+            <tr>
+              <th class="px-6 py-4 text-start">{{ 'REVIEWS.TABLE.CUSTOMER' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'REVIEWS.TABLE.TYPE' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'REVIEWS.TABLE.REFERENCE' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'REVIEWS.TABLE.RATING' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'REVIEWS.TABLE.COMMENT' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'REVIEWS.TABLE.VISIBILITY' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'REVIEWS.TABLE.REPLY_STATUS' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'REVIEWS.TABLE.DATE' | translate }}</th>
+              <th class="px-4 py-4 text-start">{{ 'COMMON.ACTIONS' | translate }}</th>
+            </tr>
+          </thead>
+
+          <tbody class="divide-y divide-slate-100">
+            @for (review of filteredReviews; track trackByReviewId($index, review)) {
+              <tr class="hover:bg-slate-50/40">
+                <td class="px-6 py-4">
+                  <div class="min-w-0">
+                    <button
+                      type="button"
+                      (click)="openReview(review)"
+                      class="truncate text-[0.86rem] font-black text-slate-900 transition hover:text-zadna-primary">
+                      {{ review.customerMaskedName }}
+                    </button>
+                    <div class="mt-1 flex flex-wrap items-center gap-2 text-[0.72rem] font-bold text-slate-400">
+                      @if (review.isVerifiedPurchase) {
+                        <span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[0.66rem] font-black text-emerald-700">
+                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12.75 11.25 15 15 9.75M12 3l7.5 3v6c0 4.142-3.358 7.5-7.5 9-4.142-1.5-7.5-4.858-7.5-9V6L12 3Z"></path>
+                          </svg>
+                          <span>{{ 'REVIEWS.BADGES.VERIFIED' | translate }}</span>
+                        </span>
+                      }
+                      @if (review.attentionState === 'needs_attention') {
+                        <span class="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[0.66rem] font-black text-rose-700">
+                          {{ 'REVIEWS.BADGES.NEEDS_ATTENTION' | translate }}
+                        </span>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <td class="px-4 py-4">
+                  <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600">
+                    {{ reviewTypeKey(review.type) | translate }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-4">
+                  @if (referenceRouterLink(review); as link) {
+                    <a
+                      [routerLink]="link"
+                      class="text-[0.8rem] font-black text-slate-900 transition hover:text-zadna-primary">
+                      {{ referenceLabel(review) }}
+                    </a>
+                  } @else {
+                    <span class="text-[0.8rem] font-bold text-slate-500">{{ referenceLabel(review) }}</span>
+                  }
+                </td>
+
+                <td class="px-4 py-4">
+                  <div class="flex items-center gap-2">
+                    <span class="text-[0.82rem] font-black text-slate-900">{{ review.rating }}/5</span>
+                    <div class="flex items-center gap-0.5">
+                      @for (star of stars; track star) {
+                        <svg
+                          class="h-4 w-4"
+                          viewBox="0 0 24 24"
+                          [ngClass]="star <= review.rating ? ratingToneClass(review.rating) : 'text-slate-200'"
+                          fill="currentColor">
+                          <path d="M11.48 3.499a.563.563 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321 1.01l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61L12 17.771l-4.777 2.79a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557L3.282 10.406a.562.562 0 0 1 .321-1.01l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"></path>
+                        </svg>
+                      }
+                    </div>
+                  </div>
+                </td>
+
+                <td class="px-4 py-4">
+                  <div class="max-w-[320px]">
+                    <p class="text-[0.8rem] font-black text-slate-900">{{ review.title }}</p>
+                    <p class="mt-1 text-[0.74rem] font-bold leading-6 text-slate-500">{{ commentSnippet(review.comment) }}</p>
+                  </div>
+                </td>
+
+                <td class="px-4 py-4">
+                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="visibilityBadgeClass(review.visibility)">
+                    {{ visibilityKey(review.visibility) | translate }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-4">
+                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="replyBadgeClass(review.replyStatus)">
+                    {{ replyStatusKey(review.replyStatus) | translate }}
+                  </span>
+                </td>
+
+                <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600">{{ formatDate(review.createdAt) }}</td>
+
+                <td class="px-4 py-4">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="openReview(review)"
+                      class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                      {{ 'REVIEWS.ACTIONS.VIEW' | translate }}
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="openReply(review)"
+                      class="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-[0.72rem] font-black text-sky-700 transition hover:bg-sky-100">
+                      {{ (review.replyStatus === 'replied' ? 'REVIEWS.ACTIONS.EDIT_REPLY' : 'REVIEWS.ACTIONS.REPLY') | translate }}
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="toggleReviewVisibility(review)"
+                      class="rounded-xl border px-3 py-2 text-[0.72rem] font-black transition"
+                      [ngClass]="review.visibility === 'hidden'
+                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                        : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'">
+                      {{ (review.visibility === 'hidden' ? 'REVIEWS.ACTIONS.SHOW' : 'REVIEWS.ACTIONS.HIDE') | translate }}
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      } @else {
+        <div class="px-6 py-12 text-center">
+          <p class="text-[0.98rem] font-black text-slate-900">{{ 'REVIEWS.EMPTY.TITLE' | translate }}</p>
+          <p class="mt-2 text-[0.8rem] font-bold text-slate-500">{{ 'REVIEWS.EMPTY.SUBTITLE' | translate }}</p>
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (selectedReview; as review) {
+    <div class="fixed inset-0 z-50 bg-slate-950/40 backdrop-blur-sm">
+      <button
+        type="button"
+        (click)="closeDrawer()"
+        class="absolute inset-0 h-full w-full cursor-default"
+        aria-label="Close review drawer"></button>
+
+      <div class="absolute inset-y-0 end-0 z-10 flex w-full max-w-[680px] flex-col overflow-hidden border-s border-white/70 bg-white shadow-2xl shadow-slate-900/20">
+        <div class="border-b border-slate-100 px-6 py-5">
+          <div class="flex items-start justify-between gap-4">
+            <div>
+              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-zadna-primary/75">
+                {{ 'REVIEWS.DRAWER.EYEBROW' | translate }}
+              </p>
+              <h3 class="mt-2 text-[1.15rem] font-black text-slate-900">{{ review.title }}</h3>
+              <p class="mt-1 text-[0.76rem] font-bold text-slate-500">{{ review.customerName }} - {{ formatDateTime(review.createdAt) }}</p>
+            </div>
+
+            <button
+              type="button"
+              (click)="closeDrawer()"
+              class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-700">
+              <span class="text-lg leading-none">x</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto px-6 py-6">
+          <div class="space-y-6">
+            <div class="rounded-[24px] border border-slate-200 bg-white px-5 py-5">
+              <div class="flex flex-wrap items-start justify-between gap-4">
+                <div class="space-y-3">
+                  <div class="flex flex-wrap items-center gap-2">
+                    <span class="inline-flex rounded-full bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600">
+                      {{ reviewTypeKey(review.type) | translate }}
+                    </span>
+                    <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="visibilityBadgeClass(review.visibility)">
+                      {{ visibilityKey(review.visibility) | translate }}
+                    </span>
+                    <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="replyBadgeClass(review.replyStatus)">
+                      {{ replyStatusKey(review.replyStatus) | translate }}
+                    </span>
+                    @if (review.isVerifiedPurchase) {
+                      <span class="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[0.68rem] font-black text-emerald-700">
+                        {{ 'REVIEWS.BADGES.VERIFIED' | translate }}
+                      </span>
+                    }
+                  </div>
+
+                  <div class="flex items-center gap-0.5">
+                    @for (star of stars; track star) {
+                      <svg
+                        class="h-5 w-5"
+                        viewBox="0 0 24 24"
+                        [ngClass]="star <= review.rating ? ratingToneClass(review.rating) : 'text-slate-200'"
+                        fill="currentColor">
+                        <path d="M11.48 3.499a.563.563 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321 1.01l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61L12 17.771l-4.777 2.79a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557L3.282 10.406a.562.562 0 0 1 .321-1.01l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"></path>
+                      </svg>
+                    }
+                    <span class="ms-2 text-[0.82rem] font-black text-slate-900">{{ review.rating }}/5</span>
+                  </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    (click)="toggleReviewVisibility(review)"
+                    class="rounded-xl border px-3 py-2 text-[0.72rem] font-black transition"
+                    [ngClass]="review.visibility === 'hidden'
+                      ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
+                      : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'">
+                    {{ (review.visibility === 'hidden' ? 'REVIEWS.ACTIONS.SHOW' : 'REVIEWS.ACTIONS.HIDE') | translate }}
+                  </button>
+
+                  @if (referenceRouterLink(review); as link) {
+                    <a
+                      [routerLink]="link"
+                      class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                      {{ 'REVIEWS.ACTIONS.OPEN_REFERENCE' | translate }}
+                    </a>
+                  }
+                </div>
+              </div>
+
+              <div class="mt-5 grid gap-4 md:grid-cols-2">
+                <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
+                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.DRAWER.REFERENCE' | translate }}</p>
+                  <p class="mt-2 text-[0.86rem] font-black text-slate-900">{{ referenceLabel(review) }}</p>
+                </div>
+                <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
+                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.DRAWER.CUSTOMER' | translate }}</p>
+                  <p class="mt-2 text-[0.86rem] font-black text-slate-900">{{ review.customerName }}</p>
+                </div>
+              </div>
+
+              <div class="mt-5 rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-4">
+                <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.DRAWER.COMMENT' | translate }}</p>
+                <p class="mt-2 text-[0.82rem] font-bold leading-7 text-slate-700">{{ review.comment }}</p>
+              </div>
+            </div>
+
+            @if (review.type === 'order') {
+              <div class="rounded-[24px] border border-slate-200 bg-white">
+                <div class="border-b border-slate-100 px-5 py-4">
+                  <h4 class="text-[0.9rem] font-black text-slate-900">{{ 'REVIEWS.DRAWER.ORDER_BREAKDOWN_TITLE' | translate }}</h4>
+                  <p class="mt-1 text-[0.72rem] font-bold text-slate-500">{{ 'REVIEWS.DRAWER.ORDER_BREAKDOWN_SUBTITLE' | translate }}</p>
+                </div>
+
+                <div class="grid gap-4 px-5 py-5 md:grid-cols-3">
+                  <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
+                    <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.BREAKDOWN.DELIVERY' | translate }}</p>
+                    <p class="mt-2 text-[1.1rem] font-black text-slate-900">{{ review.deliveryRating || '-' }}/5</p>
+                  </div>
+
+                  <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
+                    <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.BREAKDOWN.PACKAGING' | translate }}</p>
+                    <p class="mt-2 text-[1.1rem] font-black text-slate-900">{{ review.packagingRating || '-' }}/5</p>
+                  </div>
+
+                  <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
+                    <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.BREAKDOWN.ACCURACY' | translate }}</p>
+                    <p class="mt-2 text-[1.1rem] font-black text-slate-900">{{ review.accuracyRating || '-' }}/5</p>
+                  </div>
+                </div>
+              </div>
+            }
+
+            @if (review.media?.length) {
+              <div class="rounded-[24px] border border-slate-200 bg-white">
+                <div class="border-b border-slate-100 px-5 py-4">
+                  <h4 class="text-[0.9rem] font-black text-slate-900">{{ 'REVIEWS.DRAWER.MEDIA_TITLE' | translate }}</h4>
+                  <p class="mt-1 text-[0.72rem] font-bold text-slate-500">{{ 'REVIEWS.DRAWER.MEDIA_SUBTITLE' | translate }}</p>
+                </div>
+
+                <div class="grid gap-4 px-5 py-5 md:grid-cols-2">
+                  @for (mediaItem of review.media; track mediaItem) {
+                    <div class="overflow-hidden rounded-[18px] border border-slate-200 bg-slate-50">
+                      <img [src]="mediaItem" alt="Review media" class="h-44 w-full object-cover">
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="rounded-[24px] border border-slate-200 bg-white">
+              <div class="border-b border-slate-100 px-5 py-4">
+                <h4 class="text-[0.9rem] font-black text-slate-900">{{ 'REVIEWS.DRAWER.REPLY_TITLE' | translate }}</h4>
+                <p class="mt-1 text-[0.72rem] font-bold text-slate-500">{{ 'REVIEWS.DRAWER.REPLY_SUBTITLE' | translate }}</p>
+              </div>
+
+              <div class="space-y-4 px-5 py-5">
+                @if (review.vendorReply) {
+                  <div class="rounded-[18px] border border-sky-200 bg-sky-50 px-4 py-4">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                      <p class="text-[0.72rem] font-extrabold uppercase tracking-[0.14em] text-sky-700">
+                        {{ 'REVIEWS.DRAWER.CURRENT_REPLY' | translate }}
+                      </p>
+                      <p class="text-[0.68rem] font-black text-sky-700">
+                        {{ review.vendorReply.updatedAt ? ('REVIEWS.DRAWER.REPLY_UPDATED_AT' | translate:{ date: formatDateTime(review.vendorReply.updatedAt) }) : ('REVIEWS.DRAWER.REPLY_SENT_AT' | translate:{ date: formatDateTime(review.vendorReply.createdAt) }) }}
+                      </p>
+                    </div>
+                    <p class="mt-2 text-[0.82rem] font-bold leading-7 text-slate-700">{{ review.vendorReply.message }}</p>
+                  </div>
+                }
+
+                <label class="space-y-2">
+                  <span class="text-[0.75rem] font-black text-slate-500">{{ 'REVIEWS.DRAWER.REPLY_FIELD' | translate }}</span>
+                  <textarea
+                    rows="5"
+                    [(ngModel)]="replyDraft"
+                    [placeholder]="'REVIEWS.DRAWER.REPLY_PLACEHOLDER' | translate"
+                    class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-[0.8rem] font-bold text-slate-900 outline-none transition-all resize-none focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5"></textarea>
+                </label>
+
+                <div class="flex flex-wrap items-center justify-end gap-3">
+                  <button
+                    type="button"
+                    (click)="submitReply()"
+                    [disabled]="!replyDraft.trim()"
+                    class="inline-flex items-center justify-center rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
+                    {{ (review.vendorReply ? 'REVIEWS.ACTIONS.UPDATE_REPLY' : 'REVIEWS.ACTIONS.SEND_REPLY') | translate }}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>

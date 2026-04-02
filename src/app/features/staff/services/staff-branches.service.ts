@@ -1,11 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, map } from 'rxjs';
-import { VendorProfileService } from '../../settings/services/vendor-profile.service';
-import {
-  buildWorkEmail,
-  normalizeCompanyDomain,
-  resolveWorkEmailProvisioningStatus
-} from '../../../shared/utils/work-email.utils';
 import {
   BranchCreationInput,
   BranchVm,
@@ -34,8 +28,6 @@ interface StaffWorkspaceState {
 })
 export class StaffBranchesService {
   private readonly stateSubject = new BehaviorSubject<StaffWorkspaceState>(this.buildInitialState());
-
-  constructor(private readonly vendorProfileService: VendorProfileService) {}
 
   getBranches(): Observable<BranchVm[]> {
     return this.stateSubject.pipe(map((state) => state.branches));
@@ -128,17 +120,6 @@ export class StaffBranchesService {
     return employee;
   }
 
-  createEmployee(input: EmployeeInviteInput): EmployeeVm {
-    const employee = this.buildEmployee(input, 'active');
-
-    this.setState((state) => ({
-      ...state,
-      employees: [employee, ...state.employees]
-    }));
-
-    return employee;
-  }
-
   updateEmployeePermissions(employeeId: string, roleTemplate: RoleTemplate, permissions: EmployeeVm['permissions']): void {
     this.setState((state) => ({
       ...state,
@@ -204,16 +185,11 @@ export class StaffBranchesService {
   }
 
   private buildEmployee(input: EmployeeInviteInput, status: EmployeeStatus): EmployeeVm {
-    const companyDomain = this.currentCompanyDomain;
-    const workEmail = input.workEmail || buildWorkEmail(input.fullName, companyDomain, input.contact);
-
     return {
       id: this.generateId('employee'),
       fullName: input.fullName.trim(),
       jobTitle: this.getTemplateLabelKey(input.roleTemplate),
       contact: input.contact.trim(),
-      workEmail,
-      emailProvisioningStatus: input.emailProvisioningStatus || resolveWorkEmailProvisioningStatus(companyDomain),
       status,
       roleTemplate: input.roleTemplate,
       branchIds: [...input.branchIds],
@@ -240,8 +216,6 @@ export class StaffBranchesService {
   }
 
   private buildInitialState(): StaffWorkspaceState {
-    const companyDomain = this.currentCompanyDomain || 'moderntech.com';
-    const domainStatus = resolveWorkEmailProvisioningStatus(companyDomain);
     const primaryBranchId = this.generateId('branch');
     const northBranchId = this.generateId('branch');
     const warehouseBranchId = this.generateId('branch');
@@ -255,7 +229,7 @@ export class StaffBranchesService {
         status: 'active',
         phone: '+201000000101',
         managerName: 'أحمد خالد',
-        managerContact: 'ahmed.khaled@moderntech.com',
+        managerContact: 'ahmed.khaled@gmail.com',
         region: 'CENTRAL',
         city: 'RIYADH',
         addressLine: 'المقر الرئيسي - شارع العليا التجاري',
@@ -272,7 +246,7 @@ export class StaffBranchesService {
         status: 'pending',
         phone: '+201000000202',
         managerName: 'سارة نبيل',
-        managerContact: 'sara.nabil@moderntech.com',
+        managerContact: 'sara.nabil@gmail.com',
         region: 'CENTRAL',
         city: 'RIYADH',
         addressLine: 'حي النرجس - بوابة الخدمات السريعة',
@@ -291,7 +265,7 @@ export class StaffBranchesService {
         status: 'suspended',
         phone: '+201000000303',
         managerName: 'محمد سمير',
-        managerContact: 'mohamed.sameer@moderntech.com',
+        managerContact: 'mohamed.sameer@outlook.com',
         region: 'CENTRAL',
         city: 'RIYADH',
         addressLine: 'المنطقة اللوجستية - المستودع الشرقي',
@@ -309,9 +283,7 @@ export class StaffBranchesService {
         id: this.generateId('employee'),
         fullName: 'أحمد خالد',
         jobTitle: this.getTemplateLabelKey('branch_manager'),
-        contact: 'ahmed.khaled@moderntech.com',
-        workEmail: buildWorkEmail('Ø£Ø­Ù…Ø¯ Ø®Ø§Ù„Ø¯', companyDomain, 'ahmed.khaled@moderntech.com'),
-        emailProvisioningStatus: domainStatus,
+        contact: 'ahmed.khaled@gmail.com',
         status: 'active',
         roleTemplate: 'branch_manager',
         branchIds: [primaryBranchId],
@@ -322,9 +294,7 @@ export class StaffBranchesService {
         id: this.generateId('employee'),
         fullName: 'نورا حسين',
         jobTitle: this.getTemplateLabelKey('orders_clerk'),
-        contact: '+201055555111',
-        workEmail: buildWorkEmail('Ù†ÙˆØ±Ø§ Ø­Ø³ÙŠÙ†', companyDomain, '+201055555111'),
-        emailProvisioningStatus: domainStatus,
+        contact: 'nora.hussein@gmail.com',
         status: 'invited',
         roleTemplate: 'orders_clerk',
         branchIds: [northBranchId],
@@ -335,9 +305,7 @@ export class StaffBranchesService {
         id: this.generateId('employee'),
         fullName: 'محمود طارق',
         jobTitle: this.getTemplateLabelKey('inventory_clerk'),
-        contact: 'mahmoud.tarek@moderntech.com',
-        workEmail: buildWorkEmail('Ù…Ø­Ù…ÙˆØ¯ Ø·Ø§Ø±Ù‚', companyDomain, 'mahmoud.tarek@moderntech.com'),
-        emailProvisioningStatus: domainStatus,
+        contact: 'mahmoud.tarek@yahoo.com',
         status: 'suspended',
         roleTemplate: 'inventory_clerk',
         branchIds: [warehouseBranchId],
@@ -351,7 +319,7 @@ export class StaffBranchesService {
         id: this.generateId('invite'),
         type: 'branch_manager',
         targetName: 'سارة نبيل',
-        contact: 'sara.nabil@moderntech.com',
+        contact: 'sara.nabil@gmail.com',
         branchIds: [northBranchId],
         status: 'pending',
         sentAt: '2026-03-20T09:00:00.000Z',
@@ -362,7 +330,7 @@ export class StaffBranchesService {
         id: this.generateId('invite'),
         type: 'employee',
         targetName: 'نورا حسين',
-        contact: '+201055555111',
+        contact: 'nora.hussein@gmail.com',
         branchIds: [northBranchId],
         status: 'pending',
         sentAt: '2026-03-29T11:30:00.000Z',
@@ -373,7 +341,7 @@ export class StaffBranchesService {
         id: this.generateId('invite'),
         type: 'employee',
         targetName: 'خالد مراد',
-        contact: 'khaled.mourad@moderntech.com',
+        contact: 'khaled.mourad@gmail.com',
         branchIds: [primaryBranchId, warehouseBranchId],
         status: 'accepted',
         sentAt: '2026-03-12T10:10:00.000Z',
@@ -426,9 +394,5 @@ export class StaffBranchesService {
       default:
         return 'STAFF_BRANCHES.TEMPLATES.INVENTORY_CLERK';
     }
-  }
-
-  private get currentCompanyDomain(): string {
-    return normalizeCompanyDomain(this.vendorProfileService.getProfileSnapshot().companyDomain);
   }
 }

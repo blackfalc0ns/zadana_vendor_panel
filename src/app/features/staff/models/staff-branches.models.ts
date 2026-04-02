@@ -5,7 +5,6 @@ export type EmployeeStatus = 'invited' | 'active' | 'suspended';
 export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked';
 export type InvitationType = 'branch_manager' | 'employee';
 export type RoleTemplate = 'branch_manager' | 'orders_clerk' | 'inventory_clerk';
-export type EmailProvisioningStatus = 'connected' | 'not_provisioned';
 export type PermissionAction = 'view' | 'manage' | 'approve' | 'export';
 export type PermissionModuleId =
   | 'dashboard'
@@ -56,8 +55,6 @@ export interface EmployeeVm {
   fullName: string;
   jobTitle: string;
   contact: string;
-  workEmail: string;
-  emailProvisioningStatus: EmailProvisioningStatus;
   status: EmployeeStatus;
   roleTemplate: RoleTemplate;
   branchIds: string[];
@@ -95,8 +92,6 @@ export interface BranchCreationInput {
 export interface EmployeeInviteInput {
   fullName: string;
   contact: string;
-  workEmail?: string;
-  emailProvisioningStatus?: EmailProvisioningStatus;
   roleTemplate: RoleTemplate;
   branchIds: string[];
   permissions: PermissionMatrixVm;

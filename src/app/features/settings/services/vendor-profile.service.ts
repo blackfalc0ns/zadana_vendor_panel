@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
-import { normalizeCompanyDomain } from '../../../../shared/utils/work-email.utils';
 
 export interface VendorOperatingHour {
   dayKey: string;
@@ -15,7 +14,6 @@ export interface VendorProfile {
   businessType: string;
   supportPhone: string;
   supportEmail: string;
-  companyDomain: string;
   descriptionAr: string;
   descriptionEn: string;
   region: string;
@@ -69,16 +67,9 @@ export class VendorProfileService {
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as VendorProfile;
-        const inferredDomain = normalizeCompanyDomain(
-          parsed.companyDomain
-          || this.extractDomainFromEmail(parsed.supportEmail)
-          || this.extractDomainFromEmail(parsed.ownerEmail)
-        );
-
         return {
           ...this.getDefaultProfile(),
-          ...parsed,
-          companyDomain: inferredDomain || this.getDefaultProfile().companyDomain
+          ...parsed
         };
       } catch {
         return this.getDefaultProfile();
@@ -95,7 +86,6 @@ export class VendorProfileService {
       businessType: 'RETAIL',
       supportPhone: '+966501234567',
       supportEmail: 'info@moderntech.com',
-      companyDomain: 'moderntech.com',
       descriptionAr: 'متجر متخصص في بيع الإلكترونيات والأجهزة الذكية مع تجهيزات للشحن السريع وخدمة ما بعد البيع.',
       descriptionEn: 'A store specialized in electronics and smart devices with fast shipping readiness and after-sales support.',
       region: 'CENTRAL',
@@ -128,13 +118,5 @@ export class VendorProfileService {
         { dayKey: 'SETTINGS_PROFILE.DAYS.FRIDAY', from: '14:00', to: '23:30', isOpen: true }
       ]
     };
-  }
-
-  private extractDomainFromEmail(value?: string | null): string {
-    if (!value || !value.includes('@')) {
-      return '';
-    }
-
-    return normalizeCompanyDomain(value.split('@')[1] || '');
   }
 }

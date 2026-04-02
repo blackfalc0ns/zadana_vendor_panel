@@ -6,7 +6,6 @@ import { Subscription } from 'rxjs';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { DetailTabsNavComponent, DetailTabNavItem } from '../../../../shared/components/ui/navigation/detail-tabs-nav/detail-tabs-nav.component';
-import { normalizeCompanyDomain } from '../../../../shared/utils/work-email.utils';
 import { BANKS, BUSINESS_TYPES, CITIES, NATIONALITIES, PAYMENT_CYCLES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { VendorOperatingHour, VendorProfile, VendorProfileService } from '../../services/vendor-profile.service';
 
@@ -27,27 +26,7 @@ interface ProfileSectionNavItem {
       <app-page-header
         [title]="'SETTINGS_PROFILE.TITLE' | translate"
         [description]="'SETTINGS_PROFILE.SUBTITLE' | translate"
-      >
-        <div actions class="flex flex-wrap items-center gap-3">
-          <span
-            class="inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[0.68rem] font-black shadow-sm"
-            [ngClass]="statusBadgeClass">
-            <span class="h-2 w-2 rounded-full" [ngClass]="statusDotClass"></span>
-            {{ profileStatusLabelKey | translate }}
-          </span>
-
-          <button
-            type="button"
-            (click)="saveProfile()"
-            [disabled]="profileForm.invalid || isSaving"
-            class="inline-flex items-center gap-2 rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.76rem] font-black text-white shadow-[0_14px_26px_rgba(14,116,144,0.24)] transition-all hover:-translate-y-0.5 disabled:opacity-60">
-            @if (isSaving) {
-              <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white"></span>
-            }
-            {{ 'SETTINGS_PROFILE.SAVE' | translate }}
-          </button>
-        </div>
-      </app-page-header>
+      ></app-page-header>
 
       <section class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
         <div class="px-5 py-5 md:px-6">
@@ -101,11 +80,6 @@ interface ProfileSectionNavItem {
       <form [formGroup]="profileForm" class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <div class="space-y-6">
           <section id="store-section" [ngClass]="activeTab === 'store-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
-              <span class="h-2.5 w-2.5 rounded-full bg-rose-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
-            </div>
             <app-panel-header
               [title]="'SETTINGS_PROFILE.SECTIONS.STORE'"
               [subtitle]="'SETTINGS_PROFILE.SECTIONS.STORE_HINT'"
@@ -175,25 +149,6 @@ interface ProfileSectionNavItem {
                     <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.SUPPORT_EMAIL' | translate }}</span>
                     <input formControlName="supportEmail" type="email" dir="ltr" [ngClass]="fieldClass('supportEmail', 'ltr')">
                   </label>
-
-                  <label class="space-y-2.5 lg:col-span-2">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.COMPANY_DOMAIN' | translate }}</span>
-                    <input
-                      formControlName="companyDomain"
-                      type="text"
-                      dir="ltr"
-                      placeholder="store.com"
-                      [ngClass]="fieldClass('companyDomain', 'ltr')">
-                    <div class="flex flex-wrap items-center justify-between gap-3 pt-1">
-                      <p class="text-[0.68rem] font-bold text-slate-400">{{ 'SETTINGS_PROFILE.DOMAIN.HINT' | translate }}</p>
-                      <span
-                        class="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-[0.68rem] font-black"
-                        [ngClass]="companyDomainBadgeClass">
-                        <span class="h-2 w-2 rounded-full" [ngClass]="hasConfiguredCompanyDomain ? 'bg-emerald-500' : 'bg-amber-500'"></span>
-                        {{ companyDomainStatusKey | translate }}
-                      </span>
-                    </div>
-                  </label>
                 </div>
               </div>
 
@@ -220,11 +175,6 @@ interface ProfileSectionNavItem {
           </section>
 
           <section id="owner-section" [ngClass]="activeTab === 'owner-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
-              <span class="h-2.5 w-2.5 rounded-full bg-rose-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
-            </div>
             <app-panel-header
               [title]="'SETTINGS_PROFILE.SECTIONS.OWNER'"
               [subtitle]="'SETTINGS_PROFILE.SECTIONS.OWNER_HINT'"
@@ -263,11 +213,6 @@ interface ProfileSectionNavItem {
           </section>
 
           <section id="contact-section" [ngClass]="activeTab === 'contact-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
-              <span class="h-2.5 w-2.5 rounded-full bg-rose-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
-            </div>
             <app-panel-header
               [title]="'SETTINGS_PROFILE.SECTIONS.CONTACT'"
               [subtitle]="'SETTINGS_PROFILE.SECTIONS.CONTACT_HINT'"
@@ -331,11 +276,6 @@ interface ProfileSectionNavItem {
           </section>
 
           <section id="legal-section" [ngClass]="activeTab === 'legal-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
-              <span class="h-2.5 w-2.5 rounded-full bg-rose-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
-            </div>
             <app-panel-header
               [title]="'SETTINGS_PROFILE.SECTIONS.LEGAL'"
               [subtitle]="'SETTINGS_PROFILE.SECTIONS.LEGAL_HINT'"
@@ -476,11 +416,6 @@ interface ProfileSectionNavItem {
           </section>
 
           <section id="banking-section" [ngClass]="activeTab === 'banking-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
-              <span class="h-2.5 w-2.5 rounded-full bg-rose-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
-            </div>
             <app-panel-header
               [title]="'SETTINGS_PROFILE.SECTIONS.BANKING'"
               [subtitle]="'SETTINGS_PROFILE.SECTIONS.BANKING_HINT'"
@@ -546,11 +481,6 @@ interface ProfileSectionNavItem {
           </section>
 
           <section id="hours-section" [ngClass]="activeTab === 'hours-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
-              <span class="h-2.5 w-2.5 rounded-full bg-rose-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
-            </div>
             <app-panel-header
               [title]="'SETTINGS_PROFILE.SECTIONS.HOURS'"
               [subtitle]="'SETTINGS_PROFILE.SECTIONS.HOURS_HINT'"
@@ -596,11 +526,6 @@ interface ProfileSectionNavItem {
 
         <div class="space-y-5 xl:sticky xl:top-24 xl:self-start">
           <section class="hidden">
-            <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
-              <span class="h-2.5 w-2.5 rounded-full bg-rose-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
-            </div>
             <app-panel-header
               [title]="'SETTINGS_PROFILE.SECTIONS.LEGAL'"
               [subtitle]="'SETTINGS_PROFILE.SECTIONS.LEGAL_HINT'"
@@ -676,11 +601,6 @@ interface ProfileSectionNavItem {
           </section>
 
           <section class="hidden">
-            <div class="flex items-center gap-2 border-b border-slate-100 bg-slate-50/80 px-5 py-3">
-              <span class="h-2.5 w-2.5 rounded-full bg-rose-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-amber-300"></span>
-              <span class="h-2.5 w-2.5 rounded-full bg-emerald-300"></span>
-            </div>
             <app-panel-header
               [title]="'SETTINGS_PROFILE.SECTIONS.BANKING'"
               [subtitle]="'SETTINGS_PROFILE.SECTIONS.BANKING_HINT'"
@@ -779,7 +699,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     {
       id: 'store-section',
       labelKey: 'SETTINGS_PROFILE.SECTIONS.STORE',
-      fields: ['storeNameAr', 'storeNameEn', 'businessType', 'supportPhone', 'supportEmail', 'companyDomain', 'descriptionAr', 'descriptionEn']
+      fields: ['storeNameAr', 'storeNameEn', 'businessType', 'supportPhone', 'supportEmail', 'descriptionAr', 'descriptionEn']
     },
     {
       id: 'owner-section',
@@ -860,7 +780,6 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       'businessType',
       'supportPhone',
       'supportEmail',
-      'companyDomain',
       'region',
       'city',
       'nationalAddress',
@@ -914,26 +833,6 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
   get statusDotClass(): string {
     return this.profileForm.value.reviewStatus === 'active' ? 'bg-emerald-500' : 'bg-amber-500';
-  }
-
-  get normalizedCompanyDomain(): string {
-    return normalizeCompanyDomain(this.profileForm.get('companyDomain')?.value);
-  }
-
-  get hasConfiguredCompanyDomain(): boolean {
-    return !!this.normalizedCompanyDomain;
-  }
-
-  get companyDomainStatusKey(): string {
-    return this.hasConfiguredCompanyDomain
-      ? 'SETTINGS_PROFILE.DOMAIN.CONNECTED'
-      : 'SETTINGS_PROFILE.DOMAIN.NOT_CONFIGURED';
-  }
-
-  get companyDomainBadgeClass(): string {
-    return this.hasConfiguredCompanyDomain
-      ? 'border-emerald-100 bg-emerald-50 text-emerald-600'
-      : 'border-amber-100 bg-amber-50 text-amber-600';
   }
 
   get profileStatusLabelKey(): string {
@@ -1070,7 +969,6 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
     this.isSaving = true;
     const value = this.profileForm.getRawValue() as VendorProfile;
-    value.companyDomain = normalizeCompanyDomain(value.companyDomain);
     this.profileService.saveProfile(value);
     setTimeout(() => {
       this.isSaving = false;
@@ -1084,7 +982,6 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       businessType: ['', Validators.required],
       supportPhone: ['', Validators.required],
       supportEmail: ['', [Validators.required, Validators.email]],
-      companyDomain: ['', Validators.required],
       descriptionAr: [''],
       descriptionEn: [''],
       region: ['', Validators.required],

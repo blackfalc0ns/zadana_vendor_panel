@@ -57,6 +57,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/offers/pages/offers-list/offers-list.component').then(m => m.OffersListComponent)
       },
       {
+        path: 'reviews',
+        loadComponent: () => import('./features/reviews/pages/reviews-center/reviews-center.page').then(m => m.ReviewsCenterPageComponent)
+      },
+      {
         path: 'orders',
         loadComponent: () => import('./features/orders/pages/order-list/order-list.component').then(m => m.OrderListComponent)
       },
