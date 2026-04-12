@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://localhost:5298//api'
+  apiUrl: 'https://zadana.runasp.net/api'
 };
