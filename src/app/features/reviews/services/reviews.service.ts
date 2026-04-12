@@ -7,6 +7,11 @@ import {
   cloneReview,
   cloneReviews
 } from '../models/reviews.models';
+import {
+  clearWorkspaceState,
+  persistWorkspaceState,
+  readWorkspaceState
+} from '../../../shared/utils/workspace-storage.util';
 
 @Injectable({
   providedIn: 'root'
@@ -92,20 +97,15 @@ export class ReviewsService {
   }
 
   resetSeedState(): void {
-    localStorage.removeItem(this.storageKey);
+    clearWorkspaceState(this.storageKey);
     this.reviewsSubject.next(this.buildSeedReviews());
   }
 
   private loadReviews(): CustomerReviewVm[] {
-    const stored = localStorage.getItem(this.storageKey);
+    const stored = readWorkspaceState<CustomerReviewVm[] | null>(this.storageKey, null);
 
     if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as CustomerReviewVm[];
-        return parsed.map((review) => this.normalizeReview(review));
-      } catch {
-        return this.buildSeedReviews();
-      }
+      return stored.map((review) => this.normalizeReview(review));
     }
 
     return this.buildSeedReviews();
@@ -273,7 +273,7 @@ export class ReviewsService {
   }
 
   private persistReviews(reviews: CustomerReviewVm[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(reviews));
+    persistWorkspaceState(this.storageKey, reviews);
   }
 
   private maskCustomerName(name: string): string {

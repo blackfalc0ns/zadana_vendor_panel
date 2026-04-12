@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -31,26 +31,7 @@ import {
   VendorSupportTicketVm
 } from '../../models/support-center.models';
 import { SupportCenterService } from '../../services/support-center.service';
-
-interface SupportFilters {
-  search: string;
-  status: 'all' | SupportTicketStatus;
-  priority: 'all' | SupportPriority;
-  category: 'all' | SupportCategory;
-}
-
-interface ReferenceFilters {
-  search: string;
-  category: 'all' | SupportCategory;
-  type: 'all' | SupportArticleType;
-}
-
-interface CreateTicketDraft {
-  subject: string;
-  category: SupportCategory;
-  priority: SupportPriority;
-  message: string;
-}
+import { CreateTicketDraft, ReferenceFilters, SupportFilters } from './support-center.page.models';
 
 @Component({
   selector: 'app-support-center-page',
@@ -73,7 +54,7 @@ interface CreateTicketDraft {
   ],
   templateUrl: './support-center.page.html'
 })
-export class SupportCenterPageComponent implements OnInit, OnDestroy {
+export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   currentLang = 'ar';
   activeView: SupportCenterView = 'support';
   isFiltersExpanded = true;
@@ -118,6 +99,10 @@ export class SupportCenterPageComponent implements OnInit, OnDestroy {
   private dataSub?: Subscription;
   private profileSub?: Subscription;
   private querySub?: Subscription;
+  private lastFilterSignatures: Record<SupportCenterView, string> = {
+    support: '',
+    reference: ''
+  };
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -173,6 +158,11 @@ export class SupportCenterPageComponent implements OnInit, OnDestroy {
     this.dataSub?.unsubscribe();
     this.profileSub?.unsubscribe();
     this.querySub?.unsubscribe();
+  }
+
+  ngDoCheck(): void {
+    this.syncFilterSignature('support', this.supportFilters);
+    this.syncFilterSignature('reference', this.referenceFilters);
   }
 
   get viewTabs(): DetailTabNavItem[] {
@@ -516,5 +506,15 @@ export class SupportCenterPageComponent implements OnInit, OnDestroy {
         this.flashMessage = '';
       }
     }, 2800);
+  }
+
+  private syncFilterSignature(view: SupportCenterView, filters: unknown): void {
+    const nextSignature = JSON.stringify(filters);
+    if (this.lastFilterSignatures[view] === nextSignature) {
+      return;
+    }
+
+    this.lastFilterSignatures[view] = nextSignature;
+    this.currentPages[view] = 1;
   }
 }

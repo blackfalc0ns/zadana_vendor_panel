@@ -2,19 +2,15 @@ import { CommonModule, NgClass } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { finalize } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { DetailTabsNavComponent, DetailTabNavItem } from '../../../../shared/components/ui/navigation/detail-tabs-nav/detail-tabs-nav.component';
 import { BANKS, BUSINESS_TYPES, CITIES, NATIONALITIES, PAYMENT_CYCLES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
-import { VendorOperatingHour, VendorProfile, VendorProfileService } from '../../services/vendor-profile.service';
-
-interface ProfileSectionNavItem {
-  id: string;
-  labelKey: string;
-  fields?: string[];
-  kind?: 'hours';
-}
+import { VendorOperatingHour, VendorProfile } from '../../models/vendor-profile.models';
+import { VendorProfileService } from '../../services/vendor-profile.service';
+import { ProfileSectionNavItem } from './vendor-profile.view-models';
 
 @Component({
   selector: 'app-vendor-profile-page',
@@ -742,6 +738,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     this.profileSub = this.profileService.getProfile().subscribe((profile) => {
       this.patchProfile(profile);
     });
+
+    this.profileService.loadProfile().subscribe();
   }
 
   ngOnDestroy(): void {
@@ -968,11 +966,19 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     }
 
     this.isSaving = true;
-    const value = this.profileForm.getRawValue() as VendorProfile;
-    this.profileService.saveProfile(value);
-    setTimeout(() => {
-      this.isSaving = false;
-    }, 400);
+    const value = {
+      ...this.profileService.getProfileSnapshot(),
+      ...this.profileForm.getRawValue()
+    } as VendorProfile;
+    this.profileService.saveProfile(value)
+      .pipe(finalize(() => {
+        this.isSaving = false;
+      }))
+      .subscribe({
+        error: (error) => {
+          console.error('Failed to save vendor profile.', error);
+        }
+      });
   }
 
   private buildForm(): FormGroup {

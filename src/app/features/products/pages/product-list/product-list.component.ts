@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
-import { CatalogService, Category, MasterProduct, VendorProduct } from '../../../../services/catalog.service';
 import { MasterProductSelectorModalComponent } from '../../components/master-product-selector-modal/master-product-selector-modal.component';
 import { AddProductModalComponent } from '../../components/add-product-modal/add-product-modal.component';
 import { ProductStatusBadgeComponent } from '../../components/product-status-badge/product-status-badge.component';
@@ -12,6 +11,8 @@ import { ProductRequestModalComponent } from '../../components/product-request-m
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
+import { Category, MasterProduct, VendorProduct } from '../../models/catalog.models';
+import { CatalogService } from '../../services/catalog.service';
 
 @Component({
   selector: 'app-product-list',
@@ -36,15 +37,24 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
         [description]="'PRODUCTS.LIST_SUBTITLE' | translate"
         customClass="mb-0"
       >
-        <button
-          actions
-          (click)="onAddProductClick()"
-          class="flex items-center justify-center gap-2 rounded-[18px] bg-zadna-primary px-6 py-3 text-[0.82rem] font-black text-white shadow-xl shadow-zadna-primary/25 transition-all hover:scale-105 active:scale-95">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
-          </svg>
-          {{ 'PRODUCTS.ADD_BUTTON' | translate }}
-        </button>
+        <div actions class="flex items-center gap-3">
+          <a
+            routerLink="/products/requests"
+            class="inline-flex items-center justify-center gap-2 rounded-[18px] border border-slate-200 bg-white px-5 py-3 text-[0.82rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/30 hover:text-zadna-primary">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12h6m-6 4h6M7 4h10a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z"></path>
+            </svg>
+            {{ 'PRODUCTS.REQUESTS_BUTTON' | translate }}
+          </a>
+          <button
+            (click)="onAddProductClick()"
+            class="flex items-center justify-center gap-2 rounded-[18px] bg-zadna-primary px-6 py-3 text-[0.82rem] font-black text-white shadow-xl shadow-zadna-primary/25 transition-all hover:scale-105 active:scale-95">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path>
+            </svg>
+            {{ 'PRODUCTS.ADD_BUTTON' | translate }}
+          </button>
+        </div>
       </app-page-header>
 
       <div class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
@@ -170,7 +180,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
                     <td class="px-3 py-2.5">
                       <div class="flex items-center gap-3.5">
                         <div class="h-10 w-10 shrink-0 overflow-hidden rounded-[14px] border border-slate-100 bg-slate-50 transition-all group-hover:border-zadna-primary/20">
-                          <img [src]="product.imageUrl || 'assets/images/placeholders/product.png'" class="h-full w-full object-cover">
+                          <img [src]="product.imageUrl || 'assets/images/placeholders/product.svg'" class="h-full w-full object-cover">
                         </div>
                         <div class="min-w-0">
                           <span class="block truncate text-[0.8rem] font-black text-slate-900 transition-colors group-hover:text-zadna-primary">
@@ -331,7 +341,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   get availableCategories(): Array<{ value: string; label: string }> {
     const categoryMap = new Map<string, string>();
 
-    this.categories.forEach((category) => {
+    this.flattenCategories(this.categories).forEach((category) => {
       categoryMap.set(category.id, this.currentLang === 'ar' ? category.nameAr : category.nameEn);
     });
 
@@ -364,8 +374,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.catalogService.getCategories()
     ]).subscribe({
       next: ([data, categories]) => {
-        this.allProducts = data.items;
-        this.categories = categories;
+        const flattenedCategories = this.flattenCategories(categories);
+
+        this.categories = flattenedCategories;
+        this.allProducts = this.enrichProductsWithCategories(data.items, flattenedCategories);
         this.applyFiltersAndPagination();
         this.isLoading = false;
       },
@@ -445,6 +457,35 @@ export class ProductListComponent implements OnInit, OnDestroy {
     };
     this.currentPage = 1;
     this.loadProducts();
+  }
+
+  private enrichProductsWithCategories(products: VendorProduct[], categories: Category[]): VendorProduct[] {
+    const categoryLookup = new Map(categories.map((category) => [category.id, category]));
+
+    return products.map((product) => {
+      const category = categoryLookup.get(product.categoryId);
+
+      if (!category) {
+        return product;
+      }
+
+      return {
+        ...product,
+        categoryNameAr: product.categoryNameAr || category.nameAr,
+        categoryNameEn: product.categoryNameEn || category.nameEn
+      };
+    });
+  }
+
+  private flattenCategories(categories: Category[] | null | undefined): Category[] {
+    if (!categories?.length) {
+      return [];
+    }
+
+    return categories.flatMap((category) => [
+      category,
+      ...this.flattenCategories(category.subCategories || [])
+    ]);
   }
 
   onAddProductClick(): void {

@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -48,7 +48,7 @@ import { AlertsCenterService } from '../../services/alerts-center.service';
   ],
   templateUrl: './alerts-center.page.html'
 })
-export class AlertsCenterPageComponent implements OnInit, OnDestroy {
+export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   currentLang = 'ar';
   isFiltersExpanded = true;
   activeQuickView: AlertQuickView = 'all';
@@ -75,6 +75,7 @@ export class AlertsCenterPageComponent implements OnInit, OnDestroy {
 
   private langSub: Subscription;
   private dataSub?: Subscription;
+  private lastFilterSignature = '';
 
   constructor(
     private readonly alertsCenterService: AlertsCenterService,
@@ -100,6 +101,16 @@ export class AlertsCenterPageComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.langSub.unsubscribe();
     this.dataSub?.unsubscribe();
+  }
+
+  ngDoCheck(): void {
+    const nextSignature = JSON.stringify(this.filters);
+    if (this.lastFilterSignature === nextSignature) {
+      return;
+    }
+
+    this.lastFilterSignature = nextSignature;
+    this.currentPage = 1;
   }
 
   get quickTabs(): DetailTabNavItem[] {

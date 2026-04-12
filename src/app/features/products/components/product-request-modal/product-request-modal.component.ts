@@ -1,8 +1,12 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { BrandOption, CatalogService, Category, UnitOption } from '../../../../services/catalog.service';
+import { forkJoin, map, of, switchMap } from 'rxjs';
+import { BrandOption, Category, UnitOption } from '../../models/catalog.models';
+import { CatalogService } from '../../services/catalog.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
   selector: 'app-product-request-modal',
@@ -98,7 +102,7 @@ import { BrandOption, CatalogService, Category, UnitOption } from '../../../../s
 
             <div class="flex items-center gap-4 pt-4">
               <button type="button" (click)="onClose()" class="flex-1 rounded-2xl border border-slate-200 py-3.5 text-[0.82rem] font-black text-slate-500">{{ 'COMMON.CANCEL' | translate }}</button>
-              <button type="submit" [disabled]="requestForm.invalid || isSubmitting" class="flex-[2] rounded-2xl bg-zadna-primary py-3.5 text-[0.82rem] font-black text-white">
+              <button type="submit" [disabled]="isSubmitDisabled" class="flex-[2] rounded-2xl bg-zadna-primary py-3.5 text-[0.82rem] font-black text-white disabled:cursor-not-allowed disabled:opacity-60">
                 @if (isSubmitting) {
                   <div class="mx-auto h-5 w-5 animate-spin rounded-full border-2 border-white/20 border-t-white"></div>
                 } @else {
@@ -280,9 +284,12 @@ export class ProductRequestModalComponent implements OnInit {
   selectedBrandLabel = '';
   selectedCategoryLabel = '';
   selectedCategoryMeta = '';
+  brandImageFile: File | null = null;
+  categoryImageFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
+    private http: HttpClient,
     private catalogService: CatalogService,
     private translate: TranslateService
   ) {
@@ -316,6 +323,8 @@ export class ProductRequestModalComponent implements OnInit {
       displayOrder: [1],
       imageUrl: ['']
     });
+
+    this.syncCategorySelectionValidator(false);
   }
 
   ngOnInit(): void {
@@ -346,13 +355,16 @@ export class ProductRequestModalComponent implements OnInit {
   toggleBrandDraftMode(): void {
     const next = !this.brandDraftForm.get('isNew')?.value;
     this.brandDraftForm.patchValue({ isNew: next, brandId: '', logoUrl: '' });
+    this.brandImageFile = null;
     this.applyBrandDraftValidators(next);
   }
 
   toggleCategoryDraftMode(): void {
     const next = !this.categoryDraftForm.get('isNew')?.value;
     this.categoryDraftForm.patchValue({ isNew: next, categoryId: '', imageUrl: '' });
+    this.categoryImageFile = null;
     this.applyCategoryDraftValidators(next);
+    this.syncCategorySelectionValidator(next);
   }
 
   saveBrandDraft(): void {
@@ -377,6 +389,7 @@ export class ProductRequestModalComponent implements OnInit {
       this.requestForm.patchValue({ brandId });
       this.selectedBrandLabel = this.currentLang === 'ar' ? brand.nameAr : brand.nameEn;
       this.brandDraftForm.patchValue({ nameAr: '', nameEn: '', logoUrl: '' });
+      this.brandImageFile = null;
     }
 
     this.closeBrandModal();
@@ -414,6 +427,8 @@ export class ProductRequestModalComponent implements OnInit {
         ? `${this.translate.instant('PRODUCTS.DISPLAY_ORDER')}: ${category.displayOrder}`
         : '';
       this.categoryDraftForm.patchValue({ nameAr: '', nameEn: '', parentCategoryId: '', displayOrder: 1, imageUrl: '' });
+      this.categoryImageFile = null;
+      this.syncCategorySelectionValidator(false);
     }
 
     this.closeCategoryModal();
@@ -428,38 +443,46 @@ export class ProductRequestModalComponent implements OnInit {
     const brandDraft = this.brandDraftForm.getRawValue();
     const categoryDraft = this.categoryDraftForm.getRawValue();
 
-    const payload = {
-      product: {
-        nameAr: formValue.nameAr,
-        nameEn: formValue.nameEn,
-        descriptionAr: formValue.descriptionAr || '',
-        descriptionEn: formValue.descriptionEn || '',
-        categoryId: categoryDraft.isNew ? null : formValue.categoryId || null,
-        brandId: brandDraft.isNew ? null : formValue.brandId || null,
-        unitId: formValue.unitId || null,
-        images: []
-      },
-      requestedBrand: brandDraft.isNew
-        ? {
-            nameAr: brandDraft.nameAr,
-            nameEn: brandDraft.nameEn,
-            logoUrl: brandDraft.logoUrl || null,
-            isActive: true
-          }
-        : null,
-      requestedCategory: categoryDraft.isNew
-        ? {
-            nameAr: categoryDraft.nameAr,
-            nameEn: categoryDraft.nameEn,
-            parentCategoryId: categoryDraft.parentCategoryId || null,
-            displayOrder: Number(categoryDraft.displayOrder || 1),
-            imageUrl: categoryDraft.imageUrl || null,
-            isActive: true
-          }
-        : null
-    };
-
-    this.catalogService.submitProductRequest(payload).subscribe({
+    forkJoin({
+      brandLogoUrl: brandDraft.isNew && this.brandImageFile
+        ? this.uploadFile(this.brandImageFile, 'uploads/catalog/brand-requests')
+        : of<string | null>(null),
+      categoryImageUrl: categoryDraft.isNew && this.categoryImageFile
+        ? this.uploadFile(this.categoryImageFile, 'uploads/catalog/category-requests')
+        : of<string | null>(null)
+    }).pipe(
+      map(({ brandLogoUrl, categoryImageUrl }) => ({
+        product: {
+          nameAr: formValue.nameAr,
+          nameEn: formValue.nameEn,
+          descriptionAr: formValue.descriptionAr || '',
+          descriptionEn: formValue.descriptionEn || '',
+          categoryId: categoryDraft.isNew ? null : formValue.categoryId || null,
+          brandId: brandDraft.isNew ? null : formValue.brandId || null,
+          unitId: formValue.unitId || null,
+          images: []
+        },
+        requestedBrand: brandDraft.isNew
+          ? {
+              nameAr: brandDraft.nameAr,
+              nameEn: brandDraft.nameEn,
+              logoUrl: brandLogoUrl,
+              isActive: true
+            }
+          : null,
+        requestedCategory: categoryDraft.isNew
+          ? {
+              nameAr: categoryDraft.nameAr,
+              nameEn: categoryDraft.nameEn,
+              parentCategoryId: categoryDraft.parentCategoryId || null,
+              displayOrder: Number(categoryDraft.displayOrder || 1),
+              imageUrl: categoryImageUrl,
+              isActive: true
+            }
+          : null
+      })),
+      switchMap((payload) => this.catalogService.submitProductRequest(payload))
+    ).subscribe({
       next: () => {
         this.isSubmitting = false;
         this.submitted.emit();
@@ -473,17 +496,15 @@ export class ProductRequestModalComponent implements OnInit {
   onBrandImageSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => this.brandDraftForm.patchValue({ logoUrl: reader.result as string });
-    reader.readAsDataURL(file);
+    this.brandImageFile = file;
+    this.brandDraftForm.patchValue({ logoUrl: URL.createObjectURL(file) });
   }
 
   onCategoryImageSelected(event: Event): void {
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => this.categoryDraftForm.patchValue({ imageUrl: reader.result as string });
-    reader.readAsDataURL(file);
+    this.categoryImageFile = file;
+    this.categoryDraftForm.patchValue({ imageUrl: URL.createObjectURL(file) });
   }
 
   getCategoryPathLabel(category: Category): string {
@@ -497,6 +518,25 @@ export class ProductRequestModalComponent implements OnInit {
     }
 
     return names.join(' / ');
+  }
+
+  get isSubmitDisabled(): boolean {
+    const isNewCategory = !!this.categoryDraftForm.get('isNew')?.value;
+    const isNewBrand = !!this.brandDraftForm.get('isNew')?.value;
+
+    if (this.isSubmitting || this.requestForm.invalid) {
+      return true;
+    }
+
+    if (isNewCategory && this.categoryDraftForm.invalid) {
+      return true;
+    }
+
+    if (isNewBrand && (this.brandDraftForm.get('nameAr')?.invalid || this.brandDraftForm.get('nameEn')?.invalid)) {
+      return true;
+    }
+
+    return false;
   }
 
   private applyBrandDraftValidators(isNew: boolean): void {
@@ -533,6 +573,31 @@ export class ProductRequestModalComponent implements OnInit {
     ar?.updateValueAndValidity();
     en?.updateValueAndValidity();
     order?.updateValueAndValidity();
+  }
+
+  private syncCategorySelectionValidator(isNew: boolean): void {
+    const categoryId = this.requestForm.get('categoryId');
+    if (!categoryId) {
+      return;
+    }
+
+    if (isNew) {
+      categoryId.clearValidators();
+    } else {
+      categoryId.setValidators([Validators.required]);
+    }
+
+    categoryId.updateValueAndValidity();
+  }
+
+  private uploadFile(file: File, directory: string) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('directory', directory);
+
+    return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData).pipe(
+      map((response) => response.url)
+    );
   }
 
 }

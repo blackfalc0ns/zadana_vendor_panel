@@ -3,10 +3,13 @@ import { Component, OnDestroy } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MasterProductSelectorModalComponent } from '../../../products/components/master-product-selector-modal/master-product-selector-modal.component';
 import { AddProductModalComponent } from '../../../products/components/add-product-modal/add-product-modal.component';
-import { CatalogService, MasterProduct } from '../../../../services/catalog.service';
 import { Subscription } from 'rxjs';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
+import { MasterProduct } from '../../../products/models/catalog.models';
+import { CatalogService } from '../../../products/services/catalog.service';
+import { VendorDashboardQuickActionAccent } from '../../models/vendor-dashboard.models';
+import { VendorDashboardService } from '../../services/vendor-dashboard.service';
 
 @Component({
   selector: 'app-vendor-dashboard',
@@ -23,20 +26,30 @@ export class VendorDashboardComponent implements OnDestroy {
   isSelectorModalOpen = false;
   isPricingModalOpen = false;
   selectedMasterProduct: MasterProduct | null = null;
+  readonly metrics;
+  readonly checklist;
+  readonly quickActions;
+  readonly timeline;
 
   constructor(
     private readonly translate: TranslateService,
-    private readonly catalogService: CatalogService
+    private readonly catalogService: CatalogService,
+    private readonly dashboardService: VendorDashboardService
   ) {
+    const dashboardSnapshot = this.dashboardService.getSnapshot();
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe(event => this.currentLang = event.lang);
+    this.metrics = dashboardSnapshot.metrics;
+    this.checklist = dashboardSnapshot.checklist;
+    this.quickActions = dashboardSnapshot.quickActions;
+    this.timeline = dashboardSnapshot.timeline;
   }
 
   ngOnDestroy(): void {
     if (this.langSub) this.langSub.unsubscribe();
   }
 
-  readonly actionCardClassMap: Record<string, string[]> = {
+  readonly actionCardClassMap: Record<VendorDashboardQuickActionAccent, string[]> = {
     warm: [
       'border-orange-200',
       'bg-[linear-gradient(180deg,rgba(255,243,230,0.95),rgba(255,255,255,0.96))]'
@@ -52,61 +65,7 @@ export class VendorDashboardComponent implements OnDestroy {
     ]
   };
 
-  readonly metrics = [
-    { value: '128,000', labelKey: 'DASHBOARD.TOTAL_SALES', noteKey: 'DASHBOARD.TOTAL_SALES_NOTE', isCurrency: true },
-    { value: '18', labelKey: 'DASHBOARD.ACTIVE_OFFERS', noteKey: 'DASHBOARD.ACTIVE_OFFERS_NOTE', isCurrency: false },
-    { value: '24', labelKey: 'DASHBOARD.PENDING_ORDERS', noteKey: 'DASHBOARD.PENDING_ORDERS_NOTE', isCurrency: false }
-  ];
-
-  readonly checklist = [
-    {
-      titleKey: 'DASHBOARD.CHECKLIST.CONFIRM_ORDERS_TITLE',
-      bodyKey: 'DASHBOARD.CHECKLIST.CONFIRM_ORDERS_BODY',
-    },
-    {
-      titleKey: 'DASHBOARD.CHECKLIST.LOW_STOCK_TITLE',
-      bodyKey: 'DASHBOARD.CHECKLIST.LOW_STOCK_BODY',
-    },
-    {
-      titleKey: 'DASHBOARD.CHECKLIST.REFRESH_OFFERS_TITLE',
-      bodyKey: 'DASHBOARD.CHECKLIST.REFRESH_OFFERS_BODY',
-    }
-  ];
-
-  readonly quickActions = [
-    {
-      titleKey: 'DASHBOARD.ADD_PRODUCTS',
-      bodyKey: 'DASHBOARD.ADD_PRODUCTS_DESC',
-      accent: 'warm'
-    },
-    {
-      titleKey: 'DASHBOARD.TRACK_SHIPMENTS',
-      bodyKey: 'DASHBOARD.TRACK_SHIPMENTS_DESC',
-      accent: 'soft'
-    },
-    {
-      titleKey: 'DASHBOARD.ADJUST_HOURS',
-      bodyKey: 'DASHBOARD.ADJUST_HOURS_DESC',
-      accent: 'dark'
-    }
-  ];
-
-  readonly timeline = [
-    {
-      time: '09:15',
-      titleKey: 'DASHBOARD.TIMELINE.RAMADAN_CAMPAIGN'
-    },
-    {
-      time: '10:00',
-      titleKey: 'DASHBOARD.TIMELINE.NEW_ORDERS'
-    },
-    {
-      time: '11:30',
-      titleKey: 'DASHBOARD.TIMELINE.LOW_INVENTORY'
-    }
-  ];
-
-  getActionCardClasses(accent: string): string[] {
+  getActionCardClasses(accent: VendorDashboardQuickActionAccent): string[] {
     return this.actionCardClassMap[accent] ?? this.actionCardClassMap['soft'];
   }
 

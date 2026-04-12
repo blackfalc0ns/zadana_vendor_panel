@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { StatusChipTone, StatusChipVm } from '../../models/ui-contracts.models';
 
 @Component({
   selector: 'app-badge',
@@ -7,7 +8,7 @@ import { CommonModule } from '@angular/common';
   imports: [CommonModule],
   template: `
     <span [ngClass]="badgeClasses">
-      <span *ngIf="dot" class="w-1.5 h-1.5 rounded-full mr-2" [ngClass]="dotClasses"></span>
+      <span *ngIf="resolvedDot" class="w-1.5 h-1.5 rounded-full mr-2" [ngClass]="dotClasses"></span>
       <ng-content></ng-content>
     </span>
   `,
@@ -18,7 +19,8 @@ import { CommonModule } from '@angular/common';
   `]
 })
 export class AppBadgeComponent {
-  @Input() variant: 'success' | 'warning' | 'error' | 'info' | 'primary' | 'secondary' = 'primary';
+  @Input() chip: StatusChipVm | null = null;
+  @Input() variant: StatusChipTone = 'primary';
   @Input() size: 'sm' | 'md' | 'lg' = 'md';
   @Input() dot = false;
   @Input() rounded: 'full' | 'lg' = 'full';
@@ -34,20 +36,20 @@ export class AppBadgeComponent {
       info: 'bg-sky-50 text-sky-600 border border-sky-100/50 shadow-sm shadow-sky-500/5',
       primary: 'bg-zadna-primary/5 text-zadna-primary border border-zadna-primary/10 shadow-sm shadow-zadna-primary/5',
       secondary: 'bg-slate-50 text-slate-600 border border-slate-200/50 shadow-sm shadow-slate-500/5'
-    }[this.variant];
+    }[this.resolvedVariant];
 
     const sizes = {
       sm: 'px-2 py-0.5 text-[10px]',
       md: 'px-3 py-1 text-[11px]',
       lg: 'px-4 py-1.5 text-[12px]'
-    }[this.size];
+    }[this.resolvedSize];
 
     const radius = {
       full: 'rounded-full',
       lg: 'rounded-lg'
-    }[this.rounded];
+    }[this.resolvedRounded];
 
-    return `${base} ${variants} ${sizes} ${radius} ${this.customClass}`;
+    return `${base} ${variants} ${sizes} ${radius} ${this.chip?.customClass || this.customClass}`;
   }
 
   get dotClasses(): string {
@@ -58,6 +60,22 @@ export class AppBadgeComponent {
       info: 'bg-sky-500 animate-pulse',
       primary: 'bg-zadna-primary animate-pulse',
       secondary: 'bg-slate-400'
-    }[this.variant];
+    }[this.resolvedVariant];
+  }
+
+  get resolvedVariant(): StatusChipTone {
+    return this.chip?.tone || this.variant;
+  }
+
+  get resolvedSize(): 'sm' | 'md' | 'lg' {
+    return this.chip?.size || this.size;
+  }
+
+  get resolvedRounded(): 'full' | 'lg' {
+    return this.chip?.rounded || this.rounded;
+  }
+
+  get resolvedDot(): boolean {
+    return this.chip?.dot ?? this.dot;
   }
 }

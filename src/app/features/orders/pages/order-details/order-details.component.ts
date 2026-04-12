@@ -16,38 +16,51 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
   template: `
     <div class="space-y-6" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
       <app-page-header
-        [description]="(order?.date || '') + ' - ' + (order?.time || '')"
-        customClass="sticky top-0 z-20 -mx-4 border-b border-slate-100 bg-slate-50/80 px-4 py-4 backdrop-blur-md sm:mx-0 sm:rounded-[24px] sm:border sm:px-6"
+        [showBack]="true"
+        backLink="/orders"
+        [eyebrow]="'ORDERS.DETAIL_TITLE' | translate"
+        [description]="orderMetaLine"
+        customClass="sticky top-4 z-20"
       >
-        <span title>#{{ order?.displayId }}</span>
+        <span title class="inline-flex items-center gap-3">
+          <span class="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-zadna-primary/10 text-zadna-primary">
+            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.172a2 2 0 0 1 1.414.586l3.828 3.828A2 2 0 0 1 18 8.828V19a2 2 0 0 1-2 2Z"></path>
+            </svg>
+          </span>
+          <span class="flex flex-col">
+            <span class="text-[0.72rem] font-extrabold uppercase tracking-[0.18em] text-slate-400">
+              {{ 'ORDERS.HEADER_ORDER_ID' | translate }}
+            </span>
+            <span class="text-[1.65rem] font-black tracking-tight text-slate-900">#{{ order?.displayId }}</span>
+          </span>
+        </span>
 
         <div actions class="flex flex-wrap items-center gap-3">
-          <button
-            routerLink="/orders"
-            class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition-all hover:bg-slate-50 active:scale-95">
-            <svg class="h-5 w-5" [class.rotate-180]="currentLang === 'ar'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
-            </svg>
-          </button>
+
+          <div *ngIf="order" class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-[0.72rem] font-black text-emerald-700">
+            <span class="text-emerald-500">{{ 'ORDERS.GRAND_TOTAL' | translate }}</span>
+            <span>{{ order.total | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
+          </div>
 
           <app-order-status-badge *ngIf="order" [status]="order.status"></app-order-status-badge>
 
           <button 
             *ngIf="canConfirm()"
             (click)="updateStatus('CONFIRMED')"
-            class="rounded-xl bg-zadna-primary px-6 py-2.5 text-[0.82rem] font-black text-white shadow-lg shadow-zadna-primary/20 transition-all hover:scale-105 active:scale-95">
+            class="rounded-2xl bg-zadna-primary px-6 py-3 text-[0.8rem] font-black text-white shadow-lg shadow-zadna-primary/20 transition-all hover:translate-y-[-1px] active:scale-95">
             {{ 'ORDERS.ACTION_CONFIRM' | translate }}
           </button>
           <button 
             *ngIf="canPrepare()"
             (click)="updateStatus('IN_PROGRESS')"
-            class="rounded-xl bg-amber-500 px-6 py-2.5 text-[0.82rem] font-black text-white shadow-lg shadow-amber-500/20 transition-all hover:scale-105 active:scale-95">
+            class="rounded-2xl bg-amber-500 px-6 py-3 text-[0.8rem] font-black text-white shadow-lg shadow-amber-500/20 transition-all hover:translate-y-[-1px] active:scale-95">
             {{ 'ORDERS.ACTION_START_PREPARING' | translate }}
           </button>
           <button 
             *ngIf="canMarkReady()"
             (click)="updateStatus('READY_FOR_PICKUP')"
-            class="rounded-xl bg-indigo-600 px-6 py-2.5 text-[0.82rem] font-black text-white shadow-lg shadow-indigo-600/20 transition-all hover:scale-105 active:scale-95">
+            class="rounded-2xl bg-indigo-600 px-6 py-3 text-[0.8rem] font-black text-white shadow-lg shadow-indigo-600/20 transition-all hover:translate-y-[-1px] active:scale-95">
             {{ 'ORDERS.ACTION_MARK_READY' | translate }}
           </button>
         </div>
@@ -103,7 +116,7 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
                    <td class="px-6 py-3">
                      <div class="flex items-center gap-3">
                        <div class="h-10 w-10 overflow-hidden rounded-xl bg-slate-50 border border-slate-100">
-                         <img [src]="item.imageUrl || 'assets/images/placeholders/product.png'" class="h-full w-full object-cover">
+                         <img [src]="item.imageUrl || 'assets/images/placeholders/product.svg'" class="h-full w-full object-cover">
                        </div>
                        <div>
                          <p class="text-[0.8rem] font-black text-slate-800">{{ currentLang === 'ar' ? item.nameAr : item.nameEn }}</p>
@@ -300,6 +313,15 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.sub) this.sub.unsubscribe();
     if (this.langSub) this.langSub.unsubscribe();
+  }
+
+  get orderMetaLine(): string {
+    if (!this.order) {
+      return '';
+    }
+
+    const segments = [this.order.date, this.order.time].filter(Boolean);
+    return segments.join(' - ');
   }
 
   canConfirm(): boolean { return this.order?.status === 'NEW'; }

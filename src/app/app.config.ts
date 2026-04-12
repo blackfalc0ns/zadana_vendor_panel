@@ -1,10 +1,12 @@
 import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter } from '@angular/router';
-import { provideHttpClient, HttpClient } from '@angular/common/http';
+import { provideHttpClient, HttpClient, withInterceptors } from '@angular/common/http';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, Observable } from 'rxjs';
 
 import { routes } from './app.routes';
+import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
+import { VendorAuthService } from './core/auth/services/vendor-auth.service';
 
 // Custom Loader to guarantee compatibility and fix "0 arguments" error
 export class CustomTranslateLoader implements TranslateLoader {
@@ -28,14 +30,18 @@ export function initializeTranslations(translate: TranslateService) {
   };
 }
 
+export function initializeVendorSession(authService: VendorAuthService) {
+  return () => authService.initializeSession();
+}
+
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([vendorAuthInterceptor])),
     importProvidersFrom(
       TranslateModule.forRoot({
-        defaultLanguage: 'ar',
+        fallbackLang: 'ar',
         loader: {
           provide: TranslateLoader,
           useFactory: LoaderFactory,
@@ -47,6 +53,12 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: initializeTranslations,
       deps: [TranslateService],
+      multi: true
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: initializeVendorSession,
+      deps: [VendorAuthService],
       multi: true
     }
   ]

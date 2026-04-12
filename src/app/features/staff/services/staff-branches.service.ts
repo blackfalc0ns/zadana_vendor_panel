@@ -16,8 +16,14 @@ import {
   createRoleTemplatePermissions,
   defaultOperatingHours
 } from '../models/staff-branches.models';
+import { FeatureWorkspaceState } from '../../../shared/models/frontend-workspace.models';
+import {
+  clearWorkspaceState,
+  persistWorkspaceState,
+  readWorkspaceState
+} from '../../../shared/utils/workspace-storage.util';
 
-interface StaffWorkspaceState {
+export interface StaffWorkspaceState extends FeatureWorkspaceState {
   branches: BranchVm[];
   employees: EmployeeVm[];
   invitations: InvitationVm[];
@@ -27,30 +33,47 @@ interface StaffWorkspaceState {
   providedIn: 'root'
 })
 export class StaffBranchesService {
-  private readonly stateSubject = new BehaviorSubject<StaffWorkspaceState>(this.buildInitialState());
+  private readonly storageKey = 'vendor_staff_workspace';
+  private readonly workspaceVersion = 1;
+  private readonly stateSubject = new BehaviorSubject<StaffWorkspaceState>(this.loadState());
 
   getBranches(): Observable<BranchVm[]> {
-    return this.stateSubject.pipe(map((state) => state.branches));
+    return this.stateSubject.pipe(map((state) => state.branches.map((branch) => this.cloneBranch(branch))));
   }
 
   getBranchById(branchId: string): Observable<BranchVm | undefined> {
-    return this.stateSubject.pipe(map((state) => state.branches.find((branch) => branch.id === branchId)));
+    return this.stateSubject.pipe(
+      map((state) => {
+        const branch = state.branches.find((item) => item.id === branchId);
+        return branch ? this.cloneBranch(branch) : undefined;
+      })
+    );
   }
 
   getEmployees(): Observable<EmployeeVm[]> {
-    return this.stateSubject.pipe(map((state) => state.employees));
+    return this.stateSubject.pipe(map((state) => state.employees.map((employee) => this.cloneEmployee(employee))));
   }
 
   getEmployeeById(employeeId: string): Observable<EmployeeVm | undefined> {
-    return this.stateSubject.pipe(map((state) => state.employees.find((employee) => employee.id === employeeId)));
+    return this.stateSubject.pipe(
+      map((state) => {
+        const employee = state.employees.find((item) => item.id === employeeId);
+        return employee ? this.cloneEmployee(employee) : undefined;
+      })
+    );
   }
 
   getInvitations(): Observable<InvitationVm[]> {
-    return this.stateSubject.pipe(map((state) => state.invitations));
+    return this.stateSubject.pipe(map((state) => state.invitations.map((invitation) => this.cloneInvitation(invitation))));
   }
 
   getInvitationById(invitationId: string): Observable<InvitationVm | undefined> {
-    return this.stateSubject.pipe(map((state) => state.invitations.find((invitation) => invitation.id === invitationId)));
+    return this.stateSubject.pipe(
+      map((state) => {
+        const invitation = state.invitations.find((item) => item.id === invitationId);
+        return invitation ? this.cloneInvitation(invitation) : undefined;
+      })
+    );
   }
 
   createBranch(input: BranchCreationInput): BranchVm {
@@ -88,6 +111,7 @@ export class StaffBranchesService {
     );
 
     this.setState((state) => ({
+      ...state,
       branches: [branch, ...state.branches],
       employees: [manager, ...state.employees],
       invitations: [invitation, ...state.invitations]
@@ -112,6 +136,7 @@ export class StaffBranchesService {
     const invitation = this.buildInvitation('employee', input.fullName, input.contact, input.branchIds);
 
     this.setState((state) => ({
+      ...state,
       branches: state.branches,
       employees: [employee, ...state.employees],
       invitations: [invitation, ...state.invitations]
@@ -184,6 +209,11 @@ export class StaffBranchesService {
     }));
   }
 
+  resetSeedState(): void {
+    clearWorkspaceState(this.storageKey);
+    this.stateSubject.next(this.buildSeedState());
+  }
+
   private buildEmployee(input: EmployeeInviteInput, status: EmployeeStatus): EmployeeVm {
     return {
       id: this.generateId('employee'),
@@ -215,7 +245,26 @@ export class StaffBranchesService {
     };
   }
 
-  private buildInitialState(): StaffWorkspaceState {
+  private loadState(): StaffWorkspaceState {
+    const fallback = this.buildSeedState(false);
+    const stored = readWorkspaceState<StaffWorkspaceState | null>(this.storageKey, null);
+
+    if (!stored || stored.version !== this.workspaceVersion) {
+      this.persistState(fallback);
+      return fallback;
+    }
+
+    return {
+      updatedAt: stored.updatedAt || fallback.updatedAt,
+      version: this.workspaceVersion,
+      persistenceMode: 'localStorage-persisted',
+      branches: (stored.branches || []).map((branch) => this.cloneBranch(branch)),
+      employees: (stored.employees || []).map((employee) => this.cloneEmployee(employee)),
+      invitations: (stored.invitations || []).map((invitation) => this.cloneInvitation(invitation))
+    };
+  }
+
+  private buildSeedState(shouldPersist = true): StaffWorkspaceState {
     const primaryBranchId = this.generateId('branch');
     const northBranchId = this.generateId('branch');
     const warehouseBranchId = this.generateId('branch');
@@ -350,15 +399,36 @@ export class StaffBranchesService {
       }
     ];
 
-    return {
+    const state: StaffWorkspaceState = {
+      updatedAt: new Date().toISOString(),
+      version: this.workspaceVersion,
+      persistenceMode: 'localStorage-persisted',
       branches,
       employees,
       invitations
     };
+
+    if (shouldPersist) {
+      this.persistState(state);
+    }
+
+    return state;
   }
 
   private setState(projector: (state: StaffWorkspaceState) => StaffWorkspaceState): void {
-    this.stateSubject.next(projector(this.stateSubject.value));
+    const nextState = projector(this.stateSubject.value);
+    const normalizedState: StaffWorkspaceState = {
+      ...nextState,
+      updatedAt: new Date().toISOString(),
+      version: this.workspaceVersion,
+      persistenceMode: 'localStorage-persisted',
+      branches: nextState.branches.map((branch) => this.cloneBranch(branch)),
+      employees: nextState.employees.map((employee) => this.cloneEmployee(employee)),
+      invitations: nextState.invitations.map((invitation) => this.cloneInvitation(invitation))
+    };
+
+    this.persistState(normalizedState);
+    this.stateSubject.next(normalizedState);
   }
 
   private createExpiryDate(dateText: string): string {
@@ -394,5 +464,31 @@ export class StaffBranchesService {
       default:
         return 'STAFF_BRANCHES.TEMPLATES.INVENTORY_CLERK';
     }
+  }
+
+  private persistState(state: StaffWorkspaceState): void {
+    persistWorkspaceState(this.storageKey, state);
+  }
+
+  private cloneBranch(branch: BranchVm): BranchVm {
+    return {
+      ...branch,
+      operatingHours: cloneOperatingHours(branch.operatingHours)
+    };
+  }
+
+  private cloneEmployee(employee: EmployeeVm): EmployeeVm {
+    return {
+      ...employee,
+      branchIds: [...employee.branchIds],
+      permissions: clonePermissionMatrix(employee.permissions)
+    };
+  }
+
+  private cloneInvitation(invitation: InvitationVm): InvitationVm {
+    return {
+      ...invitation,
+      branchIds: [...invitation.branchIds]
+    };
   }
 }

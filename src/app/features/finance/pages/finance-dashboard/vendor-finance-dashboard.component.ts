@@ -7,11 +7,11 @@ import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import {
   VendorFinancePeriod,
-  VendorFinanceService,
   VendorFinanceSnapshot,
   VendorLedgerEntry,
   VendorSettlement
-} from '../../services/vendor-finance.service';
+} from '../../models/vendor-finance.models';
+import { VendorFinanceService } from '../../services/vendor-finance.service';
 
 @Component({
   selector: 'app-vendor-finance-dashboard',

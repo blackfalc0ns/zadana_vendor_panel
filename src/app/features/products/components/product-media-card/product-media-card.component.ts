@@ -15,7 +15,7 @@ import { TranslateModule } from '@ngx-translate/core';
         [class]="aspectRatio"
         class="overflow-hidden rounded-[24px] bg-slate-50 border border-slate-100">
         <img 
-          [src]="imageUrl || 'assets/images/placeholders/product.png'" 
+          [src]="imageUrl || 'assets/images/placeholders/product.svg'" 
           class="h-full w-full object-cover transition-transform duration-700 group-hover:scale-110">
       </div>
 

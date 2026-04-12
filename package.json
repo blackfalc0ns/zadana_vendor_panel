@@ -6,7 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "quality:check": "npm run build && npm test -- --watch=false --browsers=ChromeHeadless",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed"
   },
   "private": true,
   "dependencies": {
@@ -28,6 +31,7 @@
     "@angular-devkit/build-angular": "^18.2.21",
     "@angular/cli": "^18.2.21",
     "@angular/compiler-cli": "^18.2.0",
+    "@playwright/test": "^1.59.1",
     "@types/jasmine": "~5.1.0",
     "autoprefixer": "^10.4.27",
     "jasmine-core": "~5.2.0",

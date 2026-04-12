@@ -2,7 +2,8 @@ import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { CatalogService, MasterProduct, Category } from '../../../../services/catalog.service';
+import { Category, MasterProduct } from '../../models/catalog.models';
+import { CatalogService } from '../../services/catalog.service';
 
 @Component({
   selector: 'app-master-product-selector-modal',
@@ -110,12 +111,14 @@ import { CatalogService, MasterProduct, Category } from '../../../../services/ca
                 <tbody class="divide-y divide-slate-50">
                   @for (product of products; track product.id) {
                     <tr 
-                      (click)="onSelect(product)"
-                      class="group cursor-pointer transition-colors hover:bg-slate-50/80">
+                      (click)="!product.isInVendorStore && onSelect(product)"
+                      [class.cursor-not-allowed]="product.isInVendorStore"
+                      [class.bg-slate-50]="product.isInVendorStore"
+                      class="group transition-colors hover:bg-slate-100/50">
                       <td class="py-3.5">
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3" [class.opacity-60]="product.isInVendorStore">
                           <div class="h-12 w-12 shrink-0 overflow-hidden rounded-[14px] bg-slate-50 border border-slate-100 group-hover:border-zadna-primary/20 transition-all">
-                            <img [src]="product.imageUrl || 'assets/images/placeholders/product.png'" class="h-full w-full object-cover">
+                            <img [src]="product.imageUrl || 'assets/images/placeholders/product.svg'" class="h-full w-full object-cover">
                           </div>
                           <div>
                             <span class="block text-[0.85rem] font-black text-slate-900 group-hover:text-zadna-primary transition-colors">{{ currentLang === 'ar' ? product.nameAr : product.nameEn }}</span>
@@ -124,24 +127,33 @@ import { CatalogService, MasterProduct, Category } from '../../../../services/ca
                         </div>
                       </td>
                       <td class="py-3.5">
-                        <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600">
+                        <span class="rounded-lg bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600" [class.opacity-60]="product.isInVendorStore">
                           {{ currentLang === 'ar' ? (product.brandNameAr || ('COMMON.BRAND_GENERAL' | translate)) : (product.brandNameEn || ('COMMON.BRAND_GENERAL' | translate)) }}
                         </span>
                       </td>
                       <td class="py-3.5">
-                        <span class="text-[0.72rem] font-bold text-slate-600">
+                        <span class="text-[0.72rem] font-bold text-slate-600" [class.opacity-60]="product.isInVendorStore">
                           {{ currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn }}
                         </span>
                       </td>
                       <td class="py-3.5">
-                        <span class="text-[0.72rem] font-bold text-slate-600">
+                        <span class="text-[0.72rem] font-bold text-slate-600" [class.opacity-60]="product.isInVendorStore">
                           {{ currentLang === 'ar' ? (product.unitNameAr || ('PRODUCTS.UNIT_PIECE' | translate)) : (product.unitNameEn || ('PRODUCTS.UNIT_PIECE' | translate)) }}
                         </span>
                       </td>
                       <td class="py-3.5 text-end">
-                        <button class="rounded-xl bg-zadna-primary/10 px-3 py-2 text-[0.72rem] font-black text-zadna-primary hover:bg-zadna-primary hover:text-white transition-all transform active:scale-90">
-                           {{ 'PRODUCTS.BTN_SELECT' | translate }}
-                        </button>
+                        @if (product.isInVendorStore) {
+                          <span class="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-2 text-[0.7rem] font-black text-slate-500 whitespace-nowrap">
+                            <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                            {{ 'PRODUCTS.ALREADY_ADDED' | translate }}
+                          </span>
+                        } @else {
+                          <button class="rounded-xl bg-zadna-primary/10 px-3 py-2 text-[0.72rem] font-black text-zadna-primary hover:bg-zadna-primary hover:text-white transition-all transform active:scale-90">
+                            {{ 'PRODUCTS.BTN_SELECT' | translate }}
+                          </button>
+                        }
                       </td>
                     </tr>
                   }

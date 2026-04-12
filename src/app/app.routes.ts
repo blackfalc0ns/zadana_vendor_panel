@@ -1,39 +1,44 @@
 import { Routes } from '@angular/router';
-import { VendorDashboardComponent } from './features/dashboard/pages/vendor-dashboard/vendor-dashboard.component';
-import { LoginComponent } from './features/auth/pages/login/login.component';
-import { RegisterComponent } from './features/auth/pages/register/register.component';
-import { ForgotPasswordComponent } from './features/auth/pages/forgot-password/forgot-password.component';
-import { OnboardingComponent } from './features/auth/pages/onboarding/onboarding.component';
-import { SubmissionSuccessComponent } from './features/auth/pages/submission-success/submission-success.component';
-import { LayoutComponent } from './core/layout/layout.component';
+import { vendorAuthGuard } from './core/auth/guards/vendor-auth.guard';
+import { vendorGuestGuard } from './core/auth/guards/vendor-guest.guard';
 
 export const routes: Routes = [
   // --- Auth Pages (No layout) ---
   {
     path: 'login',
-    component: LoginComponent
+    canActivate: [vendorGuestGuard],
+    loadComponent: () => import('./features/auth/pages/login/login.component').then((m) => m.LoginComponent)
   },
   {
     path: 'register',
-    component: RegisterComponent
+    canActivate: [vendorGuestGuard],
+    loadComponent: () => import('./features/auth/pages/register/register.component').then((m) => m.RegisterComponent)
   },
   {
     path: 'forgot-password',
-    component: ForgotPasswordComponent
+    canActivate: [vendorGuestGuard],
+    loadComponent: () => import('./features/auth/pages/forgot-password/forgot-password.component').then((m) => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'reset-password',
+    canActivate: [vendorGuestGuard],
+    loadComponent: () => import('./features/auth/pages/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent)
   },
   {
     path: 'onboarding',
-    component: OnboardingComponent
+    canActivate: [vendorGuestGuard],
+    loadComponent: () => import('./features/auth/pages/onboarding/onboarding.component').then((m) => m.OnboardingComponent)
   },
   {
     path: 'submission-success',
-    component: SubmissionSuccessComponent
+    loadComponent: () => import('./features/auth/pages/submission-success/submission-success.component').then((m) => m.SubmissionSuccessComponent)
   },
   
   // --- Secured Layout Routes ---
   {
     path: '',
-    component: LayoutComponent,
+    canActivate: [vendorAuthGuard],
+    loadComponent: () => import('./core/layout/layout.component').then((m) => m.LayoutComponent),
     children: [
       {
         path: '',
@@ -42,11 +47,19 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        component: VendorDashboardComponent
+        loadComponent: () => import('./features/dashboard/pages/vendor-dashboard/vendor-dashboard.component').then((m) => m.VendorDashboardComponent)
       },
       {
         path: 'products',
         loadComponent: () => import('./features/products/pages/product-list/product-list.component').then(m => m.ProductListComponent)
+      },
+      {
+        path: 'products/submit',
+        loadComponent: () => import('./features/products/pages/product-submission/product-submission.component').then(m => m.ProductSubmissionComponent)
+      },
+      {
+        path: 'products/requests',
+        loadComponent: () => import('./features/products/pages/catalog-requests/catalog-requests.component').then(m => m.CatalogRequestsComponent)
       },
       {
         path: 'products/:id',
@@ -67,6 +80,10 @@ export const routes: Routes = [
       {
         path: 'orders',
         loadComponent: () => import('./features/orders/pages/order-list/order-list.component').then(m => m.OrderListComponent)
+      },
+      {
+        path: 'orders/create',
+        loadComponent: () => import('./features/orders/pages/order-create/order-create.component').then(m => m.ManualOrderCreateComponent)
       },
       {
         path: 'orders/:id',

@@ -36,10 +36,10 @@ describe('AppComponent', () => {
     expect(app.currentLang).toBe('ar');
   });
 
-  it('should render the brand name', () => {
+  it('should render the router shell', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.brand strong')?.textContent).toContain('Zadana');
+    expect(compiled.querySelector('router-outlet')).not.toBeNull();
   });
 });

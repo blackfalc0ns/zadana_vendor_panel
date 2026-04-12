@@ -3,13 +3,14 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
-import { CatalogService, VendorProduct } from '../../../../services/catalog.service';
+import { combineLatest, Subscription } from 'rxjs';
 import { ProductStatusBadgeComponent } from '../../components/product-status-badge/product-status-badge.component';
 import { ProductMediaCardComponent } from '../../components/product-media-card/product-media-card.component';
 import { ProductPriceStockFormComponent } from '../../components/product-price-stock-form/product-price-stock-form.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
+import { Category, VendorProduct } from '../../models/catalog.models';
+import { CatalogService } from '../../services/catalog.service';
 
 @Component({
   selector: 'app-product-detail',
@@ -28,19 +29,13 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
   template: `
     <div class="px-2 pb-12 sm:px-0" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
       <app-page-header
+        [showBack]="true"
+        backLink="/products"
         [title]="'PRODUCTS.DETAILS_TITLE' | translate"
         [description]="'PRODUCTS.DETAILS_SUBTITLE' | translate"
         customClass="sticky top-0 z-20 -mx-4 mb-8 border-b border-slate-100 bg-slate-50/80 px-4 py-4 backdrop-blur-md sm:mx-0 sm:rounded-[24px] sm:border sm:px-6"
       >
         <div actions class="flex flex-wrap items-center gap-3">
-          <button 
-            routerLink="/products"
-            class="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-slate-400 shadow-sm transition-all hover:text-zadna-primary hover:shadow-md active:scale-95">
-            <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" [attr.d]="currentLang === 'ar' ? 'M9 5l7 7-7 7' : 'M15 19l-7-7 7-7'"></path>
-            </svg>
-          </button>
-
           <button 
             (click)="toggleStatus()"
             class="hidden transition-all hover:scale-105 active:scale-95 sm:block">
@@ -214,13 +209,16 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
 
   loadProduct(id: string): void {
     this.isLoading = true;
-    this.catalogService.getVendorProductById(id).subscribe({
-      next: (data) => {
-        this.product = data;
+    combineLatest([
+      this.catalogService.getVendorProductById(id),
+      this.catalogService.getCategories()
+    ]).subscribe({
+      next: ([data, categories]) => {
+        this.product = this.enrichProductWithCategory(data, this.flattenCategories(categories));
         this.productForm.patchValue({
-          sellingPrice: data.sellingPrice,
-          discountPercentage: this.catalogService.calculateDiscountPercentage(data.sellingPrice, data.compareAtPrice),
-          stockQty: data.stockQty
+          sellingPrice: this.product.sellingPrice,
+          discountPercentage: this.catalogService.calculateDiscountPercentage(this.product.sellingPrice, this.product.compareAtPrice),
+          stockQty: this.product.stockQty
         });
         this.isLoading = false;
       },
@@ -229,6 +227,31 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.router.navigate(['/products']);
       }
     });
+  }
+
+  private enrichProductWithCategory(product: VendorProduct, categories: Category[]): VendorProduct {
+    const category = categories.find((item) => item.id === product.categoryId);
+
+    if (!category) {
+      return product;
+    }
+
+    return {
+      ...product,
+      categoryNameAr: product.categoryNameAr || category.nameAr,
+      categoryNameEn: product.categoryNameEn || category.nameEn
+    };
+  }
+
+  private flattenCategories(categories: Category[] | null | undefined): Category[] {
+    if (!categories?.length) {
+      return [];
+    }
+
+    return categories.flatMap((category) => [
+      category,
+      ...this.flattenCategories(category.subCategories || [])
+    ]);
   }
 
   toggleStatus(): void {

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
-import { MasterProduct } from '../../../../services/catalog.service';
+import { MasterProduct } from '../../models/catalog.models';
 import { ProductPriceStockFormComponent } from '../product-price-stock-form/product-price-stock-form.component';
 
 @Component({
@@ -27,7 +27,7 @@ import { ProductPriceStockFormComponent } from '../product-price-stock-form/prod
 
           <div class="flex items-center gap-4">
             <div class="h-16 w-16 overflow-hidden rounded-[18px] bg-slate-50 border border-slate-100">
-              <img [src]="product?.imageUrl || 'assets/images/placeholders/product.png'" class="h-full w-full object-cover">
+              <img [src]="product?.imageUrl || 'assets/images/placeholders/product.svg'" class="h-full w-full object-cover">
             </div>
             <div>
               <h2 class="text-base font-black text-slate-900 truncate max-w-sm">{{ currentLang === 'ar' ? product?.nameAr : product?.nameEn }}</h2>

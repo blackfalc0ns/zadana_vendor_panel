@@ -4,19 +4,34 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { combineLatest, Subscription } from 'rxjs';
-import { CatalogService, VendorProduct } from '../../../../services/catalog.service';
+import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPillTabsComponent } from '../../../../shared/components/ui/navigation/pill-tabs/pill-tabs.component';
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
+import { Category, VendorProduct } from '../../../products/models/catalog.models';
+import { CatalogService } from '../../../products/services/catalog.service';
+import { CategoryCampaignModalComponent } from '../../components/category-campaign-modal/category-campaign-modal.component';
+import { ClearanceOfferModalComponent } from '../../components/clearance-offer-modal/clearance-offer-modal.component';
+import { CouponOfferModalComponent } from '../../components/coupon-offer-modal/coupon-offer-modal.component';
 import {
+  CategoryCampaignCreateOption,
   CategoryCampaign,
   ClearanceOffer,
   CouponOffer,
-  OffersService
-} from '../../services/offers.service';
-
-type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
+  CreateCategoryCampaignPayload,
+  CreateClearanceOfferPayload,
+  CreateCouponOfferPayload
+} from '../../models/offers.models';
+import { OffersService } from '../../services/offers.service';
+import {
+  CategoryCampaignFilters,
+  ClearanceOfferFilters,
+  CouponOfferFilters,
+  DirectOfferFilters,
+  OfferCategoryOption,
+  OffersView
+} from './offers-list.models';
 
 @Component({
   selector: 'app-offers-list',
@@ -27,10 +42,14 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
     RouterModule,
     TranslateModule,
     NgClass,
+    AppButtonComponent,
     AppPageHeaderComponent,
     AppPanelHeaderComponent,
     AppPillTabsComponent,
-    AppPaginationComponent
+    AppPaginationComponent,
+    CouponOfferModalComponent,
+    CategoryCampaignModalComponent,
+    ClearanceOfferModalComponent
   ],
   template: `
     <div class="space-y-6" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
@@ -38,7 +57,21 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
         [title]="'OFFERS.TITLE' | translate"
         [description]="'OFFERS.SUBTITLE' | translate"
         customClass="mb-0"
-      ></app-page-header>
+      >
+        @if (activeCreateActionLabel; as createLabel) {
+          <div actions>
+            <app-button
+              size="sm"
+              (btnClick)="openCreateModal()"
+              customClass="rounded-full px-5 !text-[0.74rem] shadow-sm">
+              <span class="inline-flex items-center gap-2">
+                <span class="text-base leading-none">+</span>
+                <span>{{ createLabel | translate }}</span>
+              </span>
+            </app-button>
+          </div>
+        }
+      </app-page-header>
 
       @if (isFiltersExpanded) {
       <div class="overflow-hidden rounded-[28px] border border-slate-200/70 bg-white shadow-sm animate-in slide-in-from-top-2 duration-300">
@@ -281,7 +314,7 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
                         <td class="px-6 py-4">
                           <div class="flex items-center gap-3">
                             <div class="h-14 w-14 shrink-0 overflow-hidden rounded-[16px] border border-slate-100 bg-slate-50">
-                              <img [src]="product.imageUrl || 'assets/images/placeholders/product.png'" class="h-full w-full object-cover">
+                              <img [src]="product.imageUrl || 'assets/images/placeholders/product.svg'" class="h-full w-full object-cover">
                             </div>
                             <div class="min-w-0">
                               <div class="truncate text-[0.86rem] font-black text-slate-900">{{ currentLang === 'ar' ? product.nameAr : product.nameEn }}</div>
@@ -423,7 +456,7 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
                         <td class="px-6 py-4">
                           <div class="flex items-center gap-3">
                             <div class="h-14 w-14 shrink-0 overflow-hidden rounded-[16px] border border-slate-100 bg-slate-50">
-                              <img [src]="item.imageUrl || 'assets/images/placeholders/product.png'" class="h-full w-full object-cover">
+                              <img [src]="item.imageUrl || 'assets/images/placeholders/product.svg'" class="h-full w-full object-cover">
                             </div>
                             <div class="min-w-0">
                               <div class="truncate text-[0.86rem] font-black text-slate-900">{{ currentLang === 'ar' ? item.nameAr : item.nameEn }}</div>
@@ -475,6 +508,26 @@ type OffersView = 'direct' | 'coupons' | 'categories' | 'clearance';
           }
         }
       </div>
+
+      <app-coupon-offer-modal
+        [isOpen]="isCouponModalOpen"
+        (close)="isCouponModalOpen = false"
+        (saved)="createCouponOffer($event)">
+      </app-coupon-offer-modal>
+
+      <app-category-campaign-modal
+        [isOpen]="isCategoryCampaignModalOpen"
+        [categoryOptions]="campaignCreateOptions"
+        (close)="isCategoryCampaignModalOpen = false"
+        (saved)="createCategoryCampaign($event)">
+      </app-category-campaign-modal>
+
+      <app-clearance-offer-modal
+        [isOpen]="isClearanceModalOpen"
+        [products]="clearanceCreateProducts"
+        (close)="isClearanceModalOpen = false"
+        (saved)="createClearanceOffer($event)">
+      </app-clearance-offer-modal>
     </div>
   `
 })
@@ -484,14 +537,19 @@ export class OffersListComponent implements OnInit, OnDestroy {
   currentLang = 'ar';
   activeView: OffersView = 'direct';
   isFiltersExpanded = false;
+  isCouponModalOpen = false;
+  isCategoryCampaignModalOpen = false;
+  isClearanceModalOpen = false;
+  vendorProducts: VendorProduct[] = [];
+  categories: Category[] = [];
   productOffers: VendorProduct[] = [];
   coupons: CouponOffer[] = [];
   categoryCampaigns: CategoryCampaign[] = [];
   clearanceOffers: ClearanceOffer[] = [];
-  directFilters = { category: '', discountBand: 'all', stockBand: 'all' };
-  couponFilters = { status: 'all', type: 'all', expiry: 'all' };
-  categoryFilters = { category: '', discountBand: 'all', expiry: 'all' };
-  clearanceFilters = { urgency: 'all', stockLimit: 'all', category: '' };
+  directFilters: DirectOfferFilters = { category: '', discountBand: 'all', stockBand: 'all' };
+  couponFilters: CouponOfferFilters = { status: 'all', type: 'all', expiry: 'all' };
+  categoryFilters: CategoryCampaignFilters = { category: '', discountBand: 'all', expiry: 'all' };
+  clearanceFilters: ClearanceOfferFilters = { urgency: 'all', stockLimit: 'all', category: '' };
   readonly pageSize = 10;
   private readonly currentPages: Record<OffersView, number> = {
     direct: 1,
@@ -521,14 +579,23 @@ export class OffersListComponent implements OnInit, OnDestroy {
     combineLatest([
       this.catalogService.getVendorProducts({ pageNumber: 1, pageSize: 100 }),
       this.catalogService.getCategories(),
-      this.offersService.getCouponOffers()
+      this.offersService.getCouponOffers(),
+      this.offersService.getCategoryCampaigns(),
+      this.offersService.getClearanceOffers()
     ]).subscribe({
-      next: ([productsResponse, categories, coupons]) => {
+      next: ([productsResponse, categories, coupons, categoryCampaigns, clearanceOffers]) => {
         const products = productsResponse.items;
+        this.vendorProducts = products;
+        this.categories = categories;
+        this.offersService.initializeDerivedCollections(categories, products);
         this.productOffers = products.filter((product) => this.catalogService.hasActiveOffer(product));
         this.coupons = coupons;
-        this.categoryCampaigns = this.offersService.buildCategoryCampaigns(categories, products);
-        this.clearanceOffers = this.offersService.buildClearanceOffers(products);
+        this.categoryCampaigns = categoryCampaigns.length
+          ? categoryCampaigns
+          : this.offersService.buildCategoryCampaigns(categories, products);
+        this.clearanceOffers = clearanceOffers.length
+          ? clearanceOffers
+          : this.offersService.buildClearanceOffers(products);
         this.isLoading = false;
       },
       error: () => {
@@ -645,21 +712,51 @@ export class OffersListComponent implements OnInit, OnDestroy {
       || !!this.clearanceFilters.category;
   }
 
-  get availableDirectCategories(): Array<{ value: string; label: string }> {
+  get activeCreateActionLabel(): string | null {
+    switch (this.activeView) {
+      case 'coupons':
+        return 'OFFERS.CREATE.COUPON_BUTTON';
+      case 'categories':
+        return 'OFFERS.CREATE.CATEGORY_BUTTON';
+      case 'clearance':
+        return 'OFFERS.CREATE.CLEARANCE_BUTTON';
+      default:
+        return null;
+    }
+  }
+
+  get campaignCreateOptions(): CategoryCampaignCreateOption[] {
+    return this.categories
+      .map((category) => ({
+        categoryId: category.id,
+        categoryNameAr: category.nameAr,
+        categoryNameEn: category.nameEn,
+        productsIncluded: this.vendorProducts.filter((product) => product.categoryId === category.id).length
+      }))
+      .filter((category) => category.productsIncluded > 0);
+  }
+
+  get clearanceCreateProducts(): VendorProduct[] {
+    return this.vendorProducts
+      .filter((product) => product.stockQty > 0 && product.stockQty <= 20)
+      .sort((first, second) => first.stockQty - second.stockQty);
+  }
+
+  get availableDirectCategories(): OfferCategoryOption[] {
     return this.buildCategoryOptions(this.productOffers.map((item) => ({
       value: item.categoryId,
       label: this.currentLang === 'ar' ? (item.categoryNameAr || this.translate.instant('COMMON.NO_DATA')) : (item.categoryNameEn || this.translate.instant('COMMON.NO_DATA'))
     })));
   }
 
-  get availableCampaignCategories(): Array<{ value: string; label: string }> {
+  get availableCampaignCategories(): OfferCategoryOption[] {
     return this.buildCategoryOptions(this.categoryCampaigns.map((item) => ({
       value: item.categoryId,
       label: this.currentLang === 'ar' ? item.categoryNameAr : item.categoryNameEn
     })));
   }
 
-  get availableClearanceCategories(): Array<{ value: string; label: string }> {
+  get availableClearanceCategories(): OfferCategoryOption[] {
     return this.buildCategoryOptions(this.clearanceOffers.map((item) => ({
       value: this.currentLang === 'ar' ? (item.categoryNameAr || '') : (item.categoryNameEn || ''),
       label: this.currentLang === 'ar' ? (item.categoryNameAr || this.translate.instant('COMMON.NO_DATA')) : (item.categoryNameEn || this.translate.instant('COMMON.NO_DATA'))
@@ -707,6 +804,30 @@ export class OffersListComponent implements OnInit, OnDestroy {
 
   onViewChange(view: string): void {
     this.activeView = view as OffersView;
+  }
+
+  openCreateModal(): void {
+    this.isCouponModalOpen = this.activeView === 'coupons';
+    this.isCategoryCampaignModalOpen = this.activeView === 'categories';
+    this.isClearanceModalOpen = this.activeView === 'clearance';
+  }
+
+  createCouponOffer(payload: CreateCouponOfferPayload): void {
+    this.offersService.createCouponOffer(payload);
+    this.isCouponModalOpen = false;
+    this.currentPages.coupons = 1;
+  }
+
+  createCategoryCampaign(payload: CreateCategoryCampaignPayload): void {
+    this.offersService.createCategoryCampaign(payload);
+    this.isCategoryCampaignModalOpen = false;
+    this.currentPages.categories = 1;
+  }
+
+  createClearanceOffer(payload: CreateClearanceOfferPayload): void {
+    this.offersService.createClearanceOffer(payload);
+    this.isClearanceModalOpen = false;
+    this.currentPages.clearance = 1;
   }
 
   onPageChange(page: number): void {
@@ -807,7 +928,7 @@ export class OffersListComponent implements OnInit, OnDestroy {
     return true;
   }
 
-  private buildCategoryOptions(items: Array<{ value: string; label: string }>): Array<{ value: string; label: string }> {
+  private buildCategoryOptions(items: OfferCategoryOption[]): OfferCategoryOption[] {
     const seen = new Set<string>();
 
     return items.filter((item) => {

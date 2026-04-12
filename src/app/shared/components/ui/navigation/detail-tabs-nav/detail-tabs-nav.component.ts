@@ -1,33 +1,37 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { QuickTabVm } from '../../models/ui-contracts.models';
 
-export interface DetailTabNavItem {
+export interface DetailTabNavItem extends QuickTabVm {
   id: string;
   labelKey: string;
-  icon?: string;
-  count?: number | string;
-  attention?: boolean;
 }
 
 @Component({
-
-
-  
   selector: 'app-detail-tabs-nav',
   standalone: true,
   imports: [CommonModule, TranslateModule],
   template: `
     <div class="w-full max-w-full overflow-x-auto pb-2 scroll-smooth [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:rounded-full [&::-webkit-scrollbar-track]:bg-slate-100 [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-slate-300 hover:[&::-webkit-scrollbar-thumb]:bg-slate-400">
-      <div class="flex w-max items-center gap-1 rounded-xl border border-slate-900/5 bg-slate-900/[0.04] p-[3px]">
-        @for (tab of tabs; track tab.id) {
+      <div class="flex w-max items-center gap-1 rounded-xl border border-slate-900/5 bg-slate-900/[0.04] p-[3px]" role="tablist" [attr.aria-orientation]="'horizontal'">
+        @for (tab of tabs; track tab.id; let index = $index) {
           <button
+            #tabButton
             type="button"
             (click)="onTabClick(tab.id)"
+            (keydown)="onTabKeydown($event, index)"
+            [disabled]="tab.disabled"
+            [attr.role]="'tab'"
+            [attr.tabindex]="isActive(tab.id) ? 0 : -1"
+            [attr.aria-selected]="isActive(tab.id)"
+            [attr.aria-label]="tab.ariaLabel || null"
             class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
             [ngClass]="isActive(tab.id)
               ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
-              : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
+              : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'"
+            [class.opacity-45]="tab.disabled"
+            [class.cursor-not-allowed]="tab.disabled">
             @if (isActive(tab.id)) {
               <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
                 <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
@@ -75,6 +79,8 @@ export interface DetailTabNavItem {
   `]
 })
 export class DetailTabsNavComponent {
+  @ViewChildren('tabButton') private readonly tabButtons?: QueryList<ElementRef<HTMLButtonElement>>;
+
   @Input() tabs: DetailTabNavItem[] = [];
   @Input() activeTab = '';
   @Output() tabChange = new EventEmitter<string>();
@@ -103,6 +109,62 @@ export class DetailTabsNavComponent {
   }
 
   onTabClick(tabId: string): void {
+    if (this.tabs.find((tab) => tab.id === tabId)?.disabled) {
+      return;
+    }
+
     this.tabChange.emit(tabId);
+  }
+
+  onTabKeydown(event: KeyboardEvent, index: number): void {
+    if (!this.tabs.length) {
+      return;
+    }
+
+    const lastIndex = this.tabs.length - 1;
+    let targetIndex = index;
+
+    switch (event.key) {
+      case 'ArrowRight':
+        targetIndex = this.isRtl() ? index - 1 : index + 1;
+        break;
+      case 'ArrowLeft':
+        targetIndex = this.isRtl() ? index + 1 : index - 1;
+        break;
+      case 'Home':
+        targetIndex = 0;
+        break;
+      case 'End':
+        targetIndex = lastIndex;
+        break;
+      case 'Enter':
+      case ' ':
+        this.onTabClick(this.tabs[index].id);
+        event.preventDefault();
+        return;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+
+    if (targetIndex > lastIndex) {
+      targetIndex = 0;
+    }
+
+    if (targetIndex < 0) {
+      targetIndex = lastIndex;
+    }
+
+    this.focusTab(targetIndex);
+    this.onTabClick(this.tabs[targetIndex].id);
+  }
+
+  private focusTab(index: number): void {
+    this.tabButtons?.get(index)?.nativeElement.focus();
+  }
+
+  private isRtl(): boolean {
+    return typeof document !== 'undefined' && document.documentElement.dir === 'rtl';
   }
 }

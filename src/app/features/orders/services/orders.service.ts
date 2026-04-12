@@ -127,6 +127,43 @@ export class OrdersService {
     return labels[status][lang];
   }
 
+  createOrder(orderData: any): Observable<any> {
+    const newOrder: OrderDetail = {
+      id: `man_${Date.now()}`,
+      displayId: (2000 + this.mockOrders.length).toString(),
+      customerName: orderData.customerName,
+      customerPhone: orderData.customerPhone,
+      customerAddress: orderData.customerAddress,
+      date: new Date().toISOString().split('T')[0],
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      status: 'NEW',
+      paymentStatus: 'PENDING',
+      paymentMethodType: orderData.paymentMethodType,
+      paymentMethodLabel: orderData.paymentMethodLabel,
+      fulfillmentStatus: 'QUEUED',
+      total: orderData.total,
+      subtotal: orderData.total * 0.8, // Mock calculation
+      deliveryFee: 35,
+      tax: orderData.total * 0.14,
+      itemCount: orderData.items.length,
+      isLate: false,
+      hasActiveIssue: false,
+      items: orderData.items,
+      timeline: [
+        {
+          status: 'NEW',
+          timestamp: new Date().toISOString(),
+          labelAr: 'تم إنشاء الطلب يدوياً',
+          labelEn: 'Order Created Manually',
+          isCompleted: true
+        }
+      ]
+    };
+
+    this.mockOrders.unshift(newOrder);
+    return of(newOrder).pipe(delay(1000));
+  }
+
   private generateMockOrders(): void {
     const statuses: OrderStatus[] = ['NEW', 'IN_PROGRESS', 'READY_FOR_PICKUP', 'DELIVERED', 'CANCELLED'];
     const customers = [

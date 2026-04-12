@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { forkJoin, map, of, switchMap } from 'rxjs';
 
 import {
   BANKS,
@@ -19,52 +21,10 @@ import { AppSelectComponent } from '../../../../shared/components/ui/form-contro
 import { AppCardComponent } from '../../../../shared/components/ui/card/card.component';
 import { AppBadgeComponent } from '../../../../shared/components/ui/feedback/badge/badge.component';
 import { AppSectionHeaderComponent } from '../../../../shared/components/ui/layout/section-header/section-header.component';
-
-interface OnboardingStepItem {
-  id: number;
-  labelKey: string;
-  sectionKey: string;
-}
-
-interface OnboardingSeedData {
-  store: {
-    businessNameAr: string;
-    businessNameEn: string;
-    businessType: string;
-    contactPhone: string;
-    description: string;
-    region: string;
-    city: string;
-    nationalAddress: string;
-    registrationDate: string;
-  };
-  owner: {
-    fullName: string;
-    email: string;
-    phone: string;
-    idNumber: string;
-    nationality: string;
-  };
-  legal: {
-    commercialRegistrationNumber: string;
-    expiryDate: string;
-    taxId: string;
-    licenseNumber: string;
-  };
-  banking: {
-    bankName: string;
-    iban: string;
-    swiftCode: string;
-    paymentCycle: string;
-  };
-  meta: {
-    reviewStatusAr: string;
-    reviewStatusEn: string;
-    lastUpdate: string;
-    syncedFromAr: string;
-    syncedFromEn: string;
-  };
-}
+import { OnboardingSeedData, OnboardingStepItem } from '../../models/auth.models';
+import { environment } from '../../../../../environments/environment';
+import { RegisterVendorPayload } from '../../../../core/auth/models/vendor-auth.models';
+import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
   selector: 'app-onboarding',
@@ -85,7 +45,7 @@ interface OnboardingSeedData {
   styleUrls: ['./onboarding.component.scss']
 })
 export class OnboardingComponent implements OnInit {
-  readonly logoPath = 'assets/images/logo/%D8%B4%D9%81%D8%A7%D9%81%20(1).png';
+  readonly logoPath = 'assets/images/logo/zadana-mark.svg';
   readonly stepItems: OnboardingStepItem[] = [
     {
       id: 1,
@@ -164,6 +124,7 @@ export class OnboardingComponent implements OnInit {
   currentStep = 1;
   totalSteps = this.stepItems.length;
   isSubmitting = false;
+  submissionError = '';
   storeLogo: File | null = null;
   crDocument: File | null = null;
 
@@ -177,7 +138,9 @@ export class OnboardingComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private http: HttpClient,
+    private authService: VendorAuthService
   ) {
     const savedLang = localStorage.getItem('vendor_lang') || localStorage.getItem('lang') || 'ar';
     this.translate.use(savedLang);
@@ -295,37 +258,90 @@ export class OnboardingComponent implements OnInit {
 
   onSubmit(): void {
     this.stepItems.forEach((step) => this.getStepGroup(step.id).markAllAsTouched());
+    this.submissionError = '';
 
     if (this.onboardingForm.invalid) {
       this.currentStep = this.stepItems.find((step) => this.getStepGroup(step.id).invalid)?.id ?? 1;
       return;
     }
 
+    const draft = this.authService.getRegistrationDraft();
+    if (!draft) {
+      this.submissionError = this.isRTL
+        ? 'يرجى البدء من صفحة إنشاء الحساب أولًا لإكمال بيانات الدخول.'
+        : 'Please start from the register page first to complete the account credentials.';
+      void this.router.navigate(['/register']);
+      return;
+    }
+
     this.isSubmitting = true;
-    const finalData = {
-      ...this.getStepGroup(1).value,
-      ...this.getStepGroup(2).value,
-      ...this.getStepGroup(3).value,
-      ...this.getStepGroup(4).value,
-      documents: {
-        logoName: this.storeLogo?.name ?? null,
-        crDocumentName: this.crDocument?.name ?? null
+    const step1 = this.getStepGroup(1).getRawValue();
+    const step2 = this.getStepGroup(2).getRawValue();
+    const step3 = this.getStepGroup(3).getRawValue();
+    const step4 = this.getStepGroup(4).getRawValue();
+
+    forkJoin({
+      logoUrl: this.storeLogo ? this.uploadFile(this.storeLogo, 'uploads/vendors/logos') : of<string | null>(null),
+      commercialRegisterDocumentUrl: this.crDocument ? this.uploadFile(this.crDocument, 'uploads/vendors/commercial-register') : of<string | null>(null)
+    }).pipe(
+      map(({ logoUrl, commercialRegisterDocumentUrl }) => {
+        const payload: RegisterVendorPayload = {
+          fullName: draft.fullName,
+          email: draft.email,
+          phone: step1.ownerPhone,
+          password: draft.password,
+          businessNameAr: step1.businessNameAr,
+          businessNameEn: step1.businessNameEn,
+          businessType: step1.businessType,
+          commercialRegistrationNumber: step3.commercialRegistrationNumber,
+          commercialRegistrationExpiryDate: step3.expiryDate || null,
+          contactEmail: step1.ownerEmail,
+          contactPhone: step1.contactPhone,
+          descriptionAr: step1.description,
+          descriptionEn: step1.description,
+          ownerName: step1.ownerName,
+          ownerEmail: step1.ownerEmail,
+          ownerPhone: step1.ownerPhone,
+          idNumber: step3.idNumber,
+          nationality: step3.nationality,
+          region: step2.region,
+          city: step2.city,
+          nationalAddress: step2.nationalAddress,
+          taxId: step3.taxId,
+          licenseNumber: step3.licenseNumber,
+          bankName: step4.bankName,
+          accountHolderName: step1.ownerName,
+          iban: step4.iban,
+          swiftCode: step4.swiftCode,
+          payoutCycle: step4.paymentCycle,
+          logoUrl,
+          commercialRegisterDocumentUrl,
+          branchName: draft.preferredStoreName || step1.businessNameEn || step1.businessNameAr,
+          branchAddressLine: step2.nationalAddress,
+          branchLatitude: 0,
+          branchLongitude: 0,
+          branchContactPhone: step1.contactPhone,
+          branchDeliveryRadiusKm: 5
+        };
+
+        return payload;
+      }),
+      switchMap((payload) => this.authService.registerVendor(payload))
+    ).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        const currentBizName = this.isRTL ? step1.businessNameAr : step1.businessNameEn;
+        localStorage.setItem('onboarding_biz_name', currentBizName || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
+        void this.router.navigate(['/submission-success']);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        this.submissionError = error?.error?.detail
+          || error?.error?.message
+          || error?.message
+          || (this.isRTL ? 'تعذر إرسال طلب تسجيل التاجر الآن.' : 'Unable to submit the vendor registration right now.');
       }
-    };
-
-    console.log('Final Registration Data:', finalData);
-
-    const bizNameAr = this.getStepGroup(1).get('businessNameAr')?.value;
-    const bizNameEn = this.getStepGroup(1).get('businessNameEn')?.value;
-    const currentBizName = this.isRTL ? bizNameAr : bizNameEn;
-    
-    // Save to localStorage for layout-wide updates
-    localStorage.setItem('onboarding_biz_name', currentBizName || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
-
-    setTimeout(() => {
-      this.isSubmitting = false;
-      this.router.navigate(['/submission-success']);
-    }, 1500);
+    });
   }
 
   trackStep(_index: number, step: OnboardingStepItem): number {
@@ -514,16 +530,17 @@ export class OnboardingComponent implements OnInit {
   private patchSeedData(): void {
     const defaultAr = this.translate.instant('COMMON.DEFAULT_VENDOR_NAME');
     const defaultEn = 'Modern Tech Trading Est.';
+    const draft = this.authService.getRegistrationDraft();
 
     this.onboardingForm.patchValue({
       step1: {
-        businessNameAr: defaultAr || this.vendorSeed.store.businessNameAr,
-        businessNameEn: defaultEn || this.vendorSeed.store.businessNameEn,
+        businessNameAr: draft?.preferredStoreName || defaultAr || this.vendorSeed.store.businessNameAr,
+        businessNameEn: draft?.preferredStoreName || defaultEn || this.vendorSeed.store.businessNameEn,
         businessType: this.vendorSeed.store.businessType,
         contactPhone: this.vendorSeed.store.contactPhone,
         description: this.vendorSeed.store.description,
-        ownerName: this.vendorSeed.owner.fullName,
-        ownerEmail: this.vendorSeed.owner.email,
+        ownerName: draft?.fullName || this.vendorSeed.owner.fullName,
+        ownerEmail: draft?.email || this.vendorSeed.owner.email,
         ownerPhone: this.vendorSeed.owner.phone
       },
       step2: {
@@ -561,6 +578,16 @@ export class OnboardingComponent implements OnInit {
   private getSelectedFile(event: Event): File | null {
     const input = event.target as HTMLInputElement | null;
     return input?.files?.item(0) ?? null;
+  }
+
+  private uploadFile(file: File, directory: string) {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('directory', directory);
+
+    return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData).pipe(
+      map((response) => response.url)
+    );
   }
 }
 

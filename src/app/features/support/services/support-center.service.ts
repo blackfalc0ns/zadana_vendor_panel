@@ -14,6 +14,11 @@ import {
   cloneSupportTicket,
   cloneSupportTickets
 } from '../models/support-center.models';
+import {
+  clearWorkspaceState,
+  persistWorkspaceState,
+  readWorkspaceState
+} from '../../../shared/utils/workspace-storage.util';
 
 @Injectable({
   providedIn: 'root'
@@ -133,31 +138,26 @@ export class SupportCenterService {
   }
 
   resetSeedState(): void {
-    localStorage.removeItem(this.storageKey);
+    clearWorkspaceState(this.storageKey);
     this.ticketsSubject.next(this.buildSeedTickets());
   }
 
   private loadTickets(): VendorSupportTicketVm[] {
-    const stored = localStorage.getItem(this.storageKey);
+    const stored = readWorkspaceState<VendorSupportTicketVm[] | null>(this.storageKey, null);
 
     if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as VendorSupportTicketVm[];
-        return parsed.map((ticket) => ({
-          ...ticket,
-          subject: { ...ticket.subject },
-          summary: { ...ticket.summary },
-          assignedAgentRole: { ...ticket.assignedAgentRole },
-          tags: ticket.tags.map((tag) => ({ ...tag })),
-          messages: ticket.messages.map((message) => ({
-            ...message,
-            role: { ...message.role },
-            message: { ...message.message }
-          }))
-        }));
-      } catch {
-        return this.buildSeedTickets();
-      }
+      return stored.map((ticket) => ({
+        ...ticket,
+        subject: { ...ticket.subject },
+        summary: { ...ticket.summary },
+        assignedAgentRole: { ...ticket.assignedAgentRole },
+        tags: ticket.tags.map((tag) => ({ ...tag })),
+        messages: ticket.messages.map((message) => ({
+          ...message,
+          role: { ...message.role },
+          message: { ...message.message }
+        }))
+      }));
     }
 
     return this.buildSeedTickets();
@@ -645,7 +645,7 @@ export class SupportCenterService {
   }
 
   private persistTickets(tickets: VendorSupportTicketVm[]): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(tickets));
+    persistWorkspaceState(this.storageKey, tickets);
   }
 
   private generateReference(): string {

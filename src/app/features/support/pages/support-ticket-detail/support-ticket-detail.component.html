@@ -1,20 +1,14 @@
 <div class="space-y-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
   <app-page-header
+    [showBack]="true"
+    backLink="/support"
+    [backQueryParams]="{ view: 'support' }"
     [description]="ticket ? localized(ticket.summary) : ''"
     customClass="sticky top-0 z-20 -mx-4 border-b border-slate-100 bg-slate-50/80 px-4 py-4 backdrop-blur-md sm:mx-0 sm:rounded-[24px] sm:border sm:px-6"
   >
     <span title>{{ ticket ? localized(ticket.subject) : '' }}</span>
 
     <div actions class="flex flex-wrap items-center gap-3">
-      <a
-        routerLink="/support"
-        [queryParams]="{ view: 'support' }"
-        class="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-500 shadow-sm transition-all hover:bg-slate-50 active:scale-95">
-        <svg class="h-5 w-5" [class.rotate-180]="currentLang === 'ar'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
-        </svg>
-      </a>
-
       @if (ticket) {
         <span class="inline-flex rounded-full border px-3 py-1.5 text-[0.72rem] font-black" [ngClass]="statusClass(ticket.status)">
           {{ statusKey(ticket.status) | translate }}

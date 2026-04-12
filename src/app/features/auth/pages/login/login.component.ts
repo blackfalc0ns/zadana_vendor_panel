@@ -1,11 +1,13 @@
-﻿import { Component, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppInputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { AppCardComponent } from '../../../../shared/components/ui/card/card.component';
+import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
   selector: 'app-login',
@@ -32,7 +34,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private authService: VendorAuthService
   ) {
     // Default to Arabic as per rules
     this.translate.setDefaultLang('ar');
@@ -57,21 +60,28 @@ export class LoginComponent implements OnInit {
 
   onSubmit(): void {
     this.submitted = true;
-    // if (this.loginForm.valid) {
-      this.isLoading = true;
-      
-      // Simulate API call
-      setTimeout(() => {
+    this.errorMessage = '';
+
+    if (this.loginForm.invalid) {
+      Object.keys(this.loginForm.controls).forEach((key) => {
+        this.loginForm.get(key)?.markAsTouched();
+      });
+      return;
+    }
+
+    this.isLoading = true;
+    const { email, password } = this.loginForm.getRawValue();
+
+    this.authService.login(email, password).subscribe({
+      next: () => {
         this.isLoading = false;
-        console.log('Login Success (Navigating to onboarding without validation):', this.loginForm.value);
-        this.router.navigate(['/onboarding']);
-      }, 1500);
-    // } else {
-    //   Object.keys(this.loginForm.controls).forEach(key => {
-    //     const control = this.loginForm.get(key);
-    //     control?.markAsTouched();
-    //   });
-    // }
+        void this.router.navigate(['/dashboard']);
+      },
+      error: (error: unknown) => {
+        this.isLoading = false;
+        this.errorMessage = this.resolveLoginErrorMessage(error);
+      }
+    });
   }
 
   toggleLanguage(): void {
@@ -89,5 +99,68 @@ export class LoginComponent implements OnInit {
   get isRTL(): boolean {
     return this.translate.currentLang === 'ar';
   }
-}
 
+  private resolveLoginErrorMessage(error: unknown): string {
+    if (!(error instanceof HttpErrorResponse)) {
+      return this.translate.instant('LOGIN.ERR_LOGIN_FAILED');
+    }
+
+    const serverMessage = this.extractServerMessage(error);
+    if (serverMessage) {
+      return serverMessage;
+    }
+
+    if (error.status === 0) {
+      return this.translate.instant('LOGIN.ERR_SERVER_UNREACHABLE');
+    }
+
+    if (error.status === 401) {
+      return this.translate.instant('LOGIN.ERR_INVALID_CREDENTIALS');
+    }
+
+    if (error.status === 403) {
+      return this.translate.instant('LOGIN.ERR_ACCOUNT_NOT_ALLOWED');
+    }
+
+    if (error.status === 423) {
+      return this.translate.instant('LOGIN.ERR_ACCOUNT_LOCKED');
+    }
+
+    if (error.status >= 500) {
+      return this.translate.instant('LOGIN.ERR_SERVER_ERROR');
+    }
+
+    return this.translate.instant('LOGIN.ERR_LOGIN_FAILED');
+  }
+
+  private extractServerMessage(error: HttpErrorResponse): string | null {
+    const candidates = [
+      error.error?.detail,
+      error.error?.message,
+      error.error?.title
+    ];
+
+    const meaningfulMessage = candidates.find((candidate): candidate is string =>
+      typeof candidate === 'string' && this.isMeaningfulServerMessage(candidate)
+    );
+
+    return meaningfulMessage?.trim() || null;
+  }
+
+  private isMeaningfulServerMessage(message: string): boolean {
+    const normalizedMessage = message.trim();
+
+    if (!normalizedMessage) {
+      return false;
+    }
+
+    const blockedFragments = [
+      'http failure response for',
+      'unknown error',
+      'http error response for'
+    ];
+
+    const lowerMessage = normalizedMessage.toLowerCase();
+    return !blockedFragments.some((fragment) => lowerMessage.includes(fragment));
+  }
+}

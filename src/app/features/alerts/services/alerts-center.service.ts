@@ -1,13 +1,16 @@
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, combineLatest, map, of, shareReplay } from 'rxjs';
-import { Category, CatalogService, VendorProduct } from '../../../services/catalog.service';
-import { VendorFinanceAlert, VendorFinanceService, VendorFinanceSnapshot } from '../../finance/services/vendor-finance.service';
+import { Category, VendorProduct } from '../../products/models/catalog.models';
+import { CatalogService } from '../../products/services/catalog.service';
+import { VendorFinanceAlert, VendorFinanceSnapshot } from '../../finance/models/vendor-finance.models';
+import { VendorFinanceService } from '../../finance/services/vendor-finance.service';
 import { OffersService } from '../../offers/services/offers.service';
 import { OrderListItem } from '../../orders/models/orders.models';
 import { OrdersService } from '../../orders/services/orders.service';
 import { CustomerReviewVm } from '../../reviews/models/reviews.models';
 import { ReviewsService } from '../../reviews/services/reviews.service';
-import { VendorProfile, VendorProfileService } from '../../settings/services/vendor-profile.service';
+import { VendorProfile } from '../../settings/models/vendor-profile.models';
+import { VendorProfileService } from '../../settings/services/vendor-profile.service';
 import { BranchVm, EmployeeVm, InvitationVm } from '../../staff/models/staff-branches.models';
 import { StaffBranchesService } from '../../staff/services/staff-branches.service';
 import { VendorSupportTicketVm } from '../../support/models/support-center.models';
@@ -22,6 +25,11 @@ import {
   LocalizedAlertText,
   cloneAlerts
 } from '../models/alerts-center.models';
+import {
+  clearWorkspaceState,
+  persistWorkspaceState,
+  readWorkspaceState
+} from '../../../shared/utils/workspace-storage.util';
 
 @Injectable({
   providedIn: 'root'
@@ -234,7 +242,7 @@ export class AlertsCenterService {
   }
 
   resetWorkspaceState(): void {
-    localStorage.removeItem(this.storageKey);
+    clearWorkspaceState(this.storageKey);
     this.workspaceSubject.next(this.createEmptyWorkspace());
   }
 
@@ -828,22 +836,17 @@ export class AlertsCenterService {
   }
 
   private persistWorkspace(workspace: AlertWorkspaceState): void {
-    localStorage.setItem(this.storageKey, JSON.stringify(workspace));
+    persistWorkspaceState(this.storageKey, workspace);
   }
 
   private loadWorkspace(): AlertWorkspaceState {
-    const stored = localStorage.getItem(this.storageKey);
+    const stored = readWorkspaceState<AlertWorkspaceState | null>(this.storageKey, null);
     if (stored) {
-      try {
-        const parsed = JSON.parse(stored) as AlertWorkspaceState;
-        return {
-          readMap: parsed.readMap || {},
-          archivedMap: parsed.archivedMap || {},
-          archivedSnapshots: parsed.archivedSnapshots || {}
-        };
-      } catch {
-        return this.createEmptyWorkspace();
-      }
+      return {
+        readMap: stored.readMap || {},
+        archivedMap: stored.archivedMap || {},
+        archivedSnapshots: stored.archivedSnapshots || {}
+      };
     }
 
     return this.createEmptyWorkspace();

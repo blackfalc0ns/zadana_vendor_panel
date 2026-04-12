@@ -3,6 +3,7 @@ import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
   selector: 'app-register',
@@ -19,12 +20,13 @@ export class RegisterComponent {
   errorMessage = '';
   showPassword = false;
   showConfirmPassword = false;
-  isRTL = true; // default RTL
+  isRTL = true;
 
   constructor(
     private fb: FormBuilder,
     private router: Router,
     private translate: TranslateService,
+    private authService: VendorAuthService,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.registerForm = this.fb.group({
@@ -41,7 +43,7 @@ export class RegisterComponent {
       this.isRTL = savedLang === 'ar';
       this.translate.use(savedLang);
 
-      this.translate.onLangChange.subscribe(event => {
+      this.translate.onLangChange.subscribe((event) => {
         this.isRTL = event.lang === 'ar';
       });
     }
@@ -71,22 +73,34 @@ export class RegisterComponent {
 
   onSubmit(): void {
     this.submitted = true;
-    // if (this.registerForm.invalid) {
-    //   if (this.registerForm.errors?.['mismatch']) {
-    //     this.errorMessage = this.isRTL ? 'كلمة المرور وتأكيد كلمة المرور غير متطابقتين' : 'Passwords do not match';
-    //   } else {
-    //     this.errorMessage = this.isRTL ? 'يرجى إكمال جميع الحقول بشكل صحيح' : 'Please fill all details correctly';
-    //   }
-    //   // return;
-    // }
+
+    if (this.registerForm.invalid) {
+      if (this.registerForm.errors?.['mismatch']) {
+        this.errorMessage = this.isRTL ? 'كلمة المرور وتأكيدها غير متطابقين' : 'Passwords do not match';
+      } else {
+        this.errorMessage = this.isRTL ? 'يرجى إكمال جميع الحقول بشكل صحيح' : 'Please fill all details correctly';
+      }
+
+      this.registerForm.markAllAsTouched();
+      return;
+    }
 
     this.isLoading = true;
     this.errorMessage = '';
-    
-    // Simulate API call
-    setTimeout(() => {
-      this.isLoading = false;
-      this.router.navigate(['/onboarding']); // Changed to onboarding for flow testing
-    }, 1500);
+
+    const { firstName, lastName, storeName, email, password } = this.registerForm.getRawValue();
+    this.authService.saveRegistrationDraft({
+      fullName: `${firstName} ${lastName}`.trim(),
+      email,
+      password,
+      preferredStoreName: storeName
+    });
+
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem('onboarding_biz_name', storeName || 'Vendor');
+    }
+
+    this.isLoading = false;
+    void this.router.navigate(['/onboarding']);
   }
 }

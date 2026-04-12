@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppCardComponent } from '../../../../shared/components/ui/card/card.component';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppBadgeComponent } from '../../../../shared/components/ui/feedback/badge/badge.component';
+import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
   selector: 'app-submission-success',
@@ -27,7 +28,8 @@ export class SubmissionSuccessComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private authService: VendorAuthService
   ) {}
 
   ngOnInit(): void {
@@ -37,8 +39,11 @@ export class SubmissionSuccessComponent implements OnInit {
   }
 
   logout(): void {
-    localStorage.clear();
-    this.router.navigate(['/auth/login']);
+    this.authService.logout().subscribe({
+      next: () => {
+        void this.router.navigate(['/login']);
+      }
+    });
   }
 
   goDashboard(): void {

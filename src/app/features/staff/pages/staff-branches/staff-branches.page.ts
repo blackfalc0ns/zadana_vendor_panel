@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -37,51 +37,13 @@ import {
   defaultOperatingHours
 } from '../../models/staff-branches.models';
 import { StaffBranchesService } from '../../services/staff-branches.service';
-
-interface BranchFilters {
-  search: string;
-  status: 'all' | BranchStatus;
-  city: string;
-  manager: string;
-}
-
-interface EmployeeFilters {
-  search: string;
-  status: 'all' | EmployeeStatus;
-  roleTemplate: 'all' | RoleTemplate;
-  branchId: 'all' | string;
-}
-
-interface InvitationFilters {
-  search: string;
-  status: 'all' | InvitationStatus;
-  type: 'all' | InvitationType;
-  branchId: 'all' | string;
-}
-
-interface BranchWizardDraft {
-  name: string;
-  code: string;
-  branchKind: 'primary' | 'branch';
-  phone: string;
-  managerName: string;
-  managerContact: string;
-  region: string;
-  city: string;
-  addressLine: string;
-  deliveryRadiusKm: number;
-  operatingHours: BranchOperatingHourVm[];
-  inviteMessage: string;
-}
-
-interface EmployeeModalDraft {
-  fullName: string;
-  contact: string;
-  roleTemplate: RoleTemplate;
-  branchIds: string[];
-  customizePermissions: boolean;
-  permissions: PermissionMatrixVm;
-}
+import {
+  BranchFilters,
+  BranchWizardDraft,
+  EmployeeFilters,
+  EmployeeModalDraft,
+  InvitationFilters
+} from './staff-branches.page.models';
 
 @Component({
   selector: 'app-staff-branches-page',
@@ -101,7 +63,7 @@ interface EmployeeModalDraft {
   ],
   templateUrl: './staff-branches.page.html'
 })
-export class StaffBranchesPageComponent implements OnInit, OnDestroy {
+export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
   currentLang = 'ar';
   activeView: StaffView = 'branches';
   isFiltersExpanded = true;
@@ -162,6 +124,11 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
   private langSub: Subscription;
   private dataSub?: Subscription;
   private routeSub?: Subscription;
+  private lastFilterSignatures: Record<StaffView, string> = {
+    branches: '',
+    employees: '',
+    invitations: ''
+  };
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -208,6 +175,12 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
     this.langSub.unsubscribe();
     this.dataSub?.unsubscribe();
     this.routeSub?.unsubscribe();
+  }
+
+  ngDoCheck(): void {
+    this.syncFilterSignature('branches', this.branchFilters);
+    this.syncFilterSignature('employees', this.employeeFilters);
+    this.syncFilterSignature('invitations', this.invitationFilters);
   }
 
   get primaryViewTabs(): Array<Record<string, unknown>> {
@@ -883,5 +856,15 @@ export class StaffBranchesPageComponent implements OnInit, OnDestroy {
         this.flashMessage = '';
       }
     }, 2800);
+  }
+
+  private syncFilterSignature(view: StaffView, filters: unknown): void {
+    const nextSignature = JSON.stringify(filters);
+    if (this.lastFilterSignatures[view] === nextSignature) {
+      return;
+    }
+
+    this.lastFilterSignatures[view] = nextSignature;
+    this.currentPages[view] = 1;
   }
 }
