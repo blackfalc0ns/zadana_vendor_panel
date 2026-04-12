@@ -76,9 +76,9 @@ export class RegisterComponent {
 
     if (this.registerForm.invalid) {
       if (this.registerForm.errors?.['mismatch']) {
-        this.errorMessage = this.isRTL ? 'كلمة المرور وتأكيدها غير متطابقين' : 'Passwords do not match';
+        this.errorMessage = this.translate.instant('REGISTER.ERR_MISMATCH');
       } else {
-        this.errorMessage = this.isRTL ? 'يرجى إكمال جميع الحقول بشكل صحيح' : 'Please fill all details correctly';
+        this.errorMessage = this.translate.instant('REGISTER.ERR_INVALID_FORM');
       }
 
       this.registerForm.markAllAsTouched();

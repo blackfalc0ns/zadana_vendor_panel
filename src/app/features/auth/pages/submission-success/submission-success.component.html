@@ -33,11 +33,11 @@
           </div>
 
           <h3 class="mt-4 text-xl font-black tracking-tight text-slate-900 md:text-2xl">
-            {{ isRTL ? 'تم إرسال ملف المتجر للمراجعة' : 'Your store profile is now under review' }}
+            {{ 'ONBOARDING.SUCCESS_PAGE.REVIEW_HERO_TITLE' | translate }}
           </h3>
 
           <p class="mt-2 max-w-xl text-sm font-bold leading-6 text-slate-500">
-            {{ isRTL ? 'الصورة التالية توضح أن ملف التاجر دخل مرحلة المراجعة الداخلية، وسيظهر بنفس الحالة إلى أن يراجع فريق السوبر أدمن البيانات والمستندات.' : 'This illustration confirms that the vendor profile has entered the review queue and will remain in this state until the super admin team completes validation.' }}
+            {{ 'ONBOARDING.SUCCESS_PAGE.REVIEW_HERO_DESCRIPTION' | translate }}
           </p>
         </div>
 
@@ -66,7 +66,7 @@
                   <div class="review-card__line"></div>
 
                   <div class="review-card__stamp">
-                    <span>{{ isRTL ? 'مراجعة' : 'Review' }}</span>
+                    <span>{{ 'ONBOARDING.SUCCESS_PAGE.REVIEW_STAMP' | translate }}</span>
                   </div>
                 </div>
 

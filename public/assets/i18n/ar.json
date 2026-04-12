@@ -43,6 +43,9 @@
     "ENGLISH_DATA": "البيانات الإنجليزية",
     "SELECT_CATEGORY": "اختر الفئة...",
     "SELECT_UNIT": "اختر الوحدة...",
+    "ACTIVE": "نشط",
+    "CONTINUE": "متابعة",
+    "ERROR_OCCURRED": "حدث خطأ غير متوقع.",
     "STATUS_ACTIVE": "نشط",
     "STATUS_INACTIVE": "غير نشط"
   },
@@ -213,8 +216,15 @@
       "TITLE": "تم إرسال الطلب بنجاح!",
       "DESCRIPTION": "شكراً لانضمامك إلى زدانا. فريقنا يقوم حالياً بمراجعة بيانات متجرك للتأكد من مطابقتها للمعايير.",
       "PENDING_HINT": "عملية المراجعة عادة ما تستغرق من 24 إلى 48 ساعة عمل. ستصلك رسالة إلكترونية فور تفعيل الحساب.",
+      "REVIEW_HERO_TITLE": "تم إرسال ملف المتجر للمراجعة",
+      "REVIEW_HERO_DESCRIPTION": "يوضح هذا المشهد أن ملف التاجر دخل مرحلة المراجعة الداخلية، وسيبقى بنفس الحالة إلى أن يراجع فريق السوبر أدمن البيانات والمستندات.",
+      "REVIEW_STAMP": "مراجعة",
       "GO_DASHBOARD": "الانتقال للوحة التحكم",
       "LOGOUT": "تسجيل الخروج"
+    },
+    "ERRORS": {
+      "START_FROM_REGISTER": "يرجى البدء من صفحة إنشاء الحساب أولًا لإكمال بيانات الدخول.",
+      "SUBMIT_FAILED": "تعذر إرسال طلب تسجيل التاجر الآن."
     },
     "SUMMARY": {
       "TITLE": "ملخص الطلب",
@@ -331,6 +341,21 @@
     "BTN_SELECT": "اختيار",
     "REQUEST_NEW_TITLE": "طلب منتج جديد",
     "REQUEST_HINT": "إذا لم تجد المنتج المطلوب، يمكنك طلب إضافته للكتالوج",
+    "REQUESTS_TITLE": "طلبات الكتالوج",
+    "REQUESTS_SUBTITLE": "تابع طلبات المنتجات والبراندات والتصنيفات التي أرسلتها إلى فريق زدانا.",
+    "REQUESTS_BUTTON": "طلبات الكتالوج",
+    "REQUESTS_ALL": "كل الطلبات",
+    "REQUESTS_PRODUCTS": "طلبات المنتجات",
+    "REQUESTS_BRANDS": "طلبات البراندات",
+    "REQUESTS_CATEGORIES": "طلبات التصنيفات",
+    "REQUESTS_EMPTY_TITLE": "لا توجد طلبات بعد",
+    "REQUESTS_EMPTY_DESC": "عندما ترسل طلب منتج أو براند أو تصنيف جديد سيظهر هنا مباشرة.",
+    "REQUESTS_UNNAMED_PRODUCT": "طلب بدون اسم",
+    "REQUESTS_NO_CONTEXT": "لا توجد تفاصيل إضافية",
+    "REQUESTS_UNREVIEWED": "لم تتم المراجعة بعد",
+    "REQUEST_TYPE_PRODUCT": "منتج",
+    "REQUEST_TYPE_BRAND": "براند",
+    "REQUEST_TYPE_CATEGORY": "تصنيف",
     "NO_RESULTS_FOR": "لا توجد نتائج للبحث عن '{{term}}'",
     "ADD_TO_STORE_NOW": "أضف إلى المتجر الآن",
     "AGREE_POLICIES": "أوافق على سياسات إدراج المنتجات والتسعير.",
@@ -653,6 +678,20 @@
       "OWNER": "المالك",
       "JOINED_AT": "تاريخ الانضمام"
     },
+    "UI": {
+      "STORE_BASICS": "الهوية التجارية",
+      "SUPPORT_CHANNELS": "قنوات الدعم",
+      "STORE_DESCRIPTION": "وصف المتجر",
+      "OWNER_DETAILS": "بيانات المالك",
+      "ADDRESS_LOCATION": "العنوان والموقع",
+      "PROFILE_STATUS": "حالة الملف",
+      "LEGAL_COMPLETION": "الاكتمال القانوني",
+      "REVIEW": "المراجعة",
+      "REVIEW_HINT": "تأكد من تطابق السجل والرقم الضريبي",
+      "LEGAL_IDENTIFIERS": "معرفات قانونية",
+      "VERIFICATION_SUMMARY": "ملخص التحقق",
+      "BANK_PROFILE": "ملف البنك"
+    },
     "SECTIONS": {
       "STORE": "بيانات المتجر",
       "STORE_HINT": "المعلومات الأساسية التي تظهر عبر لوحة التاجر.",
@@ -722,7 +761,11 @@
     "CARD_TITLE": "نسيت كلمة المرور",
     "CARD_DESC": "سنرسل رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.",
     "BTN_SUBMIT": "إرسال رابط الاستعادة",
-    "BTN_BACK": "العودة إلى تسجيل الدخول"
+    "BTN_BACK": "العودة إلى تسجيل الدخول",
+    "ERRORS": {
+      "INVALID_EMAIL": "يرجى إدخال بريد إلكتروني صحيح.",
+      "SEND_FAILED": "تعذر إرسال تعليمات إعادة التعيين الآن."
+    }
   },
   "REGISTER": {
     "PORTAL_TITLE": "بوابة التجار",
@@ -735,11 +778,27 @@
     "STORE_NAME": "اسم المتجر",
     "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
     "ERR_MISMATCH": "كلمتا المرور غير متطابقتين",
+    "ERR_INVALID_FORM": "يرجى إكمال جميع الحقول بشكل صحيح.",
     "BTN_SUBMIT": "إنشاء الحساب",
     "OR": "أو",
     "BTN_REGISTER_GOOGLE": "التسجيل عبر جوجل",
     "ALREADY_HAVE_ACCOUNT": "لديك حساب بالفعل؟",
     "SIGN_IN": "تسجيل الدخول"
+  },
+  "RESET_PASSWORD_PAGE": {
+    "EYEBROW": "إعادة تعيين كلمة المرور",
+    "TITLE": "أدخل رمز التحقق وكلمة المرور الجديدة",
+    "FIELDS": {
+      "EMAIL": "البريد الإلكتروني",
+      "OTP": "رمز التحقق",
+      "NEW_PASSWORD": "كلمة المرور الجديدة",
+      "CONFIRM_PASSWORD": "تأكيد كلمة المرور"
+    },
+    "SUBMIT": "تحديث كلمة المرور",
+    "ERRORS": {
+      "INVALID_FORM": "يرجى إكمال البيانات بشكل صحيح.",
+      "RESET_FAILED": "تعذر تحديث كلمة المرور الآن."
+    }
   },
   "STAFF_BRANCHES": {
     "TITLE": "الفروع والموظفون",

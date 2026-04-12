@@ -267,9 +267,7 @@ export class OnboardingComponent implements OnInit {
 
     const draft = this.authService.getRegistrationDraft();
     if (!draft) {
-      this.submissionError = this.isRTL
-        ? 'يرجى البدء من صفحة إنشاء الحساب أولًا لإكمال بيانات الدخول.'
-        : 'Please start from the register page first to complete the account credentials.';
+      this.submissionError = this.translate.instant('ONBOARDING.ERRORS.START_FROM_REGISTER');
       void this.router.navigate(['/register']);
       return;
     }
@@ -339,7 +337,7 @@ export class OnboardingComponent implements OnInit {
         this.submissionError = error?.error?.detail
           || error?.error?.message
           || error?.message
-          || (this.isRTL ? 'تعذر إرسال طلب تسجيل التاجر الآن.' : 'Unable to submit the vendor registration right now.');
+          || this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
       }
     });
   }

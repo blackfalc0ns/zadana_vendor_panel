@@ -97,7 +97,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'الهوية التجارية' : 'Store Basics' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.STORE_BASICS' | translate }}</span>
                 </div>
                 <div class="grid gap-4 p-4">
                   <label class="space-y-2.5">
@@ -133,7 +133,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'قنوات الدعم' : 'Support Channels' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.SUPPORT_CHANNELS' | translate }}</span>
                 </div>
                 <div class="grid gap-4 p-4">
                   <label class="space-y-2.5">
@@ -153,7 +153,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'وصف المتجر' : 'Store Description' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.STORE_DESCRIPTION' | translate }}</span>
                 </div>
                 <div class="grid gap-4 p-4 md:grid-cols-2">
                   <label class="space-y-2.5">
@@ -186,7 +186,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'بيانات المالك' : 'Owner Details' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.OWNER_DETAILS' | translate }}</span>
                 </div>
                 <div class="grid gap-4 p-4 md:grid-cols-2">
                   <label class="space-y-2.5">
@@ -225,7 +225,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'العنوان والموقع' : 'Address & Location' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.ADDRESS_LOCATION' | translate }}</span>
                 </div>
                 <div class="grid gap-4 p-4">
                   <div class="grid gap-4 md:grid-cols-2">
@@ -284,7 +284,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
             <div class="grid gap-4 px-5 py-5">
               <div class="grid gap-3 md:grid-cols-3">
                 <div class="rounded-[16px] border border-emerald-100 bg-emerald-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-emerald-600/80">{{ currentLang === 'ar' ? 'حالة الملف' : 'Profile Status' }}</p>
+                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-emerald-600/80">{{ 'SETTINGS_PROFILE.UI.PROFILE_STATUS' | translate }}</p>
                   <div class="mt-2">
                     <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.68rem] font-black" [ngClass]="statusBadgeClass">
                       <span class="h-2 w-2 rounded-full" [ngClass]="statusDotClass"></span>
@@ -294,14 +294,14 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                 </div>
 
                 <div class="rounded-[16px] border border-slate-200 bg-slate-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'اكتمال القانوني' : 'Legal Completion' }}</p>
+                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.LEGAL_COMPLETION' | translate }}</p>
                   <p class="mt-2 text-[1rem] font-black text-slate-900">{{ sectionPercent(getSectionItem('legal-section')) }}%</p>
                   <p class="mt-1 text-[0.7rem] font-bold text-slate-500">{{ completedFields(getSectionItem('legal-section')) }}/{{ totalFields(getSectionItem('legal-section')) }}</p>
                 </div>
 
                 <div class="rounded-[16px] border border-amber-100 bg-amber-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-amber-600/80">{{ currentLang === 'ar' ? 'المراجعة' : 'Review' }}</p>
-                  <p class="mt-2 text-[0.84rem] font-black text-slate-900">{{ currentLang === 'ar' ? 'تأكد من تطابق السجل والرقم الضريبي' : 'Check CR and tax ID alignment' }}</p>
+                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-amber-600/80">{{ 'SETTINGS_PROFILE.UI.REVIEW' | translate }}</p>
+                  <p class="mt-2 text-[0.84rem] font-black text-slate-900">{{ 'SETTINGS_PROFILE.UI.REVIEW_HINT' | translate }}</p>
                 </div>
               </div>
 
@@ -310,7 +310,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'معرفات قانونية' : 'Legal Identifiers' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.LEGAL_IDENTIFIERS' | translate }}</span>
                 </div>
                 <div class="grid gap-4 p-4 md:grid-cols-2">
                   <label class="space-y-2.5 block">
@@ -361,7 +361,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'ملخص التحقق' : 'Verification Summary' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.VERIFICATION_SUMMARY' | translate }}</span>
                 </div>
                 <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-4">
                   <div class="rounded-[14px] border border-slate-100 bg-slate-50 px-3 py-3">
@@ -427,7 +427,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'ملف البنك' : 'Bank Profile' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.BANK_PROFILE' | translate }}</span>
                 </div>
                 <div class="grid gap-4 p-4 md:grid-cols-2">
                   <label class="space-y-2.5 block">
@@ -534,7 +534,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
             <div class="grid gap-4 px-5 py-5">
               <div class="grid gap-3 md:grid-cols-3">
                 <div class="rounded-[16px] border border-emerald-100 bg-emerald-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-emerald-600/80">{{ currentLang === 'ar' ? 'حالة الملف' : 'Profile Status' }}</p>
+                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-emerald-600/80">{{ 'SETTINGS_PROFILE.UI.PROFILE_STATUS' | translate }}</p>
                   <div class="mt-2">
                     <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.68rem] font-black" [ngClass]="statusBadgeClass">
                       <span class="h-2 w-2 rounded-full" [ngClass]="statusDotClass"></span>
@@ -544,14 +544,14 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                 </div>
 
                 <div class="rounded-[16px] border border-slate-200 bg-slate-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'اكتمال القانوني' : 'Legal Completion' }}</p>
+                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.LEGAL_COMPLETION' | translate }}</p>
                   <p class="mt-2 text-[1rem] font-black text-slate-900">{{ sectionPercent(getSectionItem('legal-section')) }}%</p>
                   <p class="mt-1 text-[0.7rem] font-bold text-slate-500">{{ completedFields(getSectionItem('legal-section')) }}/{{ totalFields(getSectionItem('legal-section')) }}</p>
                 </div>
 
                 <div class="rounded-[16px] border border-amber-100 bg-amber-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-amber-600/80">{{ currentLang === 'ar' ? 'المراجعة' : 'Review' }}</p>
-                  <p class="mt-2 text-[0.84rem] font-black text-slate-900">{{ currentLang === 'ar' ? 'تأكد من تطابق السجل والرقم الضريبي' : 'Check CR and tax ID alignment' }}</p>
+                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-amber-600/80">{{ 'SETTINGS_PROFILE.UI.REVIEW' | translate }}</p>
+                  <p class="mt-2 text-[0.84rem] font-black text-slate-900">{{ 'SETTINGS_PROFILE.UI.REVIEW_HINT' | translate }}</p>
                 </div>
               </div>
 
@@ -560,7 +560,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'معرّفات قانونية' : 'Legal Identifiers' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.LEGAL_IDENTIFIERS' | translate }}</span>
                 </div>
                 <div class="grid gap-4 p-4">
                   <label class="space-y-2.5 block">
@@ -580,7 +580,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'ملخص التحقق' : 'Verification Summary' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.VERIFICATION_SUMMARY' | translate }}</span>
                 </div>
                 <div class="grid gap-3 p-4 md:grid-cols-2">
                   <div class="rounded-[14px] border border-slate-100 bg-slate-50 px-3 py-3">
@@ -612,7 +612,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <span class="h-2 w-2 rounded-full bg-rose-300"></span>
                   <span class="h-2 w-2 rounded-full bg-amber-300"></span>
                   <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ currentLang === 'ar' ? 'ملف البنك' : 'Bank Profile' }}</span>
+                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.BANK_PROFILE' | translate }}</span>
                 </div>
                 <div class="grid gap-4 p-4">
                   <label class="space-y-2.5 block">

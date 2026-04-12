@@ -60,9 +60,9 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
                 </div>
 
                 <div>
-                  <div class="text-sm font-black text-slate-900">{{ translate.currentLang === 'ar' ? request.productNameAr : request.productNameEn }}</div>
+                  <div class="text-sm font-black text-slate-900">{{ getRequestDisplayName(request) }}</div>
                   <div class="mt-1 text-xs font-bold text-slate-500">
-                    {{ translate.currentLang === 'ar' ? (request.categoryNameAr || request.parentCategoryNameAr || request.suggestedBrandName || '-') : (request.categoryNameEn || request.parentCategoryNameEn || request.suggestedBrandNameEn || '-') }}
+                    {{ getRequestContext(request) }}
                   </div>
                   @if (request.adminNotes) {
                     <div class="mt-2 rounded-[14px] bg-rose-50 px-3 py-2 text-xs font-bold text-rose-700">
@@ -85,7 +85,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
                     {{ ('CATALOG.STATUS_' + request.status.toUpperCase()) | translate }}
                   </span>
 
-                  <span class="text-xs font-bold text-slate-400">{{ request.reviewedBy || '-' }}</span>
+                  <span class="text-xs font-bold text-slate-400">{{ getReviewerLabel(request) }}</span>
                 </div>
               </div>
             }
@@ -142,5 +142,26 @@ export class CatalogRequestsComponent implements OnInit {
   onPageChange(page: number): void {
     this.pageNumber = page;
     this.loadRequests();
+  }
+
+  getRequestDisplayName(request: ProductRequest): string {
+    const isArabic = this.translate.currentLang === 'ar';
+    const localizedName = isArabic ? request.productNameAr : request.productNameEn;
+    const fallbackName = isArabic ? request.productNameEn : request.productNameAr;
+
+    return localizedName || fallbackName || this.translate.instant('PRODUCTS.REQUESTS_UNNAMED_PRODUCT');
+  }
+
+  getRequestContext(request: ProductRequest): string {
+    const isArabic = this.translate.currentLang === 'ar';
+    const localizedContext = isArabic
+      ? request.categoryNameAr || request.parentCategoryNameAr || request.suggestedBrandName
+      : request.categoryNameEn || request.parentCategoryNameEn || request.suggestedBrandNameEn || request.suggestedBrandName;
+
+    return localizedContext || this.translate.instant('PRODUCTS.REQUESTS_NO_CONTEXT');
+  }
+
+  getReviewerLabel(request: ProductRequest): string {
+    return request.reviewedBy || this.translate.instant('PRODUCTS.REQUESTS_UNREVIEWED');
   }
 }

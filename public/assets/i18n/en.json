@@ -34,8 +34,10 @@
     "UNIT_PIECE": "Piece",
     "HEADER_PRODUCT": "Product",
     "ENGLISH": "English",
+    "ARABIC": "Arabic",
     "ARABIC": "العربية",
     "DEFAULT_VENDOR_NAME": "New Store",
+    "ARABIC": "Arabic",
     "LOGOUT": "Logout",
     "PROFILE": "Profile",
     "SHORTCUT_CTRL_K": "Ctrl K",
@@ -43,6 +45,9 @@
     "ENGLISH_DATA": "English Data",
     "SELECT_CATEGORY": "Select category...",
     "SELECT_UNIT": "Select unit...",
+    "ACTIVE": "Active",
+    "CONTINUE": "Continue",
+    "ERROR_OCCURRED": "An unexpected error occurred.",
     "STATUS_ACTIVE": "Active",
     "STATUS_INACTIVE": "Inactive"
   },
@@ -213,8 +218,15 @@
       "TITLE": "Application Submitted Successfully!",
       "DESCRIPTION": "Thank you for joining Zadana. Our team is currently reviewing your store details to ensure they meet our standards.",
       "PENDING_HINT": "The review process typically takes 24 to 48 business hours. You will receive an email as soon as your account is activated.",
+      "REVIEW_HERO_TITLE": "Your store profile is now under review",
+      "REVIEW_HERO_DESCRIPTION": "This illustration confirms that the vendor profile has entered the review queue and will remain in this state until the super admin team completes validation.",
+      "REVIEW_STAMP": "Review",
       "GO_DASHBOARD": "Go to Dashboard",
       "LOGOUT": "Logout"
+    },
+    "ERRORS": {
+      "START_FROM_REGISTER": "Please start from the register page first to complete the account credentials.",
+      "SUBMIT_FAILED": "Unable to submit the vendor registration right now."
     },
     "SUMMARY": {
       "TITLE": "Application Summary",
@@ -331,6 +343,21 @@
     "BTN_SELECT": "Select",
     "REQUEST_NEW_TITLE": "Request New Product",
     "REQUEST_HINT": "If you can't find the product, you can request to add it",
+    "REQUESTS_TITLE": "Catalog Requests",
+    "REQUESTS_SUBTITLE": "Track the product, brand, and category requests you have sent to the Zadana team.",
+    "REQUESTS_BUTTON": "Catalog Requests",
+    "REQUESTS_ALL": "All requests",
+    "REQUESTS_PRODUCTS": "Product requests",
+    "REQUESTS_BRANDS": "Brand requests",
+    "REQUESTS_CATEGORIES": "Category requests",
+    "REQUESTS_EMPTY_TITLE": "No requests yet",
+    "REQUESTS_EMPTY_DESC": "When you submit a new product, brand, or category request, it will appear here right away.",
+    "REQUESTS_UNNAMED_PRODUCT": "Unnamed request",
+    "REQUESTS_NO_CONTEXT": "No additional details",
+    "REQUESTS_UNREVIEWED": "Not reviewed yet",
+    "REQUEST_TYPE_PRODUCT": "Product",
+    "REQUEST_TYPE_BRAND": "Brand",
+    "REQUEST_TYPE_CATEGORY": "Category",
     "NO_RESULTS_FOR": "No results for '{{term}}'",
     "ADD_TO_STORE_NOW": "Add to Store Now",
     "AGREE_POLICIES": "I agree to product listing and pricing policies.",
@@ -653,6 +680,20 @@
       "OWNER": "Owner",
       "JOINED_AT": "Joined at"
     },
+    "UI": {
+      "STORE_BASICS": "Store Basics",
+      "SUPPORT_CHANNELS": "Support Channels",
+      "STORE_DESCRIPTION": "Store Description",
+      "OWNER_DETAILS": "Owner Details",
+      "ADDRESS_LOCATION": "Address & Location",
+      "PROFILE_STATUS": "Profile Status",
+      "LEGAL_COMPLETION": "Legal Completion",
+      "REVIEW": "Review",
+      "REVIEW_HINT": "Check CR and tax ID alignment",
+      "LEGAL_IDENTIFIERS": "Legal Identifiers",
+      "VERIFICATION_SUMMARY": "Verification Summary",
+      "BANK_PROFILE": "Bank Profile"
+    },
     "SECTIONS": {
       "STORE": "Store details",
       "STORE_HINT": "Core business information shown across the vendor panel.",
@@ -722,7 +763,11 @@
     "CARD_TITLE": "Forgot Password",
     "CARD_DESC": "We will send you a password reset link to your email.",
     "BTN_SUBMIT": "Send Reset Link",
-    "BTN_BACK": "Back to Login"
+    "BTN_BACK": "Back to Login",
+    "ERRORS": {
+      "INVALID_EMAIL": "Please enter a valid email address.",
+      "SEND_FAILED": "Unable to send reset instructions right now."
+    }
   },
   "REGISTER": {
     "PORTAL_TITLE": "Vendor Portal",
@@ -735,11 +780,27 @@
     "STORE_NAME": "Store Name",
     "CONFIRM_PASSWORD": "Confirm Password",
     "ERR_MISMATCH": "Passwords do not match",
+    "ERR_INVALID_FORM": "Please fill all details correctly.",
     "BTN_SUBMIT": "Create Account",
     "OR": "Or",
     "BTN_REGISTER_GOOGLE": "Register with Google",
     "ALREADY_HAVE_ACCOUNT": "Already have an account?",
     "SIGN_IN": "Sign In"
+  },
+  "RESET_PASSWORD_PAGE": {
+    "EYEBROW": "Reset Password",
+    "TITLE": "Enter the OTP and your new password",
+    "FIELDS": {
+      "EMAIL": "Email",
+      "OTP": "OTP Code",
+      "NEW_PASSWORD": "New Password",
+      "CONFIRM_PASSWORD": "Confirm Password"
+    },
+    "SUBMIT": "Update Password",
+    "ERRORS": {
+      "INVALID_FORM": "Please complete the form correctly.",
+      "RESET_FAILED": "Unable to reset the password right now."
+    }
   },
   "STAFF_BRANCHES": {
     "TITLE": "Branches & Staff",

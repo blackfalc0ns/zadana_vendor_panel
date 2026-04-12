@@ -57,7 +57,7 @@ export class ForgotPasswordComponent {
     this.successMessage = '';
 
     if (this.forgotForm.invalid) {
-      this.errorMessage = this.isRTL ? 'يرجى إدخال بريد إلكتروني صحيح' : 'Please enter a valid email address';
+      this.errorMessage = this.translate.instant('FORGOT_PASSWORD_PAGE.ERRORS.INVALID_EMAIL');
       this.forgotForm.markAllAsTouched();
       return;
     }
@@ -78,7 +78,7 @@ export class ForgotPasswordComponent {
         this.errorMessage = error?.error?.detail
           || error?.error?.message
           || error?.message
-          || (this.isRTL ? 'تعذر إرسال رمز إعادة التعيين الآن.' : 'Unable to send reset instructions right now.');
+          || this.translate.instant('FORGOT_PASSWORD_PAGE.ERRORS.SEND_FAILED');
       }
     });
   }

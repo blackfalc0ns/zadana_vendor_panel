@@ -60,7 +60,7 @@ export class ResetPasswordComponent implements OnInit {
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = this.isRTL ? 'يرجى إكمال البيانات بشكل صحيح.' : 'Please complete the form correctly.';
+      this.errorMessage = this.translate.instant('RESET_PASSWORD_PAGE.ERRORS.INVALID_FORM');
       return;
     }
 
@@ -78,7 +78,7 @@ export class ResetPasswordComponent implements OnInit {
         this.errorMessage = error?.error?.detail
           || error?.error?.message
           || error?.message
-          || (this.isRTL ? 'تعذر تحديث كلمة المرور الآن.' : 'Unable to reset the password right now.');
+          || this.translate.instant('RESET_PASSWORD_PAGE.ERRORS.RESET_FAILED');
       }
     });
   }
