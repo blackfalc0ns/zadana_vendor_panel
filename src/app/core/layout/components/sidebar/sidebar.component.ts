@@ -27,7 +27,7 @@ export class SidebarComponent implements OnInit {
   private alertsCenterService = inject(AlertsCenterService);
 
   @Input() currentLang: string = 'ar';
-  readonly unreadCount$: Observable<number> = this.alertsCenterService.getUnreadCount();
+  unreadCount$?: Observable<number>;
   @Input() userName: string = 'Ember Crest';
   @Input() userRole: string = 'Vendor';
   @Input() initials: string = 'مت';
@@ -37,6 +37,7 @@ export class SidebarComponent implements OnInit {
       ...item,
       icon: this.sanitizer.bypassSecurityTrustHtml(item.icon as string)
     }));
+    this.scheduleUnreadHydration();
   }
   
   menuItems: SidebarItem[] = [
@@ -84,4 +85,19 @@ export class SidebarComponent implements OnInit {
       route: '/profile'
     }
   ];
+
+  private scheduleUnreadHydration(): void {
+    const hydrate = () => {
+      this.unreadCount$ = this.alertsCenterService.getUnreadCount();
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as Window & { requestIdleCallback: (callback: IdleRequestCallback) => number }).requestIdleCallback(
+        () => hydrate()
+      );
+      return;
+    }
+
+    setTimeout(hydrate, 1200);
+  }
 }

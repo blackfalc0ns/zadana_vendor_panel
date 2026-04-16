@@ -35,7 +35,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     this.currentLang = this.translate.currentLang || 'ar';
     this.updateHtmlAttributes(this.currentLang);
     this.userRole = this.translate.instant('SETTINGS_PROFILE.ROLE_LABEL');
-    this.profileService.loadProfile().subscribe();
+    this.scheduleProfilePrefetch();
 
     this.langSub = this.translate.onLangChange.subscribe((event) => {
       this.currentLang = event.lang;
@@ -94,5 +94,20 @@ export class LayoutComponent implements OnInit, OnDestroy {
     }
 
     return (name || 'VU').substring(0, 2).toUpperCase();
+  }
+
+  private scheduleProfilePrefetch(): void {
+    const loadProfile = () => {
+      this.profileService.loadProfile().subscribe();
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as Window & { requestIdleCallback: (callback: IdleRequestCallback) => number }).requestIdleCallback(
+        () => loadProfile()
+      );
+      return;
+    }
+
+    setTimeout(loadProfile, 250);
   }
 }

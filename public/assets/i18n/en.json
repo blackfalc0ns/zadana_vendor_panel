@@ -35,9 +35,7 @@
     "HEADER_PRODUCT": "Product",
     "ENGLISH": "English",
     "ARABIC": "Arabic",
-    "ARABIC": "العربية",
     "DEFAULT_VENDOR_NAME": "New Store",
-    "ARABIC": "Arabic",
     "LOGOUT": "Logout",
     "PROFILE": "Profile",
     "SHORTCUT_CTRL_K": "Ctrl K",
@@ -1475,5 +1473,10 @@
       "MAY": "May",
       "JUN": "Jun"
     }
+  },
+  "CATALOG": {
+    "STATUS_PENDING": "Pending",
+    "STATUS_APPROVED": "Approved",
+    "STATUS_REJECTED": "Rejected"
   }
 }

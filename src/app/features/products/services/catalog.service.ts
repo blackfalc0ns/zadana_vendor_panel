@@ -4,12 +4,15 @@ import { Observable, of } from 'rxjs';
 import { catchError, map } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import {
+  BulkVendorProductDraft,
   BrandOption,
   CatalogNotification,
   Category,
   MasterProduct,
   PaginatedList,
   ProductRequest,
+  VendorProductBulkOperation,
+  VendorProductBulkOperationItem,
   UnitOption,
   VendorProduct
 } from '../models/catalog.models';
@@ -186,6 +189,32 @@ export class CatalogService {
     });
   }
 
+  createBulkProducts(items: BulkVendorProductDraft[]): Observable<VendorProductBulkOperation> {
+    const payload = {
+      idempotencyKey: this.generateIdempotencyKey(),
+      items: items.map((item) => ({
+        masterProductId: item.masterProductId,
+        sellingPrice: item.sellingPrice,
+        compareAtPrice: item.compareAtPrice ?? this.calculateCompareAtPrice(item.sellingPrice ?? 0, item.discountPercentage ?? 0),
+        stockQty: item.stockQty,
+        branchId: item.branchId || null,
+        sku: item.sku || null,
+        minOrderQty: item.minOrderQty,
+        maxOrderQty: item.maxOrderQty ?? null
+      }))
+    };
+
+    return this.http.post<VendorProductBulkOperation>(`${this.baseUrl}/products/bulk`, payload);
+  }
+
+  getBulkOperation(operationId: string): Observable<VendorProductBulkOperation> {
+    return this.http.get<VendorProductBulkOperation>(`${this.baseUrl}/products/bulk/${operationId}`);
+  }
+
+  getBulkOperationItems(operationId: string): Observable<VendorProductBulkOperationItem[]> {
+    return this.http.get<VendorProductBulkOperationItem[]>(`${this.baseUrl}/products/bulk/${operationId}/items`);
+  }
+
   updateVendorProduct(id: string, data: any): Observable<void> {
     return this.http.put<void>(`${this.baseUrl}/products/${id}`, {
       sellingPrice: data.sellingPrice,
@@ -331,5 +360,9 @@ export class CatalogService {
       reviewedAtUtc: item.reviewedAtUtc || undefined,
       createdAtUtc: item.createdAtUtc
     };
+  }
+
+  private generateIdempotencyKey(): string {
+    return `vendor-bulk-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
   }
 }

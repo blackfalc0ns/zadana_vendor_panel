@@ -7,9 +7,8 @@
   ></app-page-header>
 
   <div class="grid gap-3.5 xl:grid-cols-[1.6fr_minmax(260px,0.9fr)]">
-    <article class="relative overflow-hidden rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,rgba(9,92,104,0.95),rgba(18,124,140,0.86),rgba(242,161,69,0.22))] p-5 text-white shadow-[0_26px_60px_rgba(18,124,140,0.25)] md:p-6">
-      <div class="pointer-events-none absolute -end-10 -top-10 h-40 w-40 rounded-full bg-white/10 blur-2xl"></div>
-      <div class="pointer-events-none absolute -bottom-12 start-10 h-32 w-32 rounded-full bg-orange-300/20 blur-2xl"></div>
+    <article class="relative overflow-hidden rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,rgba(9,92,104,0.96),rgba(18,124,140,0.9),rgba(242,161,69,0.14))] p-5 text-white shadow-[0_14px_32px_rgba(18,124,140,0.16)] md:p-6">
+      <div class="pointer-events-none absolute inset-x-0 top-0 h-20 bg-white/5"></div>
       <div class="relative z-10 grid gap-5 lg:grid-cols-[1.4fr_0.8fr] lg:items-end">
         <div class="space-y-2.5">
           <p class="text-[0.72rem] font-extrabold uppercase tracking-[0.16em] text-white/70">{{ 'COMMON.WELCOME' | translate }}</p>
@@ -26,7 +25,7 @@
           </div>
         </div>
 
-        <div class="rounded-[20px] border border-white/10 bg-slate-950/20 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]">
+        <div class="rounded-[20px] border border-white/10 bg-slate-950/16 p-4">
           <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-white/60">{{ 'COMMON.TODAY' | translate }}</p>
           <div class="mt-3 space-y-3">
             <div class="rounded-xl bg-white/10 p-3">
@@ -42,7 +41,7 @@
       </div>
     </article>
 
-    <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(244,248,251,0.92))] p-5 shadow-[0_22px_45px_rgba(15,23,42,0.06)]">
+    <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(244,248,251,0.94))] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.045)]">
       <app-panel-header
         [eyebrow]="'COMMON.LIVE'"
         [title]="'DASHBOARD.TODAYS_PULSE'"
@@ -58,7 +57,7 @@
 
       <div class="mt-4 space-y-3">
         @for (event of timeline; track event.time) {
-          <div class="relative overflow-hidden rounded-[16px] border border-slate-200/80 bg-white p-3 shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
+          <div class="relative overflow-hidden rounded-[16px] border border-slate-200/80 bg-white p-3 shadow-[0_6px_16px_rgba(15,23,42,0.03)]">
             <div class="absolute start-0 top-0 h-full w-1 rounded-s-[16px] bg-gradient-to-b from-zadna-primary to-zadna-accent"></div>
             <span class="inline-flex rounded-full bg-orange-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-orange-700">{{ event.time }}</span>
             <p class="mt-2 ps-1 text-[0.78rem] font-bold leading-5 text-slate-700">{{ event.titleKey | translate }}</p>
@@ -70,7 +69,7 @@
 
   <section class="grid gap-3.5 md:grid-cols-3">
     @for (metric of metrics; track metric.labelKey) {
-      <article class="group rounded-[20px] border border-slate-200/70 bg-white/90 p-4 shadow-[0_16px_34px_rgba(15,23,42,0.05)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_20px_40px_rgba(18,124,140,0.12)]">
+      <article class="group rounded-[20px] border border-slate-200/70 bg-white/92 p-4 shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
         <div class="flex items-start justify-between gap-2">
           <span class="text-[0.8rem] font-bold text-slate-500">{{ metric.labelKey | translate }}</span>
           <span class="rounded-[12px] bg-zadna-primary/10 px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-zadna-primary">{{ 'COMMON.LIVE' | translate }}</span>
@@ -87,7 +86,7 @@
   </section>
 
   <section class="grid gap-3.5 xl:grid-cols-[1.2fr_0.8fr]">
-    <article class="rounded-[24px] border border-slate-200/70 bg-white/95 p-5 shadow-[0_18px_36px_rgba(15,23,42,0.05)]">
+    <article class="rounded-[24px] border border-slate-200/70 bg-white/95 p-5 shadow-[0_12px_24px_rgba(15,23,42,0.04)]">
       <app-panel-header
         [eyebrow]="'COMMON.TODAY'"
         [title]="'DASHBOARD.QUICK_EXECUTION'"
@@ -101,7 +100,7 @@
 
       <div class="grid gap-3">
         @for (item of checklist; track item.titleKey) {
-          <div class="flex gap-3 rounded-[16px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff,#f9fbfc)] p-3 transition hover:border-zadna-primary/20 hover:shadow-[0_14px_28px_rgba(18,124,140,0.08)]">
+          <div class="flex gap-3 rounded-[16px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff,#f9fbfc)] p-3 hover:border-zadna-primary/20">
             <div class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-zadna-primary/10 text-zadna-primary">
               <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m5 13 4 4L19 7"></path>
@@ -116,7 +115,7 @@
       </div>
     </article>
 
-    <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.95),rgba(247,250,251,0.92))] p-5 shadow-[0_18px_36px_rgba(15,23,42,0.05)]">
+    <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(247,250,251,0.94))] p-5 shadow-[0_12px_24px_rgba(15,23,42,0.04)]">
       <app-panel-header
         [eyebrow]="'COMMON.OPEN'"
         [title]="'DASHBOARD.TODAYS_PULSE'"
@@ -131,7 +130,7 @@
       <div class="grid gap-3">
         @for (action of quickActions; track action.titleKey) {
           <article
-            class="rounded-[18px] border p-4 transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_32px_rgba(15,23,42,0.08)]"
+            class="rounded-[18px] border p-4"
             [ngClass]="getActionCardClasses(action.accent)">
             <h3 class="text-[0.9rem] font-extrabold" [class.text-slate-900]="action.accent !== 'dark'">{{ action.titleKey | translate }}</h3>
             <p class="mt-1.5 text-[0.72rem] leading-5" [ngClass]="action.accent === 'dark' ? 'text-white/75' : 'text-slate-500'">
@@ -158,17 +157,21 @@
 </section>
 
 <!-- Modals -->
-@if (isSelectorModalOpen) {
-  <app-master-product-selector-modal
-    (close)="isSelectorModalOpen = false"
-    (selected)="onProductSelected($event)">
-  </app-master-product-selector-modal>
+@defer (when isSelectorModalOpen) {
+  @if (isSelectorModalOpen) {
+    <app-master-product-selector-modal
+      (close)="isSelectorModalOpen = false"
+      (selected)="onProductSelected($event)">
+    </app-master-product-selector-modal>
+  }
 }
 
-@if (isPricingModalOpen && selectedMasterProduct) {
-  <app-add-product-modal
-    [product]="selectedMasterProduct"
-    (close)="isPricingModalOpen = false"
-    (confirm)="onPricingConfirm($event)">
-  </app-add-product-modal>
+@defer (when isPricingModalOpen && !!selectedMasterProduct) {
+  @if (isPricingModalOpen && selectedMasterProduct) {
+    <app-add-product-modal
+      [product]="selectedMasterProduct"
+      (close)="isPricingModalOpen = false"
+      (confirm)="onPricingConfirm($event)">
+    </app-add-product-modal>
+  }
 }

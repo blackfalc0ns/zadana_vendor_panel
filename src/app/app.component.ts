@@ -1,7 +1,8 @@
-﻿import { Component, Inject, Renderer2 } from '@angular/core';
+import { Component, Inject, OnInit, Renderer2 } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { VendorAuthService } from './core/auth/services/vendor-auth.service';
 
 @Component({
   selector: 'app-root',
@@ -10,12 +11,13 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
   title = 'Zadna Vendor Panel';
   currentLang = 'ar';
 
   constructor(
     private readonly translate: TranslateService,
+    private readonly authService: VendorAuthService,
     @Inject(DOCUMENT) private readonly document: Document,
     private readonly renderer: Renderer2
   ) {
@@ -24,7 +26,6 @@ export class AppComponent {
     this.translate.addLangs(['en', 'ar']);
     this.translate.setDefaultLang('ar');
     this.currentLang = savedLang;
-    this.translate.use(savedLang);
     this.setDocumentDirection(savedLang);
 
     this.translate.onLangChange.subscribe((event) => {
@@ -32,6 +33,10 @@ export class AppComponent {
       this.setDocumentDirection(event.lang);
       localStorage.setItem('lang', event.lang);
     });
+  }
+
+  ngOnInit(): void {
+    this.scheduleNonBlockingSessionBootstrap();
   }
 
   switchLanguage(lang: 'ar' | 'en'): void {
@@ -46,5 +51,24 @@ export class AppComponent {
 
     this.renderer.setAttribute(htmlTag, 'dir', dir);
     this.renderer.setAttribute(htmlTag, 'lang', lang);
+  }
+
+  private scheduleNonBlockingSessionBootstrap(): void {
+    if (!this.authService.hasApiSession) {
+      return;
+    }
+
+    const bootstrap = () => {
+      void this.authService.initializeSession();
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as Window & { requestIdleCallback: (callback: IdleRequestCallback) => number }).requestIdleCallback(
+        () => bootstrap()
+      );
+      return;
+    }
+
+    setTimeout(bootstrap, 0);
   }
 }

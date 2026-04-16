@@ -6,7 +6,6 @@ import { firstValueFrom, Observable } from 'rxjs';
 
 import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
-import { VendorAuthService } from './core/auth/services/vendor-auth.service';
 
 // Custom Loader to guarantee compatibility and fix "0 arguments" error
 export class CustomTranslateLoader implements TranslateLoader {
@@ -30,10 +29,6 @@ export function initializeTranslations(translate: TranslateService) {
   };
 }
 
-export function initializeVendorSession(authService: VendorAuthService) {
-  return () => authService.initializeSession();
-}
-
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
@@ -53,12 +48,6 @@ export const appConfig: ApplicationConfig = {
       provide: APP_INITIALIZER,
       useFactory: initializeTranslations,
       deps: [TranslateService],
-      multi: true
-    },
-    {
-      provide: APP_INITIALIZER,
-      useFactory: initializeVendorSession,
-      deps: [VendorAuthService],
       multi: true
     }
   ]

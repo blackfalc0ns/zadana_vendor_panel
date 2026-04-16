@@ -1,8 +1,8 @@
 <aside
-  class="flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200/70 bg-[radial-gradient(circle_at_top,rgba(18,124,140,0.08),transparent_16rem),linear-gradient(180deg,rgba(255,255,255,0.94),rgba(247,249,252,0.94))] p-4 pt-5 text-slate-900 shadow-[0_8px_30px_rgba(15,23,42,0.04)]">
+  class="flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(247,249,252,0.95))] p-4 pt-5 text-slate-900 shadow-[0_6px_20px_rgba(15,23,42,0.035)]">
   <div class="mb-4 flex shrink-0 flex-col items-stretch gap-4 px-1">
     <a routerLink="/"
-      class="flex items-center gap-3 rounded-[20px] border border-white/70 bg-[linear-gradient(135deg,rgba(18,124,140,0.12),rgba(255,255,255,0.86))] p-3 no-underline shadow-[0_18px_36px_rgba(15,23,42,0.07)]">
+      class="flex items-center gap-3 rounded-[20px] border border-white/70 bg-white p-3 no-underline shadow-[0_8px_18px_rgba(15,23,42,0.04)]">
       <span
         class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] bg-white shadow-[inset_0_0_0_1px_rgba(18,124,140,0.08)]">
         <img src="assets/images/logo/zadana-mark.svg" alt="Zadana" class="h-auto w-6 object-contain">
@@ -16,7 +16,6 @@
     <div
       class="inline-flex w-fit items-center gap-1.5 self-start rounded-full bg-zadna-primary/10 px-3 py-1.5 text-[0.7rem] font-bold text-zadna-primaryDark">
       <span class="relative flex h-1.5 w-1.5">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
         <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-teal-500"></span>
       </span>
       {{ 'SIDEBAR.READY_STATUS' | translate }}
@@ -43,7 +42,7 @@
             [routerLink]="item.route"
             [routerLinkActive]="['!bg-zadna-primary', '!text-white', 'shadow-lg', 'shadow-zadna-primary/25', 'is-active']"
             [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
-            class="group flex items-center gap-3 rounded-[14px] px-3 py-2 text-slate-500 transition-all duration-300 hover:bg-white hover:text-slate-900 active:scale-[0.97]"
+            class="group flex items-center gap-3 rounded-[14px] px-3 py-2 text-slate-500 hover:bg-white hover:text-slate-900 active:scale-[0.97]"
             [attr.dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
             <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-slate-100 group-[.is-active]:bg-white/20 transition-all group-hover:scale-110">
               <svg viewBox="0 0 24 24" fill="none" class="h-[1.05rem] w-[1.05rem]" stroke="currentColor" [innerHTML]="item.icon"></svg>
@@ -69,7 +68,7 @@
             [routerLink]="item.route"
             [routerLinkActive]="['!bg-zadna-primary', '!text-white', 'shadow-lg', 'shadow-zadna-primary/25', 'is-active']"
             [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
-            class="group flex items-center gap-3 rounded-[14px] px-3 py-2 text-slate-500 transition-all duration-300 hover:bg-white hover:text-slate-900 active:scale-[0.97]"
+            class="group flex items-center gap-3 rounded-[14px] px-3 py-2 text-slate-500 hover:bg-white hover:text-slate-900 active:scale-[0.97]"
             [attr.dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
             <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-slate-100 group-[.is-active]:bg-white/20 transition-all group-hover:scale-110">
               <svg viewBox="0 0 24 24" fill="none" class="h-[1.05rem] w-[1.05rem]" stroke="currentColor" [innerHTML]="item.icon"></svg>
@@ -96,8 +95,8 @@
         <span class="text-[0.65rem] font-black uppercase tracking-tight text-slate-500">{{ 'SIDEBAR.SUPPORT' | translate }}</span>
       </a>
 
-      <a routerLink="/alerts" class="relative flex flex-col items-center gap-2 rounded-[14px] bg-white/50 p-3 text-center no-underline transition-all hover:bg-white hover:shadow-sm">
-        @if (unreadCount$ | async; as unreadCount) {
+      <a routerLink="/alerts" class="relative flex flex-col items-center gap-2 rounded-[14px] bg-white/50 p-3 text-center no-underline hover:bg-white hover:shadow-sm">
+        @if (unreadCount$ && (unreadCount$ | async); as unreadCount) {
           @if (unreadCount > 0) {
             <span class="absolute right-3 top-3 inline-flex min-h-[1rem] min-w-[1rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[0.55rem] font-black text-white">
               {{ unreadCount > 99 ? '99+' : unreadCount }}
@@ -139,7 +138,7 @@
       </div>
 
       <button type="button"
-        class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-zadna-primary py-2 text-[0.72rem] font-black text-white transition-all hover:bg-zadna-primaryDark hover:shadow-lg hover:shadow-zadna-primary/20 active:scale-[0.97]">
+        class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-zadna-primary py-2 text-[0.72rem] font-black text-white hover:bg-zadna-primaryDark active:scale-[0.97]">
         {{ 'SIDEBAR.CONTINUE_SETUP' | translate }}
         <svg class="h-3 w-3 transition-transform group-hover:translate-x-1" [ngClass]="currentLang === 'ar' ? 'rotate-180' : ''" fill="none"
           stroke="currentColor" viewBox="0 0 24 24">

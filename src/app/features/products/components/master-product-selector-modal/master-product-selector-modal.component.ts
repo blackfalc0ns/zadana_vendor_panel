@@ -1,4 +1,4 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -32,8 +32,8 @@ import { CatalogService } from '../../services/catalog.service';
           </div>
 
           <!-- Search & Filters -->
-          <div class="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <div class="relative flex-1 group">
+          <div class="flex flex-col gap-3 xl:flex-row xl:items-center">
+            <div class="relative group xl:w-[21rem] xl:min-w-[21rem]">
               <span class="absolute inset-y-0 start-4 flex items-center text-slate-400 group-focus-within:text-zadna-primary transition-colors">
                 <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
@@ -47,18 +47,29 @@ import { CatalogService } from '../../services/catalog.service';
                 class="h-12 w-full rounded-[18px] border border-slate-200 bg-slate-50 pe-4 ps-12 text-[0.85rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-[6px] focus:ring-zadna-primary/5 outline-none">
             </div>
             
-            <div class="no-scrollbar flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
+            <div
+              #categoryScroller
+              class="no-scrollbar flex w-full min-w-0 flex-1 flex-nowrap items-center gap-2 overflow-x-auto overflow-y-hidden pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [touch-action:pan-x] [-webkit-overflow-scrolling:touch] xl:cursor-grab"
+              [ngClass]="isDraggingCategories ? 'xl:cursor-grabbing select-none' : ''"
+              (wheel)="onCategoryWheel($event)"
+              (mousedown)="onCategoryDragStart($event)"
+              (mousemove)="onCategoryDragMove($event)"
+              (mouseup)="onCategoryDragEnd()"
+              (mouseleave)="onCategoryDragEnd()"
+              (touchstart)="onCategoryTouchStart($event)"
+              (touchmove)="onCategoryTouchMove($event)"
+              (touchend)="onCategoryDragEnd()">
               <button 
                 (click)="filterByCategory('')"
                 [class]="selectedCategoryId === '' ? 'bg-zadna-primary text-white shadow-lg shadow-zadna-primary/25' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'"
-                class="whitespace-nowrap px-4 py-2.5 text-[0.78rem] font-black rounded-xl transition-all active:scale-95">
+                class="shrink-0 whitespace-nowrap px-4 py-2.5 text-[0.78rem] font-black rounded-xl transition-all active:scale-95">
                 {{ 'COMMON.ALL' | translate }}
               </button>
               @for (cat of categories; track cat.id) {
                 <button 
                   (click)="filterByCategory(cat.id)"
                   [class]="selectedCategoryId === cat.id ? 'bg-zadna-primary text-white shadow-lg shadow-zadna-primary/25' : 'bg-slate-50 text-slate-500 hover:bg-slate-100'"
-                  class="whitespace-nowrap px-4 py-2.5 text-[0.78rem] font-black rounded-xl transition-all active:scale-95">
+                  class="shrink-0 whitespace-nowrap px-4 py-2.5 text-[0.78rem] font-black rounded-xl transition-all active:scale-95">
                   {{ currentLang === 'ar' ? cat.nameAr : cat.nameEn }}
                 </button>
               }
@@ -105,13 +116,14 @@ import { CatalogService } from '../../services/catalog.service';
                     <th class="pb-3 text-start">{{ 'PRODUCTS.BRAND' | translate }}</th>
                     <th class="pb-3 text-start">{{ 'PRODUCTS.CATEGORY' | translate }}</th>
                     <th class="pb-3 text-start">{{ 'PRODUCTS.UNIT' | translate }}</th>
+                    <th class="pb-3 text-center">{{ currentLang === 'ar' ? 'تحديد' : 'Select' }}</th>
                     <th class="pb-3 text-end">{{ 'COMMON.ACTIONS' | translate }}</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-50">
                   @for (product of products; track product.id) {
                     <tr 
-                      (click)="!product.isInVendorStore && onSelect(product)"
+                      (click)="!product.isInVendorStore && toggleProduct(product, $event)"
                       [class.cursor-not-allowed]="product.isInVendorStore"
                       [class.bg-slate-50]="product.isInVendorStore"
                       class="group transition-colors hover:bg-slate-100/50">
@@ -141,6 +153,15 @@ import { CatalogService } from '../../services/catalog.service';
                           {{ currentLang === 'ar' ? (product.unitNameAr || ('PRODUCTS.UNIT_PIECE' | translate)) : (product.unitNameEn || ('PRODUCTS.UNIT_PIECE' | translate)) }}
                         </span>
                       </td>
+                      <td class="py-3.5 text-center">
+                        @if (!product.isInVendorStore) {
+                          <input
+                            type="checkbox"
+                            [checked]="isSelected(product.id)"
+                            (click)="$event.stopPropagation()"
+                            (change)="toggleProduct(product, $event)">
+                        }
+                      </td>
                       <td class="py-3.5 text-end">
                         @if (product.isInVendorStore) {
                           <span class="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3 py-2 text-[0.7rem] font-black text-slate-500 whitespace-nowrap">
@@ -150,9 +171,18 @@ import { CatalogService } from '../../services/catalog.service';
                             {{ 'PRODUCTS.ALREADY_ADDED' | translate }}
                           </span>
                         } @else {
-                          <button class="rounded-xl bg-zadna-primary/10 px-3 py-2 text-[0.72rem] font-black text-zadna-primary hover:bg-zadna-primary hover:text-white transition-all transform active:scale-90">
-                            {{ 'PRODUCTS.BTN_SELECT' | translate }}
-                          </button>
+                          <div class="flex items-center justify-end gap-2">
+                            <button
+                              (click)="onSelect(product); $event.stopPropagation()"
+                              class="rounded-xl border border-slate-200 px-3 py-2 text-[0.72rem] font-black text-slate-700 transition-all transform active:scale-90">
+                              {{ currentLang === 'ar' ? 'إضافة سريعة' : 'Quick add' }}
+                            </button>
+                            <button
+                              (click)="toggleProduct(product, $event); $event.stopPropagation()"
+                              class="rounded-xl bg-zadna-primary/10 px-3 py-2 text-[0.72rem] font-black text-zadna-primary hover:bg-zadna-primary hover:text-white transition-all transform active:scale-90">
+                              {{ isSelected(product.id) ? (currentLang === 'ar' ? 'تم التحديد' : 'Selected') : ('PRODUCTS.BTN_SELECT' | translate) }}
+                            </button>
+                          </div>
                         }
                       </td>
                     </tr>
@@ -161,6 +191,28 @@ import { CatalogService } from '../../services/catalog.service';
               </table>
             </div>
           }
+        </div>
+        <div class="border-t border-slate-100 bg-white px-6 py-4">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="text-sm font-black text-slate-600">
+              {{ currentLang === 'ar' ? 'تم تحديد' : 'Selected' }}: {{ selectedProductIds.size }}
+            </div>
+            <div class="flex flex-wrap gap-2">
+              <button
+                type="button"
+                (click)="clearSelection()"
+                class="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-black text-slate-700">
+                {{ currentLang === 'ar' ? 'مسح التحديد' : 'Clear selection' }}
+              </button>
+              <button
+                type="button"
+                (click)="confirmBulkSelection()"
+                [disabled]="selectedProductIds.size === 0"
+                class="rounded-2xl bg-zadna-primary px-4 py-2 text-xs font-black text-white shadow-lg shadow-zadna-primary/20 disabled:opacity-40">
+                {{ currentLang === 'ar' ? 'مراجعة المحدد' : 'Review selected' }}
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -172,8 +224,10 @@ import { CatalogService } from '../../services/catalog.service';
   `]
 })
 export class MasterProductSelectorModalComponent implements OnInit {
+  @ViewChild('categoryScroller') categoryScroller?: ElementRef<HTMLDivElement>;
   @Output() close = new EventEmitter<void>();
   @Output() selected = new EventEmitter<MasterProduct>();
+  @Output() selectedBulk = new EventEmitter<MasterProduct[]>();
   @Output() requestProduct = new EventEmitter<string>();
 
   products: MasterProduct[] = [];
@@ -182,6 +236,10 @@ export class MasterProductSelectorModalComponent implements OnInit {
   searchTerm: string = '';
   isLoading = true;
   currentLang: string = 'ar';
+  selectedProductIds = new Set<string>();
+  isDraggingCategories = false;
+  private categoryDragStartX = 0;
+  private categoryScrollStartLeft = 0;
 
   constructor(
     private catalogService: CatalogService,
@@ -198,7 +256,10 @@ export class MasterProductSelectorModalComponent implements OnInit {
 
   loadCategories(): void {
     this.catalogService.getCategories().subscribe({
-      next: (data) => this.categories = data,
+      next: (data) => {
+        const flatCategories = this.flattenCategories(data);
+        this.categories = flatCategories.filter((category) => !!category.parentCategoryId);
+      },
       error: () => {}
     });
   }
@@ -207,7 +268,8 @@ export class MasterProductSelectorModalComponent implements OnInit {
     this.isLoading = true;
     this.catalogService.getMasterProducts({
       searchTerm: this.searchTerm,
-      categoryId: this.selectedCategoryId
+      categoryId: this.selectedCategoryId,
+      pageSize: 1000
     }).subscribe({
       next: (data) => {
         this.products = data.items;
@@ -226,8 +288,106 @@ export class MasterProductSelectorModalComponent implements OnInit {
     this.loadProducts();
   }
 
+  onCategoryWheel(event: WheelEvent): void {
+    const scroller = this.categoryScroller?.nativeElement;
+    if (!scroller) {
+      return;
+    }
+
+    if (Math.abs(event.deltaY) <= Math.abs(event.deltaX) && event.deltaX === 0) {
+      return;
+    }
+
+    event.preventDefault();
+    scroller.scrollLeft += event.deltaX || event.deltaY;
+  }
+
+  onCategoryDragStart(event: MouseEvent): void {
+    if (event.button !== 0) {
+      return;
+    }
+
+    const scroller = this.categoryScroller?.nativeElement;
+    if (!scroller) {
+      return;
+    }
+
+    this.isDraggingCategories = true;
+    this.categoryDragStartX = event.clientX;
+    this.categoryScrollStartLeft = scroller.scrollLeft;
+  }
+
+  onCategoryDragMove(event: MouseEvent): void {
+    if (!this.isDraggingCategories) {
+      return;
+    }
+
+    event.preventDefault();
+    const scroller = this.categoryScroller?.nativeElement;
+    if (!scroller) {
+      return;
+    }
+
+    const deltaX = event.clientX - this.categoryDragStartX;
+    scroller.scrollLeft = this.categoryScrollStartLeft - deltaX;
+  }
+
+  onCategoryTouchStart(event: TouchEvent): void {
+    const touch = event.touches[0];
+    const scroller = this.categoryScroller?.nativeElement;
+    if (!touch || !scroller) {
+      return;
+    }
+
+    this.isDraggingCategories = true;
+    this.categoryDragStartX = touch.clientX;
+    this.categoryScrollStartLeft = scroller.scrollLeft;
+  }
+
+  onCategoryTouchMove(event: TouchEvent): void {
+    if (!this.isDraggingCategories) {
+      return;
+    }
+
+    const touch = event.touches[0];
+    const scroller = this.categoryScroller?.nativeElement;
+    if (!touch || !scroller) {
+      return;
+    }
+
+    const deltaX = touch.clientX - this.categoryDragStartX;
+    scroller.scrollLeft = this.categoryScrollStartLeft - deltaX;
+  }
+
+  onCategoryDragEnd(): void {
+    this.isDraggingCategories = false;
+  }
+
   onSelect(product: MasterProduct): void {
     this.selected.emit(product);
+  }
+
+  toggleProduct(product: MasterProduct, event?: Event): void {
+    event?.stopPropagation();
+    if (this.selectedProductIds.has(product.id)) {
+      this.selectedProductIds.delete(product.id);
+      return;
+    }
+
+    this.selectedProductIds.add(product.id);
+  }
+
+  isSelected(productId: string): boolean {
+    return this.selectedProductIds.has(productId);
+  }
+
+  clearSelection(): void {
+    this.selectedProductIds.clear();
+  }
+
+  confirmBulkSelection(): void {
+    const selectedProducts = this.products.filter((product) => this.selectedProductIds.has(product.id));
+    this.selectedBulk.emit(selectedProducts);
   }
 
   onClose() {
@@ -236,6 +396,17 @@ export class MasterProductSelectorModalComponent implements OnInit {
 
   onRequestNew(): void {
     this.requestProduct.emit(this.searchTerm);
+  }
+
+  private flattenCategories(categories: Category[] | null | undefined): Category[] {
+    if (!categories?.length) {
+      return [];
+    }
+
+    return categories.flatMap((category) => [
+      category,
+      ...this.flattenCategories(category.subCategories || [])
+    ]);
   }
 
   getMockProducts(): MasterProduct[] {

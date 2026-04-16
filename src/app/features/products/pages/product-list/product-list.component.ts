@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
 import { MasterProductSelectorModalComponent } from '../../components/master-product-selector-modal/master-product-selector-modal.component';
 import { AddProductModalComponent } from '../../components/add-product-modal/add-product-modal.component';
+import { BulkAddReviewModalComponent } from '../../components/bulk-add-review-modal/bulk-add-review-modal.component';
 import { ProductStatusBadgeComponent } from '../../components/product-status-badge/product-status-badge.component';
 import { ProductRequestModalComponent } from '../../components/product-request-modal/product-request-modal.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
@@ -23,6 +24,7 @@ import { CatalogService } from '../../services/catalog.service';
     TranslateModule,
     MasterProductSelectorModalComponent,
     AddProductModalComponent,
+    BulkAddReviewModalComponent,
     ProductStatusBadgeComponent,
     ProductRequestModalComponent,
     RouterModule,
@@ -268,6 +270,7 @@ import { CatalogService } from '../../services/catalog.service';
       <app-master-product-selector-modal
         (close)="isSelectorModalOpen = false"
         (selected)="onProductSelected($event)"
+        (selectedBulk)="onBulkProductsSelected($event)"
         (requestProduct)="onRequestProduct($event)">
       </app-master-product-selector-modal>
     }
@@ -278,6 +281,15 @@ import { CatalogService } from '../../services/catalog.service';
         (close)="isPricingModalOpen = false"
         (confirm)="onPricingConfirm($event)">
       </app-add-product-modal>
+    }
+
+    @if (isBulkReviewModalOpen && selectedBulkProducts.length > 0) {
+      <app-bulk-add-review-modal
+        [products]="selectedBulkProducts"
+        [currentLang]="currentLang"
+        (close)="isBulkReviewModalOpen = false"
+        (completed)="onBulkCompleted()">
+      </app-bulk-add-review-modal>
     }
 
     @if (isRequestModalOpen) {
@@ -311,9 +323,11 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   isSelectorModalOpen = false;
   isPricingModalOpen = false;
+  isBulkReviewModalOpen = false;
   isRequestModalOpen = false;
   requestInitialName = '';
   selectedMasterProduct: MasterProduct | null = null;
+  selectedBulkProducts: MasterProduct[] = [];
 
   currentPage = 1;
   pageSize = 10;
@@ -498,6 +512,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.isPricingModalOpen = true;
   }
 
+  onBulkProductsSelected(products: MasterProduct[]): void {
+    this.selectedBulkProducts = products;
+    this.isSelectorModalOpen = false;
+    this.isBulkReviewModalOpen = true;
+  }
+
   onRequestProduct(searchTerm: string): void {
     this.requestInitialName = searchTerm;
     this.isSelectorModalOpen = false;
@@ -535,8 +555,16 @@ export class ProductListComponent implements OnInit, OnDestroy {
   closeAllModals(): void {
     this.isSelectorModalOpen = false;
     this.isPricingModalOpen = false;
+    this.isBulkReviewModalOpen = false;
     this.isRequestModalOpen = false;
     this.selectedMasterProduct = null;
+    this.selectedBulkProducts = [];
+  }
+
+  onBulkCompleted(): void {
+    this.isBulkReviewModalOpen = false;
+    this.selectedBulkProducts = [];
+    this.loadProducts();
   }
 
   hasActiveOffer(product: VendorProduct): boolean {
