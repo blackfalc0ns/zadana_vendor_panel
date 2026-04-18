@@ -3,6 +3,7 @@ import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { Subscription, combineLatest } from 'rxjs';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
@@ -45,10 +46,35 @@ import { AlertsCenterService } from '../../services/alerts-center.service';
     AppEmptyStateComponent,
     AppFilterPanelComponent,
     AppPageSectionShellComponent
-  ],
+  , SearchableSelectComponent],
   templateUrl: './alerts-center.page.html'
 })
 export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
+
+  get mappedSourceOptions(): SearchableSelectOption[] {
+    return [{value: 'all', labelKey: 'ALERTS_CENTER.FILTERS.ALL_SOURCES'}].concat(
+      this.sourceOptions.map((x: any) => ({value: x, labelKey: this.sourceLabelKey(x)}))
+    );
+  }
+
+  get severityFilterOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'ALERTS_CENTER.FILTERS.ALL_SEVERITY' },
+      { value: 'critical', labelKey: 'ALERTS_CENTER.SEVERITY.CRITICAL' },
+      { value: 'warning', labelKey: 'ALERTS_CENTER.SEVERITY.WARNING' },
+      { value: 'info', labelKey: 'ALERTS_CENTER.SEVERITY.INFO' }
+    ];
+  }
+
+  get stateFilterOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'ALERTS_CENTER.FILTERS.ALL_STATES' },
+      { value: 'unread', labelKey: 'ALERTS_CENTER.STATE.UNREAD' },
+      { value: 'read', labelKey: 'ALERTS_CENTER.STATE.READ' },
+      { value: 'archived', labelKey: 'ALERTS_CENTER.STATE.ARCHIVED' }
+    ];
+  }
+
   currentLang = 'ar';
   isFiltersExpanded = true;
   activeQuickView: AlertQuickView = 'all';

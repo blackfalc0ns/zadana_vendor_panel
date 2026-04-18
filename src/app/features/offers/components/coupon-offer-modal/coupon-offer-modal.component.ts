@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppCheckboxComponent } from '../../../../shared/components/ui/form-controls/checkbox/checkbox.component';
 import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
@@ -17,7 +18,7 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
     AppModalShellComponent,
     AppButtonComponent,
     AppCheckboxComponent
-  ],
+  , SearchableSelectComponent],
   template: `
     @if (isOpen) {
       <app-modal-shell
@@ -35,10 +36,7 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
 
             <label class="space-y-2">
               <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.DISCOUNT_TYPE' | translate }}</span>
-              <select formControlName="type" class="offer-input">
-                <option value="percentage">{{ 'OFFERS.CREATE.VALUE_PERCENTAGE' | translate }}</option>
-                <option value="fixed">{{ 'OFFERS.CREATE.VALUE_FIXED' | translate }}</option>
-              </select>
+              <app-searchable-select formControlName="type" [options]="[{value: 'percentage', labelKey: 'OFFERS.CREATE.VALUE_PERCENTAGE'}, {value: 'fixed', labelKey: 'OFFERS.CREATE.VALUE_FIXED'}]" [placeholder]="'OFFERS.CREATE.TYPE'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">

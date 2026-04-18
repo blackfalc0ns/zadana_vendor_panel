@@ -85,40 +85,18 @@
         </label>
 
         <label class="space-y-2">
-          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
-          <select
-            [(ngModel)]="supportFilters.status"
-            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_STATUSES' | translate }}</option>
-            <option value="open">{{ 'SUPPORT_CENTER.STATUSES.OPEN' | translate }}</option>
-            <option value="in_progress">{{ 'SUPPORT_CENTER.STATUSES.IN_PROGRESS' | translate }}</option>
-            <option value="waiting_vendor">{{ 'SUPPORT_CENTER.STATUSES.WAITING_VENDOR' | translate }}</option>
-            <option value="resolved">{{ 'SUPPORT_CENTER.STATUSES.RESOLVED' | translate }}</option>
-          </select>
+          <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.STATUS' | translate }}</span>
+          <app-searchable-select [(ngModel)]="supportFilters.status" [searchable]="false" [options]="[{value: 'all', labelKey: 'SUPPORT_CENTER.FILTERS.ALL_STATUSES'}, {value: 'open', labelKey: 'SUPPORT_CENTER.STATUSES.OPEN'}, {value: 'in_progress', labelKey: 'SUPPORT_CENTER.STATUSES.IN_PROGRESS'}, {value: 'waiting_vendor', labelKey: 'SUPPORT_CENTER.STATUSES.WAITING_VENDOR'}, {value: 'resolved', labelKey: 'SUPPORT_CENTER.STATUSES.RESOLVED'}]" [placeholder]="'SUPPORT_CENTER.FILTERS.STATUS'"></app-searchable-select>
         </label>
 
         <label class="space-y-2">
           <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.PRIORITY' | translate }}</span>
-          <select
-            [(ngModel)]="supportFilters.priority"
-            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_PRIORITIES' | translate }}</option>
-            @for (priority of priorityOptions; track priority) {
-              <option [value]="priority">{{ priorityKey(priority) | translate }}</option>
-            }
-          </select>
+          <app-searchable-select [(ngModel)]="supportFilters.priority" [searchable]="false" [options]="mappedFilterPriorityOptions" [placeholder]="'SUPPORT_CENTER.FILTERS.PRIORITY'"></app-searchable-select>
         </label>
 
         <label class="space-y-2">
           <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}</span>
-          <select
-            [(ngModel)]="supportFilters.category"
-            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_CATEGORIES' | translate }}</option>
-            @for (category of categoryOptions; track category) {
-              <option [value]="category">{{ categoryKey(category) | translate }}</option>
-            }
-          </select>
+          <app-searchable-select [(ngModel)]="supportFilters.category" [searchable]="false" [options]="mappedFilterCategoryOptions" [placeholder]="'SUPPORT_CENTER.FILTERS.CATEGORY'"></app-searchable-select>
         </label>
       } @else {
         <label class="space-y-2">
@@ -132,26 +110,12 @@
 
         <label class="space-y-2">
           <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}</span>
-          <select
-            [(ngModel)]="referenceFilters.category"
-            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_CATEGORIES' | translate }}</option>
-            @for (category of categoryOptions; track category) {
-              <option [value]="category">{{ categoryKey(category) | translate }}</option>
-            }
-          </select>
+          <app-searchable-select [(ngModel)]="referenceFilters.category" [searchable]="false" [options]="mappedFilterCategoryOptions" [placeholder]="'SUPPORT_CENTER.FILTERS.CATEGORY'"></app-searchable-select>
         </label>
 
         <label class="space-y-2">
           <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.TYPE' | translate }}</span>
-          <select
-            [(ngModel)]="referenceFilters.type"
-            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-            <option value="all">{{ 'SUPPORT_CENTER.FILTERS.ALL_TYPES' | translate }}</option>
-            @for (type of articleTypeOptions; track type) {
-              <option [value]="type">{{ articleTypeKey(type) | translate }}</option>
-            }
-          </select>
+          <app-searchable-select [(ngModel)]="referenceFilters.type" [searchable]="false" [options]="mappedFilterTypeOptions" [placeholder]="'SUPPORT_CENTER.FILTERS.TYPE'"></app-searchable-select>
         </label>
       }
     </app-filter-panel>
@@ -363,24 +327,12 @@
 
         <label class="space-y-2">
           <span class="text-[0.75rem] font-black text-slate-500">{{ 'SUPPORT_CENTER.CREATE.FIELDS.CATEGORY' | translate }}</span>
-          <select
-            [(ngModel)]="ticketDraft.category"
-            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-            @for (category of categoryOptions; track category) {
-              <option [value]="category">{{ categoryKey(category) | translate }}</option>
-            }
-          </select>
+          <app-searchable-select [(ngModel)]="ticketDraft.category" [options]="mappedCategoryOptions" [placeholder]="'SUPPORT_CENTER.FIELDS.CATEGORY'"></app-searchable-select>
         </label>
 
         <label class="space-y-2">
           <span class="text-[0.75rem] font-black text-slate-500">{{ 'SUPPORT_CENTER.CREATE.FIELDS.PRIORITY' | translate }}</span>
-          <select
-            [(ngModel)]="ticketDraft.priority"
-            class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-            @for (priority of priorityOptions; track priority) {
-              <option [value]="priority">{{ priorityKey(priority) | translate }}</option>
-            }
-          </select>
+          <app-searchable-select [(ngModel)]="ticketDraft.priority" [options]="mappedPriorityOptions" [placeholder]="'SUPPORT_CENTER.FIELDS.PRIORITY'"></app-searchable-select>
         </label>
 
         <label class="space-y-2 md:col-span-2">

@@ -66,39 +66,17 @@
 
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
-            <select
-              [(ngModel)]="branchFilters.status"
-              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-              <option value="all">{{ 'STAFF_BRANCHES.FILTERS.ALL_STATUSES' | translate }}</option>
-              <option value="active">{{ 'STAFF_BRANCHES.STATUSES.BRANCH_ACTIVE' | translate }}</option>
-              <option value="pending">{{ 'STAFF_BRANCHES.STATUSES.BRANCH_PENDING' | translate }}</option>
-              <option value="suspended">{{ 'STAFF_BRANCHES.STATUSES.BRANCH_SUSPENDED' | translate }}</option>
-              <option value="archived">{{ 'STAFF_BRANCHES.STATUSES.BRANCH_ARCHIVED' | translate }}</option>
-            </select>
+            <app-searchable-select [(ngModel)]="branchFilters.status" [searchable]="false" [options]="branchStatusFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.STATUS'"></app-searchable-select>
           </label>
 
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.CITY' | translate }}</span>
-            <select
-              [(ngModel)]="branchFilters.city"
-              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-              <option value="">{{ 'STAFF_BRANCHES.FILTERS.ALL_CITIES' | translate }}</option>
-              @for (option of branchCityOptions; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
-              }
-            </select>
+            <app-searchable-select [(ngModel)]="branchFilters.city" [searchable]="false" [options]="branchCityFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.CITY'"></app-searchable-select>
           </label>
 
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.MANAGER' | translate }}</span>
-            <select
-              [(ngModel)]="branchFilters.manager"
-              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-              <option value="">{{ 'STAFF_BRANCHES.FILTERS.ALL_MANAGERS' | translate }}</option>
-              @for (option of branchManagerOptions; track option.value) {
-                <option [value]="option.value">{{ option.label }}</option>
-              }
-            </select>
+            <app-searchable-select [(ngModel)]="branchFilters.manager" [searchable]="false" [options]="branchManagerFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.MANAGER'"></app-searchable-select>
           </label>
         }
 
@@ -114,38 +92,17 @@
 
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
-            <select
-              [(ngModel)]="employeeFilters.status"
-              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-              <option value="all">{{ 'STAFF_BRANCHES.FILTERS.ALL_STATUSES' | translate }}</option>
-              <option value="active">{{ 'STAFF_BRANCHES.STATUSES.EMPLOYEE_ACTIVE' | translate }}</option>
-              <option value="invited">{{ 'STAFF_BRANCHES.STATUSES.EMPLOYEE_INVITED' | translate }}</option>
-              <option value="suspended">{{ 'STAFF_BRANCHES.STATUSES.EMPLOYEE_SUSPENDED' | translate }}</option>
-            </select>
+            <app-searchable-select [(ngModel)]="employeeFilters.status" [searchable]="false" [options]="employeeStatusFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.STATUS'"></app-searchable-select>
           </label>
 
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.TEMPLATE' | translate }}</span>
-            <select
-              [(ngModel)]="employeeFilters.roleTemplate"
-              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-              <option value="all">{{ 'STAFF_BRANCHES.FILTERS.ALL_TEMPLATES' | translate }}</option>
-              @for (template of roleTemplates; track template.value) {
-                <option [value]="template.value">{{ template.labelKey | translate }}</option>
-              }
-            </select>
+            <app-searchable-select [(ngModel)]="employeeFilters.roleTemplate" [searchable]="false" [options]="employeeRoleTemplateFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.TEMPLATE'"></app-searchable-select>
           </label>
 
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.BRANCH' | translate }}</span>
-            <select
-              [(ngModel)]="employeeFilters.branchId"
-              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-              <option value="all">{{ 'STAFF_BRANCHES.FILTERS.ALL_BRANCHES' | translate }}</option>
-              @for (branch of activeBranchOptions; track branch.id) {
-                <option [value]="branch.id">{{ branch.name }}</option>
-              }
-            </select>
+            <app-searchable-select [(ngModel)]="employeeFilters.branchId" [searchable]="false" [options]="mappedActiveBranchOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.BRANCH'"></app-searchable-select>
           </label>
         }
 
@@ -161,38 +118,17 @@
 
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
-            <select
-              [(ngModel)]="invitationFilters.status"
-              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-              <option value="all">{{ 'STAFF_BRANCHES.FILTERS.ALL_STATUSES' | translate }}</option>
-              <option value="pending">{{ 'STAFF_BRANCHES.STATUSES.INVITATION_PENDING' | translate }}</option>
-              <option value="accepted">{{ 'STAFF_BRANCHES.STATUSES.INVITATION_ACCEPTED' | translate }}</option>
-              <option value="expired">{{ 'STAFF_BRANCHES.STATUSES.INVITATION_EXPIRED' | translate }}</option>
-              <option value="revoked">{{ 'STAFF_BRANCHES.STATUSES.INVITATION_REVOKED' | translate }}</option>
-            </select>
+            <app-searchable-select [(ngModel)]="invitationFilters.status" [searchable]="false" [options]="invitationStatusFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.STATUS'"></app-searchable-select>
           </label>
 
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.TYPE' | translate }}</span>
-            <select
-              [(ngModel)]="invitationFilters.type"
-              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-              <option value="all">{{ 'STAFF_BRANCHES.FILTERS.ALL_TYPES' | translate }}</option>
-              <option value="branch_manager">{{ 'STAFF_BRANCHES.INVITATION_TYPES.BRANCH_MANAGER' | translate }}</option>
-              <option value="employee">{{ 'STAFF_BRANCHES.INVITATION_TYPES.EMPLOYEE' | translate }}</option>
-            </select>
+            <app-searchable-select [(ngModel)]="invitationFilters.type" [searchable]="false" [options]="invitationTypeFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.TYPE'"></app-searchable-select>
           </label>
 
           <label class="space-y-2">
             <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.BRANCH' | translate }}</span>
-            <select
-              [(ngModel)]="invitationFilters.branchId"
-              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-              <option value="all">{{ 'STAFF_BRANCHES.FILTERS.ALL_BRANCHES' | translate }}</option>
-              @for (branch of activeBranchOptions; track branch.id) {
-                <option [value]="branch.id">{{ branch.name }}</option>
-              }
-            </select>
+            <app-searchable-select [(ngModel)]="invitationFilters.branchId" [searchable]="false" [options]="mappedActiveBranchOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.BRANCH'"></app-searchable-select>
           </label>
         }
       </div>
@@ -646,12 +582,7 @@
 
               <label class="space-y-2">
                 <span class="text-[0.75rem] font-black text-slate-500">{{ 'STAFF_BRANCHES.BRANCH_WIZARD.FIELDS.TYPE' | translate }}</span>
-                <select
-                  [(ngModel)]="branchDraft.branchKind"
-                  class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-                  <option value="branch">{{ 'STAFF_BRANCHES.BRANCH_TYPES.BRANCH' | translate }}</option>
-                  <option value="primary">{{ 'STAFF_BRANCHES.BRANCH_TYPES.PRIMARY' | translate }}</option>
-                </select>
+                <app-searchable-select [(ngModel)]="branchDraft.branchKind" [options]="branchKindOptions" [placeholder]="'STAFF_BRANCHES.FIELDS.BRANCH_TYPE'"></app-searchable-select>
               </label>
 
               <label class="space-y-2 md:col-span-2">
@@ -674,24 +605,12 @@
             <div class="grid gap-4 md:grid-cols-2">
               <label class="space-y-2">
                 <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.REGION' | translate }}</span>
-                <select
-                  [(ngModel)]="branchDraft.region"
-                  class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-                  @for (region of regions; track region.value) {
-                    <option [value]="region.value">{{ region.labelKey | translate }}</option>
-                  }
-                </select>
+                <app-searchable-select [(ngModel)]="branchDraft.region" [options]="regions" [placeholder]="'STAFF_BRANCHES.FIELDS.REGION'"></app-searchable-select>
               </label>
 
               <label class="space-y-2">
                 <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.CITY' | translate }}</span>
-                <select
-                  [(ngModel)]="branchDraft.city"
-                  class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-                  @for (city of cities; track city.value) {
-                    <option [value]="city.value">{{ city.labelKey | translate }}</option>
-                  }
-                </select>
+                <app-searchable-select [(ngModel)]="branchDraft.city" [options]="cities" [placeholder]="'STAFF_BRANCHES.FIELDS.CITY'"></app-searchable-select>
               </label>
 
               <label class="space-y-2 md:col-span-2">

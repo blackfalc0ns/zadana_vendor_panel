@@ -2,8 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
+import { AlertsCenterService } from '../../../alerts/services/alerts-center.service';
 import { OrdersService } from '../../services/orders.service';
 import { OrderListItem, OrderStatus } from '../../models/orders.models';
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
@@ -15,6 +17,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
   selector: 'app-order-list',
   standalone: true,
   imports: [
+    SearchableSelectComponent,
     CommonModule,
     FormsModule,
     TranslateModule,
@@ -57,42 +60,17 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ORDERS.FILTERS.STATUS' | translate }}</span>
-              <select
-                [(ngModel)]="filters.status"
-                (ngModelChange)="onFiltersChange()"
-                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="ALL">{{ 'ORDERS.FILTERS.ALL_STATUSES' | translate }}</option>
-                <option value="NEW">{{ 'ORDERS.STATUS_NEW' | translate }}</option>
-                <option value="CONFIRMED">{{ 'ORDERS.STATUS_CONFIRMED' | translate }}</option>
-                <option value="IN_PROGRESS">{{ 'ORDERS.STATUS_IN_PROGRESS' | translate }}</option>
-                <option value="READY_FOR_PICKUP">{{ 'ORDERS.STATUS_READY' | translate }}</option>
-                <option value="COMPLETED">{{ 'ORDERS.STATUS_COMPLETED' | translate }}</option>
-                <option value="CANCELLED">{{ 'ORDERS.STATUS_CANCELLED' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="filters.status" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="[{value:'ALL', labelKey:'ORDERS.FILTERS.ALL_STATUSES'},{value:'NEW', labelKey:'ORDERS.STATUS_NEW'},{value:'CONFIRMED', labelKey:'ORDERS.STATUS_CONFIRMED'},{value:'IN_PROGRESS', labelKey:'ORDERS.STATUS_IN_PROGRESS'},{value:'READY_FOR_PICKUP', labelKey:'ORDERS.STATUS_READY'},{value:'COMPLETED', labelKey:'ORDERS.STATUS_COMPLETED'},{value:'CANCELLED', labelKey:'ORDERS.STATUS_CANCELLED'}]" [placeholder]="'ORDERS.FILTERS.STATUS'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ORDERS.FILTERS.PAYMENT_METHOD' | translate }}</span>
-              <select
-                [(ngModel)]="filters.paymentMethod"
-                (ngModelChange)="onFiltersChange()"
-                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="ALL">{{ 'ORDERS.FILTERS.ALL_PAYMENT_METHODS' | translate }}</option>
-                <option value="CARD">{{ 'ORDERS.FILTERS.PAYMENT_CARD' | translate }}</option>
-                <option value="COD">{{ 'ORDERS.FILTERS.PAYMENT_COD' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="filters.paymentMethod" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="[{value:'ALL', labelKey:'ORDERS.FILTERS.ALL_PAYMENT_METHODS'},{value:'CARD', labelKey:'ORDERS.FILTERS.PAYMENT_CARD'},{value:'COD', labelKey:'ORDERS.FILTERS.PAYMENT_COD'}]" [placeholder]="'ORDERS.FILTERS.PAYMENT_METHOD'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ORDERS.FILTERS.TIMING' | translate }}</span>
-              <select
-                [(ngModel)]="filters.lateState"
-                (ngModelChange)="onFiltersChange()"
-                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="ALL">{{ 'ORDERS.FILTERS.ALL_TIMING' | translate }}</option>
-                <option value="LATE">{{ 'ORDERS.FILTERS.TIMING_LATE' | translate }}</option>
-                <option value="ONTIME">{{ 'ORDERS.FILTERS.TIMING_ONTIME' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="filters.lateState" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="[{value:'ALL', labelKey:'ORDERS.FILTERS.ALL_TIMING'},{value:'LATE', labelKey:'ORDERS.FILTERS.TIMING_LATE'},{value:'ONTIME', labelKey:'ORDERS.FILTERS.TIMING_ONTIME'}]" [placeholder]="'ORDERS.FILTERS.TIMING'"></app-searchable-select>
             </label>
 
             <div class="flex items-end">
@@ -232,6 +210,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
     lateState: 'ALL' as 'ALL' | 'LATE' | 'ONTIME'
   };
   private langSub: Subscription;
+  private realtimeOrdersSub?: Subscription;
 
   currentPage = 1;
   pageSize = 10;
@@ -240,6 +219,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
   constructor(
     private ordersService: OrdersService,
+    private alertsCenterService: AlertsCenterService,
     private translate: TranslateService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
@@ -247,6 +227,12 @@ export class OrderListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.realtimeOrdersSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      if (alert.source === 'orders') {
+        this.loadOrders();
+      }
+    });
+
     this.loadOrders();
   }
 
@@ -254,6 +240,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
     if (this.langSub) {
       this.langSub.unsubscribe();
     }
+
+    this.realtimeOrdersSub?.unsubscribe();
   }
 
   loadOrders(): void {

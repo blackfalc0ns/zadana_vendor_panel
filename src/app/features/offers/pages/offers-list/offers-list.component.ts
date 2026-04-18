@@ -3,6 +3,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { combineLatest, Subscription } from 'rxjs';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
@@ -49,7 +50,8 @@ import {
     AppPaginationComponent,
     CouponOfferModalComponent,
     CategoryCampaignModalComponent,
-    ClearanceOfferModalComponent
+    ClearanceOfferModalComponent,
+    SearchableSelectComponent
   ],
   template: `
     <div class="space-y-6" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
@@ -58,8 +60,8 @@ import {
         [description]="'OFFERS.SUBTITLE' | translate"
         customClass="mb-0"
       >
-        @if (activeCreateActionLabel; as createLabel) {
-          <div actions>
+        <ng-container actions>
+          @if (activeCreateActionLabel; as createLabel) {
             <app-button
               size="sm"
               (btnClick)="openCreateModal()"
@@ -69,8 +71,8 @@ import {
                 <span>{{ createLabel | translate }}</span>
               </span>
             </app-button>
-          </div>
-        }
+          }
+        </ng-container>
       </app-page-header>
 
       @if (isFiltersExpanded) {
@@ -113,146 +115,68 @@ import {
           @if (activeView === 'direct') {
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.CATEGORY' | translate }}</span>
-              <select
-                [(ngModel)]="directFilters.category"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="">{{ 'OFFERS.FILTERS.ALL_CATEGORIES' | translate }}</option>
-                @for (category of availableDirectCategories; track category.value) {
-                  <option [value]="category.value">{{ category.label }}</option>
-                }
-              </select>
+              <app-searchable-select [(ngModel)]="directFilters.category" [searchable]="false" [options]="directCatOptions" [placeholder]="'OFFERS.FILTERS.CATEGORY'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.MIN_DISCOUNT' | translate }}</span>
-              <select
-                [(ngModel)]="directFilters.discountBand"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'OFFERS.FILTERS.ALL_DISCOUNTS' | translate }}</option>
-                <option value="10">10%+</option>
-                <option value="20">20%+</option>
-                <option value="30">30%+</option>
-              </select>
+              <app-searchable-select [(ngModel)]="directFilters.discountBand" [searchable]="false" [options]="discountBandOptions" [placeholder]="'OFFERS.FILTERS.MIN_DISCOUNT'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.STOCK' | translate }}</span>
-              <select
-                [(ngModel)]="directFilters.stockBand"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'OFFERS.FILTERS.ALL_STOCK' | translate }}</option>
-                <option value="low">{{ 'OFFERS.FILTERS.LOW_STOCK' | translate }}</option>
-                <option value="healthy">{{ 'OFFERS.FILTERS.HEALTHY_STOCK' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="directFilters.stockBand" [searchable]="false" [options]="stockBandOptions" [placeholder]="'OFFERS.FILTERS.STOCK'"></app-searchable-select>
             </label>
           }
 
           @if (activeView === 'coupons') {
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.STATUS' | translate }}</span>
-              <select
-                [(ngModel)]="couponFilters.status"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'OFFERS.FILTERS.ALL_STATUSES' | translate }}</option>
-                <option value="active">{{ 'COMMON.STATUS_ACTIVE' | translate }}</option>
-                <option value="inactive">{{ 'COMMON.STATUS_INACTIVE' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="couponFilters.status" [searchable]="false" [options]="couponStatusOptions" [placeholder]="'OFFERS.FILTERS.STATUS'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.TYPE' | translate }}</span>
-              <select
-                [(ngModel)]="couponFilters.type"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'OFFERS.FILTERS.ALL_TYPES' | translate }}</option>
-                <option value="percentage">{{ 'OFFERS.FILTERS.TYPE_PERCENTAGE' | translate }}</option>
-                <option value="fixed">{{ 'OFFERS.FILTERS.TYPE_FIXED' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="couponFilters.type" [searchable]="false" [options]="couponTypeOptions" [placeholder]="'OFFERS.FILTERS.TYPE'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.EXPIRY' | translate }}</span>
-              <select
-                [(ngModel)]="couponFilters.expiry"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'OFFERS.FILTERS.ALL_EXPIRY' | translate }}</option>
-                <option value="soon">{{ 'OFFERS.FILTERS.EXPIRING_SOON' | translate }}</option>
-                <option value="later">{{ 'OFFERS.FILTERS.EXPIRING_LATER' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="couponFilters.expiry" [searchable]="false" [options]="expiryOptions" [placeholder]="'OFFERS.FILTERS.EXPIRY'"></app-searchable-select>
             </label>
           }
 
           @if (activeView === 'categories') {
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.CATEGORY' | translate }}</span>
-              <select
-                [(ngModel)]="categoryFilters.category"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="">{{ 'OFFERS.FILTERS.ALL_CATEGORIES' | translate }}</option>
-                @for (category of availableCampaignCategories; track category.value) {
-                  <option [value]="category.value">{{ category.label }}</option>
-                }
-              </select>
+              <app-searchable-select [(ngModel)]="categoryFilters.category" [searchable]="false" [options]="campaignCatOptions" [placeholder]="'OFFERS.FILTERS.CATEGORY'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.MIN_DISCOUNT' | translate }}</span>
-              <select
-                [(ngModel)]="categoryFilters.discountBand"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'OFFERS.FILTERS.ALL_DISCOUNTS' | translate }}</option>
-                <option value="10">10%+</option>
-                <option value="15">15%+</option>
-                <option value="20">20%+</option>
-              </select>
+              <app-searchable-select [(ngModel)]="categoryFilters.discountBand" [searchable]="false" [options]="catDiscountBandOptions" [placeholder]="'OFFERS.FILTERS.MIN_DISCOUNT'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.EXPIRY' | translate }}</span>
-              <select
-                [(ngModel)]="categoryFilters.expiry"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'OFFERS.FILTERS.ALL_EXPIRY' | translate }}</option>
-                <option value="soon">{{ 'OFFERS.FILTERS.EXPIRING_SOON' | translate }}</option>
-                <option value="later">{{ 'OFFERS.FILTERS.EXPIRING_LATER' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="categoryFilters.expiry" [searchable]="false" [options]="expiryOptions" [placeholder]="'OFFERS.FILTERS.EXPIRY'"></app-searchable-select>
             </label>
           }
 
           @if (activeView === 'clearance') {
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.URGENCY' | translate }}</span>
-              <select
-                [(ngModel)]="clearanceFilters.urgency"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'OFFERS.FILTERS.ALL_URGENCY' | translate }}</option>
-                <option value="critical">{{ 'OFFERS.FILTERS.URGENCY_CRITICAL' | translate }}</option>
-                <option value="warning">{{ 'OFFERS.FILTERS.URGENCY_WARNING' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="clearanceFilters.urgency" [searchable]="false" [options]="clearanceUrgencyOptions" [placeholder]="'OFFERS.FILTERS.URGENCY'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.STOCK_LIMIT' | translate }}</span>
-              <select
-                [(ngModel)]="clearanceFilters.stockLimit"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'OFFERS.FILTERS.ALL_STOCK' | translate }}</option>
-                <option value="5">5 {{ 'OFFERS.FILTERS.PIECES_OR_LESS' | translate }}</option>
-                <option value="10">10 {{ 'OFFERS.FILTERS.PIECES_OR_LESS' | translate }}</option>
-                <option value="12">12 {{ 'OFFERS.FILTERS.PIECES_OR_LESS' | translate }}</option>
-              </select>
+              <app-searchable-select [(ngModel)]="clearanceFilters.stockLimit" [searchable]="false" [options]="stockLimitOptions" [placeholder]="'OFFERS.FILTERS.STOCK_LIMIT'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.CATEGORY' | translate }}</span>
-              <select
-                [(ngModel)]="clearanceFilters.category"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="">{{ 'OFFERS.FILTERS.ALL_CATEGORIES' | translate }}</option>
-                @for (category of availableClearanceCategories; track category.value) {
-                  <option [value]="category.value">{{ category.label }}</option>
-                }
-              </select>
+              <app-searchable-select [(ngModel)]="clearanceFilters.category" [searchable]="false" [options]="clearanceCatOptions" [placeholder]="'OFFERS.FILTERS.CATEGORY'"></app-searchable-select>
             </label>
           }
         </div>
@@ -673,6 +597,95 @@ export class OffersListComponent implements OnInit, OnDestroy {
 
   get pagedClearanceOffers(): ClearanceOffer[] {
     return this.paginateItems(this.filteredClearanceOffers, 'clearance');
+  }
+
+
+  get discountBandOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'OFFERS.FILTERS.ALL_DISCOUNTS' },
+      { value: '10', label: '10%+' },
+      { value: '20', label: '20%+' },
+      { value: '30', label: '30%+' }
+    ];
+  }
+
+  get catDiscountBandOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'OFFERS.FILTERS.ALL_DISCOUNTS' },
+      { value: '10', label: '10%+' },
+      { value: '15', label: '15%+' },
+      { value: '20', label: '20%+' }
+    ];
+  }
+
+  get stockBandOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'OFFERS.FILTERS.ALL_STOCK' },
+      { value: 'low', labelKey: 'OFFERS.FILTERS.LOW_STOCK' },
+      { value: 'healthy', labelKey: 'OFFERS.FILTERS.HEALTHY_STOCK' }
+    ];
+  }
+
+  get couponStatusOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'OFFERS.FILTERS.ALL_STATUSES' },
+      { value: 'active', labelKey: 'COMMON.STATUS_ACTIVE' },
+      { value: 'inactive', labelKey: 'COMMON.STATUS_INACTIVE' }
+    ];
+  }
+
+  get couponTypeOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'OFFERS.FILTERS.ALL_TYPES' },
+      { value: 'percentage', labelKey: 'OFFERS.FILTERS.TYPE_PERCENTAGE' },
+      { value: 'fixed', labelKey: 'OFFERS.FILTERS.TYPE_FIXED' }
+    ];
+  }
+
+  get expiryOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'OFFERS.FILTERS.ALL_EXPIRY' },
+      { value: 'soon', labelKey: 'OFFERS.FILTERS.EXPIRING_SOON' },
+      { value: 'later', labelKey: 'OFFERS.FILTERS.EXPIRING_LATER' }
+    ];
+  }
+
+  get clearanceUrgencyOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'OFFERS.FILTERS.ALL_URGENCY' },
+      { value: 'critical', labelKey: 'OFFERS.FILTERS.URGENCY_CRITICAL' },
+      { value: 'warning', labelKey: 'OFFERS.FILTERS.URGENCY_WARNING' }
+    ];
+  }
+
+  get stockLimitOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'OFFERS.FILTERS.ALL_STOCK' },
+      { value: '5', label: `5 ${this.translate.instant('OFFERS.FILTERS.PIECES_OR_LESS')}` },
+      { value: '10', label: `10 ${this.translate.instant('OFFERS.FILTERS.PIECES_OR_LESS')}` },
+      { value: '12', label: `12 ${this.translate.instant('OFFERS.FILTERS.PIECES_OR_LESS')}` }
+    ];
+  }
+
+  get directCatOptions(): SearchableSelectOption[] {
+    return [
+      { value: '', labelKey: 'OFFERS.FILTERS.ALL_CATEGORIES' },
+      ...this.availableDirectCategories
+    ];
+  }
+
+  get campaignCatOptions(): SearchableSelectOption[] {
+    return [
+      { value: '', labelKey: 'OFFERS.FILTERS.ALL_CATEGORIES' },
+      ...this.availableCampaignCategories
+    ];
+  }
+
+  get clearanceCatOptions(): SearchableSelectOption[] {
+    return [
+      { value: '', labelKey: 'OFFERS.FILTERS.ALL_CATEGORIES' },
+      ...this.availableClearanceCategories
+    ];
   }
 
   get activeTotalCount(): number {

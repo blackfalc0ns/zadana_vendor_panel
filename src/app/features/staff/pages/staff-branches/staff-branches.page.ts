@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { Subscription, combineLatest } from 'rxjs';
 import { CITIES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
@@ -60,10 +61,83 @@ import {
     AppFilterPanelComponent,
     AppPageSectionShellComponent,
     AppModalShellComponent
-  ],
+  , SearchableSelectComponent],
   templateUrl: './staff-branches.page.html'
 })
 export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
+
+  get mappedActiveBranchOptions(): SearchableSelectOption[] {
+    return [
+      {value: 'all', labelKey: 'STAFF_BRANCHES.FILTERS.ALL_BRANCHES'},
+      ...this.activeBranchOptions.map((x: any) => ({value: x.id, label: x.name}))
+    ];
+  }
+
+  get branchStatusFilterOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'STAFF_BRANCHES.FILTERS.ALL_STATUSES' },
+      { value: 'active', labelKey: 'STAFF_BRANCHES.STATUSES.BRANCH_ACTIVE' },
+      { value: 'pending', labelKey: 'STAFF_BRANCHES.STATUSES.BRANCH_PENDING' },
+      { value: 'suspended', labelKey: 'STAFF_BRANCHES.STATUSES.BRANCH_SUSPENDED' },
+      { value: 'archived', labelKey: 'STAFF_BRANCHES.STATUSES.BRANCH_ARCHIVED' }
+    ];
+  }
+
+  get branchCityFilterOptions(): SearchableSelectOption[] {
+    return [
+      { value: '', labelKey: 'STAFF_BRANCHES.FILTERS.ALL_CITIES' },
+      ...this.branchCityOptions
+    ];
+  }
+
+  get branchManagerFilterOptions(): SearchableSelectOption[] {
+    return [
+      { value: '', labelKey: 'STAFF_BRANCHES.FILTERS.ALL_MANAGERS' },
+      ...this.branchManagerOptions
+    ];
+  }
+
+  get employeeStatusFilterOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'STAFF_BRANCHES.FILTERS.ALL_STATUSES' },
+      { value: 'active', labelKey: 'STAFF_BRANCHES.STATUSES.EMPLOYEE_ACTIVE' },
+      { value: 'invited', labelKey: 'STAFF_BRANCHES.STATUSES.EMPLOYEE_INVITED' },
+      { value: 'suspended', labelKey: 'STAFF_BRANCHES.STATUSES.EMPLOYEE_SUSPENDED' }
+    ];
+  }
+
+  get employeeRoleTemplateFilterOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'STAFF_BRANCHES.FILTERS.ALL_TEMPLATES' },
+      ...this.roleTemplates
+    ];
+  }
+
+  get invitationStatusFilterOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'STAFF_BRANCHES.FILTERS.ALL_STATUSES' },
+      { value: 'pending', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_PENDING' },
+      { value: 'accepted', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_ACCEPTED' },
+      { value: 'expired', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_EXPIRED' },
+      { value: 'revoked', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_REVOKED' }
+    ];
+  }
+
+  get invitationTypeFilterOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'STAFF_BRANCHES.FILTERS.ALL_TYPES' },
+      { value: 'branch_manager', labelKey: 'STAFF_BRANCHES.INVITATION_TYPES.BRANCH_MANAGER' },
+      { value: 'employee', labelKey: 'STAFF_BRANCHES.INVITATION_TYPES.EMPLOYEE' }
+    ];
+  }
+
+  get branchKindOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'branch', labelKey: 'STAFF_BRANCHES.BRANCH_TYPES.BRANCH' },
+      { value: 'primary', labelKey: 'STAFF_BRANCHES.BRANCH_TYPES.PRIMARY' }
+    ];
+  }
+
   currentLang = 'ar';
   activeView: StaffView = 'branches';
   isFiltersExpanded = true;

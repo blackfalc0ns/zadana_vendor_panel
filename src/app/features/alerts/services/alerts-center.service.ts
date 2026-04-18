@@ -1,28 +1,28 @@
-import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, catchError, combineLatest, map, of, shareReplay } from 'rxjs';
-import { Category, VendorProduct } from '../../products/models/catalog.models';
-import { CatalogService } from '../../products/services/catalog.service';
-import { VendorFinanceAlert, VendorFinanceSnapshot } from '../../finance/models/vendor-finance.models';
-import { VendorFinanceService } from '../../finance/services/vendor-finance.service';
-import { OffersService } from '../../offers/services/offers.service';
-import { OrderListItem } from '../../orders/models/orders.models';
-import { OrdersService } from '../../orders/services/orders.service';
-import { CustomerReviewVm } from '../../reviews/models/reviews.models';
-import { ReviewsService } from '../../reviews/services/reviews.service';
-import { VendorProfile } from '../../settings/models/vendor-profile.models';
-import { VendorProfileService } from '../../settings/services/vendor-profile.service';
-import { BranchVm, EmployeeVm, InvitationVm } from '../../staff/models/staff-branches.models';
-import { StaffBranchesService } from '../../staff/services/staff-branches.service';
-import { VendorSupportTicketVm } from '../../support/models/support-center.models';
-import { SupportCenterService } from '../../support/services/support-center.service';
+import { DOCUMENT } from '@angular/common';
+import { Inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  Subscription,
+  catchError,
+  combineLatest,
+  distinctUntilChanged,
+  interval,
+  map,
+  of,
+  shareReplay,
+  take,
+  tap
+} from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import { VendorAuthService } from '../../../core/auth/services/vendor-auth.service';
 import {
   AlertCenterItemVm,
   AlertSummaryVm,
-  AlertState,
-  AlertSeverity,
   AlertWorkspaceSnapshotVm,
   AlertWorkspaceState,
-  LocalizedAlertText,
   cloneAlerts
 } from '../models/alerts-center.models';
 import {
@@ -31,116 +31,139 @@ import {
   readWorkspaceState
 } from '../../../shared/utils/workspace-storage.util';
 
+interface NotificationsApiResponse {
+  items: NotificationItemApiModel[];
+  page: number;
+  perPage: number;
+  total: number;
+}
+
+interface NotificationItemApiModel {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  bodyAr: string;
+  bodyEn: string;
+  type?: string | null;
+  referenceId?: string | null;
+  data?: string | null;
+  dataObject?: Record<string, unknown> | null;
+  isRead: boolean;
+  createdAtUtc: string;
+}
+
+interface RealtimeNotificationPayload {
+  id: string;
+  titleAr: string;
+  titleEn: string;
+  bodyAr: string;
+  bodyEn: string;
+  type?: string | null;
+  referenceId?: string | null;
+  data?: string | null;
+  dataObject?: Record<string, unknown> | null;
+  isRead: boolean;
+  createdAtUtc: string;
+}
+
+interface SignalRHubConnection {
+  state: number | string;
+  start(): Promise<void>;
+  stop(): Promise<void>;
+  on(methodName: string, newMethod: (payload: RealtimeNotificationPayload) => void): void;
+  onclose(callback: (error?: Error) => void): void;
+}
+
+interface SignalRHubConnectionBuilder {
+  withUrl(url: string, options: { accessTokenFactory: () => string }): SignalRHubConnectionBuilder;
+  withAutomaticReconnect(): SignalRHubConnectionBuilder;
+  configureLogging(level: number): SignalRHubConnectionBuilder;
+  build(): SignalRHubConnection;
+}
+
+interface SignalRBrowserSdk {
+  HubConnectionBuilder: new () => SignalRHubConnectionBuilder;
+  HubConnectionState: {
+    Disconnected: number | string;
+    Connected: number | string;
+    Connecting: number | string;
+    Reconnecting: number | string;
+  };
+  LogLevel: {
+    Information: number;
+    Warning: number;
+  };
+}
+
+declare global {
+  interface Window {
+    signalR?: SignalRBrowserSdk;
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class AlertsCenterService {
+  private static readonly signalRScriptId = 'vendor-alerts-signalr-sdk';
+  private static readonly signalRScriptUrl = 'https://cdn.jsdelivr.net/npm/@microsoft/signalr@8.0.7/dist/browser/signalr.min.js';
   private readonly storageKey = 'vendor_alerts_workspace';
+  private readonly apiUrl = `${environment.apiUrl}/vendor/notifications`;
+  private readonly hubUrl = `${environment.apiUrl.replace(/\/api\/?$/, '')}/hubs/notifications`;
+  private readonly pollIntervalMs = 15000;
   private readonly workspaceSubject = new BehaviorSubject<AlertWorkspaceState>(this.loadWorkspace());
-  private readonly generatedAtMap = new Map<string, string>();
-  private latestAlertsCache: AlertCenterItemVm[] = [];
-  private readonly ordersService = inject(OrdersService);
-  private readonly catalogService = inject(CatalogService);
-  private readonly offersService = inject(OffersService);
-  private readonly vendorFinanceService = inject(VendorFinanceService);
-  private readonly supportCenterService = inject(SupportCenterService);
-  private readonly staffBranchesService = inject(StaffBranchesService);
-  private readonly reviewsService = inject(ReviewsService);
-  private readonly profileService = inject(VendorProfileService);
+  private readonly serverAlertsSubject = new BehaviorSubject<AlertCenterItemVm[]>([]);
+  private readonly realtimeAlertSubject = new Subject<AlertCenterItemVm>();
+  private pollSubscription?: Subscription;
+  private authSubscription?: Subscription;
+  private hubConnection?: SignalRHubConnection;
+  private monitoringStarted = false;
+  private monitoringInitialized = false;
+  private unreadIds = new Set<string>();
+  private notificationsPermissionRequested = false;
+  private audioContext?: AudioContext;
+  private reconnectingRealtime = false;
+  private signalRSdkPromise?: Promise<SignalRBrowserSdk | null>;
 
-  private readonly orders$ = this.ordersService.getOrders({
-    pageNumber: 1,
-    pageSize: 250
-  }).pipe(
-    map((response) => response.items),
-    catchError(() => of([] as OrderListItem[])),
-    shareReplay(1)
-  );
-
-  private readonly vendorProducts$ = this.catalogService.getVendorProducts({
-    pageNumber: 1,
-    pageSize: 200
-  }).pipe(
-    map((response) => response.items),
-    catchError(() => of([] as VendorProduct[])),
-    shareReplay(1)
-  );
-
-  private readonly categories$ = this.catalogService.getCategories().pipe(
-    catchError(() => of([] as Category[])),
-    shareReplay(1)
-  );
-
-  private readonly coupons$ = this.offersService.getCouponOffers().pipe(
-    catchError(() => of([])),
-    shareReplay(1)
-  );
-
-  private readonly financeSnapshot$ = this.vendorFinanceService.getSnapshot('month').pipe(
-    catchError(() => of(null as VendorFinanceSnapshot | null)),
-    shareReplay(1)
-  );
-
-  private readonly supportTickets$ = this.supportCenterService.getTickets().pipe(shareReplay(1));
-  private readonly branches$ = this.staffBranchesService.getBranches().pipe(shareReplay(1));
-  private readonly employees$ = this.staffBranchesService.getEmployees().pipe(shareReplay(1));
-  private readonly invitations$ = this.staffBranchesService.getInvitations().pipe(shareReplay(1));
-  private readonly reviews$ = this.reviewsService.getReviews().pipe(shareReplay(1));
-  private readonly profile$ = this.profileService.getProfile().pipe(shareReplay(1));
-
-  private readonly liveAlerts$ = combineLatest([
-    this.orders$,
-    this.vendorProducts$,
-    this.categories$,
-    this.coupons$,
-    this.financeSnapshot$,
-    this.supportTickets$,
-    this.branches$,
-    this.employees$,
-    this.invitations$,
-    this.reviews$,
-    this.profile$
-  ]).pipe(
-    map(([
-      orders,
-      products,
-      categories,
-      coupons,
-      financeSnapshot,
-      tickets,
-      branches,
-      employees,
-      invitations,
-      reviews,
-      profile
-    ]) => this.buildLiveAlerts(
-      orders,
-      products,
-      categories,
-      coupons,
-      financeSnapshot,
-      tickets,
-      branches,
-      employees,
-      invitations,
-      reviews,
-      profile
-    )),
-    shareReplay(1)
-  );
+  private readonly serverAlerts$ = this.serverAlertsSubject.asObservable().pipe(shareReplay(1));
 
   private readonly alerts$ = combineLatest([
-    this.liveAlerts$,
+    this.serverAlerts$,
     this.workspaceSubject
   ]).pipe(
-    map(([liveAlerts, workspace]) => this.applyWorkspace(liveAlerts, workspace)),
+    map(([alerts, workspace]) => this.applyWorkspace(alerts, workspace)),
     shareReplay(1)
   );
 
-  constructor() {
-    this.alerts$.subscribe((alerts) => {
-      this.latestAlertsCache = alerts;
-    });
+  constructor(
+    private readonly http: HttpClient,
+    private readonly authService: VendorAuthService,
+    @Inject(DOCUMENT) private readonly document: Document
+  ) {}
+
+  startMonitoring(): void {
+    if (this.monitoringStarted) {
+      return;
+    }
+
+    this.monitoringStarted = true;
+    this.authSubscription = this.authService.currentUser$
+      .pipe(distinctUntilChanged((previous, current) => previous?.id === current?.id))
+      .subscribe((user) => {
+        if (!user?.id) {
+          this.stopPolling();
+          void this.disconnectRealtime();
+          this.serverAlertsSubject.next([]);
+          this.monitoringInitialized = false;
+          this.unreadIds = new Set<string>();
+          return;
+        }
+
+        this.requestBrowserNotificationPermission();
+        this.startPolling();
+        this.refreshFromServer();
+        void this.ensureRealtimeConnection();
+      });
   }
 
   getAlerts(): Observable<AlertCenterItemVm[]> {
@@ -154,8 +177,22 @@ export class AlertsCenterService {
     );
   }
 
+  getRealtimeAlerts(): Observable<AlertCenterItemVm> {
+    return this.realtimeAlertSubject.asObservable().pipe(
+      map((alert) => cloneAlerts([alert])[0])
+    );
+  }
+
   getSummary(): Observable<AlertSummaryVm> {
-    return this.alerts$.pipe(map((alerts) => this.buildSummary(alerts)));
+    return this.alerts$.pipe(
+      map((alerts) => ({
+        unreadCount: alerts.filter((alert) => alert.state === 'unread').length,
+        criticalCount: alerts.filter((alert) => alert.state !== 'archived' && alert.severity === 'critical').length,
+        needsActionCount: alerts.filter((alert) => alert.state !== 'archived' && alert.severity !== 'info').length,
+        archivedCount: alerts.filter((alert) => alert.state === 'archived').length,
+        totalCount: alerts.length
+      }))
+    );
   }
 
   getUnreadCount(): Observable<number> {
@@ -165,43 +202,41 @@ export class AlertsCenterService {
   }
 
   markAsRead(alertId: string): void {
-    this.setWorkspace((workspace) => ({
-      ...workspace,
-      readMap: {
-        ...workspace.readMap,
-        [alertId]: true
-      }
-    }));
+    this.http.post(`${this.apiUrl}/${alertId}/read`, {}).pipe(
+      tap(() => {
+        this.serverAlertsSubject.next(
+          this.serverAlertsSubject.value.map((alert) =>
+            alert.id === alertId ? { ...alert, state: 'read' } : alert
+          )
+        );
+        this.refreshFromServer();
+      })
+    ).subscribe();
   }
 
-  markAsUnread(alertId: string): void {
-    this.setWorkspace((workspace) => {
-      const nextReadMap = { ...workspace.readMap };
-      delete nextReadMap[alertId];
-
-      return {
-        ...workspace,
-        readMap: nextReadMap
-      };
-    });
+  markAsUnread(_alertId: string): void {
   }
 
   archive(alertId: string): void {
-    const currentAlert = this.latestAlertsCache.find((alert) => alert.id === alertId);
-
-    this.setWorkspace((workspace) => ({
-      ...workspace,
-      archivedMap: {
-        ...workspace.archivedMap,
-        [alertId]: true
-      },
-      archivedSnapshots: currentAlert
-        ? {
-            ...workspace.archivedSnapshots,
-            [alertId]: this.toSnapshot(currentAlert)
-          }
-        : workspace.archivedSnapshots
-    }));
+    this.alerts$.pipe(
+      take(1),
+      map((alerts) => alerts.find((alert) => alert.id === alertId)),
+      tap((alert) => {
+        this.setWorkspace((workspace) => ({
+          ...workspace,
+          archivedMap: {
+            ...workspace.archivedMap,
+            [alertId]: true
+          },
+          archivedSnapshots: alert
+            ? {
+                ...workspace.archivedSnapshots,
+                [alertId]: this.toSnapshot(alert)
+              }
+            : workspace.archivedSnapshots
+        }));
+      })
+    ).subscribe();
   }
 
   unarchive(alertId: string): void {
@@ -220,421 +255,77 @@ export class AlertsCenterService {
   }
 
   markAllAsRead(): void {
-    const unreadIds = this.latestAlertsCache
-      .filter((alert) => alert.state !== 'archived')
-      .map((alert) => alert.id);
-
-    if (!unreadIds.length) {
-      return;
-    }
-
-    this.setWorkspace((workspace) => {
-      const nextReadMap = { ...workspace.readMap };
-      unreadIds.forEach((id) => {
-        nextReadMap[id] = true;
-      });
-
-      return {
-        ...workspace,
-        readMap: nextReadMap
-      };
-    });
+    this.http.post(`${this.apiUrl}/read-all`, {}).pipe(
+      tap(() => {
+        this.serverAlertsSubject.next(
+          this.serverAlertsSubject.value.map((alert) => ({ ...alert, state: 'read' }))
+        );
+        this.refreshFromServer();
+      })
+    ).subscribe();
   }
 
   resetWorkspaceState(): void {
     clearWorkspaceState(this.storageKey);
     this.workspaceSubject.next(this.createEmptyWorkspace());
+    this.refreshFromServer();
   }
 
-  private buildLiveAlerts(
-    orders: OrderListItem[],
-    products: VendorProduct[],
-    categories: Category[],
-    coupons: Array<{ id: string; code: string; endsAt: string; isActive: boolean }>,
-    financeSnapshot: VendorFinanceSnapshot | null,
-    tickets: VendorSupportTicketVm[],
-    branches: BranchVm[],
-    employees: EmployeeVm[],
-    invitations: InvitationVm[],
-    reviews: CustomerReviewVm[],
-    profile: VendorProfile
-  ): AlertCenterItemVm[] {
-    const alerts: AlertCenterItemVm[] = [];
+  private mapNotification(item: NotificationItemApiModel): AlertCenterItemVm {
+    const route = this.resolveRoute(item.referenceId, item.dataObject, item.data);
 
-    const newOrders = orders.filter((order) => order.status === 'NEW');
-    if (newOrders.length) {
-      alerts.push(this.createAlert({
-        id: 'orders:new',
-        source: 'orders',
-        severity: 'warning',
-        title: this.localized(
-          `${newOrders.length} طلبات جديدة بانتظار التأكيد`,
-          `${newOrders.length} new orders are waiting for confirmation`
-        ),
-        summary: this.localized(
-          'راجع طابور الطلبات الجديدة وأكدها بسرعة قبل أن تتأثر مهلة التشغيل.',
-          'Review the new orders queue and confirm it quickly before the operational SLA slips.'
-        ),
-        createdAt: this.pickLatestDate(newOrders.map((order) => this.normalizeDate(order.date)), this.referenceDate('orders:new')),
-        route: '/orders',
-        count: newOrders.length
-      }));
-    }
+    return {
+      id: item.id,
+      source: 'orders',
+      severity: this.resolveSeverity(item.type),
+      title: {
+        ar: item.titleAr,
+        en: item.titleEn
+      },
+      summary: {
+        ar: item.bodyAr,
+        en: item.bodyEn
+      },
+      createdAt: item.createdAtUtc,
+      route,
+      routeQuery: undefined,
+      count: undefined,
+      entityId: item.referenceId ?? undefined,
+      state: item.isRead ? 'read' : 'unread'
+    };
+  }
 
-    const lateOrders = orders.filter((order) => order.isLate);
-    if (lateOrders.length) {
-      alerts.push(this.createAlert({
-        id: 'orders:late',
-        source: 'orders',
-        severity: 'critical',
-        title: this.localized(
-          `${lateOrders.length} طلبات متأخرة تحتاج تدخلاً`,
-          `${lateOrders.length} delayed orders need intervention`
-        ),
-        summary: this.localized(
-          'هناك طلبات تجاوزت الوقت المتوقع للتجهيز أو التسليم وتحتاج متابعة فورية.',
-          'Some orders exceeded the expected preparation or delivery time and need immediate follow-up.'
-        ),
-        createdAt: this.pickLatestDate(lateOrders.map((order) => this.normalizeDate(order.date)), this.referenceDate('orders:late')),
-        route: '/orders',
-        count: lateOrders.length
-      }));
-    }
-
-    const lowStockProducts = products.filter((product) => product.stockQty > 0 && product.stockQty <= 5);
-    lowStockProducts.forEach((product) => {
-      const severity: AlertSeverity = product.stockQty <= 3 ? 'critical' : 'warning';
-      alerts.push(this.createAlert({
-        id: `products:low-stock:${product.id}`,
-        source: 'products',
-        severity,
-        title: this.localized(
-          `مخزون منخفض: ${product.nameAr}`,
-          `Low stock: ${product.nameEn}`
-        ),
-        summary: this.localized(
-          `الكمية الحالية ${product.stockQty} فقط، ويُفضّل تحديث المخزون أو إيقاف العرض مؤقتًا.`,
-          `Only ${product.stockQty} units are left. Consider replenishing stock or pausing availability temporarily.`
-        ),
-        createdAt: this.referenceDate(`products:low-stock:${product.id}`),
-        route: `/products/${product.id}`,
-        entityId: product.id,
-        count: product.stockQty
-      }));
+  private mapRealtimeNotification(item: RealtimeNotificationPayload): AlertCenterItemVm {
+    return this.mapNotification({
+      id: item.id,
+      titleAr: item.titleAr,
+      titleEn: item.titleEn,
+      bodyAr: item.bodyAr,
+      bodyEn: item.bodyEn,
+      type: item.type,
+      referenceId: item.referenceId,
+      data: item.data,
+      dataObject: item.dataObject,
+      isRead: item.isRead,
+      createdAtUtc: item.createdAtUtc
     });
+  }
 
-    const inactiveProducts = products.filter((product) => !product.isActive);
-    if (inactiveProducts.length) {
-      alerts.push(this.createAlert({
-        id: 'products:inactive',
-        source: 'products',
-        severity: 'warning',
-        title: this.localized(
-          `${inactiveProducts.length} منتجات غير نشطة`,
-          `${inactiveProducts.length} products are currently inactive`
-        ),
-        summary: this.localized(
-          'هناك منتجات متوقفة عن العرض الآن وتحتاج مراجعة قبل أن تؤثر على تغطية الكتالوج.',
-          'Some products are currently inactive and should be reviewed before they affect catalog coverage.'
-        ),
-        createdAt: this.referenceDate('products:inactive'),
-        route: '/products',
-        count: inactiveProducts.length
-      }));
+  private resolveSeverity(type?: string | null): 'info' | 'warning' | 'critical' {
+    switch (type) {
+      case 'vendor_new_order':
+        return 'warning';
+      case 'order_cancelled':
+        return 'critical';
+      default:
+        return 'info';
     }
-
-    const activeCoupons = coupons.filter((coupon) => coupon.isActive);
-    const categoryCampaigns = this.offersService.buildCategoryCampaigns(categories, products);
-    const expiringOfferItems = [
-      ...activeCoupons.filter((coupon) => this.isWithinDays(coupon.endsAt, 7)),
-      ...categoryCampaigns.filter((campaign) => this.isWithinDays(campaign.endsAt, 7))
-    ];
-
-    if (expiringOfferItems.length) {
-      alerts.push(this.createAlert({
-        id: 'offers:expiring',
-        source: 'offers',
-        severity: 'warning',
-        title: this.localized(
-          `${expiringOfferItems.length} عروض تنتهي خلال 7 أيام`,
-          `${expiringOfferItems.length} offers expire within 7 days`
-        ),
-        summary: this.localized(
-          'راجع الكوبونات والحملات القريبة من الانتهاء حتى لا تنتهي دون تمديد أو استبدال.',
-          'Review coupons and campaigns nearing expiration so they do not end without an extension or replacement.'
-        ),
-        createdAt: this.pickLatestDate(
-          expiringOfferItems.map((item) => this.normalizeDate(item.endsAt)),
-          this.referenceDate('offers:expiring')
-        ),
-        route: '/offers',
-        count: expiringOfferItems.length
-      }));
-    }
-
-    const criticalClearanceOffers = this.offersService
-      .buildClearanceOffers(products)
-      .filter((offer) => offer.urgency === 'critical');
-
-    if (criticalClearanceOffers.length) {
-      alerts.push(this.createAlert({
-        id: 'offers:clearance-critical',
-        source: 'offers',
-        severity: 'critical',
-        title: this.localized(
-          `${criticalClearanceOffers.length} منتجات في آخر القطع`,
-          `${criticalClearanceOffers.length} products are in critical clearance`
-        ),
-        summary: this.localized(
-          'هذه المنتجات وصلت إلى مستوى حرج من آخر القطع وتحتاج عرضًا سريعًا أو قرار مخزون واضحًا.',
-          'These products reached a critical last-pieces state and need a fast offer or a clear stock decision.'
-        ),
-        createdAt: this.referenceDate('offers:clearance-critical'),
-        route: '/offers',
-        count: criticalClearanceOffers.length
-      }));
-    }
-
-    financeSnapshot?.alerts.forEach((alert) => {
-      const financeText = this.resolveFinanceAlertText(alert);
-      alerts.push(this.createAlert({
-        id: `finance:${alert.id}`,
-        source: 'finance',
-        severity: alert.severity,
-        title: financeText.title,
-        summary: financeText.summary,
-        createdAt: this.normalizeDate(financeSnapshot.nextPayoutDate, this.referenceDate(`finance:${alert.id}`)),
-        route: '/finance'
-      }));
-    });
-
-    const waitingVendorTickets = tickets.filter((ticket) => ticket.status === 'waiting_vendor');
-    if (waitingVendorTickets.length) {
-      alerts.push(this.createAlert({
-        id: 'support:waiting-vendor',
-        source: 'support',
-        severity: 'critical',
-        title: this.localized(
-          `${waitingVendorTickets.length} تذاكر دعم بانتظار ردك`,
-          `${waitingVendorTickets.length} support tickets are waiting for your input`
-        ),
-        summary: this.localized(
-          'يوجد دعم يحتاج مستندات أو توضيحات منك قبل استكمال المعالجة.',
-          'Support is waiting for documents or clarifications from your team before moving forward.'
-        ),
-        createdAt: this.pickLatestDate(waitingVendorTickets.map((ticket) => ticket.updatedAt), this.referenceDate('support:waiting-vendor')),
-        route: '/support',
-        count: waitingVendorTickets.length
-      }));
-    }
-
-    const highPriorityTickets = tickets.filter((ticket) =>
-      ticket.status !== 'resolved'
-      && ticket.status !== 'waiting_vendor'
-      && (ticket.priority === 'high' || ticket.priority === 'urgent')
-    );
-
-    if (highPriorityTickets.length) {
-      alerts.push(this.createAlert({
-        id: 'support:high-priority',
-        source: 'support',
-        severity: 'warning',
-        title: this.localized(
-          `${highPriorityTickets.length} تذاكر عالية الأولوية مفتوحة`,
-          `${highPriorityTickets.length} high-priority support tickets remain open`
-        ),
-        summary: this.localized(
-          'تابع الحالات المصعدة أو العاجلة حتى لا تتأخر أكثر عن السياق التشغيلي الحالي.',
-          'Review escalated or urgent cases before they drift further from the current operational context.'
-        ),
-        createdAt: this.pickLatestDate(highPriorityTickets.map((ticket) => ticket.updatedAt), this.referenceDate('support:high-priority')),
-        route: '/support',
-        count: highPriorityTickets.length
-      }));
-    }
-
-    const pendingBranches = branches.filter((branch) => branch.status === 'pending');
-    if (pendingBranches.length) {
-      alerts.push(this.createAlert({
-        id: 'staff:pending-branches',
-        source: 'staff',
-        severity: 'warning',
-        title: this.localized(
-          `${pendingBranches.length} فروع بانتظار المراجعة`,
-          `${pendingBranches.length} branches are pending review`
-        ),
-        summary: this.localized(
-          'هناك فروع لم تُفعّل بعد وما زالت تحتاج مراجعة تشغيلية قبل اعتمادها.',
-          'Some branches are not active yet and still need operational review before approval.'
-        ),
-        createdAt: this.pickLatestDate(pendingBranches.map((branch) => branch.createdAt), this.referenceDate('staff:pending-branches')),
-        route: '/staff',
-        count: pendingBranches.length
-      }));
-    }
-
-    const pendingInvitations = invitations.filter((invitation) => invitation.status === 'pending');
-    if (pendingInvitations.length) {
-      alerts.push(this.createAlert({
-        id: 'staff:pending-invitations',
-        source: 'staff',
-        severity: 'info',
-        title: this.localized(
-          `${pendingInvitations.length} دعوات موظفين ما زالت معلقة`,
-          `${pendingInvitations.length} staff invitations are still pending`
-        ),
-        summary: this.localized(
-          'راجع الدعوات التي لم تُقبل بعد وتأكد من أن الوصول يصل إلى الفريق المناسب.',
-          'Review invitations that are still waiting and make sure access reaches the right team members.'
-        ),
-        createdAt: this.pickLatestDate(pendingInvitations.map((invitation) => invitation.sentAt), this.referenceDate('staff:pending-invitations')),
-        route: '/staff',
-        count: pendingInvitations.length
-      }));
-    }
-
-    const suspendedCount = branches.filter((branch) => branch.status === 'suspended').length
-      + employees.filter((employee) => employee.status === 'suspended').length;
-
-    if (suspendedCount) {
-      alerts.push(this.createAlert({
-        id: 'staff:suspended',
-        source: 'staff',
-        severity: 'warning',
-        title: this.localized(
-          `${suspendedCount} عناصر معلقة ضمن الفروع والموظفين`,
-          `${suspendedCount} staff or branches are suspended`
-        ),
-        summary: this.localized(
-          'يوجد فروع أو موظفون بحالة تعليق ويُفضّل مراجعة السبب قبل أن تتأثر التغطية أو الوصول.',
-          'Some branches or employees are suspended and should be reviewed before coverage or access is affected.'
-        ),
-        createdAt: this.referenceDate('staff:suspended'),
-        route: '/staff',
-        count: suspendedCount
-      }));
-    }
-
-    const lowRatingUnreplied = reviews.filter((review) => review.rating <= 2 && review.replyStatus === 'none');
-    if (lowRatingUnreplied.length) {
-      alerts.push(this.createAlert({
-        id: 'reviews:low-rating-unreplied',
-        source: 'reviews',
-        severity: 'critical',
-        title: this.localized(
-          `${lowRatingUnreplied.length} تقييمات منخفضة بدون رد`,
-          `${lowRatingUnreplied.length} low-rated reviews still have no reply`
-        ),
-        summary: this.localized(
-          'هذه التقييمات تحتاج ردًا سريعًا لأنها تحمل تقييمًا منخفضًا وتؤثر على انطباع العملاء.',
-          'These reviews need a fast reply because they carry a low rating and affect customer perception.'
-        ),
-        createdAt: this.pickLatestDate(lowRatingUnreplied.map((review) => review.createdAt), this.referenceDate('reviews:low-rating-unreplied')),
-        route: '/reviews',
-        count: lowRatingUnreplied.length
-      }));
-    }
-
-    const unrepliedReviews = reviews.filter((review) => review.replyStatus === 'none');
-    if (unrepliedReviews.length) {
-      alerts.push(this.createAlert({
-        id: 'reviews:pending-replies',
-        source: 'reviews',
-        severity: 'warning',
-        title: this.localized(
-          `${unrepliedReviews.length} تقييمات بانتظار رد رسمي`,
-          `${unrepliedReviews.length} reviews are waiting for an official reply`
-        ),
-        summary: this.localized(
-          'راجع التقييمات المفتوحة وأرسل ردًا واضحًا حتى لا تبقى دون متابعة.',
-          'Review open reviews and send a clear vendor reply so they do not remain unattended.'
-        ),
-        createdAt: this.pickLatestDate(unrepliedReviews.map((review) => review.createdAt), this.referenceDate('reviews:pending-replies')),
-        route: '/reviews',
-        count: unrepliedReviews.length
-      }));
-    }
-
-    if (profile.reviewStatus === 'pending') {
-      alerts.push(this.createAlert({
-        id: 'profile:review-pending',
-        source: 'profile',
-        severity: 'warning',
-        title: this.localized(
-          'الملف التجاري ما زال قيد المراجعة',
-          'The store profile is still under review'
-        ),
-        summary: this.localized(
-          'بيانات الملف التجاري لم تصل بعد إلى حالة الاعتماد الكامل، فراجع القسم القانوني والوثائق.',
-          'The commercial profile has not reached a fully approved state yet. Review the legal section and uploaded documents.'
-        ),
-        createdAt: this.referenceDate('profile:review-pending'),
-        route: '/profile'
-      }));
-    }
-
-    if (!profile.hasLogo) {
-      alerts.push(this.createAlert({
-        id: 'profile:missing-logo',
-        source: 'profile',
-        severity: 'info',
-        title: this.localized(
-          'شعار المتجر غير مرفوع',
-          'The store logo is missing'
-        ),
-        summary: this.localized(
-          'أكمل ملف المتجر برفع شعار واضح حتى يظهر المتجر بشكل احترافي داخل اللوحة.',
-          'Complete the profile by uploading a clear store logo so the brand looks ready across the panel.'
-        ),
-        createdAt: this.referenceDate('profile:missing-logo'),
-        route: '/profile'
-      }));
-    }
-
-    if (!profile.hasCRDoc) {
-      alerts.push(this.createAlert({
-        id: 'profile:missing-cr-doc',
-        source: 'profile',
-        severity: 'warning',
-        title: this.localized(
-          'مستند السجل التجاري غير مرفوع',
-          'The commercial registration document is missing'
-        ),
-        summary: this.localized(
-          'أضف نسخة من السجل التجاري حتى يكتمل ملف التاجر ويكون جاهزًا للمراجعة.',
-          'Upload a copy of the commercial registration so the vendor profile becomes review-ready.'
-        ),
-        createdAt: this.referenceDate('profile:missing-cr-doc'),
-        route: '/profile'
-      }));
-    }
-
-    const daysUntilExpiry = this.daysUntil(profile.expiryDate);
-    if (daysUntilExpiry <= 30) {
-      alerts.push(this.createAlert({
-        id: 'profile:expiry-soon',
-        source: 'profile',
-        severity: 'critical',
-        title: this.localized(
-          'السجل التجاري يقترب من الانتهاء',
-          'The commercial registration is close to expiry'
-        ),
-        summary: this.localized(
-          `تاريخ الانتهاء ${profile.expiryDate}، ويُفضّل تحديث البيانات قبل انتهاء الصلاحية خلال ${Math.max(daysUntilExpiry, 0)} يومًا.`,
-          `The expiry date is ${profile.expiryDate}. Update the legal data before the record expires within ${Math.max(daysUntilExpiry, 0)} days.`
-        ),
-        createdAt: this.normalizeDate(profile.expiryDate, this.referenceDate('profile:expiry-soon')),
-        route: '/profile'
-      }));
-    }
-
-    return alerts.sort((first, second) => this.compareAlerts(first, second));
   }
 
   private applyWorkspace(liveAlerts: AlertCenterItemVm[], workspace: AlertWorkspaceState): AlertCenterItemVm[] {
     const hydratedLiveAlerts = liveAlerts.map((alert) => ({
       ...alert,
-      state: this.resolveState(alert.id, workspace)
+      state: workspace.archivedMap[alert.id] ? 'archived' : alert.state
     }));
 
     const archivedFallbacks = Object.entries(workspace.archivedSnapshots)
@@ -644,96 +335,11 @@ export class AlertsCenterService {
         title: { ...snapshot.title },
         summary: { ...snapshot.summary },
         routeQuery: snapshot.routeQuery ? { ...snapshot.routeQuery } : undefined,
-        state: 'archived' as AlertState
+        state: 'archived' as const
       }));
 
     return [...hydratedLiveAlerts, ...archivedFallbacks]
-      .sort((first, second) => this.compareAlerts(first, second));
-  }
-
-  private buildSummary(alerts: AlertCenterItemVm[]): AlertSummaryVm {
-    return {
-      unreadCount: alerts.filter((alert) => alert.state === 'unread').length,
-      criticalCount: alerts.filter((alert) => alert.state !== 'archived' && alert.severity === 'critical').length,
-      needsActionCount: alerts.filter((alert) => alert.state !== 'archived' && alert.severity !== 'info').length,
-      archivedCount: alerts.filter((alert) => alert.state === 'archived').length,
-      totalCount: alerts.length
-    };
-  }
-
-  private createAlert(alert: Omit<AlertCenterItemVm, 'state'>): AlertCenterItemVm {
-    return {
-      ...alert,
-      title: { ...alert.title },
-      summary: { ...alert.summary },
-      routeQuery: alert.routeQuery ? { ...alert.routeQuery } : undefined,
-      createdAt: this.stableAlertTime(alert.id, alert.createdAt),
-      state: 'unread'
-    };
-  }
-
-  private resolveFinanceAlertText(alert: VendorFinanceAlert): {
-    title: LocalizedAlertText;
-    summary: LocalizedAlertText;
-  } {
-    switch (alert.id) {
-      case 'alt-1':
-        return {
-          title: this.localized('جزء من الرصيد المالي ما زال معلقًا', 'Part of the balance is still on hold'),
-          summary: this.localized(
-            'بعض الطلبات ما زالت داخل فترة الإرجاع، لذلك تم تعليق جزء من التسوية مؤقتًا.',
-            'Some orders are still within the return window, so a portion of the settlement remains temporarily held.'
-          )
-        };
-      case 'alt-2':
-        return {
-          title: this.localized('ملف التحويل القادم جاهز تقريبًا', 'The next payout file is almost ready'),
-          summary: this.localized(
-            'راجع بيان الدورة القادمة قبل صرف التسوية النهائية للحساب.',
-            'Review the upcoming payout statement before the final settlement is released.'
-          )
-        };
-      default:
-        return {
-          title: this.localized('تنبيه مالي جديد', 'New finance alert'),
-          summary: this.localized(
-            'توجد ملاحظة مالية جديدة تحتاج مراجعة داخل لوحة المالية.',
-            'There is a new finance note that needs review inside the finance dashboard.'
-          )
-        };
-    }
-  }
-
-  private compareAlerts(first: Pick<AlertCenterItemVm, 'severity' | 'createdAt'>, second: Pick<AlertCenterItemVm, 'severity' | 'createdAt'>): number {
-    const severityDelta = this.severityWeight(first.severity) - this.severityWeight(second.severity);
-    if (severityDelta !== 0) {
-      return severityDelta;
-    }
-
-    return new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime();
-  }
-
-  private severityWeight(severity: AlertSeverity): number {
-    switch (severity) {
-      case 'critical':
-        return 0;
-      case 'warning':
-        return 1;
-      default:
-        return 2;
-    }
-  }
-
-  private resolveState(alertId: string, workspace: AlertWorkspaceState): AlertState {
-    if (workspace.archivedMap[alertId]) {
-      return 'archived';
-    }
-
-    if (workspace.readMap[alertId]) {
-      return 'read';
-    }
-
-    return 'unread';
+      .sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
   }
 
   private toSnapshot(alert: AlertCenterItemVm): AlertWorkspaceSnapshotVm {
@@ -751,92 +357,10 @@ export class AlertsCenterService {
     };
   }
 
-  private stableAlertTime(alertId: string, fallback: string): string {
-    const existing = this.generatedAtMap.get(alertId);
-    if (existing) {
-      return existing;
-    }
-
-    this.generatedAtMap.set(alertId, fallback);
-    return fallback;
-  }
-
-  private pickLatestDate(values: Array<string | null | undefined>, fallback: string): string {
-    const timestamps = values
-      .map((value) => value ? new Date(value).getTime() : Number.NaN)
-      .filter((value) => !Number.isNaN(value));
-
-    if (!timestamps.length) {
-      return fallback;
-    }
-
-    return new Date(Math.max(...timestamps)).toISOString();
-  }
-
-  private normalizeDate(dateText?: string | null, fallback = this.referenceDate('default')): string {
-    if (!dateText) {
-      return fallback;
-    }
-
-    const parsed = new Date(dateText);
-    if (Number.isNaN(parsed.getTime())) {
-      return fallback;
-    }
-
-    return parsed.toISOString();
-  }
-
-  private daysUntil(dateText: string): number {
-    const parsed = new Date(dateText);
-    if (Number.isNaN(parsed.getTime())) {
-      return Number.POSITIVE_INFINITY;
-    }
-
-    const diff = parsed.getTime() - Date.now();
-    return Math.ceil(diff / (1000 * 60 * 60 * 24));
-  }
-
-  private isWithinDays(dateText: string, days: number): boolean {
-    const remainingDays = this.daysUntil(dateText);
-    return remainingDays >= 0 && remainingDays <= days;
-  }
-
-  private localized(ar: string, en: string): LocalizedAlertText {
-    return { ar, en };
-  }
-
-  private referenceDate(key: string): string {
-    const fallbackMap: Record<string, string> = {
-      'orders:new': '2026-04-02T09:15:00.000Z',
-      'orders:late': '2026-04-02T09:10:00.000Z',
-      'products:inactive': '2026-04-02T08:50:00.000Z',
-      'offers:expiring': '2026-04-02T08:40:00.000Z',
-      'offers:clearance-critical': '2026-04-02T08:35:00.000Z',
-      'support:waiting-vendor': '2026-04-02T09:00:00.000Z',
-      'support:high-priority': '2026-04-02T08:55:00.000Z',
-      'staff:pending-branches': '2026-04-02T08:30:00.000Z',
-      'staff:pending-invitations': '2026-04-02T08:25:00.000Z',
-      'staff:suspended': '2026-04-02T08:20:00.000Z',
-      'reviews:low-rating-unreplied': '2026-04-02T08:10:00.000Z',
-      'reviews:pending-replies': '2026-04-02T08:05:00.000Z',
-      'profile:review-pending': '2026-04-02T07:55:00.000Z',
-      'profile:missing-logo': '2026-04-02T07:50:00.000Z',
-      'profile:missing-cr-doc': '2026-04-02T07:45:00.000Z',
-      'profile:expiry-soon': '2026-04-02T07:40:00.000Z',
-      default: '2026-04-02T07:30:00.000Z'
-    };
-
-    return fallbackMap[key] || fallbackMap['default'];
-  }
-
   private setWorkspace(projector: (workspace: AlertWorkspaceState) => AlertWorkspaceState): void {
     const nextWorkspace = projector(this.workspaceSubject.value);
-    this.persistWorkspace(nextWorkspace);
+    persistWorkspaceState(this.storageKey, nextWorkspace);
     this.workspaceSubject.next(nextWorkspace);
-  }
-
-  private persistWorkspace(workspace: AlertWorkspaceState): void {
-    persistWorkspaceState(this.storageKey, workspace);
   }
 
   private loadWorkspace(): AlertWorkspaceState {
@@ -858,5 +382,305 @@ export class AlertsCenterService {
       archivedMap: {},
       archivedSnapshots: {}
     };
+  }
+
+  private handleIncomingAlerts(alerts: AlertCenterItemVm[]): void {
+    const nextUnreadIds = new Set(
+      alerts
+        .filter((alert) => alert.state === 'unread')
+        .map((alert) => alert.id)
+    );
+
+    if (!this.monitoringInitialized) {
+      this.unreadIds = nextUnreadIds;
+      this.monitoringInitialized = true;
+      return;
+    }
+
+    const newlyArrived = alerts.filter((alert) => alert.state === 'unread' && !this.unreadIds.has(alert.id));
+    this.unreadIds = nextUnreadIds;
+
+    if (!newlyArrived.length) {
+      return;
+    }
+
+    for (const alert of newlyArrived) {
+      this.showDesktopNotification(alert);
+      this.playNotificationTone();
+    }
+  }
+
+  private startPolling(): void {
+    if (this.pollSubscription) {
+      return;
+    }
+
+    this.pollSubscription = interval(this.pollIntervalMs).subscribe(() => {
+      this.refreshFromServer();
+    });
+  }
+
+  private stopPolling(): void {
+    this.pollSubscription?.unsubscribe();
+    this.pollSubscription = undefined;
+  }
+
+  private refreshFromServer(): void {
+    this.http.get<NotificationsApiResponse>(this.apiUrl, {
+      params: new HttpParams()
+        .set('page', '1')
+        .set('per_page', '100')
+    }).pipe(
+      catchError(() => of<NotificationsApiResponse>({
+        items: [],
+        page: 1,
+        perPage: 100,
+        total: 0
+      })),
+      map((response) => response.items.map((item) => this.mapNotification(item))),
+      tap((alerts) => this.replaceServerAlerts(alerts))
+    ).subscribe();
+  }
+
+  private replaceServerAlerts(alerts: AlertCenterItemVm[]): void {
+    const sortedAlerts = [...alerts]
+      .sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
+
+    this.serverAlertsSubject.next(sortedAlerts);
+    this.handleIncomingAlerts(sortedAlerts);
+  }
+
+  private upsertRealtimeAlert(alert: AlertCenterItemVm): void {
+    const existing = this.serverAlertsSubject.value.filter((item) => item.id !== alert.id);
+    const nextAlerts = [alert, ...existing]
+      .sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
+
+    this.serverAlertsSubject.next(nextAlerts);
+    this.realtimeAlertSubject.next(alert);
+    this.handleIncomingAlerts(nextAlerts);
+  }
+
+  private async ensureRealtimeConnection(): Promise<void> {
+    const token = this.authService.getToken();
+    if (!token) {
+      return;
+    }
+
+    const signalR = await this.loadSignalRSdk();
+    if (!signalR) {
+      return;
+    }
+
+    if (this.hubConnection?.state === signalR.HubConnectionState.Connected ||
+        this.hubConnection?.state === signalR.HubConnectionState.Connecting ||
+        this.hubConnection?.state === signalR.HubConnectionState.Reconnecting) {
+      return;
+    }
+
+    if (!this.hubConnection) {
+      this.hubConnection = new signalR.HubConnectionBuilder()
+        .withUrl(this.hubUrl, {
+          accessTokenFactory: () => this.authService.getToken() ?? ''
+        })
+        .withAutomaticReconnect()
+        .configureLogging(environment.production ? signalR.LogLevel.Warning : signalR.LogLevel.Information)
+        .build();
+
+      this.hubConnection.on('ReceiveNotification', (payload: RealtimeNotificationPayload) => {
+        this.upsertRealtimeAlert(this.mapRealtimeNotification(payload));
+      });
+
+      this.hubConnection.onclose(() => {
+        if (this.authService.hasApiSession) {
+          void this.reconnectRealtimeWithBackoff();
+        }
+      });
+    }
+
+    try {
+      await this.hubConnection.start();
+    } catch (error) {
+      console.error('Vendor notifications SignalR connection failed.', error);
+      void this.reconnectRealtimeWithBackoff();
+    }
+  }
+
+  private async reconnectRealtimeWithBackoff(): Promise<void> {
+    if (this.reconnectingRealtime || !this.authService.hasApiSession) {
+      return;
+    }
+
+    this.reconnectingRealtime = true;
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 3000));
+      await this.ensureRealtimeConnection();
+    } finally {
+      this.reconnectingRealtime = false;
+    }
+  }
+
+  private async disconnectRealtime(): Promise<void> {
+    if (!this.hubConnection) {
+      return;
+    }
+
+    try {
+      await this.hubConnection.stop();
+    } catch (error) {
+      console.error('Vendor notifications SignalR disconnection failed.', error);
+    }
+  }
+
+  private async loadSignalRSdk(): Promise<SignalRBrowserSdk | null> {
+    if (this.signalRSdkPromise) {
+      return this.signalRSdkPromise;
+    }
+
+    this.signalRSdkPromise = new Promise<SignalRBrowserSdk | null>((resolve) => {
+      const view = this.document.defaultView;
+      if (!view) {
+        resolve(null);
+        return;
+      }
+
+      if (view.signalR) {
+        resolve(view.signalR);
+        return;
+      }
+
+      const existingScript = this.document.getElementById(AlertsCenterService.signalRScriptId) as HTMLScriptElement | null;
+      if (existingScript) {
+        existingScript.addEventListener('load', () => resolve(view.signalR ?? null), { once: true });
+        existingScript.addEventListener('error', () => resolve(null), { once: true });
+        return;
+      }
+
+      const script = this.document.createElement('script');
+      script.id = AlertsCenterService.signalRScriptId;
+      script.src = AlertsCenterService.signalRScriptUrl;
+      script.defer = true;
+      script.onload = () => resolve(view.signalR ?? null);
+      script.onerror = () => {
+        console.error('Failed to load SignalR browser SDK.');
+        resolve(null);
+      };
+
+      this.document.head.appendChild(script);
+    });
+
+    return this.signalRSdkPromise;
+  }
+
+  private resolveRoute(
+    referenceId?: string | null,
+    dataObject?: Record<string, unknown> | null,
+    data?: string | null
+  ): string {
+    const routeFromDataObject = this.extractTargetUrl(dataObject);
+    if (routeFromDataObject) {
+      return routeFromDataObject;
+    }
+
+    const routeFromData = this.extractTargetUrl(this.tryParseData(data));
+    if (routeFromData) {
+      return routeFromData;
+    }
+
+    return referenceId ? `/orders/${referenceId}` : '/alerts';
+  }
+
+  private extractTargetUrl(data?: Record<string, unknown> | null): string | null {
+    const targetUrl = data?.['targetUrl'];
+    return typeof targetUrl === 'string' && targetUrl.trim() ? targetUrl.trim() : null;
+  }
+
+  private tryParseData(data?: string | null): Record<string, unknown> | null {
+    if (!data?.trim()) {
+      return null;
+    }
+
+    try {
+      const parsed = JSON.parse(data);
+      return parsed && typeof parsed === 'object' ? parsed as Record<string, unknown> : null;
+    } catch {
+      return null;
+    }
+  }
+
+  private requestBrowserNotificationPermission(): void {
+    if (this.notificationsPermissionRequested || typeof window === 'undefined' || !('Notification' in window)) {
+      return;
+    }
+
+    this.notificationsPermissionRequested = true;
+
+    if (Notification.permission === 'default') {
+      void Notification.requestPermission();
+    }
+  }
+
+  private showDesktopNotification(alert: AlertCenterItemVm): void {
+    if (typeof window === 'undefined' || !('Notification' in window) || Notification.permission !== 'granted') {
+      return;
+    }
+
+    const notification = new Notification(alert.title.ar || alert.title.en, {
+      body: alert.summary.ar || alert.summary.en,
+      tag: alert.id,
+      silent: true
+    });
+
+    notification.onclick = () => {
+      if (typeof window !== 'undefined') {
+        window.focus();
+        window.location.assign(this.buildAbsoluteRoute(alert));
+      }
+      notification.close();
+    };
+  }
+
+  private buildAbsoluteRoute(alert: AlertCenterItemVm): string {
+    const route = alert.route.startsWith('/') ? alert.route : `/${alert.route}`;
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+
+    if (!alert.routeQuery || !Object.keys(alert.routeQuery).length) {
+      return `${origin}${route}`;
+    }
+
+    const params = new URLSearchParams(alert.routeQuery);
+    return `${origin}${route}?${params.toString()}`;
+  }
+
+  private playNotificationTone(): void {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const AudioContextCtor = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextCtor) {
+      return;
+    }
+
+    this.audioContext ??= new AudioContextCtor();
+
+    if (this.audioContext.state === 'suspended') {
+      void this.audioContext.resume();
+    }
+
+    const oscillator = this.audioContext.createOscillator();
+    const gainNode = this.audioContext.createGain();
+
+    oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.0001, this.audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.08, this.audioContext.currentTime + 0.01);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.35);
+
+    oscillator.connect(gainNode);
+    gainNode.connect(this.audioContext.destination);
+
+    oscillator.start(this.audioContext.currentTime);
+    oscillator.stop(this.audioContext.currentTime + 0.35);
   }
 }

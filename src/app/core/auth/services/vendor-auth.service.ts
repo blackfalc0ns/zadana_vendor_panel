@@ -14,6 +14,7 @@ import {
   providedIn: 'root'
 })
 export class VendorAuthService {
+  private static readonly loginNotificationTestPendingKey = 'vendor_notification_test_pending_user_id';
   private readonly apiUrl = `${environment.apiUrl}/vendors/auth`;
   private readonly registerUrl = `${environment.apiUrl}/vendors/register`;
   private readonly accessTokenKey = 'vendor_access_token';
@@ -81,6 +82,11 @@ export class VendorAuthService {
       { headers: this.createSkipAuthHeaders() }
     ).pipe(
       tap((response) => this.persistSession(response)),
+      tap((response) => {
+        if (response.user?.id) {
+          sessionStorage.setItem(VendorAuthService.loginNotificationTestPendingKey, response.user.id);
+        }
+      }),
       map((response) => {
         if (!response.user) {
           throw new Error('Vendor user snapshot is missing from login response.');
@@ -203,6 +209,16 @@ export class VendorAuthService {
 
   createSkipAuthHeaders(): HttpHeaders {
     return new HttpHeaders({ [this.skipAuthHeader]: 'true' });
+  }
+
+  consumePendingLoginNotificationTestUserId(userId: string): boolean {
+    const pendingUserId = sessionStorage.getItem(VendorAuthService.loginNotificationTestPendingKey);
+    if (!pendingUserId || pendingUserId !== userId) {
+      return false;
+    }
+
+    sessionStorage.removeItem(VendorAuthService.loginNotificationTestPendingKey);
+    return true;
   }
 
   private persistSession(response: VendorAuthResponse): void {

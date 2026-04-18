@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
 import {
@@ -18,7 +19,7 @@ import {
     TranslateModule,
     AppModalShellComponent,
     AppButtonComponent
-  ],
+  , SearchableSelectComponent],
   template: `
     @if (isOpen) {
       <app-modal-shell
@@ -31,14 +32,7 @@ import {
           <form [formGroup]="form" class="grid gap-4 md:grid-cols-2">
             <label class="space-y-2 md:col-span-2">
               <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.CATEGORY_FIELD' | translate }}</span>
-              <select formControlName="categoryId" class="offer-input">
-                <option value="">{{ 'OFFERS.CREATE.CATEGORY_PLACEHOLDER' | translate }}</option>
-                @for (option of categoryOptions; track option.categoryId) {
-                  <option [value]="option.categoryId">
-                    {{ currentLang === 'ar' ? option.categoryNameAr : option.categoryNameEn }} ({{ option.productsIncluded }})
-                  </option>
-                }
-              </select>
+              <app-searchable-select formControlName="categoryId" [options]="mappedCategoryOptions" [placeholder]="'OFFERS.CREATE.CATEGORY_PLACEHOLDER'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
@@ -146,6 +140,14 @@ import {
   `]
 })
 export class CategoryCampaignModalComponent {
+
+  get mappedCategoryOptions(): SearchableSelectOption[] {
+    return this.categoryOptions.map((x: any) => ({
+      value: x.categoryId,
+      label: (this.currentLang === 'ar' ? x.categoryNameAr : x.categoryNameEn) + ' (' + x.productsIncluded + ')'
+    }));
+  }
+
   @Input() isOpen = false;
   @Input() categoryOptions: CategoryCampaignCreateOption[] = [];
   @Output() readonly close = new EventEmitter<void>();

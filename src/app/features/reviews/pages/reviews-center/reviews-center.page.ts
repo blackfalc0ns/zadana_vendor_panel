@@ -3,6 +3,7 @@ import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { Subscription, combineLatest } from 'rxjs';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import {
@@ -46,7 +47,7 @@ import { ReviewsService } from '../../services/reviews.service';
     AppFilterPanelComponent,
     AppPageSectionShellComponent,
     AppDrawerShellComponent
-  ],
+  , SearchableSelectComponent],
   templateUrl: './reviews-center.page.html'
 })
 export class ReviewsCenterPageComponent implements OnInit, DoCheck, OnDestroy {

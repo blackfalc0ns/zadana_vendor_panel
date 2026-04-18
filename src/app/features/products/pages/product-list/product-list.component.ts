@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { Subscription, combineLatest } from 'rxjs';
 import { MasterProductSelectorModalComponent } from '../../components/master-product-selector-modal/master-product-selector-modal.component';
 import { AddProductModalComponent } from '../../components/add-product-modal/add-product-modal.component';
@@ -19,6 +20,7 @@ import { CatalogService } from '../../services/catalog.service';
   selector: 'app-product-list',
   standalone: true,
   imports: [
+    SearchableSelectComponent,
     CommonModule,
     FormsModule,
     TranslateModule,
@@ -84,52 +86,50 @@ import { CatalogService } from '../../services/catalog.service';
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'PRODUCTS.FILTERS.CATEGORY' | translate }}</span>
-              <select
+              <app-searchable-select
                 [(ngModel)]="filters.category"
                 (ngModelChange)="onFiltersChange()"
-                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="">{{ 'PRODUCTS.FILTERS.ALL_CATEGORIES' | translate }}</option>
-                @for (category of availableCategories; track category.value) {
-                  <option [value]="category.value">{{ category.label }}</option>
-                }
-              </select>
+                [searchable]="false"
+                [options]="categoryOptions"
+                [allowClear]="false"
+                [placeholder]="'PRODUCTS.FILTERS.CATEGORY'">
+              </app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'PRODUCTS.FILTERS.STATUS' | translate }}</span>
-              <select
+              <app-searchable-select
                 [(ngModel)]="filters.status"
                 (ngModelChange)="onFiltersChange()"
-                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'PRODUCTS.FILTERS.ALL_STATUSES' | translate }}</option>
-                <option value="active">{{ 'PRODUCTS.STATUS_ACTIVE' | translate }}</option>
-                <option value="inactive">{{ 'PRODUCTS.STATUS_INACTIVE' | translate }}</option>
-              </select>
+                [searchable]="false"
+                [options]="statusOptions"
+                [allowClear]="false"
+                [placeholder]="'PRODUCTS.FILTERS.STATUS'">
+              </app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'PRODUCTS.FILTERS.STOCK' | translate }}</span>
-              <select
+              <app-searchable-select
                 [(ngModel)]="filters.stock"
                 (ngModelChange)="onFiltersChange()"
-                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'PRODUCTS.FILTERS.ALL_STOCK' | translate }}</option>
-                <option value="healthy">{{ 'PRODUCTS.FILTERS.HEALTHY_STOCK' | translate }}</option>
-                <option value="low">{{ 'PRODUCTS.FILTERS.LOW_STOCK' | translate }}</option>
-                <option value="out">{{ 'PRODUCTS.FILTERS.OUT_OF_STOCK' | translate }}</option>
-              </select>
+                [searchable]="false"
+                [options]="stockOptions"
+                [allowClear]="false"
+                [placeholder]="'PRODUCTS.FILTERS.STOCK'">
+              </app-searchable-select>
             </label>
 
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'PRODUCTS.FILTERS.OFFERS' | translate }}</span>
-              <select
+              <app-searchable-select
                 [(ngModel)]="filters.offers"
                 (ngModelChange)="onFiltersChange()"
-                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-                <option value="all">{{ 'PRODUCTS.FILTERS.ALL_OFFERS' | translate }}</option>
-                <option value="with">{{ 'PRODUCTS.FILTERS.WITH_OFFERS' | translate }}</option>
-                <option value="without">{{ 'PRODUCTS.FILTERS.WITHOUT_OFFERS' | translate }}</option>
-              </select>
+                [searchable]="false"
+                [options]="offerOptions"
+                [allowClear]="false"
+                [placeholder]="'PRODUCTS.FILTERS.OFFERS'">
+              </app-searchable-select>
             </label>
 
             <div class="flex items-end">
@@ -350,6 +350,39 @@ export class ProductListComponent implements OnInit, OnDestroy {
     if (this.langSub) {
       this.langSub.unsubscribe();
     }
+  }
+
+
+  get categoryOptions(): SearchableSelectOption[] {
+    return [
+      { value: '', labelKey: 'PRODUCTS.FILTERS.ALL_CATEGORIES' },
+      ...this.availableCategories.map(c => ({ value: c.value, label: c.label }))
+    ];
+  }
+
+  get statusOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'PRODUCTS.FILTERS.ALL_STATUSES' },
+      { value: 'active', labelKey: 'PRODUCTS.STATUS_ACTIVE' },
+      { value: 'inactive', labelKey: 'PRODUCTS.STATUS_INACTIVE' }
+    ];
+  }
+
+  get stockOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'PRODUCTS.FILTERS.ALL_STOCK' },
+      { value: 'healthy', labelKey: 'PRODUCTS.FILTERS.HEALTHY_STOCK' },
+      { value: 'low', labelKey: 'PRODUCTS.FILTERS.LOW_STOCK' },
+      { value: 'out', labelKey: 'PRODUCTS.FILTERS.OUT_OF_STOCK' }
+    ];
+  }
+
+  get offerOptions(): SearchableSelectOption[] {
+    return [
+      { value: 'all', labelKey: 'PRODUCTS.FILTERS.ALL_OFFERS' },
+      { value: 'with', labelKey: 'PRODUCTS.FILTERS.WITH_OFFERS' },
+      { value: 'without', labelKey: 'PRODUCTS.FILTERS.WITHOUT_OFFERS' }
+    ];
   }
 
   get availableCategories(): Array<{ value: string; label: string }> {

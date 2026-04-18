@@ -1,271 +1,407 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, of, delay, map } from 'rxjs';
-import { 
-  OrderListItem, 
-  OrderDetail, 
-  OrderStatus, 
-  PaginatedOrdersResponse,
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, map, of, switchMap } from 'rxjs';
+import { environment } from '../../../../environments/environment';
+import {
+  OrderDetail,
+  OrderFulfillmentStatus,
   OrderItem,
+  OrderListItem,
+  OrderPaymentMethod,
+  OrderPaymentStatus,
+  OrderStatus,
   OrderTimelineEntry,
-  OrderPaymentMethod
+  PaginatedOrdersResponse
 } from '../models/orders.models';
+
+interface VendorOrdersApiResponse {
+  items: VendorOrderListItemApiModel[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
+interface VendorOrderListItemApiModel {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerPhone: string;
+  status: string;
+  paymentStatus: string;
+  paymentMethod: string;
+  totalAmount: number;
+  itemsCount: number;
+  placedAtUtc: string;
+  isLate: boolean;
+}
+
+interface VendorOrderDetailApiModel {
+  id: string;
+  orderNumber: string;
+  customerName: string;
+  customerPhone: string;
+  customerAddress: string;
+  status: string;
+  paymentStatus: string;
+  paymentMethod: string;
+  subtotal: number;
+  deliveryFee: number;
+  totalAmount: number;
+  notes?: string | null;
+  placedAtUtc: string;
+  items: VendorOrderItemApiModel[];
+  timeline: VendorOrderTimelineApiModel[];
+}
+
+interface VendorOrderItemApiModel {
+  id: string;
+  productName: string;
+  quantity: number;
+  unitPrice: number;
+  lineTotal: number;
+}
+
+interface VendorOrderTimelineApiModel {
+  status: string;
+  label: string;
+  timestampUtc: string;
+  isCompleted: boolean;
+  note?: string | null;
+}
+
+interface VendorOrderStatusMutationResponse {
+  orderId: string;
+  status: string;
+  message: string;
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class OrdersService {
-  private apiUrl = 'api/vendors/orders'; // Placeholder for actual API
+  private readonly apiUrl = `${environment.apiUrl}/vendor/orders`;
 
-  // Mock data store for this session
-  private mockOrders: OrderDetail[] = [];
+  constructor(private readonly http: HttpClient) {}
 
-  constructor(private http: HttpClient) {
-    this.generateMockOrders();
-  }
-
-  getOrders(params: { 
-    pageNumber: number; 
-    pageSize: number; 
-    status?: OrderStatus | 'ALL'; 
+  getOrders(params: {
+    pageNumber: number;
+    pageSize: number;
+    status?: OrderStatus | 'ALL';
     searchTerm?: string;
     paymentMethod?: OrderPaymentMethod | 'ALL';
     lateState?: 'ALL' | 'LATE' | 'ONTIME';
   }): Observable<PaginatedOrdersResponse> {
-    
-    let filtered = [...this.mockOrders];
+    const requestParams = new HttpParams()
+      .set('page', '1')
+      .set('pageSize', '250');
+
+    return this.http.get<VendorOrdersApiResponse>(this.apiUrl, { params: requestParams }).pipe(
+      map((response) => response.items.map((item) => this.mapListItem(item))),
+      map((items) => this.applyFilters(items, params)),
+      map((items) => this.toPaginatedResponse(items, params.pageNumber, params.pageSize))
+    );
+  }
+
+  getOrderById(id: string): Observable<OrderDetail | null> {
+    return this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${id}`).pipe(
+      map((order) => this.mapDetail(order))
+    );
+  }
+
+  updateOrderStatus(orderId: string, status: OrderStatus): Observable<OrderDetail> {
+    const action = this.resolveMutationAction(status);
+    return this.http.post<VendorOrderStatusMutationResponse>(`${this.apiUrl}/${orderId}/${action}`, {}).pipe(
+      switchMap(() => this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${orderId}`)),
+      map((order) => this.mapDetail(order))
+    );
+  }
+
+  createOrder(orderData: any): Observable<any> {
+    const lineItems = Array.isArray(orderData?.items) ? orderData.items : [];
+    const subtotal = lineItems.reduce((sum: number, item: any) => sum + Number(item?.total || 0), 0);
+    const deliveryFee = 0;
+    const tax = 0;
+
+    return of({
+      id: `manual-${Date.now()}`,
+      displayId: `manual-${Date.now()}`,
+      customerName: orderData?.customerName || '',
+      customerPhone: orderData?.customerPhone || '',
+      customerAddress: orderData?.customerAddress || '',
+      date: new Date().toISOString().slice(0, 10),
+      time: new Date().toISOString(),
+      status: 'NEW' as OrderStatus,
+      paymentStatus: (orderData?.paymentMethodType === 'CARD' ? 'PAID' : 'COD_PENDING') as OrderPaymentStatus,
+      paymentMethodType: (orderData?.paymentMethodType || 'COD') as OrderPaymentMethod,
+      paymentMethodLabel: orderData?.paymentMethodLabel || 'Manual',
+      fulfillmentStatus: 'QUEUED' as OrderFulfillmentStatus,
+      total: subtotal + deliveryFee + tax,
+      subtotal,
+      deliveryFee,
+      tax,
+      itemCount: lineItems.length,
+      isLate: false,
+      hasActiveIssue: false,
+      items: lineItems,
+      timeline: [
+        {
+          status: 'NEW' as OrderStatus,
+          labelAr: 'تم إنشاء الطلب محليًا',
+          labelEn: 'Order created locally',
+          timestamp: new Date().toISOString(),
+          isCompleted: true
+        }
+      ]
+    });
+  }
+
+  private applyFilters(items: OrderListItem[], params: {
+    status?: OrderStatus | 'ALL';
+    searchTerm?: string;
+    paymentMethod?: OrderPaymentMethod | 'ALL';
+    lateState?: 'ALL' | 'LATE' | 'ONTIME';
+  }): OrderListItem[] {
+    let filtered = [...items];
 
     if (params.status && params.status !== 'ALL') {
-      filtered = filtered.filter(o => o.status === params.status);
+      filtered = filtered.filter((item) => item.status === params.status);
     }
 
-    if (params.searchTerm) {
-      const term = params.searchTerm.toLowerCase();
-      filtered = filtered.filter(o => 
-        o.displayId.toLowerCase().includes(term) || 
-        o.customerName.toLowerCase().includes(term)
+    if (params.searchTerm?.trim()) {
+      const normalizedSearch = params.searchTerm.trim().toLowerCase();
+      filtered = filtered.filter((item) =>
+        item.displayId.toLowerCase().includes(normalizedSearch) ||
+        item.customerName.toLowerCase().includes(normalizedSearch) ||
+        item.customerPhone.toLowerCase().includes(normalizedSearch)
       );
     }
 
     if (params.paymentMethod && params.paymentMethod !== 'ALL') {
-      filtered = filtered.filter((order) => order.paymentMethodType === params.paymentMethod);
+      filtered = filtered.filter((item) => item.paymentMethodType === params.paymentMethod);
     }
 
     if (params.lateState === 'LATE') {
-      filtered = filtered.filter((order) => order.isLate);
+      filtered = filtered.filter((item) => item.isLate);
     }
 
     if (params.lateState === 'ONTIME') {
-      filtered = filtered.filter((order) => !order.isLate);
+      filtered = filtered.filter((item) => !item.isLate);
     }
 
-    const totalCount = filtered.length;
-    const totalPages = Math.ceil(totalCount / params.pageSize);
-    const startIndex = (params.pageNumber - 1) * params.pageSize;
-    const items = filtered.slice(startIndex, startIndex + params.pageSize);
+    return filtered;
+  }
 
-    return of({
-      items,
-      pageNumber: params.pageNumber,
-      pageSize: params.pageSize,
+  private toPaginatedResponse(items: OrderListItem[], pageNumber: number, pageSize: number): PaginatedOrdersResponse {
+    const safePageSize = Math.max(1, pageSize);
+    const safePageNumber = Math.max(1, pageNumber);
+    const totalCount = items.length;
+    const totalPages = Math.max(1, Math.ceil(totalCount / safePageSize));
+    const startIndex = (safePageNumber - 1) * safePageSize;
+
+    return {
+      items: items.slice(startIndex, startIndex + safePageSize),
+      pageNumber: Math.min(safePageNumber, totalPages),
+      pageSize: safePageSize,
       totalCount,
       totalPages
-    }).pipe(delay(600));
+    };
   }
 
-  getOrderById(id: string): Observable<OrderDetail | null> {
-    const order = this.mockOrders.find(o => o.id === id || o.displayId === id);
-    return of(order || null).pipe(delay(400));
-  }
+  private mapListItem(item: VendorOrderListItemApiModel): OrderListItem {
+    const status = this.mapBackendStatus(item.status);
+    const paymentMethodType = this.mapPaymentMethod(item.paymentMethod);
 
-  updateOrderStatus(orderId: string, status: OrderStatus): Observable<OrderDetail> {
-    const order = this.mockOrders.find(o => o.id === orderId);
-    if (!order) throw new Error('Order not found');
-
-    order.status = status;
-    
-    // Assign driver if moving to READY_FOR_PICKUP or later and not yet assigned
-    const driverStatuses: OrderStatus[] = ['READY_FOR_PICKUP', 'PICKED_UP', 'OUT_FOR_DELIVERY', 'DELIVERED'];
-    if (driverStatuses.includes(status) && !order.driverName) {
-      order.driverName = 'محمد حسن';
-      order.driverPhone = '01223344556';
-      order.driverRating = 4.8;
-      order.driverVehiclePlate = 'ر ق ص ٤٥٦';
-      order.driverVehicleType = 'موتوسيكل هوندا - أسود';
-      order.driverCompanyAr = 'زادنا إكسبريس';
-      order.driverCompanyEn = 'Zadana Express';
-      order.estimatedDelivery = '30-45 mins';
-    }
-
-    // Add timeline entry
-    const newEntry: OrderTimelineEntry = {
+    return {
+      id: item.id,
+      displayId: item.orderNumber,
+      customerName: item.customerName,
+      customerPhone: item.customerPhone,
+      date: this.formatDate(item.placedAtUtc),
+      time: item.placedAtUtc,
       status,
-      timestamp: new Date().toISOString(),
-      labelAr: this.getStatusLabel(status, 'ar'),
-      labelEn: this.getStatusLabel(status, 'en'),
-      isCompleted: true
+      paymentStatus: this.mapPaymentStatus(item.paymentStatus),
+      paymentMethodType,
+      fulfillmentStatus: this.mapFulfillmentStatus(status),
+      paymentMethodLabel: this.mapPaymentMethodLabel(paymentMethodType),
+      total: item.totalAmount,
+      itemCount: item.itemsCount,
+      isLate: item.isLate,
+      hasActiveIssue: status === 'CANCELLED'
     };
-    
-    order.timeline.push(newEntry);
-    
-    return of(order).pipe(delay(800));
   }
 
-  private getStatusLabel(status: OrderStatus, lang: 'ar' | 'en'): string {
-    const labels: Record<OrderStatus, { ar: string, en: string }> = {
-      'NEW': { ar: 'طلب جديد', en: 'New Order' },
-      'CONFIRMED': { ar: 'تم التأكيد', en: 'Confirmed' },
-      'IN_PROGRESS': { ar: 'قيد التجهيز', en: 'Preparing' },
-      'READY_FOR_PICKUP': { ar: 'جاهز للاستلام', en: 'Ready for Pickup' },
-      'PICKED_UP': { ar: 'تم استلامه من المندوب', en: 'Picked up by Driver' },
-      'OUT_FOR_DELIVERY': { ar: 'جاري التوصيل', en: 'On the way' },
-      'DELIVERED': { ar: 'تم التوصيل', en: 'Delivered' },
-      'COMPLETED': { ar: 'مكتمل', en: 'Completed' },
-      'CANCELLED': { ar: 'ملغي', en: 'Cancelled' },
-      'RETURNED': { ar: 'مرتجع', en: 'Returned' }
-    };
-    return labels[status][lang];
-  }
+  private mapDetail(item: VendorOrderDetailApiModel): OrderDetail {
+    const status = this.mapBackendStatus(item.status);
+    const paymentMethodType = this.mapPaymentMethod(item.paymentMethod);
+    const tax = Math.max(0, item.totalAmount - item.subtotal - item.deliveryFee);
 
-  createOrder(orderData: any): Observable<any> {
-    const newOrder: OrderDetail = {
-      id: `man_${Date.now()}`,
-      displayId: (2000 + this.mockOrders.length).toString(),
-      customerName: orderData.customerName,
-      customerPhone: orderData.customerPhone,
-      customerAddress: orderData.customerAddress,
-      date: new Date().toISOString().split('T')[0],
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      status: 'NEW',
-      paymentStatus: 'PENDING',
-      paymentMethodType: orderData.paymentMethodType,
-      paymentMethodLabel: orderData.paymentMethodLabel,
-      fulfillmentStatus: 'QUEUED',
-      total: orderData.total,
-      subtotal: orderData.total * 0.8, // Mock calculation
-      deliveryFee: 35,
-      tax: orderData.total * 0.14,
-      itemCount: orderData.items.length,
+    return {
+      id: item.id,
+      displayId: item.orderNumber,
+      customerName: item.customerName,
+      customerPhone: item.customerPhone,
+      customerAddress: item.customerAddress,
+      date: this.formatDate(item.placedAtUtc),
+      time: item.placedAtUtc,
+      status,
+      paymentStatus: this.mapPaymentStatus(item.paymentStatus),
+      paymentMethodType,
+      fulfillmentStatus: this.mapFulfillmentStatus(status),
+      paymentMethodLabel: this.mapPaymentMethodLabel(paymentMethodType),
+      total: item.totalAmount,
+      subtotal: item.subtotal,
+      deliveryFee: item.deliveryFee,
+      tax,
+      itemCount: item.items.length,
       isLate: false,
-      hasActiveIssue: false,
-      items: orderData.items,
-      timeline: [
-        {
-          status: 'NEW',
-          timestamp: new Date().toISOString(),
-          labelAr: 'تم إنشاء الطلب يدوياً',
-          labelEn: 'Order Created Manually',
-          isCompleted: true
-        }
-      ]
+      hasActiveIssue: status === 'CANCELLED',
+      notes: item.notes ?? undefined,
+      items: item.items.map((orderItem) => this.mapOrderItem(orderItem)),
+      timeline: item.timeline.map((timelineItem) => this.mapTimelineItem(timelineItem))
     };
-
-    this.mockOrders.unshift(newOrder);
-    return of(newOrder).pipe(delay(1000));
   }
 
-  private generateMockOrders(): void {
-    const statuses: OrderStatus[] = ['NEW', 'IN_PROGRESS', 'READY_FOR_PICKUP', 'DELIVERED', 'CANCELLED'];
-    const customers = [
-      { name: 'أحمد علي', phone: '01012345678', address: '١٥ شارع المعز، القاهرة' },
-      { name: 'سارة محمد', phone: '01122334455', address: 'ميدان التحرير، الدقي' },
-      { name: 'ياسين محمود', phone: '01233445566', address: 'المعادي، شارع ٩' },
-      { name: 'ليلى إبراهيم', phone: '01555667788', address: 'التجمع الخامس، القاهرة الجديدة' },
-      { name: 'كريم حسن', phone: '01009988776', address: 'الشيخ زايد، الجيزة' }
-    ];
+  private mapOrderItem(item: VendorOrderItemApiModel): OrderItem {
+    return {
+      id: item.id,
+      nameAr: item.productName,
+      nameEn: item.productName,
+      quantity: item.quantity,
+      price: item.unitPrice,
+      total: item.lineTotal,
+      sku: item.id.slice(0, 8)
+    };
+  }
 
-    for (let i = 1; i <= 50; i++) {
-        const customer = customers[i % customers.length];
-        const status = statuses[i % statuses.length];
-        const subtotal = Math.floor(Math.random() * 1000) + 100;
-        const deliveryFee = 35;
-        const tax = subtotal * 0.14;
-        const total = subtotal + deliveryFee + tax;
+  private mapTimelineItem(item: VendorOrderTimelineApiModel): OrderTimelineEntry {
+    const status = this.mapBackendStatus(item.status);
+    const label = this.getStatusLabel(status);
 
-        const order: OrderDetail = {
-          id: `ord_${i}`,
-          displayId: (1000 + i).toString(),
-          customerName: customer.name,
-          customerPhone: customer.phone,
-          customerAddress: customer.address,
-          date: '2024-03-31',
-          time: '14:30',
-          status,
-          paymentStatus: 'PAID',
-          paymentMethodType: i % 2 === 0 ? 'CARD' : 'COD',
-          fulfillmentStatus: 'QUEUED',
-          paymentMethodLabel: i % 2 === 0 ? 'بطاقة بنكية' : 'نقداً عند الاستلام',
-          total,
-          subtotal,
-          deliveryFee,
-          tax,
-          itemCount: 2,
-          isLate: i % 7 === 0,
-          hasActiveIssue: false,
-          items: [
-            { 
-                id: 'p1', 
-                nameAr: 'منتج تجريبي ١', 
-                nameEn: 'Demo Product 1', 
-                quantity: 1, 
-                price: subtotal / 2, 
-                total: subtotal / 2,
-                sku: 'SKU-001'
-            },
-            { 
-                id: 'p2', 
-                nameAr: 'منتج تجريبي ٢', 
-                nameEn: 'Demo Product 2', 
-                quantity: 1, 
-                price: subtotal / 2, 
-                total: subtotal / 2,
-                sku: 'SKU-002'
-            }
-          ],
-          timeline: [
-            {
-              status: 'NEW',
-              timestamp: '2024-03-31T14:30:00Z',
-              labelAr: 'تم استلام الطلب',
-              labelEn: 'Order Received',
-              isCompleted: true
-            }
-          ]
-        };
+    return {
+      status,
+      labelAr: label.ar,
+      labelEn: label.en,
+      timestamp: item.timestampUtc,
+      isCompleted: item.isCompleted,
+      notes: item.note ?? undefined
+    };
+  }
 
-        // Populate more timeline if needed
-        if (status !== 'NEW') {
-            order.timeline.push({
-                status: 'CONFIRMED',
-                timestamp: '2024-03-31T14:45:00Z',
-                labelAr: 'تم تأكيد الطلب',
-                labelEn: 'Order Confirmed',
-                isCompleted: true
-            });
-        }
-        
-        if (status === 'IN_PROGRESS' || status === 'READY_FOR_PICKUP' || status === 'DELIVERED') {
-            order.timeline.push({
-                status: 'IN_PROGRESS',
-                timestamp: '2024-03-31T15:00:00Z',
-                labelAr: 'جاري التجهيز',
-                labelEn: 'Preparing',
-                isCompleted: true
-            });
-        }
-
-        if (['READY_FOR_PICKUP', 'DELIVERED'].includes(status)) {
-           order.driverName = 'محمد حسن';
-           order.driverPhone = '01223344556';
-           order.driverRating = 4.8;
-           order.driverVehiclePlate = 'ر ق ص ٤٥٦';
-           order.driverVehicleType = 'موتوسيكل هوندا - أسود';
-           order.driverCompanyAr = 'زادنا إكسبريس';
-           order.driverCompanyEn = 'Zadana Express';
-           order.estimatedDelivery = '30-45 mins';
-        }
-
-        this.mockOrders.push(order);
+  private resolveMutationAction(status: OrderStatus): string {
+    switch (status) {
+      case 'CONFIRMED':
+        return 'accept';
+      case 'IN_PROGRESS':
+        return 'preparing';
+      case 'READY_FOR_PICKUP':
+        return 'ready';
+      default:
+        throw new Error(`Order status action is not supported for ${status}.`);
     }
+  }
+
+  private mapBackendStatus(status: string): OrderStatus {
+    switch (status) {
+      case 'PendingPayment':
+      case 'Placed':
+      case 'PendingVendorAcceptance':
+        return 'NEW';
+      case 'Accepted':
+        return 'CONFIRMED';
+      case 'Preparing':
+        return 'IN_PROGRESS';
+      case 'ReadyForPickup':
+        return 'READY_FOR_PICKUP';
+      case 'DriverAssigned':
+      case 'PickedUp':
+        return 'PICKED_UP';
+      case 'OnTheWay':
+        return 'OUT_FOR_DELIVERY';
+      case 'Delivered':
+        return 'DELIVERED';
+      case 'Refunded':
+        return 'RETURNED';
+      case 'Cancelled':
+      case 'VendorRejected':
+      case 'DeliveryFailed':
+        return 'CANCELLED';
+      default:
+        return 'NEW';
+    }
+  }
+
+  private mapPaymentStatus(status: string): OrderPaymentStatus {
+    switch (status) {
+      case 'Paid':
+        return 'PAID';
+      case 'Failed':
+        return 'FAILED';
+      case 'Refunded':
+        return 'REFUNDED';
+      case 'PartiallyRefunded':
+        return 'PARTIALLY_REFUNDED';
+      case 'Pending':
+      case 'Initiated':
+        return 'PENDING';
+      default:
+        return 'PENDING';
+    }
+  }
+
+  private mapPaymentMethod(method: string): OrderPaymentMethod {
+    return method === 'Card' ? 'CARD' : 'COD';
+  }
+
+  private mapPaymentMethodLabel(method: OrderPaymentMethod): string {
+    return method === 'CARD' ? 'بطاقة بنكية' : 'نقدًا عند الاستلام';
+  }
+
+  private mapFulfillmentStatus(status: OrderStatus): OrderFulfillmentStatus {
+    switch (status) {
+      case 'CONFIRMED':
+      case 'IN_PROGRESS':
+        return 'PREPARING';
+      case 'READY_FOR_PICKUP':
+        return 'READY_FOR_PICKUP';
+      case 'PICKED_UP':
+        return 'PICKED_UP';
+      case 'OUT_FOR_DELIVERY':
+        return 'ON_ROUTE';
+      case 'DELIVERED':
+      case 'COMPLETED':
+        return 'DELIVERED';
+      case 'CANCELLED':
+      case 'RETURNED':
+        return 'CANCELLED';
+      default:
+        return 'QUEUED';
+    }
+  }
+
+  private getStatusLabel(status: OrderStatus): { ar: string; en: string } {
+    const labels: Record<OrderStatus, { ar: string; en: string }> = {
+      NEW: { ar: 'طلب جديد', en: 'New order' },
+      CONFIRMED: { ar: 'تم التأكيد', en: 'Confirmed' },
+      IN_PROGRESS: { ar: 'قيد التجهيز', en: 'Preparing' },
+      READY_FOR_PICKUP: { ar: 'جاهز للاستلام', en: 'Ready for pickup' },
+      PICKED_UP: { ar: 'تم الاستلام من المندوب', en: 'Picked up' },
+      OUT_FOR_DELIVERY: { ar: 'في الطريق', en: 'On the way' },
+      DELIVERED: { ar: 'تم التوصيل', en: 'Delivered' },
+      COMPLETED: { ar: 'مكتمل', en: 'Completed' },
+      CANCELLED: { ar: 'ملغي', en: 'Cancelled' },
+      RETURNED: { ar: 'مرتجع', en: 'Returned' }
+    };
+
+    return labels[status];
+  }
+
+  private formatDate(dateText: string): string {
+    const parsedDate = new Date(dateText);
+    if (Number.isNaN(parsedDate.getTime())) {
+      return dateText;
+    }
+
+    return parsedDate.toISOString().slice(0, 10);
   }
 }

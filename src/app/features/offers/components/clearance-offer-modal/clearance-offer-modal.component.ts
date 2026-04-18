@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
 import { VendorProduct } from '../../../products/models/catalog.models';
@@ -16,7 +17,7 @@ import { CreateClearanceOfferPayload } from '../../models/offers.models';
     TranslateModule,
     AppModalShellComponent,
     AppButtonComponent
-  ],
+  , SearchableSelectComponent],
   template: `
     @if (isOpen) {
       <app-modal-shell
@@ -35,14 +36,7 @@ import { CreateClearanceOfferPayload } from '../../models/offers.models';
             <form [formGroup]="form" class="grid gap-4 md:grid-cols-2">
               <label class="space-y-2 md:col-span-2">
                 <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.PRODUCT_FIELD' | translate }}</span>
-                <select formControlName="productId" class="offer-input">
-                  <option value="">{{ 'OFFERS.CREATE.PRODUCT_PLACEHOLDER' | translate }}</option>
-                  @for (product of products; track product.id) {
-                    <option [value]="product.id">
-                      {{ currentLang === 'ar' ? product.nameAr : product.nameEn }} - {{ product.stockQty }}
-                    </option>
-                  }
-                </select>
+                <app-searchable-select formControlName="productId" [options]="mappedProductOptions" [placeholder]="'OFFERS.CREATE.PRODUCT_PLACEHOLDER'"></app-searchable-select>
               </label>
 
               <label class="space-y-2">
@@ -120,6 +114,14 @@ import { CreateClearanceOfferPayload } from '../../models/offers.models';
   `]
 })
 export class ClearanceOfferModalComponent {
+
+  get mappedProductOptions(): SearchableSelectOption[] {
+    return this.products.map((x: any) => ({
+      value: x.id,
+      label: (this.currentLang === 'ar' ? x.nameAr : x.nameEn) + ' - ' + x.stockQty
+    }));
+  }
+
   @Input() isOpen = false;
   @Input() products: VendorProduct[] = [];
   @Output() readonly close = new EventEmitter<void>();

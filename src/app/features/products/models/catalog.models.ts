@@ -60,6 +60,9 @@ export interface BrandOption {
   nameAr: string;
   nameEn: string;
   logoUrl?: string;
+  categoryId?: string | null;
+  categoryNameAr?: string;
+  categoryNameEn?: string;
   isActive?: boolean;
 }
 
@@ -71,6 +74,7 @@ export interface UnitOption {
 
 export type CatalogRequestType = 'product' | 'brand' | 'category';
 export type ProductRequestStatus = 'Pending' | 'Approved' | 'Rejected';
+export type CategoryRequestKind = 'category' | 'sub_category';
 
 export interface ProductRequest {
   id: string;
@@ -87,6 +91,12 @@ export interface ProductRequest {
   suggestedBrandNameEn?: string;
   parentCategoryNameAr?: string;
   parentCategoryNameEn?: string;
+  requestKind?: CategoryRequestKind;
+  requestedLevelKey?: string;
+  requestedPathAr?: string;
+  requestedPathEn?: string;
+  approvedPathAr?: string;
+  approvedPathEn?: string;
   displayOrder?: number | null;
   unitId?: string | null;
   unitNameAr?: string;

@@ -3,6 +3,8 @@ import { DOCUMENT } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VendorAuthService } from './core/auth/services/vendor-auth.service';
+import { AlertsCenterService } from './features/alerts/services/alerts-center.service';
+import { VendorWebPushService } from './core/notifications/services/vendor-web-push.service';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +20,8 @@ export class AppComponent implements OnInit {
   constructor(
     private readonly translate: TranslateService,
     private readonly authService: VendorAuthService,
+    private readonly alertsCenterService: AlertsCenterService,
+    private readonly vendorWebPushService: VendorWebPushService,
     @Inject(DOCUMENT) private readonly document: Document,
     private readonly renderer: Renderer2
   ) {
@@ -37,6 +41,8 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     this.scheduleNonBlockingSessionBootstrap();
+    this.scheduleVendorAlertsMonitoring();
+    this.scheduleVendorWebPushBootstrap();
   }
 
   switchLanguage(lang: 'ar' | 'en'): void {
@@ -70,5 +76,35 @@ export class AppComponent implements OnInit {
     }
 
     setTimeout(bootstrap, 0);
+  }
+
+  private scheduleVendorAlertsMonitoring(): void {
+    const startMonitoring = () => {
+      this.alertsCenterService.startMonitoring();
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as Window & { requestIdleCallback: (callback: IdleRequestCallback) => number }).requestIdleCallback(
+        () => startMonitoring()
+      );
+      return;
+    }
+
+    setTimeout(startMonitoring, 0);
+  }
+
+  private scheduleVendorWebPushBootstrap(): void {
+    const startWebPush = () => {
+      this.vendorWebPushService.initialize();
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      (window as Window & { requestIdleCallback: (callback: IdleRequestCallback) => number }).requestIdleCallback(
+        () => startWebPush()
+      );
+      return;
+    }
+
+    setTimeout(startWebPush, 0);
   }
 }

@@ -200,6 +200,12 @@ import { CatalogService } from '../../services/catalog.service';
             <div class="flex flex-wrap gap-2">
               <button
                 type="button"
+                (click)="onRequestNew()"
+                class="rounded-2xl border border-zadna-primary/20 bg-zadna-primary/10 px-4 py-2 text-xs font-black text-zadna-primary">
+                {{ currentLang === 'ar' ? 'إضافة منتج' : 'Add product' }}
+              </button>
+              <button
+                type="button"
                 (click)="clearSelection()"
                 class="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-black text-slate-700">
                 {{ currentLang === 'ar' ? 'مسح التحديد' : 'Clear selection' }}
@@ -258,7 +264,7 @@ export class MasterProductSelectorModalComponent implements OnInit {
     this.catalogService.getCategories().subscribe({
       next: (data) => {
         const flatCategories = this.flattenCategories(data);
-        this.categories = flatCategories.filter((category) => !!category.parentCategoryId);
+        this.categories = flatCategories.filter((category) => this.resolveCategoryLevel(category, flatCategories) === 2);
       },
       error: () => {}
     });
@@ -407,6 +413,27 @@ export class MasterProductSelectorModalComponent implements OnInit {
       category,
       ...this.flattenCategories(category.subCategories || [])
     ]);
+  }
+
+  private resolveCategoryLevel(category: Category, allCategories: Category[]): number {
+    if (typeof category.level === 'number') {
+      return category.level;
+    }
+
+    let level = 0;
+    let parentId = category.parentCategoryId;
+
+    while (parentId) {
+      const parent = allCategories.find((item) => item.id === parentId);
+      if (!parent) {
+        break;
+      }
+
+      level += 1;
+      parentId = parent.parentCategoryId || null;
+    }
+
+    return level;
   }
 
   getMockProducts(): MasterProduct[] {

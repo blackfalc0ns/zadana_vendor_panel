@@ -3,6 +3,7 @@ import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { Subscription, combineLatest } from 'rxjs';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
@@ -51,10 +52,17 @@ import { CreateTicketDraft, ReferenceFilters, SupportFilters } from './support-c
     AppFilterPanelComponent,
     AppPageSectionShellComponent,
     AppModalShellComponent
-  ],
+  , SearchableSelectComponent],
   templateUrl: './support-center.page.html'
 })
 export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
+
+  get mappedFilterPriorityOptions() { return [{value: 'all', labelKey: 'SUPPORT_CENTER.FILTERS.ALL_PRIORITIES'}].concat(this.priorityOptions.map((x: any) => ({value: x, labelKey: this.priorityKey(x)}))); }
+  get mappedFilterCategoryOptions() { return [{value: 'all', labelKey: 'SUPPORT_CENTER.FILTERS.ALL_CATEGORIES'}].concat(this.categoryOptions.map((x: any) => ({value: x, labelKey: this.categoryKey(x)}))); }
+  get mappedFilterTypeOptions() { return [{value: 'all', labelKey: 'SUPPORT_CENTER.FILTERS.ALL_TYPES'}].concat(this.articleTypeOptions.map((x: any) => ({value: x, labelKey: this.articleTypeKey(x)}))); }
+  get mappedCategoryOptions() { return this.categoryOptions.map((x: any) => ({value: x, labelKey: this.categoryKey(x)})); }
+  get mappedPriorityOptions() { return this.priorityOptions.map((x: any) => ({value: x, labelKey: this.priorityKey(x)})); }
+
   currentLang = 'ar';
   activeView: SupportCenterView = 'support';
   isFiltersExpanded = true;

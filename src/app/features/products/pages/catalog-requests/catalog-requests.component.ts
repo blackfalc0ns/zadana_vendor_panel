@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { CatalogService } from '../../services/catalog.service';
 import { ProductRequest } from '../../models/catalog.models';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
@@ -10,7 +11,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
 @Component({
   selector: 'app-catalog-requests',
   standalone: true,
-  imports: [CommonModule, FormsModule, TranslateModule, AppPageHeaderComponent, AppPaginationComponent],
+  imports: [CommonModule, FormsModule, TranslateModule, AppPageHeaderComponent, AppPaginationComponent, SearchableSelectComponent],
   template: `
     <div class="space-y-6" [dir]="translate.currentLang === 'ar' ? 'rtl' : 'ltr'">
       <app-page-header
@@ -22,21 +23,11 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
 
       <!-- Filters Section -->
       <div class="flex flex-wrap items-center gap-3 bg-slate-50/50 rounded-[24px] p-2 border border-slate-100 w-max shadow-sm">
-        <select [(ngModel)]="typeFilter" (ngModelChange)="loadRequests()" class="h-11 rounded-[16px] border text-center border-transparent bg-white px-5 text-sm font-black text-slate-700 shadow-sm outline-none hover:border-slate-200 focus:border-zadna-primary cursor-pointer transition-all">
-          <option value="all">{{ 'PRODUCTS.REQUESTS_ALL' | translate }}</option>
-          <option value="product">{{ 'PRODUCTS.REQUESTS_PRODUCTS' | translate }}</option>
-          <option value="brand">{{ 'PRODUCTS.REQUESTS_BRANDS' | translate }}</option>
-          <option value="category">{{ 'PRODUCTS.REQUESTS_CATEGORIES' | translate }}</option>
-        </select>
+        <app-searchable-select [(ngModel)]="typeFilter" (ngModelChange)="loadRequests()" [options]="[{value:'all', labelKey:'PRODUCTS.REQUESTS_ALL'},{value:'product', labelKey:'PRODUCTS.REQUESTS_PRODUCTS'},{value:'brand', labelKey:'PRODUCTS.REQUESTS_BRANDS'},{value:'category', labelKey:'PRODUCTS.REQUESTS_CATEGORIES'}]" [placeholder]="'PRODUCTS.FILTERS.TYPE'"></app-searchable-select>
 
         <div class="h-6 w-px bg-slate-200"></div>
 
-        <select [(ngModel)]="statusFilter" (ngModelChange)="loadRequests()" class="h-11 rounded-[16px] border text-center border-transparent bg-white px-5 text-sm font-black text-slate-700 shadow-sm outline-none hover:border-slate-200 focus:border-zadna-primary cursor-pointer transition-all">
-          <option value="all">{{ 'PRODUCTS.FILTERS.ALL_STATUSES' | translate }}</option>
-          <option value="Pending">{{ 'CATALOG.STATUS_PENDING' | translate }}</option>
-          <option value="Approved">{{ 'CATALOG.STATUS_APPROVED' | translate }}</option>
-          <option value="Rejected">{{ 'CATALOG.STATUS_REJECTED' | translate }}</option>
-        </select>
+        <app-searchable-select [(ngModel)]="statusFilter" (ngModelChange)="loadRequests()" [options]="[{value:'all', labelKey:'PRODUCTS.FILTERS.ALL_STATUSES'},{value:'Pending', labelKey:'CATALOG.STATUS_PENDING'},{value:'Approved', labelKey:'CATALOG.STATUS_APPROVED'},{value:'Rejected', labelKey:'CATALOG.STATUS_REJECTED'}]" [placeholder]="'PRODUCTS.FILTERS.STATUS'"></app-searchable-select>
       </div>
 
       <!-- Main List Container -->
@@ -194,8 +185,8 @@ export class CatalogRequestsComponent implements OnInit {
   getRequestContext(request: ProductRequest): string {
     const isArabic = this.translate.currentLang === 'ar';
     const localizedContext = isArabic
-      ? request.categoryNameAr || request.parentCategoryNameAr || request.suggestedBrandName
-      : request.categoryNameEn || request.parentCategoryNameEn || request.suggestedBrandNameEn || request.suggestedBrandName;
+      ? request.requestedPathAr || request.approvedPathAr || request.categoryNameAr || request.parentCategoryNameAr || request.suggestedBrandName
+      : request.requestedPathEn || request.approvedPathEn || request.categoryNameEn || request.parentCategoryNameEn || request.suggestedBrandNameEn || request.suggestedBrandName;
 
     return localizedContext || this.translate.instant('PRODUCTS.REQUESTS_NO_CONTEXT');
   }

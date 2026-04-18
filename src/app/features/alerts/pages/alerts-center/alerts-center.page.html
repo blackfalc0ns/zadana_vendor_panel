@@ -80,38 +80,17 @@
 
       <label class="space-y-2">
         <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ALERTS_CENTER.FILTERS.SOURCE' | translate }}</span>
-        <select
-          [(ngModel)]="filters.source"
-          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-          <option value="all">{{ 'ALERTS_CENTER.FILTERS.ALL_SOURCES' | translate }}</option>
-          @for (source of sourceOptions; track source) {
-            <option [value]="source">{{ sourceLabelKey(source) | translate }}</option>
-          }
-        </select>
+        <app-searchable-select [(ngModel)]="filters.source" [searchable]="false" [options]="mappedSourceOptions" [placeholder]="'ALERTS_CENTER.FILTERS.SOURCE'"></app-searchable-select>
       </label>
 
       <label class="space-y-2">
         <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ALERTS_CENTER.FILTERS.SEVERITY' | translate }}</span>
-        <select
-          [(ngModel)]="filters.severity"
-          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-          <option value="all">{{ 'ALERTS_CENTER.FILTERS.ALL_SEVERITY' | translate }}</option>
-          <option value="critical">{{ 'ALERTS_CENTER.SEVERITY.CRITICAL' | translate }}</option>
-          <option value="warning">{{ 'ALERTS_CENTER.SEVERITY.WARNING' | translate }}</option>
-          <option value="info">{{ 'ALERTS_CENTER.SEVERITY.INFO' | translate }}</option>
-        </select>
+        <app-searchable-select [(ngModel)]="filters.severity" [searchable]="false" [options]="severityFilterOptions" [placeholder]="'ALERTS_CENTER.FILTERS.SEVERITY'"></app-searchable-select>
       </label>
 
       <label class="space-y-2">
         <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ALERTS_CENTER.FILTERS.STATE' | translate }}</span>
-        <select
-          [(ngModel)]="filters.state"
-          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-          <option value="all">{{ 'ALERTS_CENTER.FILTERS.ALL_STATES' | translate }}</option>
-          <option value="unread">{{ 'ALERTS_CENTER.STATE.UNREAD' | translate }}</option>
-          <option value="read">{{ 'ALERTS_CENTER.STATE.READ' | translate }}</option>
-          <option value="archived">{{ 'ALERTS_CENTER.STATE.ARCHIVED' | translate }}</option>
-        </select>
+        <app-searchable-select [(ngModel)]="filters.state" [searchable]="false" [options]="stateFilterOptions" [placeholder]="'ALERTS_CENTER.FILTERS.STATE'"></app-searchable-select>
       </label>
     </app-filter-panel>
   }

@@ -134,13 +134,14 @@ export class CatalogService {
     return this.http.post<void>(`${this.baseUrl}/catalog/product-requests`, this.normalizeProductRequestPayload(data));
   }
 
-  submitBrandRequest(payload: { nameAr: string; nameEn: string; logoUrl?: string | null }): Observable<void> {
+  submitBrandRequest(payload: { categoryId: string; nameAr: string; nameEn: string; logoUrl?: string | null }): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/catalog/brand-requests`, payload);
   }
 
   submitCategoryRequest(payload: {
     nameAr: string;
     nameEn: string;
+    targetLevel: string;
     parentCategoryId?: string | null;
     displayOrder?: number;
     imageUrl?: string | null;
@@ -307,7 +308,12 @@ export class CatalogService {
           imageUrl: data.product.imageUrl || data.product.images?.[0]?.url || null
         },
         requestedBrand: data.requestedBrand || null,
-        requestedCategory: data.requestedCategory || null
+        requestedCategory: data.requestedCategory
+          ? {
+              ...data.requestedCategory,
+              targetLevel: data.requestedCategory.targetLevel
+            }
+          : null
       };
     }
 
@@ -349,6 +355,12 @@ export class CatalogService {
       suggestedBrandNameEn: item.brandNameEn || undefined,
       parentCategoryNameAr: item.parentCategoryNameAr || undefined,
       parentCategoryNameEn: item.parentCategoryNameEn || undefined,
+      requestKind: item.requestKind || undefined,
+      requestedLevelKey: item.requestedLevelKey || undefined,
+      requestedPathAr: item.requestedPathAr || undefined,
+      requestedPathEn: item.requestedPathEn || undefined,
+      approvedPathAr: item.approvedPathAr || undefined,
+      approvedPathEn: item.approvedPathEn || undefined,
       displayOrder: item.displayOrder ?? null,
       unitId: item.unitId || null,
       unitNameAr: item.unitNameAr || undefined,

@@ -90,47 +90,22 @@
 
       <label class="space-y-2">
         <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.TYPE' | translate }}</span>
-        <select
-          [(ngModel)]="filters.type"
-          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-          <option value="all">{{ 'REVIEWS.FILTERS.ALL_TYPES' | translate }}</option>
-          <option value="product">{{ 'REVIEWS.TYPES.PRODUCT' | translate }}</option>
-          <option value="order">{{ 'REVIEWS.TYPES.ORDER' | translate }}</option>
-        </select>
+        <app-searchable-select [(ngModel)]="filters.type" [options]="[{value: 'all', labelKey: 'REVIEWS.FILTERS.ALL_TYPES'}, {value: 'product', labelKey: 'REVIEWS.TYPES.PRODUCT'}, {value: 'order', labelKey: 'REVIEWS.TYPES.ORDER'}]" [placeholder]="'REVIEWS.FILTERS.TYPE'"></app-searchable-select>
       </label>
 
       <label class="space-y-2">
         <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.RATING' | translate }}</span>
-        <select
-          [(ngModel)]="filters.rating"
-          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-          <option value="all">{{ 'REVIEWS.FILTERS.ALL_RATINGS' | translate }}</option>
-          @for (star of stars; track star) {
-            <option [ngValue]="star">{{ 'REVIEWS.FILTERS.STARS_VALUE' | translate:{ count: star } }}</option>
-          }
-        </select>
+        <app-searchable-select [(ngModel)]="filters.rating" [options]="[{value: 'all', labelKey: 'REVIEWS.FILTERS.ALL_RATINGS'}, {value: '5', label: '5'}, {value: '4', label: '4'}, {value: '3', label: '3'}, {value: '2', label: '2'}, {value: '1', label: '1'}]" [placeholder]="'REVIEWS.FILTERS.RATING'"></app-searchable-select>
       </label>
 
       <label class="space-y-2">
         <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.VISIBILITY' | translate }}</span>
-        <select
-          [(ngModel)]="filters.visibility"
-          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-          <option value="all">{{ 'REVIEWS.FILTERS.ALL_VISIBILITY' | translate }}</option>
-          <option value="published">{{ 'REVIEWS.VISIBILITY.PUBLISHED' | translate }}</option>
-          <option value="hidden">{{ 'REVIEWS.VISIBILITY.HIDDEN' | translate }}</option>
-        </select>
+        <app-searchable-select [(ngModel)]="filters.visibility" [options]="[{value: 'all', labelKey: 'REVIEWS.FILTERS.ALL_VISIBILITY'}, {value: 'published', labelKey: 'REVIEWS.VISIBILITY.PUBLISHED'}, {value: 'hidden', labelKey: 'REVIEWS.VISIBILITY.HIDDEN'}]" [placeholder]="'REVIEWS.FILTERS.VISIBILITY'"></app-searchable-select>
       </label>
 
       <label class="space-y-2">
         <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.REPLY_STATUS' | translate }}</span>
-        <select
-          [(ngModel)]="filters.replyStatus"
-          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-          <option value="all">{{ 'REVIEWS.FILTERS.ALL_REPLY_STATUS' | translate }}</option>
-          <option value="none">{{ 'REVIEWS.REPLY_STATUS.NONE' | translate }}</option>
-          <option value="replied">{{ 'REVIEWS.REPLY_STATUS.REPLIED' | translate }}</option>
-        </select>
+        <app-searchable-select [(ngModel)]="filters.replyStatus" [options]="[{value: 'all', labelKey: 'REVIEWS.FILTERS.ALL_REPLY_STATUS'}, {value: 'none', labelKey: 'REVIEWS.REPLY_STATUS.NONE'}, {value: 'replied', labelKey: 'REVIEWS.REPLY_STATUS.REPLIED'}]" [placeholder]="'REVIEWS.FILTERS.REPLY_STATUS'"></app-searchable-select>
       </label>
 
       <label class="space-y-2">
@@ -151,13 +126,7 @@
 
       <label class="space-y-2">
         <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.FILTERS.SORT' | translate }}</span>
-        <select
-          [(ngModel)]="filters.sortBy"
-          class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5">
-          <option value="newest">{{ 'REVIEWS.SORT.NEWEST' | translate }}</option>
-          <option value="rating_low">{{ 'REVIEWS.SORT.RATING_LOW' | translate }}</option>
-          <option value="rating_high">{{ 'REVIEWS.SORT.RATING_HIGH' | translate }}</option>
-        </select>
+        <app-searchable-select [(ngModel)]="filters.sortBy" [options]="[{value: 'newest', labelKey: 'REVIEWS.SORT.NEWEST'}, {value: 'rating_low', labelKey: 'REVIEWS.SORT.RATING_LOW'}, {value: 'rating_high', labelKey: 'REVIEWS.SORT.RATING_HIGH'}]" [placeholder]="'REVIEWS.FILTERS.SORT'"></app-searchable-select>
       </label>
     </app-filter-panel>
   }

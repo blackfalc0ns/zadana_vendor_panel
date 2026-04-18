@@ -2,6 +2,7 @@ import { CommonModule, NgClass } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { finalize } from 'rxjs';
 import { Subscription } from 'rxjs';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
@@ -15,7 +16,7 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
 @Component({
   selector: 'app-vendor-profile-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, NgClass, AppPageHeaderComponent, AppPanelHeaderComponent, DetailTabsNavComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, NgClass, AppPageHeaderComponent, AppPanelHeaderComponent, DetailTabsNavComponent, SearchableSelectComponent],
   template: `
     <div class="space-y-6 pb-16" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
 
@@ -113,16 +114,8 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <label class="space-y-2.5">
                     <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.BUSINESS_TYPE' | translate }}</span>
                     <div class="relative">
-                      <select formControlName="businessType" [ngClass]="selectClass('businessType')">
-                        @for (option of optionsWithCurrent(businessTypes, profileForm.get('businessType')?.value); track option.value) {
-                          <option [value]="option.value">{{ option.labelKey ? (option.labelKey | translate) : option.value }}</option>
-                        }
-                      </select>
-                      <span class="pointer-events-none absolute inset-y-0 flex items-center text-slate-400" [ngClass]="currentLang === 'ar' ? 'left-2.5' : 'right-2.5'">
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                        </svg>
-                      </span>
+                      <app-searchable-select formControlName="businessType" [options]="businessTypeOptions" [placeholder]="'SETTINGS_PROFILE.FIELDS.BUSINESS_TYPE'"></app-searchable-select>
+                      
                     </div>
                   </label>
                 </div>
@@ -232,32 +225,16 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                     <label class="space-y-2.5">
                       <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.REGION' | translate }}</span>
                       <div class="relative">
-                        <select formControlName="region" [ngClass]="selectClass('region')">
-                          @for (option of optionsWithCurrent(regions, profileForm.get('region')?.value); track option.value) {
-                            <option [value]="option.value">{{ option.labelKey ? (option.labelKey | translate) : option.value }}</option>
-                          }
-                        </select>
-                        <span class="pointer-events-none absolute inset-y-0 flex items-center text-slate-400" [ngClass]="currentLang === 'ar' ? 'left-2.5' : 'right-2.5'">
-                          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                          </svg>
-                        </span>
+                        <app-searchable-select formControlName="region" [options]="regionOptions" [placeholder]="'SETTINGS_PROFILE.FIELDS.REGION'"></app-searchable-select>
+                        
                       </div>
                     </label>
 
                     <label class="space-y-2.5">
                       <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.CITY' | translate }}</span>
                       <div class="relative">
-                        <select formControlName="city" [ngClass]="selectClass('city')">
-                          @for (option of optionsWithCurrent(cities, profileForm.get('city')?.value); track option.value) {
-                            <option [value]="option.value">{{ option.labelKey ? (option.labelKey | translate) : option.value }}</option>
-                          }
-                        </select>
-                        <span class="pointer-events-none absolute inset-y-0 flex items-center text-slate-400" [ngClass]="currentLang === 'ar' ? 'left-2.5' : 'right-2.5'">
-                          <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                          </svg>
-                        </span>
+                        <app-searchable-select formControlName="city" [options]="cityOptions" [placeholder]="'SETTINGS_PROFILE.FIELDS.CITY'"></app-searchable-select>
+                        
                       </div>
                     </label>
                   </div>
@@ -321,16 +298,8 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <label class="space-y-2.5 block">
                     <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.NATIONALITY' | translate }}</span>
                     <div class="relative">
-                      <select formControlName="nationality" [ngClass]="selectClass('nationality')">
-                        @for (option of optionsWithCurrent(nationalities, profileForm.get('nationality')?.value); track option.value) {
-                          <option [value]="option.value">{{ option.labelKey ? (option.labelKey | translate) : option.value }}</option>
-                        }
-                      </select>
-                      <span class="pointer-events-none absolute inset-y-0 flex items-center text-slate-400" [ngClass]="currentLang === 'ar' ? 'left-2.5' : 'right-2.5'">
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                        </svg>
-                      </span>
+                      <app-searchable-select formControlName="nationality" [options]="nationalityOptions" [placeholder]="'ONBOARDING.FIELDS.NATIONALITY'"></app-searchable-select>
+                      
                     </div>
                   </label>
 
@@ -433,32 +402,16 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                   <label class="space-y-2.5 block">
                     <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.BANK_NAME' | translate }}</span>
                     <div class="relative">
-                      <select formControlName="bankName" [ngClass]="selectClass('bankName')">
-                        @for (option of optionsWithCurrent(banks, profileForm.get('bankName')?.value); track option.value) {
-                          <option [value]="option.value">{{ option.labelKey ? (option.labelKey | translate) : option.value }}</option>
-                        }
-                      </select>
-                      <span class="pointer-events-none absolute inset-y-0 flex items-center text-slate-400" [ngClass]="currentLang === 'ar' ? 'left-2.5' : 'right-2.5'">
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                        </svg>
-                      </span>
+                      <app-searchable-select formControlName="bankName" [options]="bankOptions" [placeholder]="'ONBOARDING.FIELDS.BANK_NAME'"></app-searchable-select>
+                      
                     </div>
                   </label>
 
                   <label class="space-y-2.5 block">
                     <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.PAYMENT_CYCLE' | translate }}</span>
                     <div class="relative">
-                      <select formControlName="payoutCycle" [ngClass]="selectClass('payoutCycle')">
-                        @for (option of optionsWithCurrent(paymentCycles, profileForm.get('payoutCycle')?.value); track option.value) {
-                          <option [value]="option.value">{{ option.labelKey ? (option.labelKey | translate) : option.value }}</option>
-                        }
-                      </select>
-                      <span class="pointer-events-none absolute inset-y-0 flex items-center text-slate-400" [ngClass]="currentLang === 'ar' ? 'left-2.5' : 'right-2.5'">
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-                        </svg>
-                      </span>
+                      <app-searchable-select formControlName="payoutCycle" [options]="paymentCycleOptions" [placeholder]="'ONBOARDING.FIELDS.PAYMENT_CYCLE'"></app-searchable-select>
+                      
                     </div>
                   </label>
 
@@ -684,6 +637,22 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   profileForm: FormGroup;
   private langSub: Subscription;
   private profileSub?: Subscription;
+
+  buildFormOptions(options: any[]): SearchableSelectOption[] {
+    return options.map(opt => ({
+      value: opt.value,
+      labelKey: opt.labelKey,
+      label: opt.label
+    }));
+  }
+
+  get businessTypeOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.businessTypes); }
+  get regionOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.regions); }
+  get cityOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.cities); }
+  get nationalityOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.nationalities); }
+  get bankOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.banks); }
+  get paymentCycleOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.paymentCycles); }
+  
   readonly businessTypes = BUSINESS_TYPES;
   readonly regions = REGIONS;
   readonly cities = CITIES;
