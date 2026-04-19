@@ -7,6 +7,8 @@ import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { VendorProfileService } from '../../features/settings/services/vendor-profile.service';
 import { VendorAuthService } from '../auth/services/vendor-auth.service';
+import { VendorProfile } from '../../features/settings/models/vendor-profile.models';
+import { repairUtf8Mojibake } from '../../shared/utils/text-normalization.util';
 
 @Component({
   selector: 'app-vendor-layout',
@@ -21,6 +23,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   userName = 'Vendor User';
   userRole = 'Vendor Account';
   initials = 'VU';
+  activationProfile: VendorProfile;
   private langSub?: Subscription;
   private profileSub?: Subscription;
 
@@ -29,7 +32,9 @@ export class LayoutComponent implements OnInit, OnDestroy {
     private readonly router: Router,
     private readonly profileService: VendorProfileService,
     private readonly authService: VendorAuthService
-  ) {}
+  ) {
+    this.activationProfile = this.profileService.getProfileSnapshot();
+  }
 
   ngOnInit(): void {
     this.currentLang = this.translate.currentLang || 'ar';
@@ -43,16 +48,13 @@ export class LayoutComponent implements OnInit, OnDestroy {
       this.userRole = this.translate.instant('SETTINGS_PROFILE.ROLE_LABEL');
 
       const profile = this.profileService.getProfileSnapshot();
-      this.userName = this.currentLang === 'ar'
-        ? (profile.storeNameAr || profile.storeNameEn || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'))
-        : (profile.storeNameEn || profile.storeNameAr || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
+      this.userName = this.resolveDisplayName(profile);
       this.initials = this.buildInitials(this.userName);
     });
 
     this.profileSub = this.profileService.getProfile().subscribe((profile) => {
-      this.userName = this.currentLang === 'ar'
-        ? (profile.storeNameAr || profile.storeNameEn || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'))
-        : (profile.storeNameEn || profile.storeNameAr || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
+      this.activationProfile = profile;
+      this.userName = this.resolveDisplayName(profile);
       this.initials = this.buildInitials(this.userName);
       localStorage.setItem('onboarding_biz_name', this.userName);
     });
@@ -81,6 +83,55 @@ export class LayoutComponent implements OnInit, OnDestroy {
     });
   }
 
+  get showActivationBanner(): boolean {
+    return !this.activationProfile.commercialAccessEnabled;
+  }
+
+  get activationBannerToneClasses(): string {
+    switch ((this.activationProfile.reviewState || '').toLowerCase()) {
+      case 'changesrequested':
+        return 'border-amber-200 bg-amber-50/90 text-amber-950';
+      case 'rejected':
+      case 'suspended':
+        return 'border-rose-200 bg-rose-50/90 text-rose-950';
+      default:
+        return 'border-sky-200 bg-sky-50/90 text-sky-950';
+    }
+  }
+
+  get activationStateLabel(): string {
+    switch ((this.activationProfile.reviewState || '').toLowerCase()) {
+      case 'awaitingsubmission':
+        return this.currentLang === 'ar' ? 'بانتظار الإرسال للمراجعة' : 'Awaiting submission';
+      case 'submitted':
+        return this.currentLang === 'ar' ? 'تم الإرسال للمراجعة' : 'Submitted for review';
+      case 'underreview':
+        return this.currentLang === 'ar' ? 'قيد المراجعة' : 'Under review';
+      case 'changesrequested':
+        return this.currentLang === 'ar' ? 'مطلوب تعديلات' : 'Changes requested';
+      case 'rejected':
+        return this.currentLang === 'ar' ? 'مرفوض' : 'Rejected';
+      case 'suspended':
+        return this.currentLang === 'ar' ? 'معلق' : 'Suspended';
+      default:
+        return this.currentLang === 'ar' ? 'غير مفعل' : 'Not activated';
+    }
+  }
+
+  get activationSummary(): string {
+    if (this.activationProfile.requiredActions.length > 0) {
+      return repairUtf8Mojibake(this.activationProfile.requiredActions[0].message);
+    }
+
+    if (this.activationProfile.lastReviewDecision) {
+      return repairUtf8Mojibake(this.activationProfile.lastReviewDecision);
+    }
+
+    return this.currentLang === 'ar'
+      ? 'يمكنك الدخول لكل أجزاء اللوحة، لكن النشر والطلبات والتسويات ستظل محجوبة حتى الاعتماد النهائي.'
+      : 'You can access the full workspace, but publishing, orders, and payouts stay blocked until final approval.';
+  }
+
   private updateHtmlAttributes(lang: string): void {
     const htmlTag = document.getElementsByTagName('html')[0];
     htmlTag.dir = lang === 'ar' ? 'rtl' : 'ltr';
@@ -94,6 +145,14 @@ export class LayoutComponent implements OnInit, OnDestroy {
     }
 
     return (name || 'VU').substring(0, 2).toUpperCase();
+  }
+
+  private resolveDisplayName(profile: VendorProfile): string {
+    const rawName = this.currentLang === 'ar'
+      ? (profile.storeNameAr || profile.storeNameEn || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'))
+      : (profile.storeNameEn || profile.storeNameAr || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
+
+    return repairUtf8Mojibake(rawName);
   }
 
   private scheduleProfilePrefetch(): void {

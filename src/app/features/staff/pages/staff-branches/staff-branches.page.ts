@@ -12,7 +12,6 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
 import { AppFilterPanelComponent } from '../../../../shared/components/ui/layout/filter-panel/filter-panel.component';
 import { AppPageSectionShellComponent } from '../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
-import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
 import {
   BranchCreationInput,
   BranchOperatingHourVm,
@@ -60,8 +59,8 @@ import {
     AppFlashBannerComponent,
     AppFilterPanelComponent,
     AppPageSectionShellComponent,
-    AppModalShellComponent
-  , SearchableSelectComponent],
+    SearchableSelectComponent
+  ],
   templateUrl: './staff-branches.page.html'
 })
 export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {

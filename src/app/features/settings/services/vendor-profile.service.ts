@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { VendorAuthService } from '../../../core/auth/services/vendor-auth.service';
-import { VendorOperatingHour, VendorProfile } from '../models/vendor-profile.models';
+import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem, VendorReviewSummary } from '../models/vendor-profile.models';
 
 interface ApiEnvelope<T> {
   data?: T;
@@ -39,6 +39,51 @@ interface VendorWorkspaceApi {
   logoUrl?: string | null;
   commercialRegisterDocumentUrl?: string | null;
   createdAtUtc: string;
+  countryCode?: string | null;
+  complianceProfile?: string | null;
+  reviewState?: string | null;
+  commercialAccessEnabled?: boolean;
+  assignedReviewerId?: string | null;
+  assignedReviewerName?: string | null;
+  reviewSubmittedAtUtc?: string | null;
+  reviewStartedAtUtc?: string | null;
+  reviewCompletedAtUtc?: string | null;
+  requestedChangesAtUtc?: string | null;
+  lastReviewDecision?: string | null;
+  reviewSummary?: {
+    totalItems: number;
+    approvedItems: number;
+    pendingVendorItems: number;
+    submittedItems: number;
+    changesRequestedItems: number;
+    waivedItems: number;
+  } | null;
+  reviewItems?: Array<{
+    code: string;
+    status: string;
+    reviewerId?: string | null;
+    reviewerName?: string | null;
+    decisionNote?: string | null;
+    lastSubmittedAtUtc?: string | null;
+    reviewedAtUtc?: string | null;
+  }> | null;
+  requiredActions?: Array<{
+    code: string;
+    message: string;
+  }> | null;
+  reviewAuditEntries?: Array<{
+    id: string;
+    kind: string;
+    tone: string;
+    message: string;
+    roleLabel: string;
+    authorName: string;
+    createdAtUtc: string;
+    actorUserId?: string | null;
+    reviewItemCode?: string | null;
+  }> | null;
+  missingDocumentsCount?: number;
+  canSubmitForReview?: boolean;
   operationsSettings?: {
     acceptOrders: boolean;
     minimumOrderAmount?: number | null;
@@ -123,6 +168,17 @@ export class VendorProfileService {
         this.hasLoaded = true;
         this.profileSubject.next(nextProfile);
         localStorage.setItem('onboarding_biz_name', nextProfile.storeNameAr || nextProfile.storeNameEn || 'Vendor');
+      })
+    );
+  }
+
+  submitForReview(): Observable<VendorProfile> {
+    return this.http.post<ApiEnvelope<VendorWorkspaceApi>>(`${this.apiUrl}/submit-for-review`, {}).pipe(
+      map((response) => this.unwrap(response)),
+      map((workspace) => this.mapWorkspaceToProfile(workspace)),
+      tap((profile) => {
+        this.hasLoaded = true;
+        this.profileSubject.next(profile);
       })
     );
   }
@@ -223,6 +279,22 @@ export class VendorProfileService {
     const operatingHours = [...(workspace.operatingHours || [])]
       .sort((left, right) => this.daySortIndex(left.dayOfWeek) - this.daySortIndex(right.dayOfWeek))
       .map((item) => this.mapHour(item.dayOfWeek, item.openTime, item.closeTime, item.isOpen));
+    const reviewSummary: VendorReviewSummary = workspace.reviewSummary ?? {
+      totalItems: 0,
+      approvedItems: 0,
+      pendingVendorItems: 0,
+      submittedItems: 0,
+      changesRequestedItems: 0,
+      waivedItems: 0
+    };
+    const reviewItems: VendorReviewItem[] = (workspace.reviewItems ?? []).map((item) => ({
+      ...item
+    }));
+    const reviewAuditEntries: VendorReviewAuditEntry[] = (workspace.reviewAuditEntries ?? []).map((entry) => ({
+      ...entry,
+      tone: this.normalizeTone(entry.tone)
+    }));
+    const reviewState = workspace.reviewState || (workspace.status === 'Active' ? 'Verified' : 'AwaitingSubmission');
 
     return {
       storeNameAr: workspace.businessNameAr || '',
@@ -251,6 +323,23 @@ export class VendorProfileService {
       hasLogo: !!workspace.logoUrl,
       hasCRDoc: !!workspace.commercialRegisterDocumentUrl,
       reviewStatus: workspace.status === 'Active' ? 'active' : 'pending',
+      reviewState,
+      commercialAccessEnabled: !!workspace.commercialAccessEnabled || workspace.status === 'Active',
+      countryCode: workspace.countryCode || 'SA',
+      complianceProfile: workspace.complianceProfile || 'SA_DEFAULT',
+      assignedReviewerId: workspace.assignedReviewerId || null,
+      assignedReviewerName: workspace.assignedReviewerName || null,
+      reviewSubmittedAtUtc: workspace.reviewSubmittedAtUtc || null,
+      reviewStartedAtUtc: workspace.reviewStartedAtUtc || null,
+      reviewCompletedAtUtc: workspace.reviewCompletedAtUtc || null,
+      requestedChangesAtUtc: workspace.requestedChangesAtUtc || null,
+      lastReviewDecision: workspace.lastReviewDecision || null,
+      reviewSummary,
+      reviewItems,
+      requiredActions: workspace.requiredActions ?? [],
+      reviewAuditEntries,
+      missingDocumentsCount: workspace.missingDocumentsCount ?? workspace.requiredActions?.length ?? 0,
+      canSubmitForReview: workspace.canSubmitForReview ?? false,
       joinedAt: this.formatDate(workspace.createdAtUtc),
       operatingHours: operatingHours.length ? operatingHours : this.getDefaultProfile().operatingHours,
       acceptOrders: workspace.operationsSettings?.acceptOrders ?? true,
@@ -314,6 +403,20 @@ export class VendorProfileService {
     return date.toISOString().slice(0, 10);
   }
 
+  private normalizeTone(value?: string | null): 'info' | 'success' | 'warning' | 'danger' {
+    switch ((value || '').toLowerCase()) {
+      case 'success':
+        return 'success';
+      case 'warning':
+        return 'warning';
+      case 'danger':
+      case 'error':
+        return 'danger';
+      default:
+        return 'info';
+    }
+  }
+
   private getDefaultProfile(): VendorProfile {
     return {
       storeNameAr: '',
@@ -342,6 +445,30 @@ export class VendorProfileService {
       hasLogo: false,
       hasCRDoc: false,
       reviewStatus: 'pending',
+      reviewState: 'AwaitingSubmission',
+      commercialAccessEnabled: false,
+      countryCode: 'SA',
+      complianceProfile: 'SA_DEFAULT',
+      assignedReviewerId: null,
+      assignedReviewerName: null,
+      reviewSubmittedAtUtc: null,
+      reviewStartedAtUtc: null,
+      reviewCompletedAtUtc: null,
+      requestedChangesAtUtc: null,
+      lastReviewDecision: null,
+      reviewSummary: {
+        totalItems: 0,
+        approvedItems: 0,
+        pendingVendorItems: 0,
+        submittedItems: 0,
+        changesRequestedItems: 0,
+        waivedItems: 0
+      },
+      reviewItems: [],
+      requiredActions: [],
+      reviewAuditEntries: [],
+      missingDocumentsCount: 0,
+      canSubmitForReview: false,
       joinedAt: '',
       acceptOrders: true,
       minimumOrderAmount: null,

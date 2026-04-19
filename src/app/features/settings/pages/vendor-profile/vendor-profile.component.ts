@@ -9,7 +9,7 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { DetailTabsNavComponent, DetailTabNavItem } from '../../../../shared/components/ui/navigation/detail-tabs-nav/detail-tabs-nav.component';
 import { BANKS, BUSINESS_TYPES, CITIES, NATIONALITIES, PAYMENT_CYCLES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
-import { VendorOperatingHour, VendorProfile } from '../../models/vendor-profile.models';
+import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
 import { VendorProfileService } from '../../services/vendor-profile.service';
 import { ProfileSectionNavItem } from './vendor-profile.view-models';
 
@@ -25,6 +25,47 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
         [description]="'SETTINGS_PROFILE.SUBTITLE' | translate"
       ></app-page-header>
 
+      <section
+        *ngIf="!currentProfile.commercialAccessEnabled"
+        class="rounded-[28px] border px-5 py-5 shadow-sm"
+        [ngClass]="activationBannerClasses">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div class="space-y-3">
+            <span class="inline-flex items-center gap-2 rounded-full border border-current/10 bg-white/75 px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.14em]">
+              <span class="h-2 w-2 rounded-full bg-current/70"></span>
+              {{ reviewStateLabel }}
+            </span>
+            <div>
+              <h2 class="text-[1.05rem] font-black">
+                {{ currentLang === 'ar' ? 'ملف التاجر جاهز للعمل الداخلي لكن التشغيل التجاري ما زال محجوباً' : 'The vendor workspace is ready for setup, but commercial activation is still blocked' }}
+              </h2>
+              <p class="mt-2 max-w-3xl text-[0.82rem] font-semibold leading-6 text-current/80">
+                {{ currentProfile.lastReviewDecision || (currentLang === 'ar'
+                  ? 'يمكنك تجهيز الملف والفروع وساعات العمل والبيانات القانونية من هذه الصفحة، ثم إرسال الملف للمراجعة أو إعادة إرساله بعد استكمال المطلوب.'
+                  : 'You can complete profile, branch, hours, and legal data here, then submit or resubmit the file for compliance review.') }}
+              </p>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="submitForReview()"
+            [disabled]="submitReviewDisabled"
+            class="inline-flex items-center justify-center gap-2 rounded-[18px] bg-slate-950 px-4 py-3 text-[0.78rem] font-black text-white shadow-[0_18px_28px_rgba(15,23,42,0.18)] transition hover:-translate-y-0.5 disabled:opacity-60">
+            <span *ngIf="isSubmittingReview" class="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white"></span>
+            {{ submitReviewLabel }}
+          </button>
+        </div>
+
+        <div *ngIf="currentProfile.requiredActions.length > 0" class="mt-4 flex flex-wrap gap-2">
+          <span
+            *ngFor="let action of currentProfile.requiredActions"
+            class="inline-flex items-center rounded-full border border-current/10 bg-white/75 px-3 py-1.5 text-[0.7rem] font-black">
+            {{ action.message }}
+          </span>
+        </div>
+      </section>
+
       <section class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
         <div class="px-5 py-5 md:px-6">
         <div>
@@ -38,9 +79,9 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                 <p class="text-[0.72rem] font-extrabold uppercase tracking-[0.18em] text-slate-400">{{ 'COMMON.PROFILE' | translate }}</p>
                 <div class="mt-1.5 flex flex-wrap items-center gap-2.5">
                   <h2 class="text-[clamp(1.25rem,3vw,1.95rem)] font-black leading-[1.08] text-slate-900">{{ displayStoreName }}</h2>
-                  <span class="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-[0.66rem] font-extrabold text-emerald-700">
-                    <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-                    {{ 'SIDEBAR.VERIFIED_VENDOR' | translate }}
+                  <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.66rem] font-extrabold" [ngClass]="reviewStateBadgeClasses">
+                    <span class="h-2 w-2 rounded-full" [ngClass]="reviewStateDotClass"></span>
+                    {{ reviewStateLabel }}
                   </span>
                 </div>
                 <p class="mt-1.5 max-w-2xl text-[0.78rem] font-bold leading-5 text-slate-500">
@@ -623,6 +664,61 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
                 }
                 {{ 'SETTINGS_PROFILE.SAVE' | translate }}
               </button>
+
+              <div class="rounded-[20px] border border-slate-200 bg-white p-4">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">
+                      {{ currentLang === 'ar' ? 'حالة الاعتماد' : 'Review progress' }}
+                    </p>
+                    <h4 class="mt-1 text-[0.9rem] font-black text-slate-900">{{ reviewStateLabel }}</h4>
+                  </div>
+                  <span class="text-[0.9rem] font-black text-slate-900">{{ reviewProgressPercent }}%</span>
+                </div>
+                <div class="mt-3 h-2 rounded-full bg-slate-100">
+                  <div class="h-2 rounded-full bg-zadna-primary transition-all duration-300" [style.width.%]="reviewProgressPercent"></div>
+                </div>
+
+                <div class="mt-4 space-y-2.5">
+                  <div
+                    *ngFor="let item of currentProfile.reviewItems"
+                    class="rounded-[16px] border px-3 py-3"
+                    [ngClass]="reviewItemCardClasses(item)">
+                    <div class="flex items-start justify-between gap-3">
+                      <div>
+                        <p class="text-[0.74rem] font-black text-slate-900">{{ reviewItemLabel(item.code) }}</p>
+                        <p *ngIf="item.decisionNote" class="mt-1 text-[0.7rem] font-semibold text-slate-500">{{ item.decisionNote }}</p>
+                      </div>
+                      <span class="rounded-full px-2.5 py-1 text-[0.64rem] font-black uppercase tracking-[0.12em]" [ngClass]="reviewItemStatusBadgeClasses(item)">
+                        {{ reviewItemStatusLabel(item.status) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="rounded-[20px] border border-slate-200 bg-white p-4">
+                <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">
+                  {{ currentLang === 'ar' ? 'السجل الزمني للمراجعة' : 'Review timeline' }}
+                </p>
+                <div class="mt-4 space-y-3">
+                  <article *ngFor="let entry of timelineEntries" class="flex gap-3">
+                    <div class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full" [ngClass]="timelineToneDotClasses(entry)"></div>
+                    <div class="min-w-0">
+                      <div class="flex flex-wrap items-center gap-2">
+                        <span class="text-[0.74rem] font-black text-slate-900">{{ entry.authorName }}</span>
+                        <span class="text-[0.66rem] font-bold text-slate-400">{{ entry.roleLabel }}</span>
+                      </div>
+                      <p class="mt-1 text-[0.72rem] font-semibold leading-5 text-slate-600">{{ entry.message }}</p>
+                      <p class="mt-1 text-[0.64rem] font-black uppercase tracking-[0.12em] text-slate-400">{{ formatReviewDate(entry.createdAtUtc) }}</p>
+                    </div>
+                  </article>
+
+                  <p *ngIf="timelineEntries.length === 0" class="text-[0.74rem] font-semibold text-slate-500">
+                    {{ currentLang === 'ar' ? 'لا يوجد نشاط مراجعة بعد.' : 'No review activity yet.' }}
+                  </p>
+                </div>
+              </div>
             </div>
           </section>
         </div>
@@ -633,8 +729,10 @@ import { ProfileSectionNavItem } from './vendor-profile.view-models';
 export class VendorProfileComponent implements OnInit, OnDestroy {
   currentLang = 'ar';
   isSaving = false;
+  isSubmittingReview = false;
   activeTab = 'store-section';
   profileForm: FormGroup;
+  currentProfile: VendorProfile;
   private langSub: Subscription;
   private profileSub?: Subscription;
 
@@ -701,10 +799,12 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => this.currentLang = event.lang);
     this.profileForm = this.buildForm();
+    this.currentProfile = this.profileService.getProfileSnapshot();
   }
 
   ngOnInit(): void {
     this.profileSub = this.profileService.getProfile().subscribe((profile) => {
+      this.currentProfile = profile;
       this.patchProfile(profile);
     });
 
@@ -793,19 +893,106 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   }
 
   get statusBadgeClass(): string {
-    return this.profileForm.value.reviewStatus === 'active'
+    return this.currentProfile.commercialAccessEnabled
       ? 'border-emerald-100 bg-emerald-50 text-emerald-600'
       : 'border-amber-100 bg-amber-50 text-amber-600';
   }
 
   get statusDotClass(): string {
-    return this.profileForm.value.reviewStatus === 'active' ? 'bg-emerald-500' : 'bg-amber-500';
+    return this.currentProfile.commercialAccessEnabled ? 'bg-emerald-500' : 'bg-amber-500';
   }
 
   get profileStatusLabelKey(): string {
-    return this.profileForm.value.reviewStatus === 'active'
+    return this.currentProfile.commercialAccessEnabled
       ? 'SETTINGS_PROFILE.STATUS_ACTIVE'
       : 'SETTINGS_PROFILE.STATUS_PENDING';
+  }
+
+  get reviewStateLabel(): string {
+    switch ((this.currentProfile.reviewState || '').toLowerCase()) {
+      case 'awaitingsubmission':
+        return this.currentLang === 'ar' ? 'بانتظار الإرسال' : 'Awaiting submission';
+      case 'submitted':
+        return this.currentLang === 'ar' ? 'تم الإرسال' : 'Submitted';
+      case 'underreview':
+        return this.currentLang === 'ar' ? 'قيد المراجعة' : 'Under review';
+      case 'changesrequested':
+        return this.currentLang === 'ar' ? 'مطلوب تعديلات' : 'Changes requested';
+      case 'verified':
+        return this.currentLang === 'ar' ? 'معتمد' : 'Verified';
+      case 'rejected':
+        return this.currentLang === 'ar' ? 'مرفوض' : 'Rejected';
+      case 'suspended':
+        return this.currentLang === 'ar' ? 'معلق' : 'Suspended';
+      default:
+        return this.currentLang === 'ar' ? 'قيد الإعداد' : 'In setup';
+    }
+  }
+
+  get activationBannerClasses(): string {
+    switch ((this.currentProfile.reviewState || '').toLowerCase()) {
+      case 'changesrequested':
+        return 'border-amber-200 bg-amber-50/90 text-amber-950';
+      case 'rejected':
+      case 'suspended':
+        return 'border-rose-200 bg-rose-50/90 text-rose-950';
+      default:
+        return 'border-sky-200 bg-sky-50/90 text-sky-950';
+    }
+  }
+
+  get reviewStateBadgeClasses(): string {
+    if (this.currentProfile.commercialAccessEnabled) {
+      return 'border border-emerald-200 bg-emerald-50 text-emerald-700';
+    }
+
+    if ((this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested') {
+      return 'border border-amber-200 bg-amber-50 text-amber-700';
+    }
+
+    if ((this.currentProfile.reviewState || '').toLowerCase() === 'rejected'
+      || (this.currentProfile.reviewState || '').toLowerCase() === 'suspended') {
+      return 'border border-rose-200 bg-rose-50 text-rose-700';
+    }
+
+    return 'border border-sky-200 bg-sky-50 text-sky-700';
+  }
+
+  get reviewStateDotClass(): string {
+    if (this.currentProfile.commercialAccessEnabled) {
+      return 'bg-emerald-500';
+    }
+
+    if ((this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested') {
+      return 'bg-amber-500';
+    }
+
+    if ((this.currentProfile.reviewState || '').toLowerCase() === 'rejected'
+      || (this.currentProfile.reviewState || '').toLowerCase() === 'suspended') {
+      return 'bg-rose-500';
+    }
+
+    return 'bg-sky-500';
+  }
+
+  get submitReviewDisabled(): boolean {
+    return this.isSubmittingReview || this.isSaving || this.profileForm.invalid || !this.currentProfile.canSubmitForReview;
+  }
+
+  get submitReviewLabel(): string {
+    return (this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested'
+      ? (this.currentLang === 'ar' ? 'إعادة الإرسال للمراجعة' : 'Resubmit for review')
+      : (this.currentLang === 'ar' ? 'إرسال للمراجعة' : 'Submit for review');
+  }
+
+  get reviewProgressPercent(): number {
+    const total = this.currentProfile.reviewSummary.totalItems || Math.max(this.currentProfile.reviewItems.length, 1);
+    const approved = this.currentProfile.reviewSummary.approvedItems || 0;
+    return Math.round((approved / total) * 100);
+  }
+
+  get timelineEntries(): VendorReviewAuditEntry[] {
+    return this.currentProfile.reviewAuditEntries.slice(0, 5);
   }
 
   scrollToSection(sectionId: string): void {
@@ -948,6 +1135,98 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
           console.error('Failed to save vendor profile.', error);
         }
       });
+  }
+
+  submitForReview(): void {
+    if (this.submitReviewDisabled) {
+      this.profileForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmittingReview = true;
+    this.profileService.submitForReview()
+      .pipe(finalize(() => {
+        this.isSubmittingReview = false;
+      }))
+      .subscribe({
+        error: (error) => {
+          console.error('Failed to submit vendor profile for review.', error);
+        }
+      });
+  }
+
+  reviewItemLabel(code: string): string {
+    const normalized = code.replace(/([a-z])([A-Z])/g, '$1 $2');
+    return normalized
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  reviewItemStatusLabel(status: string): string {
+    switch ((status || '').toLowerCase()) {
+      case 'approved':
+        return this.currentLang === 'ar' ? 'معتمد' : 'Approved';
+      case 'submitted':
+        return this.currentLang === 'ar' ? 'مُرسل' : 'Submitted';
+      case 'changesrequested':
+        return this.currentLang === 'ar' ? 'تعديلات' : 'Changes';
+      case 'waived':
+        return this.currentLang === 'ar' ? 'مستثنى' : 'Waived';
+      default:
+        return this.currentLang === 'ar' ? 'بانتظارك' : 'Pending vendor';
+    }
+  }
+
+  reviewItemCardClasses(item: VendorReviewItem): string {
+    switch ((item.status || '').toLowerCase()) {
+      case 'approved':
+        return 'border-emerald-100 bg-emerald-50/70';
+      case 'changesrequested':
+        return 'border-amber-100 bg-amber-50/70';
+      case 'submitted':
+        return 'border-sky-100 bg-sky-50/70';
+      default:
+        return 'border-slate-200 bg-slate-50/80';
+    }
+  }
+
+  reviewItemStatusBadgeClasses(item: VendorReviewItem): string {
+    switch ((item.status || '').toLowerCase()) {
+      case 'approved':
+        return 'bg-emerald-100 text-emerald-700';
+      case 'changesrequested':
+        return 'bg-amber-100 text-amber-700';
+      case 'submitted':
+        return 'bg-sky-100 text-sky-700';
+      default:
+        return 'bg-slate-200 text-slate-700';
+    }
+  }
+
+  timelineToneDotClasses(entry: VendorReviewAuditEntry): string {
+    switch (entry.tone) {
+      case 'success':
+        return 'bg-emerald-500';
+      case 'warning':
+        return 'bg-amber-500';
+      case 'danger':
+        return 'bg-rose-500';
+      default:
+        return 'bg-sky-500';
+    }
+  }
+
+  formatReviewDate(value?: string | null): string {
+    if (!value) {
+      return '-';
+    }
+
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit'
+    }).format(new Date(value));
   }
 
   private buildForm(): FormGroup {

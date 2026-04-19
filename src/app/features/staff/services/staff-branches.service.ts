@@ -22,6 +22,7 @@ import {
   persistWorkspaceState,
   readWorkspaceState
 } from '../../../shared/utils/workspace-storage.util';
+import { repairUtf8Mojibake } from '../../../shared/utils/text-normalization.util';
 
 export interface StaffWorkspaceState extends FeatureWorkspaceState {
   branches: BranchVm[];
@@ -254,7 +255,7 @@ export class StaffBranchesService {
       return fallback;
     }
 
-    return {
+    const normalizedState: StaffWorkspaceState = {
       updatedAt: stored.updatedAt || fallback.updatedAt,
       version: this.workspaceVersion,
       persistenceMode: 'localStorage-persisted',
@@ -262,6 +263,9 @@ export class StaffBranchesService {
       employees: (stored.employees || []).map((employee) => this.cloneEmployee(employee)),
       invitations: (stored.invitations || []).map((invitation) => this.cloneInvitation(invitation))
     };
+
+    this.persistState(normalizedState);
+    return normalizedState;
   }
 
   private buildSeedState(shouldPersist = true): StaffWorkspaceState {
@@ -403,9 +407,9 @@ export class StaffBranchesService {
       updatedAt: new Date().toISOString(),
       version: this.workspaceVersion,
       persistenceMode: 'localStorage-persisted',
-      branches,
-      employees,
-      invitations
+      branches: branches.map((branch) => this.cloneBranch(branch)),
+      employees: employees.map((employee) => this.cloneEmployee(employee)),
+      invitations: invitations.map((invitation) => this.cloneInvitation(invitation))
     };
 
     if (shouldPersist) {
@@ -473,6 +477,10 @@ export class StaffBranchesService {
   private cloneBranch(branch: BranchVm): BranchVm {
     return {
       ...branch,
+      name: repairUtf8Mojibake(branch.name),
+      managerName: repairUtf8Mojibake(branch.managerName),
+      managerContact: repairUtf8Mojibake(branch.managerContact),
+      addressLine: repairUtf8Mojibake(branch.addressLine),
       operatingHours: cloneOperatingHours(branch.operatingHours)
     };
   }
@@ -480,6 +488,8 @@ export class StaffBranchesService {
   private cloneEmployee(employee: EmployeeVm): EmployeeVm {
     return {
       ...employee,
+      fullName: repairUtf8Mojibake(employee.fullName),
+      contact: repairUtf8Mojibake(employee.contact),
       branchIds: [...employee.branchIds],
       permissions: clonePermissionMatrix(employee.permissions)
     };
@@ -488,6 +498,9 @@ export class StaffBranchesService {
   private cloneInvitation(invitation: InvitationVm): InvitationVm {
     return {
       ...invitation,
+      targetName: repairUtf8Mojibake(invitation.targetName),
+      contact: repairUtf8Mojibake(invitation.contact),
+      link: repairUtf8Mojibake(invitation.link),
       branchIds: [...invitation.branchIds]
     };
   }

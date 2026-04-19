@@ -6,6 +6,7 @@ import { AppCardComponent } from '../../../../shared/components/ui/card/card.com
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppBadgeComponent } from '../../../../shared/components/ui/feedback/badge/badge.component';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
+import { repairUtf8Mojibake } from '../../../../shared/utils/text-normalization.util';
 
 @Component({
   selector: 'app-submission-success',
@@ -35,7 +36,9 @@ export class SubmissionSuccessComponent implements OnInit {
   ngOnInit(): void {
     // If we had a state service, we'd get the real biz name here.
     // For now, we can pick from localStorage or just show a default.
-    this.businessName = localStorage.getItem('onboarding_biz_name') || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME');
+    this.businessName = repairUtf8Mojibake(
+      localStorage.getItem('onboarding_biz_name') || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME')
+    );
   }
 
   logout(): void {

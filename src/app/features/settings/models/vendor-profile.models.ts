@@ -5,6 +5,42 @@ export interface VendorOperatingHour {
   isOpen: boolean;
 }
 
+export interface VendorReviewSummary {
+  totalItems: number;
+  approvedItems: number;
+  pendingVendorItems: number;
+  submittedItems: number;
+  changesRequestedItems: number;
+  waivedItems: number;
+}
+
+export interface VendorReviewItem {
+  code: string;
+  status: string;
+  reviewerId?: string | null;
+  reviewerName?: string | null;
+  decisionNote?: string | null;
+  lastSubmittedAtUtc?: string | null;
+  reviewedAtUtc?: string | null;
+}
+
+export interface VendorRequiredAction {
+  code: string;
+  message: string;
+}
+
+export interface VendorReviewAuditEntry {
+  id: string;
+  kind: string;
+  tone: 'info' | 'success' | 'warning' | 'danger';
+  message: string;
+  roleLabel: string;
+  authorName: string;
+  createdAtUtc: string;
+  actorUserId?: string | null;
+  reviewItemCode?: string | null;
+}
+
 export interface VendorProfile {
   storeNameAr: string;
   storeNameEn: string;
@@ -32,6 +68,23 @@ export interface VendorProfile {
   hasLogo: boolean;
   hasCRDoc: boolean;
   reviewStatus: 'active' | 'pending';
+  reviewState: string;
+  commercialAccessEnabled: boolean;
+  countryCode: string;
+  complianceProfile: string;
+  assignedReviewerId?: string | null;
+  assignedReviewerName?: string | null;
+  reviewSubmittedAtUtc?: string | null;
+  reviewStartedAtUtc?: string | null;
+  reviewCompletedAtUtc?: string | null;
+  requestedChangesAtUtc?: string | null;
+  lastReviewDecision?: string | null;
+  reviewSummary: VendorReviewSummary;
+  reviewItems: VendorReviewItem[];
+  requiredActions: VendorRequiredAction[];
+  reviewAuditEntries: VendorReviewAuditEntry[];
+  missingDocumentsCount: number;
+  canSubmitForReview: boolean;
   joinedAt: string;
   operatingHours: VendorOperatingHour[];
   acceptOrders?: boolean;
