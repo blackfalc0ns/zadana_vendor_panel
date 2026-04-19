@@ -33,6 +33,7 @@ export interface SearchableSelectOption<T = any> {
           [disabled]="disabled"
           (click)="toggle()"
           class="flex h-11 w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary focus:ring-1 focus:ring-zadna-primary disabled:cursor-not-allowed disabled:bg-slate-50 disabled:text-slate-400"
+          [ngClass]="triggerClass"
           [class.border-rose-500]="isTouched && error"
           [class.ring-1]="isTouched && error"
           [class.ring-rose-500]="isTouched && error"
@@ -121,6 +122,7 @@ export class SearchableSelectComponent implements ControlValueAccessor {
   @Input() isTouched = false;
   @Input() isRequired = false;
   @Input() customClass = '';
+  @Input() triggerClass = '';
   @Input() allowClear = true;
   @Input() searchable = true;
 

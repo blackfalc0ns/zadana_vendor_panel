@@ -34,9 +34,11 @@ export class AppFilterPanelComponent {
   @Input() translateSubtitle = true;
   @Input() wrapperClass = '';
   @Input() bodyClass = '';
+  @Input() allowOverflowVisible = false;
 
   get resolvedWrapperClass(): string {
-    return `overflow-hidden rounded-[28px] border border-slate-200/70 bg-white shadow-sm animate-in slide-in-from-top-2 duration-300 ${this.wrapperClass}`.trim();
+    const overflowClass = this.allowOverflowVisible ? 'overflow-visible' : 'overflow-hidden';
+    return `${overflowClass} rounded-[28px] border border-slate-200/70 bg-white shadow-sm animate-in slide-in-from-top-2 duration-300 ${this.wrapperClass}`.trim();
   }
 
   get resolvedBodyClass(): string {

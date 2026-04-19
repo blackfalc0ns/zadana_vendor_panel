@@ -43,6 +43,7 @@
     "ENGLISH_DATA": "English Data",
     "SELECT_CATEGORY": "Select category...",
     "SELECT_UNIT": "Select unit...",
+    "CLEAR_SELECTION": "Clear selection",
     "ACTIVE": "Active",
     "CONTINUE": "Continue",
     "ERROR_OCCURRED": "An unexpected error occurred.",

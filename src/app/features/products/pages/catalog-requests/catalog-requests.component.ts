@@ -22,12 +22,24 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
       </app-page-header>
 
       <!-- Filters Section -->
-      <div class="flex flex-wrap items-center gap-3 bg-slate-50/50 rounded-[24px] p-2 border border-slate-100 w-max shadow-sm">
-        <app-searchable-select [(ngModel)]="typeFilter" (ngModelChange)="loadRequests()" [options]="[{value:'all', labelKey:'PRODUCTS.REQUESTS_ALL'},{value:'product', labelKey:'PRODUCTS.REQUESTS_PRODUCTS'},{value:'brand', labelKey:'PRODUCTS.REQUESTS_BRANDS'},{value:'category', labelKey:'PRODUCTS.REQUESTS_CATEGORIES'}]" [placeholder]="'PRODUCTS.FILTERS.TYPE'"></app-searchable-select>
+      <div class="flex flex-wrap items-center gap-3 bg-slate-50/50 rounded-[24px] p-2.5 border border-slate-100 w-max shadow-sm">
+        <app-searchable-select
+          [(ngModel)]="typeFilter"
+          (ngModelChange)="loadRequests()"
+          [options]="[{value:'all', labelKey:'PRODUCTS.REQUESTS_ALL'},{value:'product', labelKey:'PRODUCTS.REQUESTS_PRODUCTS'},{value:'brand', labelKey:'PRODUCTS.REQUESTS_BRANDS'},{value:'category', labelKey:'PRODUCTS.REQUESTS_CATEGORIES'}]"
+          [placeholder]="'PRODUCTS.FILTERS.TYPE'"
+          [customClass]="'w-[10.75rem] sm:w-[12rem]'"
+          [triggerClass]="'!h-12 !rounded-[18px] !px-5 !text-[0.95rem]'"></app-searchable-select>
 
         <div class="h-6 w-px bg-slate-200"></div>
 
-        <app-searchable-select [(ngModel)]="statusFilter" (ngModelChange)="loadRequests()" [options]="[{value:'all', labelKey:'PRODUCTS.FILTERS.ALL_STATUSES'},{value:'Pending', labelKey:'CATALOG.STATUS_PENDING'},{value:'Approved', labelKey:'CATALOG.STATUS_APPROVED'},{value:'Rejected', labelKey:'CATALOG.STATUS_REJECTED'}]" [placeholder]="'PRODUCTS.FILTERS.STATUS'"></app-searchable-select>
+        <app-searchable-select
+          [(ngModel)]="statusFilter"
+          (ngModelChange)="loadRequests()"
+          [options]="[{value:'all', labelKey:'PRODUCTS.FILTERS.ALL_STATUSES'},{value:'Pending', labelKey:'CATALOG.STATUS_PENDING'},{value:'Approved', labelKey:'CATALOG.STATUS_APPROVED'},{value:'Rejected', labelKey:'CATALOG.STATUS_REJECTED'}]"
+          [placeholder]="'PRODUCTS.FILTERS.STATUS'"
+          [customClass]="'w-[10.75rem] sm:w-[12rem]'"
+          [triggerClass]="'!h-12 !rounded-[18px] !px-5 !text-[0.95rem]'"></app-searchable-select>
       </div>
 
       <!-- Main List Container -->

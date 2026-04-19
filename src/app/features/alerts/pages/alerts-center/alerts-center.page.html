@@ -58,6 +58,7 @@
 
   @if (isFiltersExpanded) {
     <app-filter-panel
+      [allowOverflowVisible]="true"
       [title]="'ALERTS_CENTER.FILTERS.TITLE'"
       [subtitle]="'ALERTS_CENTER.FILTERS.SUBTITLE'">
       <div actions>
