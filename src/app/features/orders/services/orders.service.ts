@@ -126,6 +126,7 @@ export class OrdersService {
     return of({
       id: `manual-${Date.now()}`,
       displayId: `manual-${Date.now()}`,
+      backendStatus: 'PendingVendorAcceptance',
       customerName: orderData?.customerName || '',
       customerPhone: orderData?.customerPhone || '',
       customerAddress: orderData?.customerAddress || '',
@@ -215,6 +216,7 @@ export class OrdersService {
     return {
       id: item.id,
       displayId: item.orderNumber,
+      backendStatus: item.status,
       customerName: item.customerName,
       customerPhone: item.customerPhone,
       date: this.formatDate(item.placedAtUtc),
@@ -239,6 +241,7 @@ export class OrdersService {
     return {
       id: item.id,
       displayId: item.orderNumber,
+      backendStatus: item.status,
       customerName: item.customerName,
       customerPhone: item.customerPhone,
       customerAddress: item.customerAddress,

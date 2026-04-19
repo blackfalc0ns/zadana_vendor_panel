@@ -6,12 +6,10 @@ import {
   Observable,
   Subject,
   Subscription,
-  catchError,
   combineLatest,
   distinctUntilChanged,
   interval,
   map,
-  of,
   shareReplay,
   take,
   tap
@@ -71,6 +69,8 @@ interface SignalRHubConnection {
   start(): Promise<void>;
   stop(): Promise<void>;
   on(methodName: string, newMethod: (payload: RealtimeNotificationPayload) => void): void;
+  onreconnecting?(callback: (error?: Error) => void): void;
+  onreconnected?(callback: (connectionId?: string) => void): void;
   onclose(callback: (error?: Error) => void): void;
 }
 
@@ -95,6 +95,9 @@ interface SignalRBrowserSdk {
   };
 }
 
+type InitialLoadStatus = 'idle' | 'loading' | 'ready' | 'error';
+type RealtimeConnectionState = 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'closed' | 'error';
+
 declare global {
   interface Window {
     signalR?: SignalRBrowserSdk;
@@ -114,6 +117,9 @@ export class AlertsCenterService {
   private readonly workspaceSubject = new BehaviorSubject<AlertWorkspaceState>(this.loadWorkspace());
   private readonly serverAlertsSubject = new BehaviorSubject<AlertCenterItemVm[]>([]);
   private readonly realtimeAlertSubject = new Subject<AlertCenterItemVm>();
+  private readonly initialLoadStatusSubject = new BehaviorSubject<InitialLoadStatus>('idle');
+  private readonly realtimeConnectionStateSubject = new BehaviorSubject<RealtimeConnectionState>('idle');
+  private readonly lastLoadErrorSubject = new BehaviorSubject<string | null>(null);
   private pollSubscription?: Subscription;
   private authSubscription?: Subscription;
   private hubConnection?: SignalRHubConnection;
@@ -124,6 +130,7 @@ export class AlertsCenterService {
   private audioContext?: AudioContext;
   private reconnectingRealtime = false;
   private signalRSdkPromise?: Promise<SignalRBrowserSdk | null>;
+  private hasLoadedInboxOnce = false;
 
   private readonly serverAlerts$ = this.serverAlertsSubject.asObservable().pipe(shareReplay(1));
 
@@ -156,6 +163,10 @@ export class AlertsCenterService {
           this.serverAlertsSubject.next([]);
           this.monitoringInitialized = false;
           this.unreadIds = new Set<string>();
+          this.hasLoadedInboxOnce = false;
+          this.initialLoadStatusSubject.next('idle');
+          this.realtimeConnectionStateSubject.next('idle');
+          this.lastLoadErrorSubject.next(null);
           return;
         }
 
@@ -181,6 +192,18 @@ export class AlertsCenterService {
     return this.realtimeAlertSubject.asObservable().pipe(
       map((alert) => cloneAlerts([alert])[0])
     );
+  }
+
+  getInitialLoadStatus(): Observable<InitialLoadStatus> {
+    return this.initialLoadStatusSubject.asObservable().pipe(shareReplay(1));
+  }
+
+  getRealtimeConnectionState(): Observable<RealtimeConnectionState> {
+    return this.realtimeConnectionStateSubject.asObservable().pipe(shareReplay(1));
+  }
+
+  getLastLoadError(): Observable<string | null> {
+    return this.lastLoadErrorSubject.asObservable().pipe(shareReplay(1));
   }
 
   getSummary(): Observable<AlertSummaryVm> {
@@ -426,20 +449,29 @@ export class AlertsCenterService {
   }
 
   private refreshFromServer(): void {
+    if (!this.hasLoadedInboxOnce) {
+      this.initialLoadStatusSubject.next('loading');
+    }
+
     this.http.get<NotificationsApiResponse>(this.apiUrl, {
       params: new HttpParams()
         .set('page', '1')
         .set('per_page', '100')
     }).pipe(
-      catchError(() => of<NotificationsApiResponse>({
-        items: [],
-        page: 1,
-        perPage: 100,
-        total: 0
-      })),
-      map((response) => response.items.map((item) => this.mapNotification(item))),
-      tap((alerts) => this.replaceServerAlerts(alerts))
-    ).subscribe();
+      map((response) => response.items.map((item) => this.mapNotification(item)))
+    ).subscribe({
+      next: (alerts) => {
+        this.hasLoadedInboxOnce = true;
+        this.initialLoadStatusSubject.next('ready');
+        this.lastLoadErrorSubject.next(null);
+        this.replaceServerAlerts(alerts);
+      },
+      error: (error) => {
+        this.initialLoadStatusSubject.next('error');
+        this.lastLoadErrorSubject.next(this.describeError(error));
+        this.debugLog('error', 'Failed to load vendor notifications inbox.', error);
+      }
+    });
   }
 
   private replaceServerAlerts(alerts: AlertCenterItemVm[]): void {
@@ -463,19 +495,28 @@ export class AlertsCenterService {
   private async ensureRealtimeConnection(): Promise<void> {
     const token = this.authService.getToken();
     if (!token) {
+      this.debugLog('warn', 'Skipping vendor notifications realtime connection because no access token is available.');
       return;
     }
 
     const signalR = await this.loadSignalRSdk();
     if (!signalR) {
+      this.realtimeConnectionStateSubject.next('error');
+      this.lastLoadErrorSubject.next('Failed to load SignalR browser SDK.');
       return;
     }
 
     if (this.hubConnection?.state === signalR.HubConnectionState.Connected ||
         this.hubConnection?.state === signalR.HubConnectionState.Connecting ||
         this.hubConnection?.state === signalR.HubConnectionState.Reconnecting) {
+      this.debugLog('info', 'Vendor notifications realtime connection is already active.', {
+        state: this.hubConnection.state
+      });
       return;
     }
+
+    this.realtimeConnectionStateSubject.next('connecting');
+    this.debugLog('info', 'Connecting vendor notifications realtime hub.', { hubUrl: this.hubUrl });
 
     if (!this.hubConnection) {
       this.hubConnection = new signalR.HubConnectionBuilder()
@@ -487,10 +528,30 @@ export class AlertsCenterService {
         .build();
 
       this.hubConnection.on('ReceiveNotification', (payload: RealtimeNotificationPayload) => {
+        if (!payload?.id || !payload.createdAtUtc) {
+          this.debugLog('warn', 'Ignoring invalid vendor notification realtime payload.', payload);
+          return;
+        }
+
+        this.debugLog('info', 'Received vendor notification realtime payload.', payload);
         this.upsertRealtimeAlert(this.mapRealtimeNotification(payload));
       });
 
-      this.hubConnection.onclose(() => {
+      this.hubConnection.onreconnecting?.((error) => {
+        this.realtimeConnectionStateSubject.next('reconnecting');
+        this.debugLog('warn', 'Vendor notifications realtime hub is reconnecting.', error);
+      });
+
+      this.hubConnection.onreconnected?.(() => {
+        this.realtimeConnectionStateSubject.next('connected');
+        this.lastLoadErrorSubject.next(null);
+        this.debugLog('info', 'Vendor notifications realtime hub reconnected successfully.');
+        this.refreshFromServer();
+      });
+
+      this.hubConnection.onclose((error) => {
+        this.realtimeConnectionStateSubject.next('closed');
+        this.debugLog('warn', 'Vendor notifications realtime hub closed.', error);
         if (this.authService.hasApiSession) {
           void this.reconnectRealtimeWithBackoff();
         }
@@ -499,7 +560,13 @@ export class AlertsCenterService {
 
     try {
       await this.hubConnection.start();
+      this.realtimeConnectionStateSubject.next('connected');
+      this.lastLoadErrorSubject.next(null);
+      this.debugLog('info', 'Vendor notifications realtime hub connected successfully.');
+      this.refreshFromServer();
     } catch (error) {
+      this.realtimeConnectionStateSubject.next('error');
+      this.lastLoadErrorSubject.next(this.describeError(error));
       console.error('Vendor notifications SignalR connection failed.', error);
       void this.reconnectRealtimeWithBackoff();
     }
@@ -511,6 +578,8 @@ export class AlertsCenterService {
     }
 
     this.reconnectingRealtime = true;
+    this.realtimeConnectionStateSubject.next('reconnecting');
+    this.debugLog('info', 'Scheduling vendor notifications realtime reconnect attempt.');
 
     try {
       await new Promise((resolve) => setTimeout(resolve, 3000));
@@ -527,6 +596,7 @@ export class AlertsCenterService {
 
     try {
       await this.hubConnection.stop();
+      this.realtimeConnectionStateSubject.next('closed');
     } catch (error) {
       console.error('Vendor notifications SignalR disconnection failed.', error);
     }
@@ -540,11 +610,13 @@ export class AlertsCenterService {
     this.signalRSdkPromise = new Promise<SignalRBrowserSdk | null>((resolve) => {
       const view = this.document.defaultView;
       if (!view) {
+        this.debugLog('warn', 'Unable to load SignalR browser SDK because window is unavailable.');
         resolve(null);
         return;
       }
 
       if (view.signalR) {
+        this.debugLog('info', 'SignalR browser SDK already loaded.');
         resolve(view.signalR);
         return;
       }
@@ -552,7 +624,11 @@ export class AlertsCenterService {
       const existingScript = this.document.getElementById(AlertsCenterService.signalRScriptId) as HTMLScriptElement | null;
       if (existingScript) {
         existingScript.addEventListener('load', () => resolve(view.signalR ?? null), { once: true });
-        existingScript.addEventListener('error', () => resolve(null), { once: true });
+        existingScript.addEventListener('error', () => {
+          this.signalRSdkPromise = undefined;
+          this.debugLog('error', 'SignalR browser SDK script failed to load from existing script tag.');
+          resolve(null);
+        }, { once: true });
         return;
       }
 
@@ -562,6 +638,7 @@ export class AlertsCenterService {
       script.defer = true;
       script.onload = () => resolve(view.signalR ?? null);
       script.onerror = () => {
+        this.signalRSdkPromise = undefined;
         console.error('Failed to load SignalR browser SDK.');
         resolve(null);
       };
@@ -625,19 +702,23 @@ export class AlertsCenterService {
       return;
     }
 
-    const notification = new Notification(alert.title.ar || alert.title.en, {
-      body: alert.summary.ar || alert.summary.en,
-      tag: alert.id,
-      silent: true
-    });
+    try {
+      const notification = new Notification(alert.title.ar || alert.title.en, {
+        body: alert.summary.ar || alert.summary.en,
+        tag: alert.id,
+        silent: true
+      });
 
-    notification.onclick = () => {
-      if (typeof window !== 'undefined') {
-        window.focus();
-        window.location.assign(this.buildAbsoluteRoute(alert));
-      }
-      notification.close();
-    };
+      notification.onclick = () => {
+        if (typeof window !== 'undefined') {
+          window.focus();
+          window.location.assign(this.buildAbsoluteRoute(alert));
+        }
+        notification.close();
+      };
+    } catch (error) {
+      this.debugLog('warn', 'Browser desktop notification failed to display.', error);
+    }
   }
 
   private buildAbsoluteRoute(alert: AlertCenterItemVm): string {
@@ -659,13 +740,16 @@ export class AlertsCenterService {
 
     const AudioContextCtor = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
     if (!AudioContextCtor) {
+      this.debugLog('warn', 'Browser audio context is not available for vendor notification tone.');
       return;
     }
 
     this.audioContext ??= new AudioContextCtor();
 
     if (this.audioContext.state === 'suspended') {
-      void this.audioContext.resume();
+      void this.audioContext.resume().catch((error) => {
+        this.debugLog('warn', 'Vendor notification audio context resume failed.', error);
+      });
     }
 
     const oscillator = this.audioContext.createOscillator();
@@ -682,5 +766,36 @@ export class AlertsCenterService {
 
     oscillator.start(this.audioContext.currentTime);
     oscillator.stop(this.audioContext.currentTime + 0.35);
+  }
+
+  private describeError(error: unknown): string {
+    if (error instanceof Error) {
+      return error.message;
+    }
+
+    if (typeof error === 'string') {
+      return error;
+    }
+
+    return 'Unexpected vendor notifications error.';
+  }
+
+  private debugLog(level: 'info' | 'warn' | 'error', message: string, details?: unknown): void {
+    if (environment.production) {
+      return;
+    }
+
+    const prefix = '[VendorAlerts]';
+    switch (level) {
+      case 'warn':
+        console.warn(prefix, message, details ?? '');
+        return;
+      case 'error':
+        console.error(prefix, message, details ?? '');
+        return;
+      default:
+        console.info(prefix, message, details ?? '');
+        return;
+    }
   }
 }

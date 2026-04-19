@@ -56,6 +56,7 @@ export interface OrderTimelineEntry {
 export interface OrderListItem {
   id: string;
   displayId: string;
+  backendStatus?: string;
   customerName: string;
   customerPhone: string;
   date: string;

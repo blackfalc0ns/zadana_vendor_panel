@@ -39,7 +39,8 @@ export class HeaderComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.scheduleAlertsHydration();
+    this.unreadCount$ = this.alertsCenterService.getUnreadCount();
+    this.bellAlerts$ = this.alertsCenterService.getBellAlerts();
   }
 
   onToggleSidebar(): void {
@@ -175,21 +176,5 @@ export class HeaderComponent implements OnInit {
 
   private isMobileViewport(): boolean {
     return typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches;
-  }
-
-  private scheduleAlertsHydration(): void {
-    const hydrate = () => {
-      this.unreadCount$ = this.alertsCenterService.getUnreadCount();
-      this.bellAlerts$ = this.alertsCenterService.getBellAlerts();
-    };
-
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as Window & { requestIdleCallback: (callback: IdleRequestCallback) => number }).requestIdleCallback(
-        () => hydrate()
-      );
-      return;
-    }
-
-    setTimeout(hydrate, 900);
   }
 }

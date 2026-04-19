@@ -40,9 +40,12 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.scheduleNonBlockingSessionBootstrap();
-    this.scheduleVendorAlertsMonitoring();
-    this.scheduleVendorWebPushBootstrap();
+    if (this.authService.hasApiSession) {
+      void this.authService.initializeSession();
+    }
+
+    this.alertsCenterService.startMonitoring();
+    this.vendorWebPushService.initialize();
   }
 
   switchLanguage(lang: 'ar' | 'en'): void {
@@ -57,54 +60,5 @@ export class AppComponent implements OnInit {
 
     this.renderer.setAttribute(htmlTag, 'dir', dir);
     this.renderer.setAttribute(htmlTag, 'lang', lang);
-  }
-
-  private scheduleNonBlockingSessionBootstrap(): void {
-    if (!this.authService.hasApiSession) {
-      return;
-    }
-
-    const bootstrap = () => {
-      void this.authService.initializeSession();
-    };
-
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as Window & { requestIdleCallback: (callback: IdleRequestCallback) => number }).requestIdleCallback(
-        () => bootstrap()
-      );
-      return;
-    }
-
-    setTimeout(bootstrap, 0);
-  }
-
-  private scheduleVendorAlertsMonitoring(): void {
-    const startMonitoring = () => {
-      this.alertsCenterService.startMonitoring();
-    };
-
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as Window & { requestIdleCallback: (callback: IdleRequestCallback) => number }).requestIdleCallback(
-        () => startMonitoring()
-      );
-      return;
-    }
-
-    setTimeout(startMonitoring, 0);
-  }
-
-  private scheduleVendorWebPushBootstrap(): void {
-    const startWebPush = () => {
-      this.vendorWebPushService.initialize();
-    };
-
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      (window as Window & { requestIdleCallback: (callback: IdleRequestCallback) => number }).requestIdleCallback(
-        () => startWebPush()
-      );
-      return;
-    }
-
-    setTimeout(startWebPush, 0);
   }
 }

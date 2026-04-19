@@ -102,18 +102,23 @@ export class VendorWebPushService implements OnDestroy {
 
   private async promptForPermissionOnce(externalId: string): Promise<void> {
     const storageKey = `${this.promptPrefix}${externalId}`;
-    if (localStorage.getItem(storageKey)) {
+    const existingState = localStorage.getItem(storageKey);
+    if (existingState === 'granted' || existingState === 'denied') {
       return;
     }
 
     await this.runDeferred(async (sdk) => {
       if (!sdk.Notifications.isPushSupported() || sdk.Notifications.permission) {
-        localStorage.setItem(storageKey, 'skipped');
+        localStorage.setItem(storageKey, sdk.Notifications.permission ? 'granted' : 'skipped');
         return;
       }
 
       await sdk.Notifications.requestPermission();
-      localStorage.setItem(storageKey, 'requested');
+
+      const browserPermission = this.resolveBrowserNotificationPermission();
+      if (browserPermission === 'granted' || browserPermission === 'denied') {
+        localStorage.setItem(storageKey, browserPermission);
+      }
     });
   }
 
@@ -199,6 +204,15 @@ export class VendorWebPushService implements OnDestroy {
   private isLocalhost(): boolean {
     const host = this.document.location.hostname;
     return host === 'localhost' || host === '127.0.0.1';
+  }
+
+  private resolveBrowserNotificationPermission(): NotificationPermission | null {
+    const view = this.document.defaultView;
+    if (!view || !('Notification' in view)) {
+      return null;
+    }
+
+    return view.Notification.permission;
   }
 
   private async triggerLoginTestNotificationIfPending(user: VendorCurrentUser): Promise<void> {

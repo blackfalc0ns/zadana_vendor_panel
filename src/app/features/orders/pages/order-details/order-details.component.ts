@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
@@ -48,19 +49,22 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
           <button 
             *ngIf="canConfirm()"
             (click)="updateStatus('CONFIRMED')"
-            class="rounded-2xl bg-zadna-primary px-6 py-3 text-[0.8rem] font-black text-white shadow-lg shadow-zadna-primary/20 transition-all hover:translate-y-[-1px] active:scale-95">
+            [disabled]="isUpdatingStatus"
+            class="rounded-2xl bg-zadna-primary px-6 py-3 text-[0.8rem] font-black text-white shadow-lg shadow-zadna-primary/20 transition-all hover:translate-y-[-1px] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60">
             {{ 'ORDERS.ACTION_CONFIRM' | translate }}
           </button>
           <button 
             *ngIf="canPrepare()"
             (click)="updateStatus('IN_PROGRESS')"
-            class="rounded-2xl bg-amber-500 px-6 py-3 text-[0.8rem] font-black text-white shadow-lg shadow-amber-500/20 transition-all hover:translate-y-[-1px] active:scale-95">
+            [disabled]="isUpdatingStatus"
+            class="rounded-2xl bg-amber-500 px-6 py-3 text-[0.8rem] font-black text-white shadow-lg shadow-amber-500/20 transition-all hover:translate-y-[-1px] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60">
             {{ 'ORDERS.ACTION_START_PREPARING' | translate }}
           </button>
           <button 
             *ngIf="canMarkReady()"
             (click)="updateStatus('READY_FOR_PICKUP')"
-            class="rounded-2xl bg-indigo-600 px-6 py-3 text-[0.8rem] font-black text-white shadow-lg shadow-indigo-600/20 transition-all hover:translate-y-[-1px] active:scale-95">
+            [disabled]="isUpdatingStatus"
+            class="rounded-2xl bg-indigo-600 px-6 py-3 text-[0.8rem] font-black text-white shadow-lg shadow-indigo-600/20 transition-all hover:translate-y-[-1px] active:scale-95 disabled:cursor-not-allowed disabled:opacity-60">
             {{ 'ORDERS.ACTION_MARK_READY' | translate }}
           </button>
         </div>
@@ -275,7 +279,7 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
 
           <!-- Mobile Actions (Bottom Fixed) -->
           <div class="block sm:hidden space-y-3 pt-4">
-             <button *ngIf="canConfirm()" (click)="updateStatus('CONFIRMED')" class="w-full rounded-2xl bg-zadna-primary p-4 text-[0.9rem] font-black text-white">
+             <button *ngIf="canConfirm()" (click)="updateStatus('CONFIRMED')" [disabled]="isUpdatingStatus" class="w-full rounded-2xl bg-zadna-primary p-4 text-[0.9rem] font-black text-white disabled:cursor-not-allowed disabled:opacity-60">
                 {{ 'ORDERS.ACTION_CONFIRM' | translate }}
              </button>
              <!-- others... -->
@@ -291,6 +295,7 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
 export class OrderDetailsComponent implements OnInit, OnDestroy {
   order: OrderDetail | null = null;
   currentLang = 'ar';
+  isUpdatingStatus = false;
   private sub: Subscription | null = null;
   private langSub: Subscription | null = null;
 
@@ -306,7 +311,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
-      this.sub = this.ordersService.getOrderById(id).subscribe(o => this.order = o);
+      this.loadOrder(id);
     }
   }
 
@@ -324,14 +329,40 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     return segments.join(' - ');
   }
 
-  canConfirm(): boolean { return this.order?.status === 'NEW'; }
-  canPrepare(): boolean { return this.order?.status === 'CONFIRMED'; }
-  canMarkReady(): boolean { return this.order?.status === 'IN_PROGRESS'; }
+  canConfirm(): boolean { return this.order?.backendStatus === 'PendingVendorAcceptance'; }
+  canPrepare(): boolean { return this.order?.backendStatus === 'Accepted'; }
+  canMarkReady(): boolean { return this.order?.backendStatus === 'Preparing'; }
 
   updateStatus(status: OrderStatus): void {
-    if (!this.order) return;
-    this.ordersService.updateOrderStatus(this.order.id, status).subscribe(updated => {
-      this.order = updated;
+    if (!this.order || this.isUpdatingStatus) return;
+
+    const orderId = this.order.id;
+    this.isUpdatingStatus = true;
+
+    this.ordersService.updateOrderStatus(orderId, status).subscribe({
+      next: (updated) => {
+        this.order = updated;
+        this.isUpdatingStatus = false;
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isUpdatingStatus = false;
+        this.loadOrder(orderId);
+        alert(this.resolveUpdateErrorMessage(error));
+      }
     });
+  }
+
+  private loadOrder(orderId: string): void {
+    this.sub?.unsubscribe();
+    this.sub = this.ordersService.getOrderById(orderId).subscribe(o => this.order = o);
+  }
+
+  private resolveUpdateErrorMessage(error: HttpErrorResponse): string {
+    const detail = error.error?.detail;
+    if (typeof detail === 'string' && detail.trim()) {
+      return detail;
+    }
+
+    return this.translate.instant('COMMON.ERROR_OCCURRED');
   }
 }
