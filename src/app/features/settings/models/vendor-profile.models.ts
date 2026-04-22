@@ -67,6 +67,11 @@ export interface VendorProfile {
   payoutCycle: string;
   hasLogo: boolean;
   hasCRDoc: boolean;
+  hasTaxDoc?: boolean;
+  hasLicenseDoc?: boolean;
+  commercialRegisterDocumentUrl?: string | null;
+  taxDocumentUrl?: string | null;
+  licenseDocumentUrl?: string | null;
   reviewStatus: 'active' | 'pending';
   reviewState: string;
   commercialAccessEnabled: boolean;

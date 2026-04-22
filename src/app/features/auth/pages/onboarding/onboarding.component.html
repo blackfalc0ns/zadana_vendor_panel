@@ -446,10 +446,12 @@
                 </div>
 
                 <div [class]="getUploadCardClasses('5', 'hasCRDoc')">
-                  <input id="crInput" type="file" accept=".pdf,image/*" class="hidden" (change)="onCRDocSelected($event)" />
+                  <input id="crInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onCRDocSelected($event)" />
                   <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ 'ONBOARDING.FIELDS.CR_DOC' | translate }}</p>
                   <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.UPLOAD_CR_TITLE' | translate }}</h3>
-                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">{{ 'ONBOARDING.UPLOAD_CR_HELP' | translate }}</p>
+                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">
+                    {{ isRTL ? 'ارفع نسخة PDF واضحة من السجل التجاري كما ستظهر لفريق الامتثال.' : 'Upload a clear PDF copy of the commercial registration for compliance review.' }}
+                  </p>
 
                   <div *ngIf="crDocument; else emptyCRState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
                     <div class="min-w-0">
@@ -465,6 +467,74 @@
                       size="sm" 
                       customClass="mt-4 !rounded-xl" 
                       (btnClick)="triggerFileInput('crInput')"
+                    >
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+                        <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      </svg>
+                      {{ 'ONBOARDING.UPLOAD_ACTION' | translate }}
+                    </app-button>
+                  </ng-template>
+                </div>
+
+                <div [class]="getUploadCardClasses('5', 'hasTaxDoc')">
+                  <input id="taxInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onTaxDocSelected($event)" />
+                  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ isRTL ? 'الشهادة الضريبية' : 'Tax certificate' }}</p>
+                  <h3 class="mt-1 text-sm font-black text-slate-950">{{ isRTL ? 'رفع الشهادة الضريبية' : 'Upload tax certificate' }}</h3>
+                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">
+                    {{ isRTL ? 'ملف PDF رسمي يوضح الرقم الضريبي وبيانات المنشأة الحالية.' : 'Official PDF showing the tax number and current business details.' }}
+                  </p>
+
+                  <div *ngIf="taxDocument; else emptyTaxState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                    <div class="min-w-0">
+                      <p class="truncate text-xs font-black text-slate-900">{{ taxDocument.name }}</p>
+                      <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(taxDocument) }} MB</p>
+                    </div>
+                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('tax')">
+                      {{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}
+                    </button>
+                  </div>
+
+                  <ng-template #emptyTaxState>
+                    <app-button
+                      variant="primary"
+                      size="sm"
+                      customClass="mt-4 !rounded-xl"
+                      (btnClick)="triggerFileInput('taxInput')"
+                    >
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+                        <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      </svg>
+                      {{ 'ONBOARDING.UPLOAD_ACTION' | translate }}
+                    </app-button>
+                  </ng-template>
+                </div>
+
+                <div [class]="getUploadCardClasses('5', 'hasLicenseDoc')">
+                  <input id="licenseInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onLicenseDocSelected($event)" />
+                  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ isRTL ? 'الرخصة التشغيلية' : 'Operating license' }}</p>
+                  <h3 class="mt-1 text-sm font-black text-slate-950">{{ isRTL ? 'رفع الرخصة أو التصريح البلدي' : 'Upload license or municipal permit' }}</h3>
+                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">
+                    {{ isRTL ? 'ارفع مستند PDF الرسمي للرخصة حتى يظهر بنفس التنسيق في شاشة الامتثال.' : 'Upload the official license PDF so it appears consistently in compliance.' }}
+                  </p>
+
+                  <div *ngIf="licenseDocument; else emptyLicenseState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                    <div class="min-w-0">
+                      <p class="truncate text-xs font-black text-slate-900">{{ licenseDocument.name }}</p>
+                      <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(licenseDocument) }} MB</p>
+                    </div>
+                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('license')">
+                      {{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}
+                    </button>
+                  </div>
+
+                  <ng-template #emptyLicenseState>
+                    <app-button
+                      variant="primary"
+                      size="sm"
+                      customClass="mt-4 !rounded-xl"
+                      (btnClick)="triggerFileInput('licenseInput')"
                     >
                       <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
                         <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
@@ -518,6 +588,8 @@
               <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}</p>
               <p [attr.dir]="storeLogo?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="storeLogo?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ storeLogo?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
               <p [attr.dir]="crDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="crDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ crDocument?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
+              <p [attr.dir]="taxDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="taxDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ taxDocument?.name || (isRTL ? 'بانتظار ملف الشهادة الضريبية' : 'Tax certificate pending') }}</p>
+              <p [attr.dir]="licenseDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="licenseDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ licenseDocument?.name || (isRTL ? 'بانتظار ملف الرخصة' : 'License document pending') }}</p>
               <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ syncedFromLabelKey | translate }}</p>
             </div>
           </section>

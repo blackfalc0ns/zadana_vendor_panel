@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Inject, Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import {
   BehaviorSubject,
   Observable,
@@ -8,6 +8,7 @@ import {
   Subscription,
   combineLatest,
   distinctUntilChanged,
+  finalize,
   interval,
   map,
   shareReplay,
@@ -131,6 +132,8 @@ export class AlertsCenterService {
   private reconnectingRealtime = false;
   private signalRSdkPromise?: Promise<SignalRBrowserSdk | null>;
   private hasLoadedInboxOnce = false;
+  private refreshInFlight = false;
+  private refreshQueued = false;
 
   private readonly serverAlerts$ = this.serverAlertsSubject.asObservable().pipe(shareReplay(1));
 
@@ -449,15 +452,28 @@ export class AlertsCenterService {
   }
 
   private refreshFromServer(): void {
+    if (this.refreshInFlight) {
+      this.refreshQueued = true;
+      return;
+    }
+
     if (!this.hasLoadedInboxOnce) {
       this.initialLoadStatusSubject.next('loading');
     }
 
+    this.refreshInFlight = true;
     this.http.get<NotificationsApiResponse>(this.apiUrl, {
       params: new HttpParams()
         .set('page', '1')
         .set('per_page', '100')
     }).pipe(
+      finalize(() => {
+        this.refreshInFlight = false;
+        if (this.refreshQueued) {
+          this.refreshQueued = false;
+          queueMicrotask(() => this.refreshFromServer());
+        }
+      }),
       map((response) => response.items.map((item) => this.mapNotification(item)))
     ).subscribe({
       next: (alerts) => {
@@ -467,6 +483,11 @@ export class AlertsCenterService {
         this.replaceServerAlerts(alerts);
       },
       error: (error) => {
+        if (this.shouldIgnoreTransientRefreshError(error)) {
+          this.debugLog('warn', 'Transient vendor notifications inbox refresh failed. Keeping the current alerts state.', error);
+          return;
+        }
+
         this.initialLoadStatusSubject.next('error');
         this.lastLoadErrorSubject.next(this.describeError(error));
         this.debugLog('error', 'Failed to load vendor notifications inbox.', error);
@@ -769,6 +790,10 @@ export class AlertsCenterService {
   }
 
   private describeError(error: unknown): string {
+    if (this.isTransientTransportError(error)) {
+      return 'The notifications inbox request was interrupted before the browser received the response.';
+    }
+
     if (error instanceof Error) {
       return error.message;
     }
@@ -778,6 +803,29 @@ export class AlertsCenterService {
     }
 
     return 'Unexpected vendor notifications error.';
+  }
+
+  private shouldIgnoreTransientRefreshError(error: unknown): boolean {
+    if (!this.isTransientTransportError(error)) {
+      return false;
+    }
+
+    return this.hasLoadedInboxOnce || this.serverAlertsSubject.value.length > 0;
+  }
+
+  private isTransientTransportError(error: unknown): boolean {
+    if (!(error instanceof HttpErrorResponse) || error.status !== 0) {
+      return false;
+    }
+
+    const transportError = error;
+    const detail = [
+      transportError.message,
+      typeof transportError.error === 'string' ? transportError.error : '',
+      transportError.statusText
+    ].join(' ');
+
+    return /ERR_HTTP2_PING_FAILED|Unknown Error|ProgressEvent/i.test(detail);
   }
 
   private debugLog(level: 'info' | 'warn' | 'error', message: string, details?: unknown): void {

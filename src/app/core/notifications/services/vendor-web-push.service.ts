@@ -38,6 +38,7 @@ export class VendorWebPushService implements OnDestroy {
   private sdkPromise?: Promise<OneSignalSdk | null>;
   private lastExternalId: string | null = null;
   private initialized = false;
+  private sdkUnavailableLogged = false;
 
   constructor(
     private readonly http: HttpClient,
@@ -148,7 +149,7 @@ export class VendorWebPushService implements OnDestroy {
             });
             resolve(oneSignal);
           } catch (error) {
-            console.error('OneSignal initialization failed.', error);
+            this.reportSdkUnavailable('OneSignal initialization failed. Web push will stay disabled for this session.', error);
             resolve(null);
           }
         });
@@ -166,7 +167,7 @@ export class VendorWebPushService implements OnDestroy {
       script.defer = true;
       script.onload = () => completeInit();
       script.onerror = () => {
-        console.error('Failed to load OneSignal Web SDK.');
+        this.reportSdkUnavailable('OneSignal Web SDK was blocked or unavailable. Web push will stay disabled for this session.');
         resolve(null);
       };
 
@@ -193,7 +194,9 @@ export class VendorWebPushService implements OnDestroy {
         try {
           await operation(sdk);
         } catch (error) {
-          console.error('OneSignal operation failed.', error);
+          if (!environment.production) {
+            console.warn('OneSignal operation failed.', error);
+          }
         } finally {
           resolve();
         }
@@ -236,7 +239,21 @@ export class VendorWebPushService implements OnDestroy {
         sendPush: true
       }));
     } catch (error) {
-      console.error('Vendor login notification test failed.', error);
+      if (!environment.production) {
+        console.warn('Vendor login notification test failed.', error);
+      }
+    }
+  }
+
+  private reportSdkUnavailable(message: string, error?: unknown): void {
+    if (this.sdkUnavailableLogged) {
+      return;
+    }
+
+    this.sdkUnavailableLogged = true;
+
+    if (!environment.production) {
+      console.warn(message, error ?? '');
     }
   }
 }

@@ -127,6 +127,8 @@ export class OnboardingComponent implements OnInit {
   submissionError = '';
   storeLogo: File | null = null;
   crDocument: File | null = null;
+  taxDocument: File | null = null;
+  licenseDocument: File | null = null;
 
   businessTypes: SelectOption[] = BUSINESS_TYPES;
   regions: SelectOption[] = REGIONS;
@@ -228,16 +230,62 @@ export class OnboardingComponent implements OnInit {
       return;
     }
 
+    if (!this.isPdfFile(file)) {
+      this.submissionError = this.isRTL
+        ? 'يجب رفع السجل التجاري بصيغة PDF.'
+        : 'Commercial registration must be uploaded as a PDF file.';
+      return;
+    }
+
     this.crDocument = file;
+    this.submissionError = '';
     this.onboardingForm.get('step5.hasCRDoc')?.setValue(true);
     this.onboardingForm.get('step5.hasCRDoc')?.markAsTouched();
+  }
+
+  onTaxDocSelected(event: Event): void {
+    const file = this.getSelectedFile(event);
+    if (!file) {
+      return;
+    }
+
+    if (!this.isPdfFile(file)) {
+      this.submissionError = this.isRTL
+        ? 'يجب رفع الشهادة الضريبية بصيغة PDF.'
+        : 'Tax certificate must be uploaded as a PDF file.';
+      return;
+    }
+
+    this.taxDocument = file;
+    this.submissionError = '';
+    this.onboardingForm.get('step5.hasTaxDoc')?.setValue(true);
+    this.onboardingForm.get('step5.hasTaxDoc')?.markAsTouched();
+  }
+
+  onLicenseDocSelected(event: Event): void {
+    const file = this.getSelectedFile(event);
+    if (!file) {
+      return;
+    }
+
+    if (!this.isPdfFile(file)) {
+      this.submissionError = this.isRTL
+        ? 'يجب رفع الرخصة بصيغة PDF.'
+        : 'License document must be uploaded as a PDF file.';
+      return;
+    }
+
+    this.licenseDocument = file;
+    this.submissionError = '';
+    this.onboardingForm.get('step5.hasLicenseDoc')?.setValue(true);
+    this.onboardingForm.get('step5.hasLicenseDoc')?.markAsTouched();
   }
 
   triggerFileInput(inputId: string): void {
     document.getElementById(inputId)?.click();
   }
 
-  removeFile(type: 'logo' | 'cr'): void {
+  removeFile(type: 'logo' | 'cr' | 'tax' | 'license'): void {
     if (type === 'logo') {
       this.storeLogo = null;
       this.onboardingForm.get('step5.hasLogo')?.setValue(false);
@@ -248,9 +296,29 @@ export class OnboardingComponent implements OnInit {
       return;
     }
 
-    this.crDocument = null;
-    this.onboardingForm.get('step5.hasCRDoc')?.setValue(false);
-    const input = document.getElementById('crInput') as HTMLInputElement | null;
+    if (type === 'cr') {
+      this.crDocument = null;
+      this.onboardingForm.get('step5.hasCRDoc')?.setValue(false);
+      const input = document.getElementById('crInput') as HTMLInputElement | null;
+      if (input) {
+        input.value = '';
+      }
+      return;
+    }
+
+    if (type === 'tax') {
+      this.taxDocument = null;
+      this.onboardingForm.get('step5.hasTaxDoc')?.setValue(false);
+      const input = document.getElementById('taxInput') as HTMLInputElement | null;
+      if (input) {
+        input.value = '';
+      }
+      return;
+    }
+
+    this.licenseDocument = null;
+    this.onboardingForm.get('step5.hasLicenseDoc')?.setValue(false);
+    const input = document.getElementById('licenseInput') as HTMLInputElement | null;
     if (input) {
       input.value = '';
     }
@@ -280,9 +348,11 @@ export class OnboardingComponent implements OnInit {
 
     forkJoin({
       logoUrl: this.storeLogo ? this.uploadFile(this.storeLogo, 'uploads/vendors/logos') : of<string | null>(null),
-      commercialRegisterDocumentUrl: this.crDocument ? this.uploadFile(this.crDocument, 'uploads/vendors/commercial-register') : of<string | null>(null)
+      commercialRegisterDocumentUrl: this.crDocument ? this.uploadFile(this.crDocument, 'uploads/vendors/commercial-register') : of<string | null>(null),
+      taxDocumentUrl: this.taxDocument ? this.uploadFile(this.taxDocument, 'uploads/vendors/tax-certificates') : of<string | null>(null),
+      licenseDocumentUrl: this.licenseDocument ? this.uploadFile(this.licenseDocument, 'uploads/vendors/licenses') : of<string | null>(null)
     }).pipe(
-      map(({ logoUrl, commercialRegisterDocumentUrl }) => {
+      map(({ logoUrl, commercialRegisterDocumentUrl, taxDocumentUrl, licenseDocumentUrl }) => {
         const payload: RegisterVendorPayload = {
           fullName: draft.fullName,
           email: draft.email,
@@ -314,6 +384,8 @@ export class OnboardingComponent implements OnInit {
           payoutCycle: step4.paymentCycle,
           logoUrl,
           commercialRegisterDocumentUrl,
+          taxDocumentUrl,
+          licenseDocumentUrl,
           branchName: draft.preferredStoreName || step1.businessNameEn || step1.businessNameAr,
           branchAddressLine: step2.nationalAddress,
           branchLatitude: 0,
@@ -519,8 +591,10 @@ export class OnboardingComponent implements OnInit {
         paymentCycle: ['', Validators.required]
       }),
       step5: this.fb.group({
-        hasLogo: [false, Validators.requiredTrue],
-        hasCRDoc: [false, Validators.requiredTrue]
+        hasLogo: [false],
+        hasCRDoc: [false, Validators.requiredTrue],
+        hasTaxDoc: [false, Validators.requiredTrue],
+        hasLicenseDoc: [false, Validators.requiredTrue]
       })
     });
   }
@@ -576,6 +650,10 @@ export class OnboardingComponent implements OnInit {
   private getSelectedFile(event: Event): File | null {
     const input = event.target as HTMLInputElement | null;
     return input?.files?.item(0) ?? null;
+  }
+
+  private isPdfFile(file: File): boolean {
+    return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
   }
 
   private uploadFile(file: File, directory: string) {

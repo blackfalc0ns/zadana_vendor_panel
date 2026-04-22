@@ -56,6 +56,8 @@ export interface RegisterVendorPayload {
   payoutCycle?: string | null;
   logoUrl?: string | null;
   commercialRegisterDocumentUrl?: string | null;
+  taxDocumentUrl?: string | null;
+  licenseDocumentUrl?: string | null;
   branchName: string;
   branchAddressLine: string;
   branchLatitude: number;

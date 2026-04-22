@@ -38,6 +38,8 @@ interface VendorWorkspaceApi {
   accountStatus: string;
   logoUrl?: string | null;
   commercialRegisterDocumentUrl?: string | null;
+  taxDocumentUrl?: string | null;
+  licenseDocumentUrl?: string | null;
   createdAtUtc: string;
   countryCode?: string | null;
   complianceProfile?: string | null;
@@ -225,7 +227,9 @@ export class VendorProfileService {
       commercialRegistrationExpiryDate: profile.expiryDate || null,
       taxId: profile.taxId,
       licenseNumber: profile.licenseNumber,
-      commercialRegisterDocumentUrl: null
+      commercialRegisterDocumentUrl: profile.commercialRegisterDocumentUrl || null,
+      taxDocumentUrl: profile.taxDocumentUrl || null,
+      licenseDocumentUrl: profile.licenseDocumentUrl || null
     }).pipe(map((response) => this.unwrap(response)));
   }
 
@@ -322,6 +326,11 @@ export class VendorProfileService {
       payoutCycle: workspace.payoutCycle || '',
       hasLogo: !!workspace.logoUrl,
       hasCRDoc: !!workspace.commercialRegisterDocumentUrl,
+      hasTaxDoc: !!workspace.taxDocumentUrl,
+      hasLicenseDoc: !!workspace.licenseDocumentUrl,
+      commercialRegisterDocumentUrl: workspace.commercialRegisterDocumentUrl || null,
+      taxDocumentUrl: workspace.taxDocumentUrl || null,
+      licenseDocumentUrl: workspace.licenseDocumentUrl || null,
       reviewStatus: workspace.status === 'Active' ? 'active' : 'pending',
       reviewState,
       commercialAccessEnabled: !!workspace.commercialAccessEnabled || workspace.status === 'Active',
@@ -444,6 +453,11 @@ export class VendorProfileService {
       payoutCycle: '',
       hasLogo: false,
       hasCRDoc: false,
+      hasTaxDoc: false,
+      hasLicenseDoc: false,
+      commercialRegisterDocumentUrl: null,
+      taxDocumentUrl: null,
+      licenseDocumentUrl: null,
       reviewStatus: 'pending',
       reviewState: 'AwaitingSubmission',
       commercialAccessEnabled: false,
