@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 import { Category, VendorProduct } from '../../products/models/catalog.models';
-import { persistWorkspaceState, readWorkspaceState } from '../../../shared/utils/workspace-storage.util';
 import {
   CategoryCampaign,
   ClearanceOffer,
@@ -21,23 +22,13 @@ interface OffersWorkspaceState {
   providedIn: 'root'
 })
 export class OffersService {
-  private readonly storageKey = 'vendor_offers_workspace';
-  private readonly couponsSubject: BehaviorSubject<CouponOffer[]>;
-  private readonly categoryCampaignsSubject: BehaviorSubject<CategoryCampaign[]>;
-  private readonly clearanceOffersSubject: BehaviorSubject<ClearanceOffer[]>;
+  private readonly stateUrl = `${environment.apiUrl}/vendor/workspace-state/offers`;
+  private readonly couponsSubject = new BehaviorSubject<CouponOffer[]>([]);
+  private readonly categoryCampaignsSubject = new BehaviorSubject<CategoryCampaign[]>([]);
+  private readonly clearanceOffersSubject = new BehaviorSubject<ClearanceOffer[]>([]);
 
-  constructor() {
-    const workspace = readWorkspaceState<OffersWorkspaceState | null>(this.storageKey, null);
-
-    this.couponsSubject = new BehaviorSubject<CouponOffer[]>(
-      workspace?.coupons?.length ? workspace.coupons : this.buildSeedCoupons()
-    );
-    this.categoryCampaignsSubject = new BehaviorSubject<CategoryCampaign[]>(
-      workspace?.categoryCampaigns ?? []
-    );
-    this.clearanceOffersSubject = new BehaviorSubject<ClearanceOffer[]>(
-      workspace?.clearanceOffers ?? []
-    );
+  constructor(private readonly http: HttpClient) {
+    this.loadWorkspace();
   }
 
   getCouponOffers(): Observable<CouponOffer[]> {
@@ -107,48 +98,21 @@ export class OffersService {
       .filter((category) => products.some((product) => product.categoryId === category.id))
       .slice(0, 3)
       .map((category, index) => {
-        const productsIncluded = products.filter(
-          (product) => product.categoryId === category.id
-        ).length;
-
-        const campaignConfigs = [
-          {
-            discountPercentage: 12,
-            headlineAr: 'دفع مبيعات القسم الأكثر طلبًا',
-            headlineEn: 'Push the most in-demand category',
-            noteAr: 'مناسب لرفع معدل الشراء المتكرر في القسم.',
-            noteEn: 'Useful for increasing repeat purchases in this category.'
-          },
-          {
-            discountPercentage: 18,
-            headlineAr: 'عرض أسبوعي لجذب الطلبات الكبيرة',
-            headlineEn: 'Weekly offer to attract larger baskets',
-            noteAr: 'جرعة خصم أعلى للأقسام التي تتحمل المنافسة السعرية.',
-            noteEn: 'A stronger discount for categories that can absorb price competition.'
-          },
-          {
-            discountPercentage: 9,
-            headlineAr: 'حملة خفيفة للحفاظ على الهامش',
-            headlineEn: 'Light campaign to protect margin',
-            noteAr: 'مناسبة للأقسام ذات الهامش الحساس.',
-            noteEn: 'Good for margin-sensitive categories.'
-          }
-        ];
-
-        const config = campaignConfigs[index % campaignConfigs.length];
+        const productsIncluded = products.filter((product) => product.categoryId === category.id).length;
+        const discountPercentage = [12, 18, 9][index % 3];
 
         return {
           id: `campaign-${category.id}`,
           categoryId: category.id,
           categoryNameAr: category.nameAr,
           categoryNameEn: category.nameEn,
-          discountPercentage: config.discountPercentage,
+          discountPercentage,
           productsIncluded,
-          endsAt: `2026-04-${18 + index}`,
-          headlineAr: config.headlineAr,
-          headlineEn: config.headlineEn,
-          noteAr: config.noteAr,
-          noteEn: config.noteEn
+          endsAt: new Date(Date.now() + (7 + index) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
+          headlineAr: 'حملة مخصصة لتحسين مبيعات القسم',
+          headlineEn: 'Focused campaign to lift category sales',
+          noteAr: 'تم اقتراحها بناءً على المنتجات المتاحة داخل القسم.',
+          noteEn: 'Suggested from currently available products in this category.'
         };
       });
   }
@@ -178,54 +142,29 @@ export class OffersService {
       });
   }
 
-  private buildSeedCoupons(): CouponOffer[] {
-    return [
-      {
-        id: 'coupon-ramadan',
-        code: 'RAMADAN15',
-        type: 'percentage',
-        value: 15,
-        minOrder: 250,
-        usageCount: 84,
-        usageLimit: 200,
-        endsAt: '2026-04-20',
-        isActive: true,
-        audienceAr: 'كل العملاء',
-        audienceEn: 'All customers',
-        noteAr: 'كوبون موسمي لرفع التحويلات في الطلبات المتوسطة.',
-        noteEn: 'Seasonal coupon to lift conversion on medium baskets.'
+  private loadWorkspace(): void {
+    this.http.get<Partial<OffersWorkspaceState>>(this.stateUrl).subscribe({
+      next: (workspace) => {
+        this.couponsSubject.next(workspace.coupons ?? []);
+        this.categoryCampaignsSubject.next(workspace.categoryCampaigns ?? []);
+        this.clearanceOffersSubject.next(workspace.clearanceOffers ?? []);
       },
-      {
-        id: 'coupon-bulk',
-        code: 'BULK40',
-        type: 'fixed',
-        value: 40,
-        minOrder: 600,
-        usageCount: 29,
-        usageLimit: 80,
-        endsAt: '2026-04-15',
-        isActive: true,
-        audienceAr: 'عملاء الجملة',
-        audienceEn: 'Bulk buyers',
-        noteAr: 'خصم ثابت مناسب للطلبات الكبيرة وقيم السلة المرتفعة.',
-        noteEn: 'Fixed discount suitable for large baskets and bulk buyers.'
-      },
-      {
-        id: 'coupon-new',
-        code: 'WELCOME10',
-        type: 'percentage',
-        value: 10,
-        minOrder: 150,
-        usageCount: 112,
-        usageLimit: 150,
-        endsAt: '2026-04-30',
-        isActive: true,
-        audienceAr: 'العملاء الجدد',
-        audienceEn: 'New customers',
-        noteAr: 'مخصص لاكتساب عملاء جدد لأول طلب فقط.',
-        noteEn: 'Designed for first-order acquisition.'
+      error: () => {
+        this.couponsSubject.next([]);
+        this.categoryCampaignsSubject.next([]);
+        this.clearanceOffersSubject.next([]);
       }
-    ];
+    });
+  }
+
+  private persistWorkspace(): void {
+    const workspace: OffersWorkspaceState = {
+      coupons: this.couponsSubject.value,
+      categoryCampaigns: this.categoryCampaignsSubject.value,
+      clearanceOffers: this.clearanceOffersSubject.value
+    };
+
+    this.http.put(this.stateUrl, workspace).subscribe();
   }
 
   private getRecommendedDiscount(stockQty: number): number {
@@ -244,13 +183,5 @@ export class OffersService {
     const discount = this.getRecommendedDiscount(product.stockQty);
     const compareAtPrice = product.sellingPrice / (1 - discount / 100);
     return Number(compareAtPrice.toFixed(2));
-  }
-
-  private persistWorkspace(): void {
-    persistWorkspaceState<OffersWorkspaceState>(this.storageKey, {
-      coupons: this.couponsSubject.value,
-      categoryCampaigns: this.categoryCampaignsSubject.value,
-      clearanceOffers: this.clearanceOffersSubject.value
-    });
   }
 }

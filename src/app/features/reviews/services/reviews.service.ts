@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 import {
   CustomerReviewVm,
   ReviewAttentionState,
@@ -7,18 +9,17 @@ import {
   cloneReview,
   cloneReviews
 } from '../models/reviews.models';
-import {
-  clearWorkspaceState,
-  persistWorkspaceState,
-  readWorkspaceState
-} from '../../../shared/utils/workspace-storage.util';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ReviewsService {
-  private readonly storageKey = 'vendor_reviews_workspace';
-  private readonly reviewsSubject = new BehaviorSubject<CustomerReviewVm[]>(this.loadReviews());
+  private readonly baseUrl = `${environment.apiUrl}/vendor/reviews`;
+  private readonly reviewsSubject = new BehaviorSubject<CustomerReviewVm[]>([]);
+
+  constructor(private readonly http: HttpClient) {
+    this.refresh().subscribe();
+  }
 
   getReviews(): Observable<CustomerReviewVm[]> {
     return this.reviewsSubject.pipe(map((reviews) => cloneReviews(reviews)));
@@ -28,59 +29,22 @@ export class ReviewsService {
     return this.reviewsSubject.pipe(map((reviews) => this.buildSummary(reviews)));
   }
 
+  refresh(): Observable<CustomerReviewVm[]> {
+    return this.http.get<CustomerReviewVm[]>(this.baseUrl).pipe(
+      map((reviews) => {
+        const normalized = reviews.map((review) => this.normalizeReview(review));
+        this.reviewsSubject.next(normalized);
+        return cloneReviews(normalized);
+      })
+    );
+  }
+
   replyToReview(reviewId: string, message: string): void {
-    const normalizedMessage = message.trim();
-
-    if (!normalizedMessage) {
-      return;
-    }
-
-    const timestamp = new Date().toISOString();
-    this.setReviews((reviews) => reviews.map((review) => {
-      if (review.id !== reviewId) {
-        return review;
-      }
-
-      const updatedReview: CustomerReviewVm = {
-        ...review,
-        replyStatus: 'replied',
-        attentionState: this.resolveAttentionState(review.rating, 'replied'),
-        vendorReply: {
-          message: normalizedMessage,
-          createdAt: timestamp
-        }
-      };
-
-      return updatedReview;
-    }));
+    this.saveReply(reviewId, message);
   }
 
   updateReply(reviewId: string, message: string): void {
-    const normalizedMessage = message.trim();
-
-    if (!normalizedMessage) {
-      return;
-    }
-
-    const timestamp = new Date().toISOString();
-    this.setReviews((reviews) => reviews.map((review) => {
-      if (review.id !== reviewId) {
-        return review;
-      }
-
-      const updatedReview: CustomerReviewVm = {
-        ...review,
-        replyStatus: 'replied',
-        attentionState: this.resolveAttentionState(review.rating, 'replied'),
-        vendorReply: {
-          message: normalizedMessage,
-          createdAt: review.vendorReply?.createdAt || timestamp,
-          updatedAt: timestamp
-        }
-      };
-
-      return updatedReview;
-    }));
+    this.saveReply(reviewId, message);
   }
 
   toggleVisibility(reviewId: string): void {
@@ -97,18 +61,32 @@ export class ReviewsService {
   }
 
   resetSeedState(): void {
-    clearWorkspaceState(this.storageKey);
-    this.reviewsSubject.next(this.buildSeedReviews());
+    this.refresh().subscribe();
   }
 
-  private loadReviews(): CustomerReviewVm[] {
-    const stored = readWorkspaceState<CustomerReviewVm[] | null>(this.storageKey, null);
-
-    if (stored) {
-      return stored.map((review) => this.normalizeReview(review));
+  private saveReply(reviewId: string, message: string): void {
+    const normalizedMessage = message.trim();
+    if (!normalizedMessage) {
+      return;
     }
 
-    return this.buildSeedReviews();
+    this.http.post<{ message: string; createdAt: string; updatedAt?: string }>(
+      `${this.baseUrl}/${reviewId}/reply`,
+      { message: normalizedMessage }
+    ).subscribe((reply) => {
+      this.setReviews((reviews) => reviews.map((review) => {
+        if (review.id !== reviewId) {
+          return review;
+        }
+
+        return {
+          ...review,
+          replyStatus: 'replied',
+          attentionState: this.resolveAttentionState(review.rating, 'replied'),
+          vendorReply: reply
+        };
+      }));
+    });
   }
 
   private normalizeReview(review: CustomerReviewVm): CustomerReviewVm {
@@ -136,144 +114,13 @@ export class ReviewsService {
     };
   }
 
-  private buildSeedReviews(): CustomerReviewVm[] {
-    const reviews: CustomerReviewVm[] = [
-      {
-        id: 'review-product-1',
-        type: 'product',
-        customerName: 'Ahmed Ali',
-        customerMaskedName: this.maskCustomerName('Ahmed Ali'),
-        rating: 5,
-        title: 'Fresh batch and solid consistency',
-        comment: 'The tomato batch arrived fresh, clean, and exactly as described. I would reorder this product again for the next supply cycle.',
-        createdAt: '2026-03-31T09:20:00.000Z',
-        visibility: 'published',
-        replyStatus: 'none',
-        attentionState: 'normal',
-        isVerifiedPurchase: true,
-        productId: 'v1',
-        productName: 'Premium Fresh Tomato'
-      },
-      {
-        id: 'review-order-1',
-        type: 'order',
-        customerName: 'Sara Mohamed',
-        customerMaskedName: this.maskCustomerName('Sara Mohamed'),
-        rating: 1,
-        title: 'Late order and weak packaging',
-        comment: 'The order arrived much later than expected and two items were packed poorly. The delivery experience needs follow-up.',
-        createdAt: '2026-04-01T18:10:00.000Z',
-        visibility: 'published',
-        replyStatus: 'none',
-        attentionState: 'needs_attention',
-        isVerifiedPurchase: true,
-        orderId: 'ord_7',
-        orderDisplayId: '1007',
-        deliveryRating: 1,
-        packagingRating: 2,
-        accuracyRating: 2
-      },
-      {
-        id: 'review-product-2',
-        type: 'product',
-        customerName: 'Nour Hassan',
-        customerMaskedName: this.maskCustomerName('Nour Hassan'),
-        rating: 4,
-        title: 'Good quality with one minor issue',
-        comment: 'The oil quality was good overall, but one bottle arrived with a slightly damaged label. Product quality itself was acceptable.',
-        createdAt: '2026-03-28T12:15:00.000Z',
-        visibility: 'published',
-        replyStatus: 'replied',
-        attentionState: 'normal',
-        isVerifiedPurchase: true,
-        productId: 'v2',
-        productName: 'Afia Sunflower Oil (1.5L)',
-        vendorReply: {
-          message: 'Thanks for the detailed note. We already shared the packaging feedback with the branch team and we appreciate your review.',
-          createdAt: '2026-03-28T15:00:00.000Z'
-        }
-      },
-      {
-        id: 'review-product-3',
-        type: 'product',
-        customerName: 'Khaled Mourad',
-        customerMaskedName: this.maskCustomerName('Khaled Mourad'),
-        rating: 2,
-        title: 'Stock was low and pack looked old',
-        comment: 'The rice pack was still usable, but the outer packaging looked old and the shelf presentation did not feel premium.',
-        createdAt: '2026-03-25T10:00:00.000Z',
-        visibility: 'hidden',
-        replyStatus: 'none',
-        attentionState: 'needs_attention',
-        isVerifiedPurchase: true,
-        productId: 'v3',
-        productName: 'Indian Basmati Rice (5KG)'
-      },
-      {
-        id: 'review-order-2',
-        type: 'order',
-        customerName: 'Laila Ibrahim',
-        customerMaskedName: this.maskCustomerName('Laila Ibrahim'),
-        rating: 3,
-        title: 'Accurate order with delivery friction',
-        comment: 'The order itself was accurate, but the driver needed an extra confirmation call before arrival. Overall acceptable but not smooth.',
-        createdAt: '2026-03-29T16:35:00.000Z',
-        visibility: 'published',
-        replyStatus: 'none',
-        attentionState: 'normal',
-        isVerifiedPurchase: true,
-        orderId: 'ord_12',
-        orderDisplayId: '1012',
-        deliveryRating: 2,
-        packagingRating: 4,
-        accuracyRating: 5,
-        media: [
-          'https://images.unsplash.com/photo-1515879218367-8466d910aaa4?q=80&w=320&auto=format&fit=crop',
-          'https://images.unsplash.com/photo-1542291026-7eec264c27ff?q=80&w=320&auto=format&fit=crop'
-        ]
-      },
-      {
-        id: 'review-order-3',
-        type: 'order',
-        customerName: 'Yassin Mahmoud',
-        customerMaskedName: this.maskCustomerName('Yassin Mahmoud'),
-        rating: 2,
-        title: 'Delivery improved after follow-up',
-        comment: 'The first delivery attempt was delayed, but support followed up and the second handoff was much better than expected.',
-        createdAt: '2026-03-22T13:05:00.000Z',
-        visibility: 'published',
-        replyStatus: 'replied',
-        attentionState: 'normal',
-        isVerifiedPurchase: true,
-        orderId: 'ord_14',
-        orderDisplayId: '1014',
-        deliveryRating: 2,
-        packagingRating: 3,
-        accuracyRating: 4,
-        vendorReply: {
-          message: 'We appreciate your patience. The branch supervisor reviewed the delay and we have tightened the dispatch handoff for similar orders.',
-          createdAt: '2026-03-22T17:30:00.000Z',
-          updatedAt: '2026-03-23T09:10:00.000Z'
-        }
-      }
-    ];
-
-    this.persistReviews(reviews);
-    return reviews;
-  }
-
   private resolveAttentionState(rating: number, replyStatus: CustomerReviewVm['replyStatus']): ReviewAttentionState {
     return rating <= 2 && replyStatus === 'none' ? 'needs_attention' : 'normal';
   }
 
   private setReviews(projector: (reviews: CustomerReviewVm[]) => CustomerReviewVm[]): void {
     const nextReviews = projector(this.reviewsSubject.value).map((review) => this.normalizeReview(review));
-    this.persistReviews(nextReviews);
     this.reviewsSubject.next(nextReviews);
-  }
-
-  private persistReviews(reviews: CustomerReviewVm[]): void {
-    persistWorkspaceState(this.storageKey, reviews);
   }
 
   private maskCustomerName(name: string): string {

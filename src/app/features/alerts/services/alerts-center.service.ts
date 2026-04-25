@@ -302,7 +302,7 @@ export class AlertsCenterService {
 
     return {
       id: item.id,
-      source: 'orders',
+      source: this.resolveSource(item.type, route),
       severity: this.resolveSeverity(item.type),
       title: {
         ar: item.titleAr,
@@ -346,6 +346,26 @@ export class AlertsCenterService {
       default:
         return 'info';
     }
+  }
+
+  private resolveSource(type?: string | null, route?: string | null): AlertCenterItemVm['source'] {
+    if (type?.startsWith('vendor_')) {
+      if (route?.startsWith('/finance')) {
+        return 'finance';
+      }
+
+      return 'profile';
+    }
+
+    if (route?.startsWith('/finance')) {
+      return 'finance';
+    }
+
+    if (route?.startsWith('/profile')) {
+      return 'profile';
+    }
+
+    return 'orders';
   }
 
   private applyWorkspace(liveAlerts: AlertCenterItemVm[], workspace: AlertWorkspaceState): AlertCenterItemVm[] {

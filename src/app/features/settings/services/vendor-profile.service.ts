@@ -5,6 +5,8 @@ import { environment } from '../../../../environments/environment';
 import { VendorAuthService } from '../../../core/auth/services/vendor-auth.service';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem, VendorReviewSummary } from '../models/vendor-profile.models';
 
+export type VendorLegalDocumentType = 'commercial' | 'tax' | 'license';
+
 interface ApiEnvelope<T> {
   data?: T;
   Data?: T;
@@ -185,6 +187,40 @@ export class VendorProfileService {
     );
   }
 
+  uploadLegalDocument(documentType: VendorLegalDocumentType, file: File): Observable<VendorProfile> {
+    const directoryMap: Record<VendorLegalDocumentType, string> = {
+      commercial: 'uploads/vendors/commercial-register',
+      tax: 'uploads/vendors/tax-certificates',
+      license: 'uploads/vendors/licenses'
+    };
+    const propertyMap: Record<VendorLegalDocumentType, keyof Pick<VendorProfile, 'commercialRegisterDocumentUrl' | 'taxDocumentUrl' | 'licenseDocumentUrl'>> = {
+      commercial: 'commercialRegisterDocumentUrl',
+      tax: 'taxDocumentUrl',
+      license: 'licenseDocumentUrl'
+    };
+    const formData = new FormData();
+
+    formData.append('file', file);
+    formData.append('directory', directoryMap[documentType]);
+
+    return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData).pipe(
+      switchMap((response) => {
+        const currentProfile = this.profileSubject.value;
+        const nextProfile = {
+          ...currentProfile,
+          [propertyMap[documentType]]: response.url
+        } as VendorProfile;
+
+        return this.updateLegal(nextProfile);
+      }),
+      map((workspace) => this.mapWorkspaceToProfile(workspace)),
+      tap((profile) => {
+        this.hasLoaded = true;
+        this.profileSubject.next(profile);
+      })
+    );
+  }
+
   private updateStore(profile: VendorProfile): Observable<VendorWorkspaceApi> {
     return this.http.put<ApiEnvelope<VendorWorkspaceApi>>(`${this.apiUrl}/store`, {
       businessNameAr: profile.storeNameAr,
@@ -195,7 +231,7 @@ export class VendorProfileService {
       descriptionAr: profile.descriptionAr,
       descriptionEn: profile.descriptionEn,
       logoUrl: null,
-      commercialRegisterDocumentUrl: null,
+      ...(profile.commercialRegisterDocumentUrl ? { commercialRegisterDocumentUrl: profile.commercialRegisterDocumentUrl } : {}),
       region: profile.region,
       city: profile.city,
       nationalAddress: profile.nationalAddress,
@@ -227,9 +263,9 @@ export class VendorProfileService {
       commercialRegistrationExpiryDate: profile.expiryDate || null,
       taxId: profile.taxId,
       licenseNumber: profile.licenseNumber,
-      commercialRegisterDocumentUrl: profile.commercialRegisterDocumentUrl || null,
-      taxDocumentUrl: profile.taxDocumentUrl || null,
-      licenseDocumentUrl: profile.licenseDocumentUrl || null
+      ...(profile.commercialRegisterDocumentUrl ? { commercialRegisterDocumentUrl: profile.commercialRegisterDocumentUrl } : {}),
+      ...(profile.taxDocumentUrl ? { taxDocumentUrl: profile.taxDocumentUrl } : {}),
+      ...(profile.licenseDocumentUrl ? { licenseDocumentUrl: profile.licenseDocumentUrl } : {})
     }).pipe(map((response) => this.unwrap(response)));
   }
 

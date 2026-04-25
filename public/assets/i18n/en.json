@@ -677,10 +677,10 @@
     "DRIVER_NOT_ASSIGNED": "No driver assigned yet"
   },
   "SETTINGS_PROFILE": {
-    "TITLE": "Vendor Profile",
-    "SUBTITLE": "Manage all store, owner, legal and payout details in one place",
-    "ROLE_LABEL": "Verified Vendor",
-    "SAVE": "Save Profile",
+    "TITLE": "Vendor profile",
+    "SUBTITLE": "Manage the store profile, legal file, banking setup, and review status from one workspace.",
+    "ROLE_LABEL": "Verified vendor",
+    "SAVE": "Save profile",
     "STATUS_ACTIVE": "Profile active",
     "STATUS_PENDING": "Pending review",
     "OPEN_NOW": "Open",
@@ -689,19 +689,43 @@
       "OWNER": "Owner",
       "JOINED_AT": "Joined at"
     },
+    "COMMAND": {
+      "EYEBROW": "Vendor workspace",
+      "ACTIVE_SUBTITLE": "Your commercial account is active. Important edits and file re-uploads immediately appear in the admin review workspace.",
+      "PENDING_SUBTITLE": "Complete the required profile data and official documents, then send the file for review. Every saved update is reflected in the admin side."
+    },
+    "METRICS": {
+      "REVIEW_READINESS": "Review readiness",
+      "ACCOUNT_STATUS": "Account status",
+      "LAST_DECISION": "Last decision",
+      "MISSING": "Missing",
+      "APPROVED": "Approved",
+      "IN_REVIEW": "In review"
+    },
+    "WINDOWS": {
+      "BASICS_LABEL": "Core profile",
+      "BASICS_SUMMARY": "Store, owner, and contact information.",
+      "REVIEW_LABEL": "Documents & review",
+      "REVIEW_SUMMARY": "Official PDFs, legal data, and review readiness.",
+      "OPERATIONS_LABEL": "Banking & hours",
+      "OPERATIONS_SUMMARY": "Settlement account, payout cycle, and weekly schedule.",
+      "TIMELINE_LABEL": "Timeline",
+      "TIMELINE_SUMMARY": "Review history, decisions, and recent activity."
+    },
     "UI": {
-      "STORE_BASICS": "Store Basics",
-      "SUPPORT_CHANNELS": "Support Channels",
-      "STORE_DESCRIPTION": "Store Description",
-      "OWNER_DETAILS": "Owner Details",
-      "ADDRESS_LOCATION": "Address & Location",
-      "PROFILE_STATUS": "Profile Status",
-      "LEGAL_COMPLETION": "Legal Completion",
+      "STORE_BASICS": "Store basics",
+      "SUPPORT_CHANNELS": "Support channels",
+      "STORE_DESCRIPTION": "Store description",
+      "OWNER_DETAILS": "Owner details",
+      "CONTACT_PROFILE": "Address and communication",
+      "ADDRESS_LOCATION": "Address & location",
+      "PROFILE_STATUS": "Profile status",
+      "LEGAL_COMPLETION": "Legal completion",
       "REVIEW": "Review",
-      "REVIEW_HINT": "Check CR and tax ID alignment",
-      "LEGAL_IDENTIFIERS": "Legal Identifiers",
-      "VERIFICATION_SUMMARY": "Verification Summary",
-      "BANK_PROFILE": "Bank Profile"
+      "REVIEW_HINT": "Make sure the commercial registration and tax data match the uploaded documents.",
+      "LEGAL_IDENTIFIERS": "Legal identifiers",
+      "VERIFICATION_SUMMARY": "Verification summary",
+      "BANK_PROFILE": "Bank profile"
     },
     "SECTIONS": {
       "STORE": "Store details",
@@ -709,13 +733,13 @@
       "OWNER": "Owner details",
       "OWNER_HINT": "Personal and contact information for the account owner.",
       "CONTACT": "Contact and address",
-      "CONTACT_HINT": "Support contacts and full merchant address.",
+      "CONTACT_HINT": "Support contacts and the merchant address.",
       "LEGAL": "Legal documents",
-      "LEGAL_HINT": "Commercial and tax identifiers for the merchant account.",
+      "LEGAL_HINT": "Commercial registration, tax details, and operational license.",
       "BANKING": "Payout details",
       "BANKING_HINT": "Settlement account and payout schedule.",
       "HOURS": "Operating hours",
-      "HOURS_HINT": "Weekly availability for receiving and preparing orders."
+      "HOURS_HINT": "Weekly operating availability for receiving and preparing orders."
     },
     "FIELDS": {
       "STORE_NAME_AR": "Store name (Arabic)",
@@ -737,6 +761,87 @@
       "IBAN": "IBAN",
       "PAYOUT_CYCLE": "Payout cycle"
     },
+    "ACCOUNT": {
+      "ACTIVE_ACCESS": "Commercial access enabled",
+      "GATED_ACCESS": "Commercial access still gated"
+    },
+    "REVIEW_PANEL": {
+      "TITLE": "Documents and review",
+      "SUBTITLE": "This window mirrors what the admin team sees while reviewing your file.",
+      "ACCOUNT_STATE": "Account state",
+      "SUBMISSION_READINESS": "Submission readiness",
+      "LAST_DECISION": "Last decision",
+      "MISSING_ITEMS": "missing items",
+      "LEGAL_IDENTIFIERS": "Legal identifiers",
+      "OFFICIAL_DOCUMENTS": "Official documents",
+      "UPLOADED": "Uploaded",
+      "MISSING": "Missing",
+      "VIEW_FILE": "View file"
+    },
+    "SIDE_RAIL": {
+      "CURRENT_WORKSPACE": "Current workspace",
+      "REQUIRED_BEFORE_REVIEW": "Required before review",
+      "SAVE_WINDOW": "Save this window",
+      "REVIEW_PROGRESS": "Review progress",
+      "RECENT_TIMELINE": "Recent timeline"
+    },
+    "TIMELINE": {
+      "TITLE": "Timeline and follow-up",
+      "SUBTITLE": "Track what changed in the file and how the review team is responding.",
+      "CURRENT_STATE": "Current review state",
+      "COMPLETE_REVIEW_TIMELINE": "Complete review timeline",
+      "EMPTY": "No review activity yet."
+    },
+    "NOTICES": {
+      "REOPEN_TITLE": "Changes here will reopen this section for review",
+      "REOPEN_SUBMITTED": "You can still edit, but important updates or file re-uploads will show up to admin as new review work.",
+      "REOPEN_CHANGES_REQUESTED": "Apply the requested fixes, save, and re-upload rejected files before resubmitting the profile."
+    },
+    "ACTIVATION": {
+      "TITLE": "The profile is ready for internal setup, but commercial activation is still blocked",
+      "BODY": "You can complete the remaining profile, legal, and operating setup here, then submit or resubmit the file for compliance review."
+    },
+    "ACTIONS": {
+      "SAVE_CHANGES": "Save changes",
+      "SUBMIT_FOR_REVIEW": "Submit for review",
+      "RESUBMIT_FOR_REVIEW": "Resubmit for review",
+      "UPLOADING": "Uploading",
+      "REUPLOAD": "Re-upload",
+      "REPLACE": "Replace",
+      "UPLOAD_PDF": "Upload PDF"
+    },
+    "MESSAGES": {
+      "NO_FINAL_DECISION": "No final decision yet",
+      "PDF_ONLY": "Official documents must be uploaded as PDF files.",
+      "DOCUMENT_UPLOADED": "The document was uploaded and synced to the admin review queue.",
+      "DOCUMENT_UPLOAD_FAILED": "Unable to upload the document right now.",
+      "SAVE_INVALID": "Please complete the required fields before saving the profile.",
+      "SAVE_SUCCESS": "Profile changes were saved and synced to the admin workspace.",
+      "SAVE_FAILED": "Unable to save profile changes right now.",
+      "SUBMIT_INVALID": "Complete the required data and documents before submitting for review.",
+      "SUBMIT_SUCCESS": "The vendor profile was submitted for review and is now visible to admin.",
+      "SUBMIT_FAILED": "Unable to submit the profile for review right now."
+    },
+    "REVIEW_ITEMS": {
+      "COMMERCIAL": "Commercial registration",
+      "TAX": "Tax certificate",
+      "LICENSE": "Operating license",
+      "IDENTITY": "Identity details",
+      "BANK": "Banking details"
+    },
+    "REVIEW_STATUS": {
+      "APPROVED": "Approved",
+      "SUBMITTED": "Submitted",
+      "CHANGES": "Changes requested",
+      "WAIVED": "Waived",
+      "PENDING_VENDOR": "Pending vendor",
+      "AWAITING_SUBMISSION": "Awaiting submission",
+      "UNDER_REVIEW": "Under review",
+      "VERIFIED": "Verified",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended",
+      "IN_SETUP": "In setup"
+    },
     "DAYS": {
       "SATURDAY": "Saturday",
       "SUNDAY": "Sunday",
@@ -745,6 +850,16 @@
       "WEDNESDAY": "Wednesday",
       "THURSDAY": "Thursday",
       "FRIDAY": "Friday"
+    },
+    "COMMAND_CENTER": {
+      "READINESS": "Readiness",
+      "ACCOUNT_STATUS": "Account:",
+      "LAST_DECISION": "Decision:",
+      "MISSING": "Missing",
+      "IN_REVIEW": "In Review",
+      "APPROVED": "Approved",
+      "SAVE": "Save",
+      "VENDOR_PROFILE": "VENDOR PROFILE"
     }
   },
   "HEADER": {

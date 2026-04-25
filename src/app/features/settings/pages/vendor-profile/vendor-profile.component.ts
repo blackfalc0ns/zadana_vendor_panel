@@ -1,728 +1,241 @@
-import { CommonModule, NgClass } from '@angular/common';
+import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
+import { TranslateService } from '@ngx-translate/core';
+import { SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { finalize } from 'rxjs';
 import { Subscription } from 'rxjs';
-import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
-import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
-import { DetailTabsNavComponent, DetailTabNavItem } from '../../../../shared/components/ui/navigation/detail-tabs-nav/detail-tabs-nav.component';
 import { BANKS, BUSINESS_TYPES, CITIES, NATIONALITIES, PAYMENT_CYCLES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
-import { VendorProfileService } from '../../services/vendor-profile.service';
-import { ProfileSectionNavItem } from './vendor-profile.view-models';
+import { VendorLegalDocumentType, VendorProfileService } from '../../services/vendor-profile.service';
+import { ProfileSectionNavItem, ProfileWorkspaceWindow, ProfileWorkspaceWindowId } from './vendor-profile.view-models';
+import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
+import { ProfileCommandCenterComponent } from './components/profile-command-center.component';
+import { ProfileWindowSwitcherComponent } from './components/profile-window-switcher.component';
+import { ProfileCoreWindowComponent } from './components/profile-core-window.component';
+import { ProfileReviewWindowComponent } from './components/profile-review-window.component';
+import { ProfileOperationsWindowComponent } from './components/profile-operations-window.component';
+import { ProfileTimelineWindowComponent } from './components/profile-timeline-window.component';
+import { ProfileSideRailComponent } from './components/profile-side-rail.component';
+
+interface LegalDocumentCard {
+  type: VendorLegalDocumentType;
+  code: string;
+  inputId: string;
+  titleAr: string;
+  titleEn: string;
+  hintAr: string;
+  hintEn: string;
+  url?: string | null;
+  uploaded: boolean;
+  reviewItem?: VendorReviewItem;
+}
+
+type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: string };
 
 @Component({
   selector: 'app-vendor-profile-page',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, NgClass, AppPageHeaderComponent, AppPanelHeaderComponent, DetailTabsNavComponent, SearchableSelectComponent],
-  template: `
-    <div class="space-y-6 pb-16" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    AppFlashBannerComponent,
+    ProfileCommandCenterComponent,
+    ProfileWindowSwitcherComponent,
+    ProfileCoreWindowComponent,
+    ProfileReviewWindowComponent,
+    ProfileOperationsWindowComponent,
+    ProfileTimelineWindowComponent,
+    ProfileSideRailComponent
+  ],
+    template: `
+    <div class="space-y-8 pb-16 min-h-screen bg-slate-50" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+      <div class="w-full px-4 sm:px-6 lg:px-8 pt-8">
+        
+        <app-flash-banner *ngIf="pageError" [message]="pageError" tone="error" class="mb-4 block" />
+        <app-flash-banner *ngIf="!pageError && pageNotice" [message]="pageNotice" tone="success" class="mb-4 block" />
 
-      <app-page-header
-        [title]="'SETTINGS_PROFILE.TITLE' | translate"
-        [description]="'SETTINGS_PROFILE.SUBTITLE' | translate"
-      ></app-page-header>
-
-      <section
-        *ngIf="!currentProfile.commercialAccessEnabled"
-        class="rounded-[28px] border px-5 py-5 shadow-sm"
-        [ngClass]="activationBannerClasses">
-        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div class="space-y-3">
-            <span class="inline-flex items-center gap-2 rounded-full border border-current/10 bg-white/75 px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.14em]">
-              <span class="h-2 w-2 rounded-full bg-current/70"></span>
-              {{ reviewStateLabel }}
-            </span>
+        <section
+          *ngIf="showLimitedEditNotice"
+          class="rounded-[20px] border border-amber-200 bg-amber-50/90 px-4 py-3 shadow-sm mb-4">
+          <div class="flex items-start gap-3">
+            <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] bg-white text-amber-700">
+              <span class="material-symbols-outlined text-[18px]">pending_actions</span>
+            </div>
             <div>
-              <h2 class="text-[1.05rem] font-black">
-                {{ currentLang === 'ar' ? 'ملف التاجر جاهز للعمل الداخلي لكن التشغيل التجاري ما زال محجوباً' : 'The vendor workspace is ready for setup, but commercial activation is still blocked' }}
-              </h2>
-              <p class="mt-2 max-w-3xl text-[0.82rem] font-semibold leading-6 text-current/80">
-                {{ currentProfile.lastReviewDecision || (currentLang === 'ar'
-                  ? 'يمكنك تجهيز الملف والفروع وساعات العمل والبيانات القانونية من هذه الصفحة، ثم إرسال الملف للمراجعة أو إعادة إرساله بعد استكمال المطلوب.'
-                  : 'You can complete profile, branch, hours, and legal data here, then submit or resubmit the file for compliance review.') }}
-              </p>
+              <p class="text-[0.78rem] font-black text-amber-900">{{ limitedEditNoticeTitle }}</p>
+              <p class="mt-1 text-[0.74rem] font-bold leading-6 text-amber-800">{{ limitedEditNoticeBody }}</p>
             </div>
           </div>
+        </section>
 
-          <button
-            type="button"
-            (click)="submitForReview()"
-            [disabled]="submitReviewDisabled"
-            class="inline-flex items-center justify-center gap-2 rounded-[18px] bg-slate-950 px-4 py-3 text-[0.78rem] font-black text-white shadow-[0_18px_28px_rgba(15,23,42,0.18)] transition hover:-translate-y-0.5 disabled:opacity-60">
-            <span *ngIf="isSubmittingReview" class="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white"></span>
-            {{ submitReviewLabel }}
-          </button>
-        </div>
-
-        <div *ngIf="currentProfile.requiredActions.length > 0" class="mt-4 flex flex-wrap gap-2">
-          <span
-            *ngFor="let action of currentProfile.requiredActions"
-            class="inline-flex items-center rounded-full border border-current/10 bg-white/75 px-3 py-1.5 text-[0.7rem] font-black">
-            {{ action.message }}
-          </span>
-        </div>
-      </section>
-
-      <section class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
-        <div class="px-5 py-5 md:px-6">
-        <div>
-          <div class="space-y-4">
-            <div class="flex flex-wrap items-start gap-3">
-              <div class="flex h-16 w-16 items-center justify-center rounded-[20px] border border-zadna-primary/10 bg-zadna-primary/10 text-[1.05rem] font-black uppercase text-zadna-primary">
-                {{ initials }}
-              </div>
-
-              <div class="min-w-0 flex-1">
-                <p class="text-[0.72rem] font-extrabold uppercase tracking-[0.18em] text-slate-400">{{ 'COMMON.PROFILE' | translate }}</p>
-                <div class="mt-1.5 flex flex-wrap items-center gap-2.5">
-                  <h2 class="text-[clamp(1.25rem,3vw,1.95rem)] font-black leading-[1.08] text-slate-900">{{ displayStoreName }}</h2>
-                  <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.66rem] font-extrabold" [ngClass]="reviewStateBadgeClasses">
-                    <span class="h-2 w-2 rounded-full" [ngClass]="reviewStateDotClass"></span>
-                    {{ reviewStateLabel }}
-                  </span>
-                </div>
-                <p class="mt-1.5 max-w-2xl text-[0.78rem] font-bold leading-5 text-slate-500">
-                  {{ currentLang === 'ar' ? (profileForm.value.descriptionAr || profileForm.value.descriptionEn) : (profileForm.value.descriptionEn || profileForm.value.descriptionAr) }}
+        <section
+          *ngIf="!currentProfile.commercialAccessEnabled && currentProfile.requiredActions.length > 0"
+          class="relative overflow-hidden rounded-[16px] border px-6 py-5 shadow-sm transition-all hover:shadow mb-4"
+          [ngClass]="activationBannerClasses">
+          <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div class="space-y-3">
+              <span class="inline-flex items-center gap-2 rounded-full border border-current/15 bg-white/90 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-wider shadow-sm">
+                <span class="h-2 w-2 rounded-full bg-current"></span>
+                {{ reviewStateLabel }}
+              </span>
+              <div>
+                <h2 class="text-[1.15rem] font-black tracking-tight">
+                  {{ currentLang === 'ar'
+                    ? 'ملف التاجر جاهز للعمل الداخلي لكن التشغيل التجاري ما زال محجوبًا'
+                    : 'The vendor workspace is ready for setup, but commercial activation is still blocked' }}
+                </h2>
+                <p class="mt-2.5 max-w-3xl text-[0.84rem] font-semibold leading-relaxed text-current/80">
+                  {{ currentProfile.lastReviewDecision || (currentLang === 'ar'
+                    ? 'يمكنك تجهيز الملف وساعات العمل والبيانات القانونية من هنا، ثم إرسال الملف للمراجعة أو إعادة إرساله بعد استكمال المطلوب.'
+                    : 'You can complete the profile, operating setup, and legal data here, then submit or resubmit the file for compliance review.') }}
                 </p>
-
-                <div class="mt-3 flex flex-wrap gap-2 text-[0.68rem] font-black text-slate-700">
-                  <span class="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1.5">
-                    {{ translatedOption('ONBOARDING.BUSINESS_TYPES', profileForm.value.businessType) }}
-                  </span>
-                  <span class="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1.5">
-                    {{ translatedOption('ONBOARDING.REGIONS', profileForm.value.region) }} - {{ translatedOption('ONBOARDING.CITIES', profileForm.value.city) }}
-                  </span>
-                  <span class="inline-flex items-center gap-2 rounded-full border border-slate-200/80 bg-slate-50 px-2.5 py-1.5">
-                    {{ profileForm.value.supportPhone || '-' }}
-                  </span>
-                </div>
               </div>
             </div>
 
+            <button
+              type="button"
+              (click)="submitForReview()"
+              [disabled]="submitReviewDisabled"
+              class="relative z-10 inline-flex items-center justify-center gap-2 rounded-[12px] bg-slate-900 px-5 py-2.5 text-[0.8rem] font-bold text-white shadow-sm transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+              <span *ngIf="isSubmittingReview" class="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white"></span>
+              {{ submitReviewLabel }}
+            </button>
           </div>
-        </div>
+
+          <div class="mt-4 flex flex-wrap gap-2">
+            <span
+              *ngFor="let action of currentProfile.requiredActions"
+              class="relative z-10 inline-flex items-center rounded-[8px] border border-current/15 bg-white/80 px-3 py-1 text-[0.72rem] font-bold shadow-sm transition-colors hover:bg-white">
+              {{ action.message }}
+            </span>
+          </div>
+        </section>
+
+        <!-- Merged Command Center and Window Switcher -->
+        <div class="mb-8 rounded-[16px] border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <app-profile-command-center
+            [currentLang]="currentLang"
+            [displayStoreName]="displayStoreName"
+            [heroMessage]="heroMessage"
+            [reviewStateLabel]="reviewStateLabel"
+            [reviewStateBadgeClasses]="reviewStateBadgeClasses"
+            [reviewStateDotClass]="reviewStateDotClass"
+            [reviewProgressPercent]="reviewProgressPercent"
+            [missingDocumentsCount]="currentProfile.missingDocumentsCount"
+            [approvedItems]="currentProfile.reviewSummary.approvedItems"
+            [submittedItems]="currentProfile.reviewSummary.submittedItems"
+            [accountWorkspaceLabel]="accountWorkspaceLabel"
+            [lastDecisionText]="lastDecisionText"
+            [isSaving]="isSaving"
+            [isSubmittingReview]="isSubmittingReview"
+            [saveDisabled]="profileForm.invalid || isSaving"
+            [submitDisabled]="submitReviewDisabled"
+            [submitReviewLabel]="submitReviewLabel"
+            (save)="saveProfile()"
+            (submit)="submitForReview()" />
+
+          <div class="border-t border-slate-100 mx-4"></div>
+
+          <app-profile-window-switcher
+            [currentLang]="currentLang"
+            [windows]="workspaceWindows"
+            [activeWindowId]="activeWindowId"
+            [counts]="workspaceWindowCounts"
+            (windowChange)="setActiveWindow($event)" />
         </div>
 
-        <div class="border-t border-slate-100 bg-slate-50/55 px-3 py-3 sm:px-4">
-          <app-detail-tabs-nav
-            [tabs]="profileTabs"
+      <form [formGroup]="profileForm" class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div class="min-w-0 space-y-4">
+          <app-profile-core-window
+            *ngIf="isWindowActive('basics')"
+            [form]="profileForm"
+            [businessTypeOptions]="businessTypeOptions"
+            [regionOptions]="regionOptions"
+            [cityOptions]="cityOptions"
+            [fieldClass]="fieldClassFn"
+            [textareaClass]="textareaClassFn" />
+
+          <app-profile-review-window
+            *ngIf="isWindowActive('review')"
+            [form]="profileForm"
+            [currentLang]="currentLang"
+            [accountWorkspaceLabel]="accountWorkspaceLabel"
+            [lastDecisionText]="lastDecisionText"
+            [reviewProgressPercent]="reviewProgressPercent"
+            [missingDocumentsCount]="currentProfile.missingDocumentsCount"
+            [nationalityOptions]="nationalityOptions"
+            [legalDocumentCards]="legalDocumentCards"
+            [uploadingDocumentType]="uploadingDocumentType"
+            [fieldClass]="fieldClassFn"
+            [documentActionLabel]="documentActionLabelFn"
+            [documentCardClasses]="documentCardClassesFn"
+            [reviewItemStatusLabel]="reviewItemStatusLabelFn"
+            [reviewItemStatusBadgeClasses]="reviewItemStatusBadgeClassesOptionalFn"
+            (uploadClick)="triggerLegalDocumentInput($event)"
+            (documentSelected)="onLegalDocumentSelected($event.event, $event.type)" />
+
+          <app-profile-operations-window
+            *ngIf="isWindowActive('operations')"
+            [form]="profileForm"
+            [bankOptions]="bankOptions"
+            [paymentCycleOptions]="paymentCycleOptions"
+            [openDaysCount]="openDaysCount"
+            [fieldClass]="fieldClassFn"
+            [timeFieldClass]="timeFieldClassFn" />
+
+          <app-profile-timeline-window
+            *ngIf="isWindowActive('timeline')"
+            [currentLang]="currentLang"
+            [reviewStateLabel]="reviewStateLabel"
+            [reviewProgressPercent]="reviewProgressPercent"
+            [reviewStateBadgeClasses]="reviewStateBadgeClasses"
+            [reviewItems]="currentProfile.reviewItems"
+            [fullTimelineEntries]="fullTimelineEntries"
+            [reviewItemLabel]="reviewItemLabelFn"
+            [reviewItemStatusLabel]="reviewItemStatusLabelFn"
+            [reviewItemCardClasses]="reviewItemCardClassesFn"
+            [reviewItemStatusBadgeClasses]="reviewItemStatusBadgeClassesFn"
+            [timelineToneDotClasses]="timelineToneDotClassesFn"
+            [formatReviewDate]="formatReviewDateFn" />
+        </div>
+
+        <div class="min-w-0 xl:sticky xl:top-24 xl:self-start">
+          <app-profile-side-rail
+            [currentLang]="currentLang"
+            [activeWindow]="activeWindow"
             [activeTab]="activeTab"
-            (tabChange)="setActiveTab($event)">
-          </app-detail-tabs-nav>
-        </div>
-      </section>
-
-      <form [formGroup]="profileForm" class="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
-        <div class="space-y-6">
-          <section id="store-section" [ngClass]="activeTab === 'store-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <app-panel-header
-              [title]="'SETTINGS_PROFILE.SECTIONS.STORE'"
-              [subtitle]="'SETTINGS_PROFILE.SECTIONS.STORE_HINT'"
-              eyebrow="COMMON.PROFILE"
-              containerClass="border-b border-slate-100 px-5 py-4"
-              titleClass="text-[0.94rem] font-black text-slate-900"
-              subtitleClass="mt-1 text-[0.72rem] font-bold text-slate-500"
-            >
-              <div actions>
-                <span class="inline-flex items-center rounded-full bg-slate-100 px-3 py-1.5 text-[0.7rem] font-black text-slate-600">
-                  {{ completedFields(getSectionItem('store-section')) }}/{{ totalFields(getSectionItem('store-section')) }}
-                </span>
-              </div>
-            </app-panel-header>
-
-            <div class="grid gap-4 px-5 py-5 lg:grid-cols-2">
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.STORE_BASICS' | translate }}</span>
-                </div>
-                <div class="grid gap-4 p-4">
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.STORE_NAME_AR' | translate }}</span>
-                    <input formControlName="storeNameAr" type="text" [ngClass]="fieldClass('storeNameAr')">
-                  </label>
-
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.STORE_NAME_EN' | translate }}</span>
-                    <input formControlName="storeNameEn" type="text" dir="ltr" [ngClass]="fieldClass('storeNameEn', 'ltr')">
-                  </label>
-
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.BUSINESS_TYPE' | translate }}</span>
-                    <div class="relative">
-                      <app-searchable-select formControlName="businessType" [options]="businessTypeOptions" [placeholder]="'SETTINGS_PROFILE.FIELDS.BUSINESS_TYPE'"></app-searchable-select>
-                      
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.SUPPORT_CHANNELS' | translate }}</span>
-                </div>
-                <div class="grid gap-4 p-4">
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.SUPPORT_PHONE' | translate }}</span>
-                    <input formControlName="supportPhone" type="tel" dir="ltr" [ngClass]="fieldClass('supportPhone', 'ltr')">
-                  </label>
-
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.SUPPORT_EMAIL' | translate }}</span>
-                    <input formControlName="supportEmail" type="email" dir="ltr" [ngClass]="fieldClass('supportEmail', 'ltr')">
-                  </label>
-                </div>
-              </div>
-
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60 lg:col-span-2">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.STORE_DESCRIPTION' | translate }}</span>
-                </div>
-                <div class="grid gap-4 p-4 md:grid-cols-2">
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.DESCRIPTION_AR' | translate }}</span>
-                    <textarea formControlName="descriptionAr" rows="4" [ngClass]="textareaClass('descriptionAr')"></textarea>
-                  </label>
-
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.DESCRIPTION_EN' | translate }}</span>
-                    <textarea formControlName="descriptionEn" rows="4" dir="ltr" [ngClass]="textareaClass('descriptionEn', 'ltr')"></textarea>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="owner-section" [ngClass]="activeTab === 'owner-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <app-panel-header
-              [title]="'SETTINGS_PROFILE.SECTIONS.OWNER'"
-              [subtitle]="'SETTINGS_PROFILE.SECTIONS.OWNER_HINT'"
-              eyebrow="COMMON.PROFILE"
-              containerClass="border-b border-slate-100 px-5 py-4"
-              titleClass="text-[0.94rem] font-black text-slate-900"
-              subtitleClass="mt-1 text-[0.72rem] font-bold text-slate-500"
-            ></app-panel-header>
-
-            <div class="grid gap-4 px-5 py-5">
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.OWNER_DETAILS' | translate }}</span>
-                </div>
-                <div class="grid gap-4 p-4 md:grid-cols-2">
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.OWNER_NAME' | translate }}</span>
-                    <input formControlName="ownerName" type="text" [ngClass]="fieldClass('ownerName')">
-                  </label>
-
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.OWNER_PHONE' | translate }}</span>
-                    <input formControlName="ownerPhone" type="tel" dir="ltr" [ngClass]="fieldClass('ownerPhone', 'ltr')">
-                  </label>
-
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.OWNER_EMAIL' | translate }}</span>
-                    <input formControlName="ownerEmail" type="email" dir="ltr" [ngClass]="fieldClass('ownerEmail', 'ltr')">
-                  </label>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="contact-section" [ngClass]="activeTab === 'contact-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <app-panel-header
-              [title]="'SETTINGS_PROFILE.SECTIONS.CONTACT'"
-              [subtitle]="'SETTINGS_PROFILE.SECTIONS.CONTACT_HINT'"
-              eyebrow="COMMON.PROFILE"
-              containerClass="border-b border-slate-100 px-5 py-4"
-              titleClass="text-[0.94rem] font-black text-slate-900"
-              subtitleClass="mt-1 text-[0.72rem] font-bold text-slate-500"
-            ></app-panel-header>
-
-            <div class="grid gap-4 px-5 py-5">
-
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.ADDRESS_LOCATION' | translate }}</span>
-                </div>
-                <div class="grid gap-4 p-4">
-                  <div class="grid gap-4 md:grid-cols-2">
-                    <label class="space-y-2.5">
-                      <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.REGION' | translate }}</span>
-                      <div class="relative">
-                        <app-searchable-select formControlName="region" [options]="regionOptions" [placeholder]="'SETTINGS_PROFILE.FIELDS.REGION'"></app-searchable-select>
-                        
-                      </div>
-                    </label>
-
-                    <label class="space-y-2.5">
-                      <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.CITY' | translate }}</span>
-                      <div class="relative">
-                        <app-searchable-select formControlName="city" [options]="cityOptions" [placeholder]="'SETTINGS_PROFILE.FIELDS.CITY'"></app-searchable-select>
-                        
-                      </div>
-                    </label>
-                  </div>
-
-                  <label class="space-y-2.5">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.NATIONAL_ADDRESS' | translate }}</span>
-                    <textarea formControlName="nationalAddress" rows="4" [ngClass]="textareaClass('nationalAddress')"></textarea>
-                  </label>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="legal-section" [ngClass]="activeTab === 'legal-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <app-panel-header
-              [title]="'SETTINGS_PROFILE.SECTIONS.LEGAL'"
-              [subtitle]="'SETTINGS_PROFILE.SECTIONS.LEGAL_HINT'"
-              eyebrow="COMMON.LIVE"
-              containerClass="border-b border-slate-100 px-5 py-4"
-              titleClass="text-[0.94rem] font-black text-slate-900"
-              subtitleClass="mt-1 text-[0.72rem] font-bold text-slate-500"
-            ></app-panel-header>
-
-            <div class="grid gap-4 px-5 py-5">
-              <div class="grid gap-3 md:grid-cols-3">
-                <div class="rounded-[16px] border border-emerald-100 bg-emerald-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-emerald-600/80">{{ 'SETTINGS_PROFILE.UI.PROFILE_STATUS' | translate }}</p>
-                  <div class="mt-2">
-                    <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.68rem] font-black" [ngClass]="statusBadgeClass">
-                      <span class="h-2 w-2 rounded-full" [ngClass]="statusDotClass"></span>
-                      {{ profileStatusLabelKey | translate }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="rounded-[16px] border border-slate-200 bg-slate-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.LEGAL_COMPLETION' | translate }}</p>
-                  <p class="mt-2 text-[1rem] font-black text-slate-900">{{ sectionPercent(getSectionItem('legal-section')) }}%</p>
-                  <p class="mt-1 text-[0.7rem] font-bold text-slate-500">{{ completedFields(getSectionItem('legal-section')) }}/{{ totalFields(getSectionItem('legal-section')) }}</p>
-                </div>
-
-                <div class="rounded-[16px] border border-amber-100 bg-amber-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-amber-600/80">{{ 'SETTINGS_PROFILE.UI.REVIEW' | translate }}</p>
-                  <p class="mt-2 text-[0.84rem] font-black text-slate-900">{{ 'SETTINGS_PROFILE.UI.REVIEW_HINT' | translate }}</p>
-                </div>
-              </div>
-
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.LEGAL_IDENTIFIERS' | translate }}</span>
-                </div>
-                <div class="grid gap-4 p-4 md:grid-cols-2">
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.ID_NUMBER' | translate }}</span>
-                    <input formControlName="idNumber" type="text" dir="ltr" [ngClass]="fieldClass('idNumber', 'ltr')">
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.NATIONALITY' | translate }}</span>
-                    <div class="relative">
-                      <app-searchable-select formControlName="nationality" [options]="nationalityOptions" [placeholder]="'ONBOARDING.FIELDS.NATIONALITY'"></app-searchable-select>
-                      
-                    </div>
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.CR_NUMBER' | translate }}</span>
-                    <input formControlName="commercialRegistrationNumber" type="text" dir="ltr" [ngClass]="fieldClass('commercialRegistrationNumber', 'ltr')">
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.CR_EXPIRY' | translate }}</span>
-                    <input formControlName="expiryDate" type="date" dir="ltr" [ngClass]="fieldClass('expiryDate', 'ltr')">
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.TAX_ID' | translate }}</span>
-                    <input formControlName="taxId" type="text" dir="ltr" [ngClass]="fieldClass('taxId', 'ltr')">
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.LICENSE' | translate }}</span>
-                    <input formControlName="licenseNumber" type="text" dir="ltr" [ngClass]="fieldClass('licenseNumber', 'ltr')">
-                  </label>
-                </div>
-              </div>
-
-              <div class="rounded-[18px] border border-slate-200/70 bg-white">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.VERIFICATION_SUMMARY' | translate }}</span>
-                </div>
-                <div class="grid gap-3 p-4 md:grid-cols-2 xl:grid-cols-4">
-                  <div class="rounded-[14px] border border-slate-100 bg-slate-50 px-3 py-3">
-                    <p class="text-[0.64rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'ONBOARDING.FIELDS.ID_NUMBER' | translate }}</p>
-                    <p class="mt-1.5 text-[0.82rem] font-black text-slate-900">{{ profileForm.value.idNumber || '-' }}</p>
-                  </div>
-                  <div class="rounded-[14px] border border-slate-100 bg-slate-50 px-3 py-3">
-                    <p class="text-[0.64rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'ONBOARDING.FIELDS.NATIONALITY' | translate }}</p>
-                    <p class="mt-1.5 text-[0.82rem] font-black text-slate-900">{{ translatedOption('ONBOARDING.NATIONALITIES', profileForm.value.nationality) }}</p>
-                  </div>
-                  <div class="rounded-[14px] border border-slate-100 bg-slate-50 px-3 py-3">
-                    <p class="text-[0.64rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'ONBOARDING.FIELDS.CR_NUMBER' | translate }}</p>
-                    <p class="mt-1.5 text-[0.82rem] font-black text-slate-900">{{ profileForm.value.commercialRegistrationNumber || '-' }}</p>
-                  </div>
-                  <div class="rounded-[14px] border border-slate-100 bg-slate-50 px-3 py-3">
-                    <p class="text-[0.64rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'ONBOARDING.FIELDS.TAX_ID' | translate }}</p>
-                    <p class="mt-1.5 text-[0.82rem] font-black text-slate-900">{{ profileForm.value.taxId || '-' }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}</span>
-                </div>
-                <div class="grid gap-3 p-4 md:grid-cols-2">
-                  <label class="flex items-center justify-between gap-3 rounded-[14px] border border-slate-200/80 bg-white px-4 py-3">
-                    <div>
-                      <p class="text-[0.78rem] font-black text-slate-800">{{ 'ONBOARDING.FIELDS.LOGO' | translate }}</p>
-                      <p class="mt-1 text-[0.68rem] font-bold text-slate-500">{{ profileForm.value.hasLogo ? ('COMMON.ACTIVE' | translate) : ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
-                    </div>
-                    <input formControlName="hasLogo" type="checkbox" class="h-4.5 w-4.5 rounded border-slate-300 text-zadna-primary focus:ring-zadna-primary/20">
-                  </label>
-
-                  <label class="flex items-center justify-between gap-3 rounded-[14px] border border-slate-200/80 bg-white px-4 py-3">
-                    <div>
-                      <p class="text-[0.78rem] font-black text-slate-800">{{ 'ONBOARDING.FIELDS.CR_DOC' | translate }}</p>
-                      <p class="mt-1 text-[0.68rem] font-bold text-slate-500">{{ profileForm.value.hasCRDoc ? ('COMMON.ACTIVE' | translate) : ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
-                    </div>
-                    <input formControlName="hasCRDoc" type="checkbox" class="h-4.5 w-4.5 rounded border-slate-300 text-zadna-primary focus:ring-zadna-primary/20">
-                  </label>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="banking-section" [ngClass]="activeTab === 'banking-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <app-panel-header
-              [title]="'SETTINGS_PROFILE.SECTIONS.BANKING'"
-              [subtitle]="'SETTINGS_PROFILE.SECTIONS.BANKING_HINT'"
-              eyebrow="COMMON.CURRENCY"
-              containerClass="border-b border-slate-100 px-5 py-4"
-              titleClass="text-[0.94rem] font-black text-slate-900"
-              subtitleClass="mt-1 text-[0.72rem] font-bold text-slate-500"
-            ></app-panel-header>
-
-            <div class="grid gap-4 px-5 py-5">
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.BANK_PROFILE' | translate }}</span>
-                </div>
-                <div class="grid gap-4 p-4 md:grid-cols-2">
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.BANK_NAME' | translate }}</span>
-                    <div class="relative">
-                      <app-searchable-select formControlName="bankName" [options]="bankOptions" [placeholder]="'ONBOARDING.FIELDS.BANK_NAME'"></app-searchable-select>
-                      
-                    </div>
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.PAYMENT_CYCLE' | translate }}</span>
-                    <div class="relative">
-                      <app-searchable-select formControlName="payoutCycle" [options]="paymentCycleOptions" [placeholder]="'ONBOARDING.FIELDS.PAYMENT_CYCLE'"></app-searchable-select>
-                      
-                    </div>
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.IBAN' | translate }}</span>
-                    <input formControlName="iban" type="text" dir="ltr" [ngClass]="fieldClass('iban', 'ltr')">
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'ONBOARDING.FIELDS.SWIFT' | translate }}</span>
-                    <input formControlName="swiftCode" type="text" dir="ltr" class="uppercase" [ngClass]="fieldClass('swiftCode', 'ltr')">
-                  </label>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section id="hours-section" [ngClass]="activeTab === 'hours-section' ? 'overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50' : 'hidden'">
-            <app-panel-header
-              [title]="'SETTINGS_PROFILE.SECTIONS.HOURS'"
-              [subtitle]="'SETTINGS_PROFILE.SECTIONS.HOURS_HINT'"
-              eyebrow="COMMON.OPEN"
-              containerClass="border-b border-slate-100 px-5 py-4"
-              titleClass="text-[0.94rem] font-black text-slate-900"
-              subtitleClass="mt-1 text-[0.72rem] font-bold text-slate-500"
-            >
-              <div actions>
-                <span class="inline-flex items-center rounded-full bg-emerald-50 px-3 py-1.5 text-[0.7rem] font-black text-emerald-600">
-                  {{ openDaysCount }}/{{ operatingHours.length }}
-                </span>
-              </div>
-            </app-panel-header>
-
-            <div formArrayName="operatingHours" class="grid gap-2.5 px-5 py-5">
-              @for (hour of operatingHours.controls; track $index) {
-                <div
-                  [formGroupName]="$index"
-                  class="grid gap-3 rounded-[18px] border p-3 transition md:grid-cols-[minmax(0,1fr)_128px_128px]"
-                  [ngClass]="hour.get('isOpen')?.value ? 'border-emerald-100 bg-[linear-gradient(180deg,rgba(236,253,245,0.9),rgba(255,255,255,1))]' : 'border-slate-100 bg-slate-50/90'">
-                  <div class="flex items-center justify-between gap-3">
-                    <div>
-                      <p class="text-[0.8rem] font-black text-slate-800">{{ hour.get('dayKey')?.value | translate }}</p>
-                      <p class="mt-1 text-[0.68rem] font-bold text-slate-500">
-                        {{ hour.get('isOpen')?.value ? ('SETTINGS_PROFILE.OPEN_NOW' | translate) : ('COMMON.CLOSE' | translate) }}
-                      </p>
-                    </div>
-
-                    <label class="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-[0.68rem] font-black text-slate-600 shadow-sm">
-                      <input formControlName="isOpen" type="checkbox" class="h-4 w-4 rounded border-slate-300 text-zadna-primary focus:ring-zadna-primary/30">
-                      {{ 'SETTINGS_PROFILE.OPEN_NOW' | translate }}
-                    </label>
-                  </div>
-
-                  <input formControlName="from" type="time" [ngClass]="timeFieldClass(hour.get('isOpen')?.value)">
-                  <input formControlName="to" type="time" [ngClass]="timeFieldClass(hour.get('isOpen')?.value)">
-                </div>
-              }
-            </div>
-          </section>
-        </div>
-
-        <div class="space-y-5 xl:sticky xl:top-24 xl:self-start">
-          <section class="hidden">
-            <app-panel-header
-              [title]="'SETTINGS_PROFILE.SECTIONS.LEGAL'"
-              [subtitle]="'SETTINGS_PROFILE.SECTIONS.LEGAL_HINT'"
-              eyebrow="COMMON.LIVE"
-              containerClass="border-b border-slate-100 px-5 py-4"
-              titleClass="text-[0.94rem] font-black text-slate-900"
-              subtitleClass="mt-1 text-[0.72rem] font-bold text-slate-500"
-            ></app-panel-header>
-
-            <div class="grid gap-4 px-5 py-5">
-              <div class="grid gap-3 md:grid-cols-3">
-                <div class="rounded-[16px] border border-emerald-100 bg-emerald-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-emerald-600/80">{{ 'SETTINGS_PROFILE.UI.PROFILE_STATUS' | translate }}</p>
-                  <div class="mt-2">
-                    <span class="inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-[0.68rem] font-black" [ngClass]="statusBadgeClass">
-                      <span class="h-2 w-2 rounded-full" [ngClass]="statusDotClass"></span>
-                      {{ profileStatusLabelKey | translate }}
-                    </span>
-                  </div>
-                </div>
-
-                <div class="rounded-[16px] border border-slate-200 bg-slate-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.LEGAL_COMPLETION' | translate }}</p>
-                  <p class="mt-2 text-[1rem] font-black text-slate-900">{{ sectionPercent(getSectionItem('legal-section')) }}%</p>
-                  <p class="mt-1 text-[0.7rem] font-bold text-slate-500">{{ completedFields(getSectionItem('legal-section')) }}/{{ totalFields(getSectionItem('legal-section')) }}</p>
-                </div>
-
-                <div class="rounded-[16px] border border-amber-100 bg-amber-50/80 p-4">
-                  <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-amber-600/80">{{ 'SETTINGS_PROFILE.UI.REVIEW' | translate }}</p>
-                  <p class="mt-2 text-[0.84rem] font-black text-slate-900">{{ 'SETTINGS_PROFILE.UI.REVIEW_HINT' | translate }}</p>
-                </div>
-              </div>
-
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.LEGAL_IDENTIFIERS' | translate }}</span>
-                </div>
-                <div class="grid gap-4 p-4">
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.COMMERCIAL_REGISTRATION' | translate }}</span>
-                    <input formControlName="commercialRegistrationNumber" type="text" [ngClass]="fieldClass('commercialRegistrationNumber')">
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.TAX_ID' | translate }}</span>
-                    <input formControlName="taxId" type="text" [ngClass]="fieldClass('taxId')">
-                  </label>
-                </div>
-              </div>
-
-              <div class="rounded-[18px] border border-slate-200/70 bg-white">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.VERIFICATION_SUMMARY' | translate }}</span>
-                </div>
-                <div class="grid gap-3 p-4 md:grid-cols-2">
-                  <div class="rounded-[14px] border border-slate-100 bg-slate-50 px-3 py-3">
-                    <p class="text-[0.64rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'SETTINGS_PROFILE.FIELDS.COMMERCIAL_REGISTRATION' | translate }}</p>
-                    <p class="mt-1.5 text-[0.82rem] font-black text-slate-900">{{ profileForm.value.commercialRegistrationNumber || '-' }}</p>
-                  </div>
-                  <div class="rounded-[14px] border border-slate-100 bg-slate-50 px-3 py-3">
-                    <p class="text-[0.64rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'SETTINGS_PROFILE.FIELDS.TAX_ID' | translate }}</p>
-                    <p class="mt-1.5 text-[0.82rem] font-black text-slate-900">{{ profileForm.value.taxId || '-' }}</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="hidden">
-            <app-panel-header
-              [title]="'SETTINGS_PROFILE.SECTIONS.BANKING'"
-              [subtitle]="'SETTINGS_PROFILE.SECTIONS.BANKING_HINT'"
-              eyebrow="COMMON.CURRENCY"
-              containerClass="border-b border-slate-100 px-5 py-4"
-              titleClass="text-[0.94rem] font-black text-slate-900"
-              subtitleClass="mt-1 text-[0.72rem] font-bold text-slate-500"
-            ></app-panel-header>
-
-            <div class="grid gap-4 px-5 py-5">
-              <div class="rounded-[18px] border border-slate-200/70 bg-slate-50/60">
-                <div class="flex items-center gap-2 border-b border-slate-200/70 px-4 py-3">
-                  <span class="h-2 w-2 rounded-full bg-rose-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-amber-300"></span>
-                  <span class="h-2 w-2 rounded-full bg-emerald-300"></span>
-                  <span class="ms-2 text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-500">{{ 'SETTINGS_PROFILE.UI.BANK_PROFILE' | translate }}</span>
-                </div>
-                <div class="grid gap-4 p-4">
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.BANK_NAME' | translate }}</span>
-                    <input formControlName="bankName" type="text" [ngClass]="fieldClass('bankName')">
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.IBAN' | translate }}</span>
-                    <input formControlName="iban" type="text" [ngClass]="fieldClass('iban')">
-                  </label>
-
-                  <label class="space-y-2.5 block">
-                    <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.PAYOUT_CYCLE' | translate }}</span>
-                    <input formControlName="payoutCycle" type="text" [ngClass]="fieldClass('payoutCycle')">
-                  </label>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
-            <div class="border-b border-slate-100 bg-slate-50/60 px-5 py-4">
-              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-zadna-primary/75">{{ 'COMMON.PROFILE' | translate }}</p>
-              <h3 class="mt-1.5 text-[0.94rem] font-black text-slate-900">{{ displayStoreName }}</h3>
-              <p class="mt-1 text-[0.72rem] font-bold text-slate-500">{{ translatedOption('ONBOARDING.BUSINESS_TYPES', profileForm.value.businessType) }}</p>
-            </div>
-
-            <div class="space-y-2.5 px-5 py-4">
-              @for (item of sectionNavItems; track item.id) {
-                <button
-                  type="button"
-                  (click)="setActiveTab(item.id)"
-                  class="flex w-full items-center justify-between gap-3 rounded-[16px] border px-3.5 py-2.5 text-start transition-all"
-                  [ngClass]="activeTab === item.id
-                    ? 'border-zadna-primary/15 bg-zadna-primary/[0.06] shadow-sm shadow-zadna-primary/5'
-                    : 'border-slate-100 bg-slate-50/80 hover:border-slate-200 hover:bg-white'">
-                  <div>
-                    <p class="text-[0.72rem] font-black" [ngClass]="activeTab === item.id ? 'text-zadna-primary' : 'text-slate-800'">{{ item.labelKey | translate }}</p>
-                    <p class="mt-1 text-[0.68rem] font-bold text-slate-500">{{ completedFields(item) }}/{{ totalFields(item) }}</p>
-                  </div>
-                  <span class="inline-flex min-w-[60px] items-center justify-center rounded-full px-2.5 py-1 text-[0.66rem] font-black" [ngClass]="sectionPercent(item) === 100 ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-200 text-slate-600'">
-                    {{ sectionPercent(item) }}%
-                  </span>
-                </button>
-              }
-
-              <button
-                type="button"
-                (click)="saveProfile()"
-                [disabled]="profileForm.invalid || isSaving"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-[16px] bg-slate-950 px-4 py-2.5 text-[0.76rem] font-black text-white shadow-[0_14px_24px_rgba(15,23,42,0.18)] transition hover:-translate-y-0.5 disabled:opacity-60">
-                @if (isSaving) {
-                  <span class="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white"></span>
-                }
-                {{ 'SETTINGS_PROFILE.SAVE' | translate }}
-              </button>
-
-              <div class="rounded-[20px] border border-slate-200 bg-white p-4">
-                <div class="flex items-center justify-between gap-3">
-                  <div>
-                    <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">
-                      {{ currentLang === 'ar' ? 'حالة الاعتماد' : 'Review progress' }}
-                    </p>
-                    <h4 class="mt-1 text-[0.9rem] font-black text-slate-900">{{ reviewStateLabel }}</h4>
-                  </div>
-                  <span class="text-[0.9rem] font-black text-slate-900">{{ reviewProgressPercent }}%</span>
-                </div>
-                <div class="mt-3 h-2 rounded-full bg-slate-100">
-                  <div class="h-2 rounded-full bg-zadna-primary transition-all duration-300" [style.width.%]="reviewProgressPercent"></div>
-                </div>
-
-                <div class="mt-4 space-y-2.5">
-                  <div
-                    *ngFor="let item of currentProfile.reviewItems"
-                    class="rounded-[16px] border px-3 py-3"
-                    [ngClass]="reviewItemCardClasses(item)">
-                    <div class="flex items-start justify-between gap-3">
-                      <div>
-                        <p class="text-[0.74rem] font-black text-slate-900">{{ reviewItemLabel(item.code) }}</p>
-                        <p *ngIf="item.decisionNote" class="mt-1 text-[0.7rem] font-semibold text-slate-500">{{ item.decisionNote }}</p>
-                      </div>
-                      <span class="rounded-full px-2.5 py-1 text-[0.64rem] font-black uppercase tracking-[0.12em]" [ngClass]="reviewItemStatusBadgeClasses(item)">
-                        {{ reviewItemStatusLabel(item.status) }}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div class="rounded-[20px] border border-slate-200 bg-white p-4">
-                <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">
-                  {{ currentLang === 'ar' ? 'السجل الزمني للمراجعة' : 'Review timeline' }}
-                </p>
-                <div class="mt-4 space-y-3">
-                  <article *ngFor="let entry of timelineEntries" class="flex gap-3">
-                    <div class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full" [ngClass]="timelineToneDotClasses(entry)"></div>
-                    <div class="min-w-0">
-                      <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-[0.74rem] font-black text-slate-900">{{ entry.authorName }}</span>
-                        <span class="text-[0.66rem] font-bold text-slate-400">{{ entry.roleLabel }}</span>
-                      </div>
-                      <p class="mt-1 text-[0.72rem] font-semibold leading-5 text-slate-600">{{ entry.message }}</p>
-                      <p class="mt-1 text-[0.64rem] font-black uppercase tracking-[0.12em] text-slate-400">{{ formatReviewDate(entry.createdAtUtc) }}</p>
-                    </div>
-                  </article>
-
-                  <p *ngIf="timelineEntries.length === 0" class="text-[0.74rem] font-semibold text-slate-500">
-                    {{ currentLang === 'ar' ? 'لا يوجد نشاط مراجعة بعد.' : 'No review activity yet.' }}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </section>
+            [sectionLabels]="sectionLabels"
+            [sections]="activeWindowSections"
+            [requiredActions]="currentProfile.requiredActions"
+            [showRequiredActions]="activeWindowId === 'review'"
+            [showSave]="activeWindowId !== 'timeline'"
+            [showSubmit]="activeWindowId === 'review'"
+            [showTimelinePreview]="activeWindowId !== 'timeline'"
+            [saveDisabled]="profileForm.invalid || isSaving"
+            [submitDisabled]="submitReviewDisabled"
+            [isSaving]="isSaving"
+            [isSubmittingReview]="isSubmittingReview"
+            [submitReviewLabel]="submitReviewLabel"
+            [reviewStateLabel]="reviewStateLabel"
+            [reviewProgressPercent]="reviewProgressPercent"
+            [reviewItems]="currentProfile.reviewItems"
+            [timelineEntries]="timelineEntries"
+            [completedFields]="completedFieldsFn"
+            [totalFields]="totalFieldsFn"
+            [sectionPercent]="sectionPercentFn"
+            [reviewItemLabel]="reviewItemLabelFn"
+            [reviewItemStatusLabel]="reviewItemStatusLabelFn"
+            [reviewItemCardClasses]="reviewItemCardClassesFn"
+            [reviewItemStatusBadgeClasses]="reviewItemStatusBadgeClassesFn"
+            [timelineToneDotClasses]="timelineToneDotClassesFn"
+            [formatReviewDate]="formatReviewDateFn"
+            (sectionSelect)="setActiveTab($event)"
+            (save)="saveProfile()"
+            (submit)="submitForReview()" />
         </div>
       </form>
+      </div>
     </div>
   `
 })
@@ -730,11 +243,30 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   currentLang = 'ar';
   isSaving = false;
   isSubmittingReview = false;
+  uploadingDocumentType: VendorLegalDocumentType | null = null;
+  pageNotice = '';
+  pageError = '';
   activeTab = 'store-section';
   profileForm: FormGroup;
   currentProfile: VendorProfile;
   private langSub: Subscription;
   private profileSub?: Subscription;
+  readonly fieldClassFn = (controlName: string, mode?: 'context' | 'ltr' | 'rtl') => this.fieldClass(controlName, mode);
+  readonly textareaClassFn = (controlName: string, mode?: 'context' | 'ltr' | 'rtl') => this.textareaClass(controlName, mode);
+  readonly timeFieldClassFn = (isOpen: boolean) => this.timeFieldClass(isOpen);
+  readonly documentActionLabelFn = (document: LegalDocumentCardLike) => this.documentActionLabel(document as LegalDocumentCard);
+  readonly documentCardClassesFn = (document: LegalDocumentCardLike) => this.documentCardClasses(document as LegalDocumentCard);
+  readonly completedFieldsFn = (item: ProfileSectionNavItem) => this.completedFields(item);
+  readonly totalFieldsFn = (item: ProfileSectionNavItem) => this.totalFields(item);
+  readonly sectionPercentFn = (item: ProfileSectionNavItem) => this.sectionPercent(item);
+  readonly reviewItemLabelFn = (code: string) => this.reviewItemLabel(code);
+  readonly reviewItemStatusLabelFn = (status: string) => this.reviewItemStatusLabel(status);
+  readonly reviewItemCardClassesFn = (item: VendorReviewItem) => this.reviewItemCardClasses(item);
+  readonly reviewItemStatusBadgeClassesFn = (item: VendorReviewItem) => this.reviewItemStatusBadgeClasses(item);
+  readonly reviewItemStatusBadgeClassesOptionalFn = (item?: VendorReviewItem) =>
+    this.reviewItemStatusBadgeClasses(item ?? this.emptyReviewItem('pending'));
+  readonly timelineToneDotClassesFn = (entry: VendorReviewAuditEntry) => this.timelineToneDotClasses(entry);
+  readonly formatReviewDateFn = (value?: string | null) => this.formatReviewDate(value);
 
   buildFormOptions(options: any[]): SearchableSelectOption[] {
     return options.map(opt => ({
@@ -777,7 +309,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     {
       id: 'legal-section',
       labelKey: 'SETTINGS_PROFILE.SECTIONS.LEGAL',
-      fields: ['idNumber', 'nationality', 'commercialRegistrationNumber', 'expiryDate', 'taxId', 'licenseNumber', 'hasLogo', 'hasCRDoc']
+      fields: ['idNumber', 'nationality', 'commercialRegistrationNumber', 'expiryDate', 'taxId', 'licenseNumber', 'hasCRDoc', 'hasTaxDoc', 'hasLicenseDoc']
     },
     {
       id: 'banking-section',
@@ -790,6 +322,51 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       kind: 'hours'
     }
   ];
+
+  readonly workspaceWindows: ProfileWorkspaceWindow[] = [
+    {
+      id: 'basics',
+      icon: 'storefront',
+      labelAr: 'البيانات الأساسية',
+      labelEn: 'Core profile',
+      summaryAr: 'بيانات المتجر والمالك والعنوان',
+      summaryEn: 'Store, owner, and address details'
+    },
+    {
+      id: 'review',
+      icon: 'verified_user',
+      labelAr: 'المستندات والمراجعة',
+      labelEn: 'Documents & review',
+      summaryAr: 'Ø§Ù„Ù…Ù„ÙØ§Øª Ø§Ù„Ø±Ø³Ù…ÙŠØ© ÙˆØ§Ù„Ù…Ø·Ù„ÙˆØ¨ Ù‚Ø¨Ù„ Ø§Ù„Ø¥Ø±Ø³Ø§Ù„',
+      summaryEn: 'Official files and review checklist'
+    },
+    {
+      id: 'operations',
+      icon: 'account_balance_wallet',
+      labelAr: 'البنك والتشغيل',
+      labelEn: 'Banking & operations',
+      summaryAr: 'الحساب البنكي وساعات العمل',
+      summaryEn: 'Banking profile and operating hours'
+    },
+    {
+      id: 'timeline',
+      icon: 'history',
+      labelAr: 'السجل والمتابعة',
+      labelEn: 'Timeline & follow-up',
+      summaryAr: 'سجل المراجعة والقرارات الأخيرة',
+      summaryEn: 'Review history and recent decisions'
+    }
+  ];
+
+  private readonly sectionWindowMap: Record<string, ProfileWorkspaceWindowId> = {
+    'store-section': 'basics',
+    'owner-section': 'basics',
+    'contact-section': 'basics',
+    'legal-section': 'review',
+    'banking-section': 'operations',
+    'hours-section': 'operations',
+    'timeline-window': 'timeline'
+  };
 
   constructor(
     private readonly fb: FormBuilder,
@@ -874,22 +451,87 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     return `conic-gradient(#ffffff 0deg ${completionDegrees}deg, rgba(255,255,255,0.16) ${completionDegrees}deg 360deg)`;
   }
 
-  get profileTabs(): DetailTabNavItem[] {
-    const icons: Record<string, string> = {
-      'store-section': 'storefront',
-      'owner-section': 'person',
-      'contact-section': 'location_on',
-      'legal-section': 'verified_user',
-      'banking-section': 'account_balance_wallet',
-      'hours-section': 'schedule'
-    };
+  get activeWindowId(): ProfileWorkspaceWindowId {
+    return this.sectionWindowMap[this.activeTab] ?? 'basics';
+  }
 
-    return this.sectionNavItems.map((item) => ({
-      id: item.id,
-      labelKey: this.translate.instant(item.labelKey),
-      icon: icons[item.id],
-      count: this.sectionPercent(item)
-    }));
+  get activeWindow(): ProfileWorkspaceWindow {
+    return this.workspaceWindows.find((window) => window.id === this.activeWindowId) ?? this.workspaceWindows[0];
+  }
+
+  get activeWindowSections(): ProfileSectionNavItem[] {
+    return this.sectionNavItems.filter((item) => this.sectionWindowMap[item.id] === this.activeWindowId);
+  }
+
+  get workspaceWindowCounts(): Partial<Record<ProfileWorkspaceWindowId, number>> {
+    return this.workspaceWindows.reduce<Partial<Record<ProfileWorkspaceWindowId, number>>>((acc, window) => {
+      acc[window.id] = this.workspaceWindowCount(window.id);
+      return acc;
+    }, {});
+  }
+
+  get sectionLabels(): Record<string, string> {
+    return this.sectionNavItems.reduce<Record<string, string>>((acc, item) => {
+      acc[item.id] = this.translate.instant(item.labelKey);
+      return acc;
+    }, {});
+  }
+
+  get accountWorkspaceLabel(): string {
+    return this.currentProfile.commercialAccessEnabled
+      ? (this.currentLang === 'ar' ? 'الحساب التجاري مفعل' : 'Commercial access enabled')
+      : (this.currentLang === 'ar' ? 'الحساب ما زال تحت الاعتماد' : 'Commercial access is still gated');
+  }
+
+  get heroMessage(): string {
+    return this.currentProfile.commercialAccessEnabled
+      ? (this.currentLang === 'ar'
+        ? 'حسابك التجاري مفعل. أي تعديل مهم أو إعادة رفع مستند سيظهر فورًا لفريق الأدمن في مسار المراجعة.'
+        : 'Your commercial account is active. Important edits or document re-uploads appear instantly in the admin review flow.')
+      : (this.currentLang === 'ar'
+        ? 'أكمل البيانات والمستندات المطلوبة ثم أرسل الملف للمراجعة. كل تحديث تحفظه هنا يظهر مباشرة لدى الأدمن.'
+        : 'Complete the required details and documents, then submit the file for review. Every saved update is visible to admin.');
+  }
+
+  get lastDecisionText(): string {
+    if (this.currentProfile.lastReviewDecision?.trim()) {
+      return this.currentProfile.lastReviewDecision;
+    }
+
+    return this.currentLang === 'ar'
+      ? 'لا يوجد قرار نهائي بعد'
+      : 'No final decision yet';
+  }
+
+  get showLimitedEditNotice(): boolean {
+    const state = (this.currentProfile.reviewState || '').toLowerCase();
+    return state === 'submitted'
+      || state === 'underreview'
+      || state === 'changesrequested'
+      || state === 'changes_requested';
+  }
+
+  get limitedEditNoticeTitle(): string {
+    return this.currentLang === 'ar'
+      ? 'التعديلات ستعيد هذا الجزء للمراجعة'
+      : 'Changes here will reopen this part for review';
+  }
+
+  get limitedEditNoticeBody(): string {
+    if ((this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested'
+      || (this.currentProfile.reviewState || '').toLowerCase() === 'changes_requested') {
+      return this.currentLang === 'ar'
+        ? 'Ù†ÙØ° Ø§Ù„Ù…Ø·Ù„ÙˆØ¨ Ø«Ù… Ø§Ø­ÙØ¸ ÙˆØ£Ø¹Ø¯ Ø±ÙØ¹ Ø§Ù„Ù…Ù„ÙØ§Øª Ø§Ù„Ù…Ø±ÙÙˆØ¶Ø© Ù‚Ø¨Ù„ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ø¥Ø±Ø³Ø§Ù„ Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©.'
+        : 'Apply the requested fixes, save, and re-upload rejected files before resubmitting.';
+    }
+
+    return this.currentLang === 'ar'
+      ? 'ÙŠÙ…ÙƒÙ†Ùƒ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ØŒ Ù„ÙƒÙ† Ø£ÙŠ ØªØ­Ø¯ÙŠØ« Ù…Ù‡Ù… Ø£Ùˆ Ø¥Ø¹Ø§Ø¯Ø© Ø±ÙØ¹ Ù…Ù„Ù Ø³ÙŠØ¸Ù‡Ø± Ù„Ù„Ø£Ø¯Ù…Ù† ÙƒØ¨Ù†Ø¯ ÙŠØ­ØªØ§Ø¬ Ù…Ø±Ø§Ø¬Ø¹Ø© Ø¬Ø¯ÙŠØ¯Ø©.'
+      : 'You can still edit, but important updates or file re-uploads will be visible to admin as items needing review.';
+  }
+
+  get fullTimelineEntries(): VendorReviewAuditEntry[] {
+    return this.currentProfile.reviewAuditEntries;
   }
 
   get statusBadgeClass(): string {
@@ -913,10 +555,11 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       case 'awaitingsubmission':
         return this.currentLang === 'ar' ? 'بانتظار الإرسال' : 'Awaiting submission';
       case 'submitted':
-        return this.currentLang === 'ar' ? 'تم الإرسال' : 'Submitted';
+        return this.currentLang === 'ar' ? 'مُرسل' : 'Submitted';
       case 'underreview':
         return this.currentLang === 'ar' ? 'قيد المراجعة' : 'Under review';
       case 'changesrequested':
+      case 'changes_requested':
         return this.currentLang === 'ar' ? 'مطلوب تعديلات' : 'Changes requested';
       case 'verified':
         return this.currentLang === 'ar' ? 'معتمد' : 'Verified';
@@ -932,6 +575,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   get activationBannerClasses(): string {
     switch ((this.currentProfile.reviewState || '').toLowerCase()) {
       case 'changesrequested':
+      case 'changes_requested':
         return 'border-amber-200 bg-amber-50/90 text-amber-950';
       case 'rejected':
       case 'suspended':
@@ -946,7 +590,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       return 'border border-emerald-200 bg-emerald-50 text-emerald-700';
     }
 
-    if ((this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested') {
+    if ((this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested'
+      || (this.currentProfile.reviewState || '').toLowerCase() === 'changes_requested') {
       return 'border border-amber-200 bg-amber-50 text-amber-700';
     }
 
@@ -963,7 +608,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       return 'bg-emerald-500';
     }
 
-    if ((this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested') {
+    if ((this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested'
+      || (this.currentProfile.reviewState || '').toLowerCase() === 'changes_requested') {
       return 'bg-amber-500';
     }
 
@@ -980,12 +626,19 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   }
 
   get submitReviewLabel(): string {
-    return (this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested'
+    return ((this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested'
+      || (this.currentProfile.reviewState || '').toLowerCase() === 'changes_requested')
       ? (this.currentLang === 'ar' ? 'إعادة الإرسال للمراجعة' : 'Resubmit for review')
       : (this.currentLang === 'ar' ? 'إرسال للمراجعة' : 'Submit for review');
   }
 
   get reviewProgressPercent(): number {
+    // If vendor is already verified/active, show 100%
+    if (this.currentProfile.commercialAccessEnabled
+      || (this.currentProfile.reviewState || '').toLowerCase() === 'verified') {
+      return 100;
+    }
+
     const total = this.currentProfile.reviewSummary.totalItems || Math.max(this.currentProfile.reviewItems.length, 1);
     const approved = this.currentProfile.reviewSummary.approvedItems || 0;
     return Math.round((approved / total) * 100);
@@ -995,12 +648,174 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     return this.currentProfile.reviewAuditEntries.slice(0, 5);
   }
 
+  get legalDocumentCards(): LegalDocumentCard[] {
+    const documents: LegalDocumentCard[] = [
+      {
+        type: 'commercial',
+        code: 'commercial',
+        inputId: 'profileCommercialDocInput',
+        titleAr: 'السجل التجاري',
+        titleEn: 'Commercial registration',
+        hintAr: 'Ù…Ù„Ù PDF Ø±Ø³Ù…ÙŠ Ù„Ù„Ø³Ø¬Ù„ Ø§Ù„ØªØ¬Ø§Ø±ÙŠ. ÙŠØ¸Ù‡Ø± Ù„Ù„Ø£Ø¯Ù…Ù† Ù…Ø¨Ø§Ø´Ø±Ø© Ø¨Ø¹Ø¯ Ø§Ù„Ø±ÙØ¹.',
+        hintEn: 'Official commercial registration PDF. Admin sees it immediately after upload.',
+        url: this.currentProfile.commercialRegisterDocumentUrl,
+        uploaded: !!this.currentProfile.commercialRegisterDocumentUrl,
+        reviewItem: this.findReviewItem('commercial')
+      },
+      {
+        type: 'tax',
+        code: 'tax',
+        inputId: 'profileTaxDocInput',
+        titleAr: 'الشهادة الضريبية',
+        titleEn: 'Tax certificate',
+        hintAr: 'Ù…Ù„Ù PDF Ù„Ù„Ø´Ù‡Ø§Ø¯Ø© Ø§Ù„Ø¶Ø±ÙŠØ¨ÙŠØ© Ù…Ø·Ù„ÙˆØ¨ Ù„Ø§Ø³ØªÙƒÙ…Ø§Ù„ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©.',
+        hintEn: 'Tax certificate PDF is required to complete compliance review.',
+        url: this.currentProfile.taxDocumentUrl,
+        uploaded: !!this.currentProfile.taxDocumentUrl,
+        reviewItem: this.findReviewItem('tax')
+      },
+      {
+        type: 'license',
+        code: 'license',
+        inputId: 'profileLicenseDocInput',
+        titleAr: 'الرخصة التشغيلية',
+        titleEn: 'Operating license',
+        hintAr: 'Ù…Ù„Ù PDF Ù„Ù„Ø±Ø®ØµØ© Ø£Ùˆ Ø§Ù„ØªØµØ±ÙŠØ­ Ø§Ù„Ø¨Ù„Ø¯ÙŠ/Ø§Ù„ØªØ´ØºÙŠÙ„ÙŠ.',
+        hintEn: 'PDF for the municipal or operating license.',
+        url: this.currentProfile.licenseDocumentUrl,
+        uploaded: !!this.currentProfile.licenseDocumentUrl,
+        reviewItem: this.findReviewItem('license')
+      }
+    ];
+
+    return documents.sort((left, right) => this.legalDocumentRank(left) - this.legalDocumentRank(right));
+  }
+
   scrollToSection(sectionId: string): void {
     this.activeTab = sectionId;
+    if (sectionId === 'timeline-window') {
+      return;
+    }
+
+    queueMicrotask(() => {
+      document.getElementById(sectionId)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   setActiveTab(tabId: string): void {
     this.scrollToSection(tabId);
+  }
+
+  setActiveWindow(windowId: ProfileWorkspaceWindowId): void {
+    if (windowId === 'timeline') {
+      this.activeTab = 'timeline-window';
+      return;
+    }
+
+    const firstSection = this.sectionNavItems.find((item) => this.sectionWindowMap[item.id] === windowId);
+    this.activeTab = firstSection?.id ?? 'store-section';
+  }
+
+  isWindowActive(windowId: ProfileWorkspaceWindowId): boolean {
+    return this.activeWindowId === windowId;
+  }
+
+  triggerLegalDocumentInput(documentType: VendorLegalDocumentType): void {
+    const inputId = this.legalDocumentCards.find((document) => document.type === documentType)?.inputId;
+    if (inputId) {
+      document.getElementById(inputId)?.click();
+    }
+  }
+
+  onLegalDocumentSelected(event: Event, documentType: VendorLegalDocumentType): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    if (!this.isPdfFile(file)) {
+      this.pageNotice = '';
+      this.pageError = this.currentLang === 'ar'
+        ? 'المستندات الرسمية يجب رفعها بصيغة PDF.'
+        : 'Official documents must be uploaded as PDF files.';
+      input.value = '';
+      return;
+    }
+
+    this.uploadingDocumentType = documentType;
+    this.pageNotice = '';
+    this.pageError = '';
+
+    this.profileService.uploadLegalDocument(documentType, file)
+      .pipe(finalize(() => {
+        this.uploadingDocumentType = null;
+        input.value = '';
+      }))
+      .subscribe({
+        next: () => {
+          this.pageNotice = this.currentLang === 'ar'
+            ? 'تم رفع المستند وتحديث ملف التاجر، وسيظهر فوراً لدى الأدمن.'
+            : 'Document uploaded and synced to admin for review.';
+        },
+        error: (error) => {
+          this.pageError = this.resolveErrorMessage(
+            error,
+            this.currentLang === 'ar'
+              ? 'ØªØ¹Ø°Ø± Ø±ÙØ¹ Ø§Ù„Ù…Ø³ØªÙ†Ø¯ Ø§Ù„Ø¢Ù†.'
+              : 'Unable to upload the document right now.'
+          );
+        }
+      });
+  }
+
+  documentActionLabel(document: LegalDocumentCard): string {
+    if (this.uploadingDocumentType === document.type) {
+      return this.currentLang === 'ar' ? 'جاري الرفع' : 'Uploading';
+    }
+
+    const status = (document.reviewItem?.status || '').toLowerCase();
+    if (status === 'changesrequested' || status === 'changes_requested') {
+      return this.currentLang === 'ar' ? 'إعادة رفع' : 'Re-upload';
+    }
+
+    return document.uploaded
+      ? (this.currentLang === 'ar' ? 'استبدال' : 'Replace')
+      : (this.currentLang === 'ar' ? 'رفع PDF' : 'Upload PDF');
+  }
+
+  documentCardClasses(document: LegalDocumentCard): string {
+    const status = (document.reviewItem?.status || '').toLowerCase();
+
+    if (status === 'approved') {
+      return 'border-emerald-200 bg-emerald-50/70';
+    }
+
+    if (status === 'changesrequested' || status === 'changes_requested') {
+      return 'border-amber-200 bg-amber-50/80';
+    }
+
+    if (document.uploaded) {
+      return 'border-sky-200 bg-sky-50/70';
+    }
+
+    return 'border-slate-200 bg-white';
+  }
+
+  workspaceWindowCount(windowId: ProfileWorkspaceWindowId): number {
+    switch (windowId) {
+      case 'basics':
+        return this.sectionPercent(this.getSectionItem('store-section'));
+      case 'review':
+        return this.currentProfile.missingDocumentsCount;
+      case 'operations':
+        return this.openDaysCount;
+      case 'timeline':
+        return this.fullTimelineEntries.length;
+      default:
+        return 0;
+    }
   }
 
   getSectionItem(sectionId: string): ProfileSectionNavItem {
@@ -1118,10 +933,16 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   saveProfile(): void {
     if (this.profileForm.invalid) {
       this.profileForm.markAllAsTouched();
+      this.pageNotice = '';
+      this.pageError = this.currentLang === 'ar'
+        ? 'Ø±Ø§Ø¬Ø¹ Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© Ù‚Ø¨Ù„ Ø­ÙØ¸ Ù…Ù„Ù Ø§Ù„ØªØ§Ø¬Ø±.'
+        : 'Please review the required fields before saving the vendor profile.';
       return;
     }
 
     this.isSaving = true;
+    this.pageNotice = '';
+    this.pageError = '';
     const value = {
       ...this.profileService.getProfileSnapshot(),
       ...this.profileForm.getRawValue()
@@ -1131,8 +952,19 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
         this.isSaving = false;
       }))
       .subscribe({
+        next: () => {
+          this.pageNotice = this.currentLang === 'ar'
+            ? 'ØªÙ… Ø­ÙØ¸ ØªØ¹Ø¯ÙŠÙ„Ø§Øª Ø§Ù„Ù…Ù„Ù ÙˆØ¥Ø±Ø³Ø§Ù„Ù‡Ø§ Ù„Ù„Ø£Ø¯Ù…Ù† Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©.'
+            : 'Profile changes were saved and synced to the admin workspace.';
+        },
         error: (error) => {
           console.error('Failed to save vendor profile.', error);
+          this.pageError = this.resolveErrorMessage(
+            error,
+            this.currentLang === 'ar'
+              ? 'ØªØ¹Ø°Ø± Ø­ÙØ¸ ØªØ¹Ø¯ÙŠÙ„Ø§Øª Ø§Ù„Ù…Ù„Ù Ø§Ù„Ø¢Ù†.'
+              : 'Unable to save profile changes right now.'
+          );
         }
       });
   }
@@ -1140,22 +972,52 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   submitForReview(): void {
     if (this.submitReviewDisabled) {
       this.profileForm.markAllAsTouched();
+      this.pageNotice = '';
+      this.pageError = this.currentLang === 'ar'
+        ? 'استكمل البيانات والمستندات المطلوبة قبل الإرسال للمراجعة.'
+        : 'Complete the required data and documents before submitting for review.';
       return;
     }
 
     this.isSubmittingReview = true;
+    this.pageNotice = '';
+    this.pageError = '';
     this.profileService.submitForReview()
       .pipe(finalize(() => {
         this.isSubmittingReview = false;
       }))
       .subscribe({
+        next: () => {
+          this.pageNotice = this.currentLang === 'ar'
+            ? 'ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ù…Ù„Ù Ø§Ù„ØªØ§Ø¬Ø± Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© ÙˆØ³ÙŠØ¸Ù‡Ø± ÙÙˆØ±Ù‹Ø§ Ù„Ø¯Ù‰ Ø§Ù„Ø£Ø¯Ù…Ù†.'
+            : 'The vendor profile was submitted for review and is visible to admin.';
+        },
         error: (error) => {
           console.error('Failed to submit vendor profile for review.', error);
+          this.pageError = this.resolveErrorMessage(
+            error,
+            this.currentLang === 'ar'
+              ? 'ØªØ¹Ø°Ø± Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ù…Ù„Ù Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„Ø¢Ù†.'
+              : 'Unable to submit the profile for review right now.'
+          );
         }
       });
   }
 
   reviewItemLabel(code: string): string {
+    const labels: Record<string, { ar: string; en: string }> = {
+      commercial: { ar: 'السجل التجاري', en: 'Commercial registration' },
+      tax: { ar: 'الشهادة الضريبية', en: 'Tax certificate' },
+      license: { ar: 'الرخصة التشغيلية', en: 'Operating license' },
+      identity: { ar: 'بيانات الهوية', en: 'Identity details' },
+      bank: { ar: 'البيانات البنكية', en: 'Banking details' }
+    };
+    const direct = labels[(code || '').trim().toLowerCase()];
+
+    if (direct) {
+      return this.currentLang === 'ar' ? direct.ar : direct.en;
+    }
+
     const normalized = code.replace(/([a-z])([A-Z])/g, '$1 $2');
     return normalized
       .replace(/_/g, ' ')
@@ -1169,6 +1031,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       case 'submitted':
         return this.currentLang === 'ar' ? 'مُرسل' : 'Submitted';
       case 'changesrequested':
+      case 'changes_requested':
         return this.currentLang === 'ar' ? 'تعديلات' : 'Changes';
       case 'waived':
         return this.currentLang === 'ar' ? 'مستثنى' : 'Waived';
@@ -1182,6 +1045,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       case 'approved':
         return 'border-emerald-100 bg-emerald-50/70';
       case 'changesrequested':
+      case 'changes_requested':
         return 'border-amber-100 bg-amber-50/70';
       case 'submitted':
         return 'border-sky-100 bg-sky-50/70';
@@ -1195,6 +1059,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       case 'approved':
         return 'bg-emerald-100 text-emerald-700';
       case 'changesrequested':
+      case 'changes_requested':
         return 'bg-amber-100 text-amber-700';
       case 'submitted':
         return 'bg-sky-100 text-sky-700';
@@ -1256,6 +1121,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       payoutCycle: ['', Validators.required],
       hasLogo: [false],
       hasCRDoc: [false],
+      hasTaxDoc: [false],
+      hasLicenseDoc: [false],
       reviewStatus: ['active', Validators.required],
       joinedAt: ['', Validators.required],
       operatingHours: this.fb.array([])
@@ -1292,4 +1159,52 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     const value = this.profileForm.get(controlName)?.value;
     return typeof value === 'boolean' ? value : !!String(value || '').trim();
   }
+
+  private findReviewItem(code: string): VendorReviewItem | undefined {
+    const normalizedCode = code.toLowerCase();
+    return this.currentProfile.reviewItems.find((item) => item.code.toLowerCase() === normalizedCode);
+  }
+
+  private legalDocumentRank(document: LegalDocumentCard): number {
+    const status = (document.reviewItem?.status || '').toLowerCase();
+
+    if (status === 'changesrequested' || status === 'changes_requested') {
+      return 0;
+    }
+
+    if (!document.uploaded) {
+      return 1;
+    }
+
+    if (status === 'submitted') {
+      return 2;
+    }
+
+    if (status === 'approved') {
+      return 4;
+    }
+
+    return 3;
+  }
+
+  emptyReviewItem(code: string): VendorReviewItem {
+    return {
+      code,
+      status: 'PendingVendor'
+    };
+  }
+
+  private isPdfFile(file: File): boolean {
+    return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+  }
+
+  private resolveErrorMessage(error: unknown, fallback: string): string {
+    const apiError = error as { error?: { message?: string; Message?: string; title?: string; Title?: string } };
+    return apiError?.error?.message
+      || apiError?.error?.Message
+      || apiError?.error?.title
+      || apiError?.error?.Title
+      || fallback;
+  }
 }
+

@@ -125,21 +125,29 @@
       </div>
     </a>
 
-    <div class="rounded-[20px] border border-zadna-primary/10 bg-white p-3.5 shadow-[0_12px_24px_rgba(18,124,140,0.06)] ring-1 ring-zadna-primary/5">
-      <div class="text-[0.6rem] font-black uppercase tracking-[0.12em] text-zadna-primary/80">{{ 'SIDEBAR.STORE_SETUP'
-        | translate }}</div>
-      <h5 class="mt-1 text-[0.78rem] font-black leading-tight text-slate-900">{{ 'SIDEBAR.STORE_SETUP_TITLE' | translate }}</h5>
+    <div class="rounded-[20px] border p-3.5 shadow-[0_12px_24px_rgba(18,124,140,0.06)] ring-1"
+      [ngClass]="isVendorVerified
+        ? 'border-emerald-200/50 bg-emerald-50/30 ring-emerald-100/50'
+        : 'border-zadna-primary/10 bg-white ring-zadna-primary/5'">
+      <div class="text-[0.6rem] font-black uppercase tracking-[0.12em]"
+        [ngClass]="isVendorVerified ? 'text-emerald-600/80' : 'text-zadna-primary/80'">{{ setupCardLabel }}</div>
+      <h5 class="mt-1 text-[0.78rem] font-black leading-tight text-slate-900">{{ setupCardTitle }}</h5>
       
       <div class="mt-2.5 flex items-center gap-2">
         <div class="h-1 flex-1 overflow-hidden rounded-full bg-slate-100">
-          <div class="h-full w-[60%] rounded-full bg-zadna-primary"></div>
+          <div class="h-full rounded-full transition-all duration-700 ease-out"
+            [ngClass]="isVendorVerified ? 'bg-emerald-500' : 'bg-zadna-primary'"
+            [style.width.%]="profileCompletion"></div>
         </div>
-        <span class="text-[0.62rem] font-black text-slate-400">60%</span>
+        <span class="text-[0.62rem] font-black" [ngClass]="isVendorVerified ? 'text-emerald-600' : 'text-slate-400'">{{ profileCompletion }}%</span>
       </div>
 
-      <button type="button"
-        class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-zadna-primary py-2 text-[0.72rem] font-black text-white hover:bg-zadna-primaryDark active:scale-[0.97]">
-        {{ 'SIDEBAR.CONTINUE_SETUP' | translate }}
+      <button type="button" (click)="navigateToSetup()"
+        class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-2 text-[0.72rem] font-black text-white active:scale-[0.97]"
+        [ngClass]="isVendorVerified
+          ? 'bg-emerald-600 hover:bg-emerald-700'
+          : 'bg-zadna-primary hover:bg-zadna-primaryDark'">
+        {{ setupButtonLabel }}
         <svg class="h-3 w-3 transition-transform group-hover:translate-x-1" [ngClass]="currentLang === 'ar' ? 'rotate-180' : ''" fill="none"
           stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>

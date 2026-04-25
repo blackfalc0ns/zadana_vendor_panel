@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 import {
   BranchCreationInput,
   BranchVm,
@@ -17,11 +19,6 @@ import {
   defaultOperatingHours
 } from '../models/staff-branches.models';
 import { FeatureWorkspaceState } from '../../../shared/models/frontend-workspace.models';
-import {
-  clearWorkspaceState,
-  persistWorkspaceState,
-  readWorkspaceState
-} from '../../../shared/utils/workspace-storage.util';
 import { repairUtf8Mojibake } from '../../../shared/utils/text-normalization.util';
 
 export interface StaffWorkspaceState extends FeatureWorkspaceState {
@@ -34,9 +31,13 @@ export interface StaffWorkspaceState extends FeatureWorkspaceState {
   providedIn: 'root'
 })
 export class StaffBranchesService {
-  private readonly storageKey = 'vendor_staff_workspace';
+  private readonly stateUrl = `${environment.apiUrl}/vendor/workspace-state/staff`;
   private readonly workspaceVersion = 1;
-  private readonly stateSubject = new BehaviorSubject<StaffWorkspaceState>(this.loadState());
+  private readonly stateSubject = new BehaviorSubject<StaffWorkspaceState>(this.createEmptyState());
+
+  constructor(private readonly http: HttpClient) {
+    this.loadState();
+  }
 
   getBranches(): Observable<BranchVm[]> {
     return this.stateSubject.pipe(map((state) => state.branches.map((branch) => this.cloneBranch(branch))));
@@ -211,8 +212,7 @@ export class StaffBranchesService {
   }
 
   resetSeedState(): void {
-    clearWorkspaceState(this.storageKey);
-    this.stateSubject.next(this.buildSeedState());
+    this.loadState();
   }
 
   private buildEmployee(input: EmployeeInviteInput, status: EmployeeStatus): EmployeeVm {
@@ -246,26 +246,33 @@ export class StaffBranchesService {
     };
   }
 
-  private loadState(): StaffWorkspaceState {
-    const fallback = this.buildSeedState(false);
-    const stored = readWorkspaceState<StaffWorkspaceState | null>(this.storageKey, null);
+  private loadState(): void {
+    this.http.get<Partial<StaffWorkspaceState>>(this.stateUrl).subscribe({
+      next: (stored) => {
+        const normalizedState: StaffWorkspaceState = {
+          updatedAt: stored.updatedAt || new Date().toISOString(),
+          version: this.workspaceVersion,
+          persistenceMode: 'server-persisted',
+          branches: (stored.branches || []).map((branch) => this.cloneBranch(branch)),
+          employees: (stored.employees || []).map((employee) => this.cloneEmployee(employee)),
+          invitations: (stored.invitations || []).map((invitation) => this.cloneInvitation(invitation))
+        };
 
-    if (!stored || stored.version !== this.workspaceVersion) {
-      this.persistState(fallback);
-      return fallback;
-    }
+        this.stateSubject.next(normalizedState);
+      },
+      error: () => this.stateSubject.next(this.createEmptyState())
+    });
+  }
 
-    const normalizedState: StaffWorkspaceState = {
-      updatedAt: stored.updatedAt || fallback.updatedAt,
+  private createEmptyState(): StaffWorkspaceState {
+    return {
+      updatedAt: new Date().toISOString(),
       version: this.workspaceVersion,
-      persistenceMode: 'localStorage-persisted',
-      branches: (stored.branches || []).map((branch) => this.cloneBranch(branch)),
-      employees: (stored.employees || []).map((employee) => this.cloneEmployee(employee)),
-      invitations: (stored.invitations || []).map((invitation) => this.cloneInvitation(invitation))
+      persistenceMode: 'server-persisted',
+      branches: [],
+      employees: [],
+      invitations: []
     };
-
-    this.persistState(normalizedState);
-    return normalizedState;
   }
 
   private buildSeedState(shouldPersist = true): StaffWorkspaceState {
@@ -425,7 +432,7 @@ export class StaffBranchesService {
       ...nextState,
       updatedAt: new Date().toISOString(),
       version: this.workspaceVersion,
-      persistenceMode: 'localStorage-persisted',
+      persistenceMode: 'server-persisted',
       branches: nextState.branches.map((branch) => this.cloneBranch(branch)),
       employees: nextState.employees.map((employee) => this.cloneEmployee(employee)),
       invitations: nextState.invitations.map((invitation) => this.cloneInvitation(invitation))
@@ -471,7 +478,7 @@ export class StaffBranchesService {
   }
 
   private persistState(state: StaffWorkspaceState): void {
-    persistWorkspaceState(this.storageKey, state);
+    this.http.put(this.stateUrl, state).subscribe();
   }
 
   private cloneBranch(branch: BranchVm): BranchVm {

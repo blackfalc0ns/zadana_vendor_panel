@@ -5,6 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VendorAuthService } from './core/auth/services/vendor-auth.service';
 import { AlertsCenterService } from './features/alerts/services/alerts-center.service';
 import { VendorWebPushService } from './core/notifications/services/vendor-web-push.service';
+import { VendorProfileService } from './features/settings/services/vendor-profile.service';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +22,7 @@ export class AppComponent implements OnInit {
     private readonly translate: TranslateService,
     private readonly authService: VendorAuthService,
     private readonly alertsCenterService: AlertsCenterService,
+    private readonly vendorProfileService: VendorProfileService,
     private readonly vendorWebPushService: VendorWebPushService,
     @Inject(DOCUMENT) private readonly document: Document,
     private readonly renderer: Renderer2
@@ -45,6 +47,11 @@ export class AppComponent implements OnInit {
     }
 
     this.alertsCenterService.startMonitoring();
+    this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      if (alert.route === '/profile' || alert.route === '/finance' || alert.source === 'profile') {
+        this.vendorProfileService.loadProfile(true).subscribe();
+      }
+    });
     this.vendorWebPushService.initialize();
   }
 

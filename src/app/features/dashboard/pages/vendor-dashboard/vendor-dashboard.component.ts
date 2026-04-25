@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnDestroy } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { MasterProductSelectorModalComponent } from '../../../products/components/master-product-selector-modal/master-product-selector-modal.component';
 import { AddProductModalComponent } from '../../../products/components/add-product-modal/add-product-modal.component';
@@ -8,7 +8,7 @@ import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { MasterProduct } from '../../../products/models/catalog.models';
 import { CatalogService } from '../../../products/services/catalog.service';
-import { VendorDashboardQuickActionAccent } from '../../models/vendor-dashboard.models';
+import { VendorDashboardQuickActionAccent, VendorDashboardSnapshot } from '../../models/vendor-dashboard.models';
 import { VendorDashboardService } from '../../services/vendor-dashboard.service';
 
 @Component({
@@ -18,7 +18,7 @@ import { VendorDashboardService } from '../../services/vendor-dashboard.service'
   templateUrl: './vendor-dashboard.component.html',
   styleUrl: './vendor-dashboard.component.scss'
 })
-export class VendorDashboardComponent implements OnDestroy {
+export class VendorDashboardComponent implements OnInit, OnDestroy {
   currentLang: string = 'ar';
   private langSub: Subscription;
 
@@ -26,27 +26,48 @@ export class VendorDashboardComponent implements OnDestroy {
   isSelectorModalOpen = false;
   isPricingModalOpen = false;
   selectedMasterProduct: MasterProduct | null = null;
-  readonly metrics;
-  readonly checklist;
-  readonly quickActions;
-  readonly timeline;
+  metrics: VendorDashboardSnapshot['metrics'] = [];
+  checklist: VendorDashboardSnapshot['checklist'] = [];
+  quickActions: VendorDashboardSnapshot['quickActions'] = [];
+  timeline: VendorDashboardSnapshot['timeline'] = [];
+  isLoadingDashboard = false;
+  dashboardError = '';
+  private dashboardSub?: Subscription;
 
   constructor(
     private readonly translate: TranslateService,
     private readonly catalogService: CatalogService,
     private readonly dashboardService: VendorDashboardService
   ) {
-    const dashboardSnapshot = this.dashboardService.getSnapshot();
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe(event => this.currentLang = event.lang);
-    this.metrics = dashboardSnapshot.metrics;
-    this.checklist = dashboardSnapshot.checklist;
-    this.quickActions = dashboardSnapshot.quickActions;
-    this.timeline = dashboardSnapshot.timeline;
+  }
+
+  ngOnInit(): void {
+    this.loadDashboard();
   }
 
   ngOnDestroy(): void {
     if (this.langSub) this.langSub.unsubscribe();
+    this.dashboardSub?.unsubscribe();
+  }
+
+  private loadDashboard(): void {
+    this.isLoadingDashboard = true;
+    this.dashboardError = '';
+    this.dashboardSub = this.dashboardService.getSnapshot().subscribe({
+      next: (dashboardSnapshot) => {
+        this.metrics = dashboardSnapshot.metrics;
+        this.checklist = dashboardSnapshot.checklist;
+        this.quickActions = dashboardSnapshot.quickActions;
+        this.timeline = dashboardSnapshot.timeline;
+        this.isLoadingDashboard = false;
+      },
+      error: () => {
+        this.dashboardError = 'تعذر تحميل لوحة التحكم من الخادم.';
+        this.isLoadingDashboard = false;
+      }
+    });
   }
 
   readonly actionCardClassMap: Record<VendorDashboardQuickActionAccent, string[]> = {

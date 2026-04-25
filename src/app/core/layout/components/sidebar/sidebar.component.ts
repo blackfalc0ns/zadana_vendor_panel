@@ -1,10 +1,12 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, RouterLinkActive } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { Router, RouterModule, RouterLinkActive } from '@angular/router';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Observable } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
 import { AlertsCenterService } from '../../../../features/alerts/services/alerts-center.service';
+import { VendorProfileService } from '../../../../features/settings/services/vendor-profile.service';
+import { VendorProfile } from '../../../../features/settings/models/vendor-profile.models';
 
 export interface SidebarItem {
   icon: string | SafeHtml;
@@ -22,9 +24,12 @@ export interface SidebarItem {
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent implements OnInit {
+export class SidebarComponent implements OnInit, OnDestroy {
   private sanitizer = inject(DomSanitizer);
   private alertsCenterService = inject(AlertsCenterService);
+  private profileService = inject(VendorProfileService);
+  private translate = inject(TranslateService);
+  private router = inject(Router);
 
   @Input() currentLang: string = 'ar';
   unreadCount$?: Observable<number>;
@@ -32,12 +37,66 @@ export class SidebarComponent implements OnInit {
   @Input() userRole: string = 'Vendor';
   @Input() initials: string = 'مت';
 
+  // Profile-backed setup card
+  profileCompletion = 0;
+  isVendorVerified = false;
+  setupCardLabel = '';
+  setupCardTitle = '';
+  setupButtonLabel = '';
+  private profileSub?: Subscription;
+
   ngOnInit() {
     this.menuItems = this.menuItems.map(item => ({
       ...item,
       icon: this.sanitizer.bypassSecurityTrustHtml(item.icon as string)
     }));
     this.unreadCount$ = this.alertsCenterService.getUnreadCount();
+
+    this.profileSub = this.profileService.getProfile().subscribe(profile => {
+      this.updateSetupCard(profile);
+    });
+    this.profileService.loadProfile().subscribe();
+  }
+
+  ngOnDestroy() {
+    this.profileSub?.unsubscribe();
+  }
+
+  navigateToSetup(): void {
+    this.router.navigate(['/profile']);
+  }
+
+  private updateSetupCard(profile: VendorProfile): void {
+    const lang = this.translate.currentLang || 'ar';
+    this.isVendorVerified = profile.commercialAccessEnabled
+      || (profile.reviewState || '').toLowerCase() === 'verified';
+    this.profileCompletion = this.calcCompletion(profile);
+
+    if (this.isVendorVerified) {
+      this.setupCardLabel = lang === 'ar' ? 'حالة المتجر' : 'Store status';
+      this.setupCardTitle = lang === 'ar' ? 'حسابك التجاري مفعل وجاهز' : 'Your commercial account is active';
+      this.setupButtonLabel = lang === 'ar' ? 'عرض الملف الشخصي' : 'View profile';
+    } else {
+      this.setupCardLabel = lang === 'ar' ? 'إعداد الحساب' : 'Account setup';
+      this.setupCardTitle = lang === 'ar' ? 'أكمل بياناتك للبدء في البيع' : 'Complete your profile to start selling';
+      this.setupButtonLabel = lang === 'ar' ? 'متابعة الإعداد' : 'Continue setup';
+    }
+  }
+
+  private calcCompletion(p: VendorProfile): number {
+    if (p.commercialAccessEnabled || (p.reviewState || '').toLowerCase() === 'verified') {
+      return 100;
+    }
+
+    const fields = [
+      p.storeNameAr, p.storeNameEn, p.businessType, p.supportPhone, p.supportEmail,
+      p.region, p.city, p.nationalAddress,
+      p.ownerName, p.ownerEmail, p.ownerPhone,
+      p.idNumber, p.nationality, p.taxId, p.commercialRegistrationNumber, p.expiryDate, p.licenseNumber,
+      p.bankName, p.iban, p.payoutCycle
+    ];
+    const filled = fields.filter(v => !!v && v.trim().length > 0).length;
+    return Math.round((filled / fields.length) * 100);
   }
   
   menuItems: SidebarItem[] = [
@@ -86,3 +145,4 @@ export class SidebarComponent implements OnInit {
     }
   ];
 }
+

@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, map, of } from 'rxjs';
+import { environment } from '../../../../environments/environment';
 import {
   CreateSupportTicketInput,
   LocalizedTextVm,
@@ -14,19 +16,17 @@ import {
   cloneSupportTicket,
   cloneSupportTickets
 } from '../models/support-center.models';
-import {
-  clearWorkspaceState,
-  persistWorkspaceState,
-  readWorkspaceState
-} from '../../../shared/utils/workspace-storage.util';
-
 @Injectable({
   providedIn: 'root'
 })
 export class SupportCenterService {
-  private readonly storageKey = 'vendor_support_workspace';
-  private readonly ticketsSubject = new BehaviorSubject<VendorSupportTicketVm[]>(this.loadTickets());
+  private readonly stateUrl = `${environment.apiUrl}/vendor/workspace-state/support`;
+  private readonly ticketsSubject = new BehaviorSubject<VendorSupportTicketVm[]>([]);
   private readonly referenceArticles = this.buildReferenceArticles();
+
+  constructor(private readonly http: HttpClient) {
+    this.loadTickets();
+  }
 
   getTickets(): Observable<VendorSupportTicketVm[]> {
     return this.ticketsSubject.pipe(map((tickets) => cloneSupportTickets(tickets)));
@@ -138,29 +138,14 @@ export class SupportCenterService {
   }
 
   resetSeedState(): void {
-    clearWorkspaceState(this.storageKey);
-    this.ticketsSubject.next(this.buildSeedTickets());
+    this.loadTickets();
   }
 
-  private loadTickets(): VendorSupportTicketVm[] {
-    const stored = readWorkspaceState<VendorSupportTicketVm[] | null>(this.storageKey, null);
-
-    if (stored) {
-      return stored.map((ticket) => ({
-        ...ticket,
-        subject: { ...ticket.subject },
-        summary: { ...ticket.summary },
-        assignedAgentRole: { ...ticket.assignedAgentRole },
-        tags: ticket.tags.map((tag) => ({ ...tag })),
-        messages: ticket.messages.map((message) => ({
-          ...message,
-          role: { ...message.role },
-          message: { ...message.message }
-        }))
-      }));
-    }
-
-    return this.buildSeedTickets();
+  private loadTickets(): void {
+    this.http.get<VendorSupportTicketVm[]>(this.stateUrl).subscribe({
+      next: (tickets) => this.ticketsSubject.next((tickets || []).map((ticket) => this.normalizeTicket(ticket))),
+      error: () => this.ticketsSubject.next([])
+    });
   }
 
   private buildSummary(tickets: VendorSupportTicketVm[]): SupportSummaryVm {
@@ -645,7 +630,22 @@ export class SupportCenterService {
   }
 
   private persistTickets(tickets: VendorSupportTicketVm[]): void {
-    persistWorkspaceState(this.storageKey, tickets);
+    this.http.put(this.stateUrl, tickets).subscribe();
+  }
+
+  private normalizeTicket(ticket: VendorSupportTicketVm): VendorSupportTicketVm {
+    return {
+      ...ticket,
+      subject: { ...ticket.subject },
+      summary: { ...ticket.summary },
+      assignedAgentRole: { ...ticket.assignedAgentRole },
+      tags: ticket.tags.map((tag) => ({ ...tag })),
+      messages: ticket.messages.map((message) => ({
+        ...message,
+        role: { ...message.role },
+        message: { ...message.message }
+      }))
+    };
   }
 
   private generateReference(): string {

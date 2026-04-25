@@ -1,4 +1,4 @@
-export type FeaturePersistenceMode = 'seed-only' | 'session-only' | 'localStorage-persisted';
+export type FeaturePersistenceMode = 'seed-only' | 'session-only' | 'localStorage-persisted' | 'server-persisted';
 
 export interface FeatureWorkspaceState {
   updatedAt: string;

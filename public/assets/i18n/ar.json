@@ -745,6 +745,16 @@
       "WEDNESDAY": "الأربعاء",
       "THURSDAY": "الخميس",
       "FRIDAY": "الجمعة"
+    },
+    "COMMAND_CENTER": {
+      "READINESS": "جاهزية المراجعة",
+      "ACCOUNT_STATUS": "حالة الحساب:",
+      "LAST_DECISION": "القرار:",
+      "MISSING": "مطلوب",
+      "IN_REVIEW": "مراجعة",
+      "APPROVED": "مقبول",
+      "SAVE": "حفظ",
+      "VENDOR_PROFILE": "ملف التاجر"
     }
   },
   "HEADER": {
