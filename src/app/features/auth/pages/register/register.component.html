@@ -108,8 +108,23 @@
                 <div class="space-y-1.5 animate-puzzle-up stagger-7">
                     <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'LOGIN.PASSWORD' | translate }}</label>
                     <div class="relative group">
-                        <input formControlName="password" [type]="showPassword ? 'text' : 'password'" [ngClass]="[(registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100']"
-                            class="block w-full py-2.5 px-4 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
+                        <input formControlName="password" [type]="showPassword ? 'text' : 'password'" autocomplete="new-password"
+                            [ngClass]="[
+                                isRTL ? 'pr-4 pl-11' : 'pl-4 pr-11',
+                                (registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100'
+                            ]"
+                            class="block w-full py-2.5 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
+                        <button type="button" (click)="togglePassword()" [ngClass]="isRTL ? 'left-0 pl-4' : 'right-0 pr-4'"
+                            class="absolute inset-y-0 flex items-center text-gray-400 hover:text-zadna-primary transition-colors focus:outline-none cursor-pointer"
+                            [attr.aria-label]="(showPassword ? 'AUTH.ACCESSIBILITY.HIDE' : 'AUTH.ACCESSIBILITY.SHOW') | translate">
+                            <svg *ngIf="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            <svg *ngIf="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 
@@ -117,8 +132,23 @@
                 <div class="space-y-1.5 animate-puzzle-up stagger-7">
                     <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'REGISTER.CONFIRM_PASSWORD' | translate }}</label>
                     <div class="relative group">
-                        <input formControlName="confirmPassword" [type]="showPassword ? 'text' : 'password'" [ngClass]="[(registerForm.get('confirmPassword')?.touched || submitted) && registerForm.get('confirmPassword')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100']"
-                            class="block w-full py-2.5 px-4 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
+                        <input formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" autocomplete="new-password"
+                            [ngClass]="[
+                                isRTL ? 'pr-4 pl-11' : 'pl-4 pr-11',
+                                (registerForm.get('confirmPassword')?.touched || submitted) && registerForm.get('confirmPassword')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100'
+                            ]"
+                            class="block w-full py-2.5 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
+                        <button type="button" (click)="toggleConfirmPassword()" [ngClass]="isRTL ? 'left-0 pl-4' : 'right-0 pr-4'"
+                            class="absolute inset-y-0 flex items-center text-gray-400 hover:text-zadna-primary transition-colors focus:outline-none cursor-pointer"
+                            [attr.aria-label]="(showConfirmPassword ? 'AUTH.ACCESSIBILITY.HIDE' : 'AUTH.ACCESSIBILITY.SHOW') | translate">
+                            <svg *ngIf="!showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                            </svg>
+                            <svg *ngIf="showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+                            </svg>
+                        </button>
                     </div>
                 </div>
 

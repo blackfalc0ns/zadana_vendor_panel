@@ -15,6 +15,7 @@ import {
 })
 export class VendorAuthService {
   private static readonly loginNotificationTestPendingKey = 'vendor_notification_test_pending_user_id';
+  private static readonly registrationDraftTtlMs = 24 * 60 * 60 * 1000;
   private readonly apiUrl = `${environment.apiUrl}/vendors/auth`;
   private readonly registerUrl = `${environment.apiUrl}/vendors/register`;
   private readonly accessTokenKey = 'vendor_access_token';
@@ -183,11 +184,22 @@ export class VendorAuthService {
 
   logoutLocally(): void {
     this.clearPersistedSession();
+    if (this.router.url.startsWith('/submission-success')) {
+      return;
+    }
+
     void this.router.navigate(['/login']);
   }
 
+  clearLocalSession(): void {
+    this.clearPersistedSession();
+  }
+
   saveRegistrationDraft(draft: VendorRegisterDraft): void {
-    localStorage.setItem(this.draftKey, JSON.stringify(draft));
+    localStorage.setItem(this.draftKey, JSON.stringify({
+      ...draft,
+      createdAtUtc: draft.createdAtUtc || new Date().toISOString()
+    }));
   }
 
   getRegistrationDraft(): VendorRegisterDraft | null {
@@ -199,8 +211,23 @@ export class VendorAuthService {
     try {
       return JSON.parse(stored) as VendorRegisterDraft;
     } catch {
+      this.clearRegistrationDraft();
       return null;
     }
+  }
+
+  getValidRegistrationDraft(): VendorRegisterDraft | null {
+    const draft = this.getRegistrationDraft();
+    if (!this.isRegistrationDraftValid(draft)) {
+      this.clearRegistrationDraft();
+      return null;
+    }
+
+    return draft;
+  }
+
+  hasValidRegistrationDraft(): boolean {
+    return !!this.getValidRegistrationDraft();
   }
 
   clearRegistrationDraft(): void {
@@ -238,6 +265,23 @@ export class VendorAuthService {
   private persistUser(user: VendorCurrentUser): void {
     localStorage.setItem(this.userKey, JSON.stringify(user));
     this.currentUserSubject.next(user);
+  }
+
+  private isRegistrationDraftValid(draft: VendorRegisterDraft | null): draft is VendorRegisterDraft {
+    if (!draft?.fullName?.trim() || !draft.email?.trim() || !draft.password?.trim()) {
+      return false;
+    }
+
+    if (!draft.createdAtUtc) {
+      return false;
+    }
+
+    const createdAt = Date.parse(draft.createdAtUtc);
+    if (!Number.isFinite(createdAt)) {
+      return false;
+    }
+
+    return Date.now() - createdAt <= VendorAuthService.registrationDraftTtlMs;
   }
 
   private readStoredUser(): VendorCurrentUser | null {

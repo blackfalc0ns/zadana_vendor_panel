@@ -42,6 +42,7 @@ export interface VendorReviewAuditEntry {
 }
 
 export interface VendorProfile {
+  status: string;
   storeNameAr: string;
   storeNameEn: string;
   businessType: string;
@@ -66,6 +67,7 @@ export interface VendorProfile {
   swiftCode: string;
   payoutCycle: string;
   hasLogo: boolean;
+  logoUrl?: string | null;
   hasCRDoc: boolean;
   hasTaxDoc?: boolean;
   hasLicenseDoc?: boolean;
@@ -74,6 +76,7 @@ export interface VendorProfile {
   licenseDocumentUrl?: string | null;
   reviewStatus: 'active' | 'pending';
   reviewState: string;
+  rejectionReason?: string | null;
   commercialAccessEnabled: boolean;
   countryCode: string;
   complianceProfile: string;

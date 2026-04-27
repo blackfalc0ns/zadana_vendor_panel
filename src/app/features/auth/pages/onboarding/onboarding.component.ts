@@ -1,20 +1,22 @@
-import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { forkJoin, map, of, switchMap } from 'rxjs';
+import * as L from 'leaflet';
 
 import {
   BANKS,
   BUSINESS_TYPES,
-  CITIES,
   NATIONALITIES,
   PAYMENT_CYCLES,
-  REGIONS,
-  SelectOption
+  SelectOption,
+  RegionOption,
+  CityOption
 } from '../../constants/vendor-onboarding.constants';
+import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../services/geography.service';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppInputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { AppSelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
@@ -25,6 +27,8 @@ import { OnboardingSeedData, OnboardingStepItem } from '../../models/auth.models
 import { environment } from '../../../../../environments/environment';
 import { RegisterVendorPayload } from '../../../../core/auth/models/vendor-auth.models';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
+import { VendorProfile } from '../../../settings/models/vendor-profile.models';
+import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 
 @Component({
   selector: 'app-onboarding',
@@ -44,7 +48,7 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss']
 })
-export class OnboardingComponent implements OnInit {
+export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   readonly logoPath = 'assets/images/logo/zadana-mark.svg';
   readonly stepItems: OnboardingStepItem[] = [
     {
@@ -82,18 +86,18 @@ export class OnboardingComponent implements OnInit {
   };
   readonly vendorSeed: OnboardingSeedData = {
     store: {
-      businessNameAr: 'مؤسسة التقنية الحديثة التجارية',
+      businessNameAr: 'Ù…Ø¤Ø³Ø³Ø© Ø§Ù„ØªÙ‚Ù†ÙŠØ© Ø§Ù„Ø­Ø¯ÙŠØ«Ø© Ø§Ù„ØªØ¬Ø§Ø±ÙŠØ©',
       businessNameEn: 'Modern Tech Trading Est.',
       businessType: 'RETAIL',
       contactPhone: '+966501234567',
-      description: 'متجر متخصص في بيع الإلكترونيات والأجهزة الذكية مع تجهيزات للشحن السريع وخدمة ما بعد البيع.',
+      description: 'Ù…ØªØ¬Ø± Ù…ØªØ®ØµØµ ÙÙŠ Ø¨ÙŠØ¹ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠØ§Øª ÙˆØ§Ù„Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„Ø°ÙƒÙŠØ© Ù…Ø¹ ØªØ¬Ù‡ÙŠØ²Ø§Øª Ù„Ù„Ø´Ø­Ù† Ø§Ù„Ø³Ø±ÙŠØ¹ ÙˆØ®Ø¯Ù…Ø© Ù…Ø§ Ø¨Ø¹Ø¯ Ø§Ù„Ø¨ÙŠØ¹.',
       region: 'CENTRAL',
       city: 'RIYADH',
-      nationalAddress: '7293 طريق الملك فهد، حي الملقا، الرياض 13524',
+      nationalAddress: '7293 Ø·Ø±ÙŠÙ‚ Ø§Ù„Ù…Ù„Ùƒ ÙÙ‡Ø¯ØŒ Ø­ÙŠ Ø§Ù„Ù…Ù„Ù‚Ø§ØŒ Ø§Ù„Ø±ÙŠØ§Ø¶ 13524',
       registrationDate: '15 Jan 2022'
     },
     owner: {
-      fullName: 'عبدالله بن خالد بن عبدالعزيز',
+      fullName: 'Ø¹Ø¨Ø¯Ø§Ù„Ù„Ù‡ Ø¨Ù† Ø®Ø§Ù„Ø¯ Ø¨Ù† Ø¹Ø¨Ø¯Ø§Ù„Ø¹Ø²ÙŠØ²',
       email: 'info@moderntech.com',
       phone: '+966501234567',
       idNumber: '1012344321',
@@ -112,10 +116,10 @@ export class OnboardingComponent implements OnInit {
       paymentCycle: 'BIWEEKLY'
     },
     meta: {
-      reviewStatusAr: 'قيد المراجعة',
+      reviewStatusAr: 'Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©',
       reviewStatusEn: 'In review',
       lastUpdate: '18:01 - 14/03/2026',
-      syncedFromAr: 'مستوحى من ملف Vendor Details في لوحة السوبر أدمن لتكون المراجعة أوضح وأسهل.',
+      syncedFromAr: 'Ù…Ø³ØªÙˆØ­Ù‰ Ù…Ù† Ù…Ù„Ù Vendor Details ÙÙŠ Ù„ÙˆØ­Ø© Ø§Ù„Ø³ÙˆØ¨Ø± Ø£Ø¯Ù…Ù† Ù„ØªÙƒÙˆÙ† Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© Ø£ÙˆØ¶Ø­ ÙˆØ£Ø³Ù‡Ù„.',
       syncedFromEn: 'Inspired by the Vendor Details view in the super admin panel for clearer review.'
     }
   };
@@ -125,32 +129,81 @@ export class OnboardingComponent implements OnInit {
   totalSteps = this.stepItems.length;
   isSubmitting = false;
   submissionError = '';
+  isEditMode = false;
+  private currentProfile: VendorProfile | null = null;
   storeLogo: File | null = null;
   crDocument: File | null = null;
   taxDocument: File | null = null;
   licenseDocument: File | null = null;
+  isLocating = false;
+  locationError = '';
+
+  // Leaflet map
+  private leafletMap: L.Map | null = null;
+  private leafletMarker: L.Marker | null = null;
+  private readonly defaultCenter: L.LatLngExpression = [24.7136, 46.6753]; // Riyadh
+  private readonly defaultZoom = 6;
 
   businessTypes: SelectOption[] = BUSINESS_TYPES;
-  regions: SelectOption[] = REGIONS;
-  cities: SelectOption[] = CITIES;
+  regions: RegionOption[] = [];
+  allCities: CityOption[] = [];
+  filteredCities: CityOption[] = [];
   nationalities: SelectOption[] = NATIONALITIES;
   banks: SelectOption[] = BANKS;
   paymentCycles: SelectOption[] = PAYMENT_CYCLES;
 
   constructor(
     private fb: FormBuilder,
+    private route: ActivatedRoute,
     private router: Router,
     private translate: TranslateService,
     private http: HttpClient,
-    private authService: VendorAuthService
+    private authService: VendorAuthService,
+    private ngZone: NgZone,
+    private geographyService: GeographyService,
+    private profileService: VendorProfileService
   ) {
     const savedLang = localStorage.getItem('vendor_lang') || localStorage.getItem('lang') || 'ar';
     this.translate.use(savedLang);
   }
 
   ngOnInit(): void {
+    this.isEditMode = this.route.snapshot.queryParamMap.get('mode') === 'edit';
     this.initForm();
-    this.patchSeedData();
+    if (this.isEditMode) {
+      this.relaxEditModeValidators();
+      this.loadProfileForEdit();
+    } else {
+      this.patchSeedData();
+    }
+    this.loadRegions();
+
+    this.onboardingForm.get('step2.region')?.valueChanges.subscribe((regionValue: string) => {
+      if (regionValue) {
+        this.onRegionChange(regionValue);
+        return;
+      }
+
+      this.allCities = [];
+      this.filteredCities = [];
+    });
+
+    this.onboardingForm.get('step2.city')?.valueChanges.subscribe((cityValue: string) => {
+      if (cityValue) {
+        this.onCityChange(cityValue);
+      }
+    });
+  }
+  ngAfterViewInit(): void {
+    // Delay map init so the DOM is ready
+    setTimeout(() => this.initLeafletMap(), 300);
+  }
+
+  ngOnDestroy(): void {
+    if (this.leafletMap) {
+      this.leafletMap.remove();
+      this.leafletMap = null;
+    }
   }
 
   get isRTL(): boolean {
@@ -175,6 +228,11 @@ export class OnboardingComponent implements OnInit {
     return Math.round((completed / this.totalSteps) * 100);
   }
 
+  get hasBranchCoordinates(): boolean {
+    const step2 = this.getStepGroup(2);
+    return !!step2.get('branchLatitude')?.value && !!step2.get('branchLongitude')?.value;
+  }
+
   get reviewStatusLabelKey(): string {
     return 'DASHBOARD.STATUS_LIVE'; // Or similar status key
   }
@@ -187,6 +245,7 @@ export class OnboardingComponent implements OnInit {
     this.translate.use(lang);
     localStorage.setItem('vendor_lang', lang);
     localStorage.setItem('lang', lang);
+    this.refreshLocalizedGeographyLabels(lang);
   }
 
   nextStep(): void {
@@ -198,6 +257,10 @@ export class OnboardingComponent implements OnInit {
 
     if (this.currentStep < this.totalSteps) {
       this.currentStep++;
+      // Reinitialise map when entering step 2
+      if (this.currentStep === 2) {
+        setTimeout(() => this.initLeafletMap(), 200);
+      }
     }
   }
 
@@ -210,9 +273,56 @@ export class OnboardingComponent implements OnInit {
   setStep(step: number): void {
     if (step >= 1 && step <= this.totalSteps) {
       this.currentStep = step;
+      // Reinitialise map when navigating to step 2
+      if (step === 2) {
+        setTimeout(() => this.initLeafletMap(), 200);
+      }
     }
   }
 
+  /**
+   * Called when the user selects a region.
+   * Filters cities dropdown and pans the map to the region center.
+   */
+  onRegionChange(regionValue: string, preferredCity = ''): void {
+    const step2 = this.getStepGroup(2);
+    if (!preferredCity) {
+      step2.get('city')?.setValue('', { emitEvent: false });
+    }
+    this.allCities = [];
+    this.filteredCities = [];
+
+    const region = this.regions.find((item) => item.value === regionValue);
+    if (region && this.leafletMap) {
+      this.leafletMap.setView([region.lat, region.lng], region.zoom);
+    }
+
+    this.geographyService.getCities(regionValue).subscribe({
+      next: (cities) => {
+        if (step2.get('region')?.value !== regionValue) {
+          return;
+        }
+
+        this.allCities = cities.map((city) => this.toCityOption(city));
+        this.filteredCities = this.allCities;
+        if (preferredCity && this.filteredCities.some((city) => city.value === preferredCity)) {
+          step2.get('city')?.setValue(preferredCity, { emitEvent: false });
+          this.onCityChange(preferredCity);
+        }
+      },
+      error: () => {
+        this.allCities = [];
+        this.filteredCities = [];
+      }
+    });
+  }
+
+  onCityChange(cityValue: string): void {
+    const city = this.filteredCities.find((item) => item.value === cityValue);
+    if (city && this.leafletMap) {
+      this.leafletMap.setView([city.lat, city.lng], city.zoom);
+    }
+  }
   onLogoSelected(event: Event): void {
     const file = this.getSelectedFile(event);
     if (!file) {
@@ -232,7 +342,7 @@ export class OnboardingComponent implements OnInit {
 
     if (!this.isPdfFile(file)) {
       this.submissionError = this.isRTL
-        ? 'يجب رفع السجل التجاري بصيغة PDF.'
+        ? 'ÙŠØ¬Ø¨ Ø±ÙØ¹ Ø§Ù„Ø³Ø¬Ù„ Ø§Ù„ØªØ¬Ø§Ø±ÙŠ Ø¨ØµÙŠØºØ© PDF.'
         : 'Commercial registration must be uploaded as a PDF file.';
       return;
     }
@@ -251,7 +361,7 @@ export class OnboardingComponent implements OnInit {
 
     if (!this.isPdfFile(file)) {
       this.submissionError = this.isRTL
-        ? 'يجب رفع الشهادة الضريبية بصيغة PDF.'
+        ? 'ÙŠØ¬Ø¨ Ø±ÙØ¹ Ø§Ù„Ø´Ù‡Ø§Ø¯Ø© Ø§Ù„Ø¶Ø±ÙŠØ¨ÙŠØ© Ø¨ØµÙŠØºØ© PDF.'
         : 'Tax certificate must be uploaded as a PDF file.';
       return;
     }
@@ -270,7 +380,7 @@ export class OnboardingComponent implements OnInit {
 
     if (!this.isPdfFile(file)) {
       this.submissionError = this.isRTL
-        ? 'يجب رفع الرخصة بصيغة PDF.'
+        ? 'ÙŠØ¬Ø¨ Ø±ÙØ¹ Ø§Ù„Ø±Ø®ØµØ© Ø¨ØµÙŠØºØ© PDF.'
         : 'License document must be uploaded as a PDF file.';
       return;
     }
@@ -324,6 +434,118 @@ export class OnboardingComponent implements OnInit {
     }
   }
 
+  /**
+   * Initialise the interactive Leaflet map for step 2.
+   * Uses OpenStreetMap tiles (free, no API key required).
+   */
+  private initLeafletMap(): void {
+    const container = document.getElementById('leaflet-map-container');
+    if (!container) return;
+
+    // Avoid double-init
+    if (this.leafletMap) {
+      this.leafletMap.invalidateSize();
+      return;
+    }
+
+    // Fix default marker icon path issue in Angular/webpack
+    const iconRetinaUrl = 'assets/marker-icon-2x.png';
+    const iconUrl = 'assets/marker-icon.png';
+    const shadowUrl = 'assets/marker-shadow.png';
+    const defaultIcon = L.icon({
+      iconRetinaUrl,
+      iconUrl,
+      shadowUrl,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+    L.Marker.prototype.options.icon = defaultIcon;
+
+    this.leafletMap = L.map(container, {
+      center: this.defaultCenter,
+      zoom: this.defaultZoom,
+      zoomControl: true,
+      attributionControl: true
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19
+    }).addTo(this.leafletMap);
+
+    // Click handler â†’ set marker + update form
+    this.leafletMap.on('click', (e: L.LeafletMouseEvent) => {
+      this.ngZone.run(() => {
+        this.placeMarker(e.latlng.lat, e.latlng.lng);
+        this.setBranchCoordinates(e.latlng.lat, e.latlng.lng);
+      });
+    });
+
+    // If coordinates already exist, place marker
+    if (this.hasBranchCoordinates) {
+      const step2 = this.onboardingForm.get('step2') as FormGroup;
+      const lat = Number(step2.get('branchLatitude')?.value);
+      const lng = Number(step2.get('branchLongitude')?.value);
+      if (Number.isFinite(lat) && Number.isFinite(lng)) {
+        this.placeMarker(lat, lng);
+        this.leafletMap.setView([lat, lng], 14);
+      }
+    }
+  }
+
+  /**
+   * Place or move the marker on the Leaflet map.
+   */
+  private placeMarker(lat: number, lng: number): void {
+    if (!this.leafletMap) return;
+
+    if (this.leafletMarker) {
+      this.leafletMarker.setLatLng([lat, lng]);
+    } else {
+      this.leafletMarker = L.marker([lat, lng], { draggable: true }).addTo(this.leafletMap);
+      // Allow dragging the marker to refine location
+      this.leafletMarker.on('dragend', () => {
+        const pos = this.leafletMarker!.getLatLng();
+        this.ngZone.run(() => {
+          this.setBranchCoordinates(pos.lat, pos.lng);
+        });
+      });
+    }
+
+    this.leafletMap.setView([lat, lng], Math.max(this.leafletMap.getZoom(), 13));
+  }
+
+  useCurrentLocation(): void {
+    this.locationError = '';
+
+    if (!navigator.geolocation) {
+      this.locationError = this.translate.instant('ONBOARDING.MAP.GEO_UNSUPPORTED');
+      return;
+    }
+
+    this.isLocating = true;
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.isLocating = false;
+        const { latitude, longitude } = position.coords;
+        this.setBranchCoordinates(latitude, longitude);
+        this.placeMarker(latitude, longitude);
+      },
+      () => {
+        this.isLocating = false;
+        this.locationError = this.translate.instant('ONBOARDING.MAP.GEO_FAILED');
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 0
+      }
+    );
+  }
+
   onSubmit(): void {
     this.stepItems.forEach((step) => this.getStepGroup(step.id).markAllAsTouched());
     this.submissionError = '';
@@ -333,7 +555,12 @@ export class OnboardingComponent implements OnInit {
       return;
     }
 
-    const draft = this.authService.getRegistrationDraft();
+    if (this.isEditMode) {
+      this.submitEditMode();
+      return;
+    }
+
+    const draft = this.authService.getValidRegistrationDraft();
     if (!draft) {
       this.submissionError = this.translate.instant('ONBOARDING.ERRORS.START_FROM_REGISTER');
       void this.router.navigate(['/register']);
@@ -388,8 +615,8 @@ export class OnboardingComponent implements OnInit {
           licenseDocumentUrl,
           branchName: draft.preferredStoreName || step1.businessNameEn || step1.businessNameAr,
           branchAddressLine: step2.nationalAddress,
-          branchLatitude: 0,
-          branchLongitude: 0,
+          branchLatitude: Number(step2.branchLatitude),
+          branchLongitude: Number(step2.branchLongitude),
           branchContactPhone: step1.contactPhone,
           branchDeliveryRadiusKm: 5
         };
@@ -531,7 +758,8 @@ export class OnboardingComponent implements OnInit {
       return fallback;
     }
 
-    return options.find((option) => option.value === value)?.labelKey ?? fallback;
+    const option = options.find((item) => item.value === value);
+    return option?.label ?? option?.labelKey ?? fallback;
   }
 
   valueOrFallback(value: string | null | undefined, fallback = '-'): string {
@@ -559,6 +787,73 @@ export class OnboardingComponent implements OnInit {
     return this.currentStep === 5;
   }
 
+  private loadRegions(): void {
+    this.geographyService.getRegions().subscribe({
+      next: (regions) => {
+        this.regions = regions.map((region) => this.toRegionOption(region));
+
+        const selectedRegion = this.getStepGroup(2).get('region')?.value;
+        const selectedCity = this.getStepGroup(2).get('city')?.value;
+        if (selectedRegion) {
+          this.onRegionChange(selectedRegion, selectedCity);
+        }
+      },
+      error: () => {
+        this.regions = [];
+        this.allCities = [];
+        this.filteredCities = [];
+      }
+    });
+  }
+
+  private toRegionOption(region: SaudiRegionDto): RegionOption {
+    return {
+      value: region.code,
+      label: this.localizeName(region.nameAr, region.nameEn),
+      nameAr: region.nameAr,
+      nameEn: region.nameEn,
+      lat: region.latitude,
+      lng: region.longitude,
+      zoom: region.mapZoom
+    };
+  }
+
+  private toCityOption(city: SaudiCityDto): CityOption {
+    return {
+      value: city.code,
+      label: this.localizeName(city.nameAr, city.nameEn),
+      nameAr: city.nameAr,
+      nameEn: city.nameEn,
+      region: city.regionCode,
+      lat: city.latitude,
+      lng: city.longitude,
+      zoom: city.mapZoom
+    };
+  }
+
+  private refreshLocalizedGeographyLabels(lang = this.translate.currentLang || 'ar'): void {
+    this.regions = this.regions.map((region) => ({
+      ...region,
+      label: this.localizeName(region.nameAr, region.nameEn, lang)
+    }));
+
+    this.allCities = this.allCities.map((city) => ({
+      ...city,
+      label: this.localizeName(city.nameAr, city.nameEn, lang)
+    }));
+
+    this.filteredCities = this.filteredCities.map((city) => ({
+      ...city,
+      label: this.localizeName(city.nameAr, city.nameEn, lang)
+    }));
+  }
+
+  private localizeName(nameAr?: string, nameEn?: string, lang = this.translate.currentLang || 'ar'): string {
+    return lang === 'ar'
+      ? (nameAr || nameEn || '')
+      : (nameEn || nameAr || '');
+  }
+
   private initForm(): void {
     this.onboardingForm = this.fb.group({
       step1: this.fb.group({
@@ -574,7 +869,9 @@ export class OnboardingComponent implements OnInit {
       step2: this.fb.group({
         region: ['', Validators.required],
         city: ['', Validators.required],
-        nationalAddress: ['', Validators.required]
+        nationalAddress: ['', Validators.required],
+        branchLatitude: ['', [Validators.required, Validators.min(-90), Validators.max(90)]],
+        branchLongitude: ['', [Validators.required, Validators.min(-180), Validators.max(180)]]
       }),
       step3: this.fb.group({
         idNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
@@ -599,10 +896,85 @@ export class OnboardingComponent implements OnInit {
     });
   }
 
+  private relaxEditModeValidators(): void {
+    const step2 = this.getStepGroup(2);
+    step2.get('branchLatitude')?.clearValidators();
+    step2.get('branchLatitude')?.updateValueAndValidity();
+    step2.get('branchLongitude')?.clearValidators();
+    step2.get('branchLongitude')?.updateValueAndValidity();
+
+    const step5 = this.getStepGroup(5);
+    ['hasCRDoc', 'hasTaxDoc', 'hasLicenseDoc'].forEach((field) => {
+      step5.get(field)?.clearValidators();
+      step5.get(field)?.updateValueAndValidity();
+    });
+  }
+
+  private loadProfileForEdit(): void {
+    this.profileService.loadProfileForGuard(true).subscribe({
+      next: (profile) => {
+        this.currentProfile = profile;
+        this.patchProfileData(profile);
+      },
+      error: (error) => {
+        this.submissionError = error?.error?.detail
+          || error?.error?.message
+          || error?.message
+          || this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
+      }
+    });
+  }
+
+  private patchProfileData(profile: VendorProfile): void {
+    this.onboardingForm.reset({
+      step1: {
+        businessNameAr: profile.storeNameAr,
+        businessNameEn: profile.storeNameEn,
+        businessType: profile.businessType,
+        contactPhone: profile.supportPhone,
+        description: profile.descriptionAr || profile.descriptionEn,
+        ownerName: profile.ownerName,
+        ownerEmail: profile.ownerEmail,
+        ownerPhone: profile.ownerPhone
+      },
+      step2: {
+        region: profile.region,
+        city: profile.city,
+        nationalAddress: profile.nationalAddress,
+        branchLatitude: '',
+        branchLongitude: ''
+      },
+      step3: {
+        idNumber: profile.idNumber,
+        nationality: profile.nationality,
+        commercialRegistrationNumber: profile.commercialRegistrationNumber,
+        expiryDate: profile.expiryDate,
+        taxId: profile.taxId,
+        licenseNumber: profile.licenseNumber
+      },
+      step4: {
+        bankName: profile.bankName,
+        iban: profile.iban,
+        swiftCode: profile.swiftCode,
+        paymentCycle: profile.payoutCycle
+      },
+      step5: {
+        hasLogo: profile.hasLogo,
+        hasCRDoc: profile.hasCRDoc,
+        hasTaxDoc: profile.hasTaxDoc,
+        hasLicenseDoc: profile.hasLicenseDoc
+      }
+    });
+
+    if (profile.region && this.regions.length) {
+      this.onRegionChange(profile.region, profile.city);
+    }
+  }
+
   private patchSeedData(): void {
     const defaultAr = this.translate.instant('COMMON.DEFAULT_VENDOR_NAME');
     const defaultEn = 'Modern Tech Trading Est.';
-    const draft = this.authService.getRegistrationDraft();
+    const draft = this.authService.getValidRegistrationDraft();
 
     this.onboardingForm.patchValue({
       step1: {
@@ -636,10 +1008,50 @@ export class OnboardingComponent implements OnInit {
       }
     });
 
+    this.onboardingForm.reset({
+      step1: {
+        businessNameAr: draft?.preferredStoreName || '',
+        businessNameEn: draft?.preferredStoreName || '',
+        businessType: '',
+        contactPhone: '',
+        description: '',
+        ownerName: draft?.fullName || '',
+        ownerEmail: draft?.email || '',
+        ownerPhone: ''
+      },
+      step2: {
+        region: '',
+        city: '',
+        nationalAddress: '',
+        branchLatitude: '',
+        branchLongitude: ''
+      },
+      step3: {
+        idNumber: '',
+        nationality: '',
+        commercialRegistrationNumber: '',
+        expiryDate: '',
+        taxId: '',
+        licenseNumber: ''
+      },
+      step4: {
+        bankName: '',
+        iban: '',
+        swiftCode: '',
+        paymentCycle: ''
+      },
+      step5: {
+        hasLogo: false,
+        hasCRDoc: false,
+        hasTaxDoc: false,
+        hasLicenseDoc: false
+      }
+    });
+
     // Reset localStorage if it was broken so the header updates immediately
     const stored = localStorage.getItem('onboarding_biz_name');
-    if (stored && (stored.includes('Ù') || stored.includes('Ø'))) {
-       localStorage.setItem('onboarding_biz_name', this.isRTL ? defaultAr : defaultEn);
+    if (stored && (stored.includes('Ã™') || stored.includes('Ã˜'))) {
+       localStorage.removeItem('onboarding_biz_name');
     }
   }
 
@@ -654,6 +1066,89 @@ export class OnboardingComponent implements OnInit {
 
   private isPdfFile(file: File): boolean {
     return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+  }
+
+  private setBranchCoordinates(latitude: number, longitude: number): void {
+    const step2 = this.getStepGroup(2);
+    step2.patchValue({
+      branchLatitude: latitude.toFixed(6),
+      branchLongitude: longitude.toFixed(6)
+    });
+    step2.get('branchLatitude')?.markAsTouched();
+    step2.get('branchLongitude')?.markAsTouched();
+    step2.updateValueAndValidity();
+  }
+
+  private submitEditMode(): void {
+    const profile = this.currentProfile || this.profileService.getProfileSnapshot();
+    if (!profile.status) {
+      this.submissionError = this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
+      return;
+    }
+
+    this.isSubmitting = true;
+    const step1 = this.getStepGroup(1).getRawValue();
+    const step2 = this.getStepGroup(2).getRawValue();
+    const step3 = this.getStepGroup(3).getRawValue();
+    const step4 = this.getStepGroup(4).getRawValue();
+
+    forkJoin({
+      logoUrl: this.storeLogo ? this.uploadFile(this.storeLogo, 'uploads/vendors/logos') : of<string | null>(null),
+      commercialRegisterDocumentUrl: this.crDocument ? this.uploadFile(this.crDocument, 'uploads/vendors/commercial-register') : of<string | null>(null),
+      taxDocumentUrl: this.taxDocument ? this.uploadFile(this.taxDocument, 'uploads/vendors/tax-certificates') : of<string | null>(null),
+      licenseDocumentUrl: this.licenseDocument ? this.uploadFile(this.licenseDocument, 'uploads/vendors/licenses') : of<string | null>(null)
+    }).pipe(
+      map(({ logoUrl, commercialRegisterDocumentUrl, taxDocumentUrl, licenseDocumentUrl }) => ({
+        ...profile,
+        storeNameAr: step1.businessNameAr,
+        storeNameEn: step1.businessNameEn,
+        businessType: step1.businessType,
+        supportPhone: step1.contactPhone,
+        supportEmail: step1.ownerEmail,
+        descriptionAr: step1.description,
+        descriptionEn: step1.description,
+        ownerName: step1.ownerName,
+        ownerEmail: step1.ownerEmail,
+        ownerPhone: step1.ownerPhone,
+        region: step2.region,
+        city: step2.city,
+        nationalAddress: step2.nationalAddress,
+        idNumber: step3.idNumber,
+        nationality: step3.nationality,
+        commercialRegistrationNumber: step3.commercialRegistrationNumber,
+        expiryDate: step3.expiryDate,
+        taxId: step3.taxId,
+        licenseNumber: step3.licenseNumber,
+        bankName: step4.bankName,
+        iban: step4.iban,
+        swiftCode: step4.swiftCode,
+        payoutCycle: step4.paymentCycle,
+        logoUrl: logoUrl || profile.logoUrl || null,
+        hasLogo: !!(logoUrl || profile.logoUrl),
+        commercialRegisterDocumentUrl: commercialRegisterDocumentUrl || profile.commercialRegisterDocumentUrl || null,
+        taxDocumentUrl: taxDocumentUrl || profile.taxDocumentUrl || null,
+        licenseDocumentUrl: licenseDocumentUrl || profile.licenseDocumentUrl || null,
+        hasCRDoc: !!(commercialRegisterDocumentUrl || profile.commercialRegisterDocumentUrl),
+        hasTaxDoc: !!(taxDocumentUrl || profile.taxDocumentUrl),
+        hasLicenseDoc: !!(licenseDocumentUrl || profile.licenseDocumentUrl)
+      } as VendorProfile)),
+      switchMap((nextProfile) => this.profileService.updateOnboardingProfile(nextProfile)),
+      switchMap(() => this.profileService.submitForReview())
+    ).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        const currentBizName = this.isRTL ? step1.businessNameAr : step1.businessNameEn;
+        localStorage.setItem('onboarding_biz_name', currentBizName || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
+        void this.router.navigate(['/submission-success']);
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        this.submissionError = error?.error?.detail
+          || error?.error?.message
+          || error?.message
+          || this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
+      }
+    });
   }
 
   private uploadFile(file: File, directory: string) {

@@ -93,7 +93,8 @@ export class RegisterComponent {
       fullName: `${firstName} ${lastName}`.trim(),
       email,
       password,
-      preferredStoreName: storeName
+      preferredStoreName: storeName,
+      createdAtUtc: new Date().toISOString()
     });
 
     if (isPlatformBrowser(this.platformId)) {

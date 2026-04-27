@@ -1,0 +1,49 @@
+{
+  "register": {
+    "firstName": "Lifecycle",
+    "lastName": "Tester",
+    "storeName": "Zadana Lifecycle Test Store",
+    "email": "lifecycle.tester+001@example.com",
+    "password": "Test@12345",
+    "confirmPassword": "Test@12345"
+  },
+  "onboarding": {
+    "step1": {
+      "businessNameAr": "Zadana Lifecycle Test Store AR",
+      "businessNameEn": "Zadana Lifecycle Test Store",
+      "businessType": "RETAIL",
+      "contactPhone": "+966501234567",
+      "description": "Test vendor for validating registration draft lifecycle, onboarding submission, file uploads, and local backend integration.",
+      "ownerName": "Lifecycle Tester",
+      "ownerEmail": "lifecycle.tester+001@example.com",
+      "ownerPhone": "+966501234567"
+    },
+    "step2": {
+      "region": "RIYADH",
+      "city": "RIYADH",
+      "nationalAddress": "7293 King Fahd Road, Al Malqa, Riyadh 13524",
+      "branchLatitude": "24.774265",
+      "branchLongitude": "46.738586"
+    },
+    "step3": {
+      "idNumber": "1012344321",
+      "nationality": "SAUDI",
+      "commercialRegistrationNumber": "1010123456",
+      "expiryDate": "2027-12-31",
+      "taxId": "312345678901234",
+      "licenseNumber": "LIC-2026-0001"
+    },
+    "step4": {
+      "bankName": "ALRAJHI",
+      "paymentCycle": "PER_ORDER_DIRECT_PAYOUT",
+      "iban": "SA0380000000608010167519",
+      "swiftCode": "RJHISARI"
+    },
+    "step5": {
+      "logo": "files/zadana-test-logo.svg",
+      "commercialRegistration": "files/commercial-registration-sample.pdf",
+      "taxCertificate": "files/tax-certificate-sample.pdf",
+      "operatingLicense": "files/operating-license-sample.pdf"
+    }
+  }
+}

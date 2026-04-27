@@ -4,7 +4,8 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@a
 import { TranslateModule } from '@ngx-translate/core';
 
 export interface SelectOption {
-  labelKey: string;
+  labelKey?: string;
+  label?: string;
   value: any;
 }
 
@@ -37,7 +38,7 @@ export interface SelectOption {
         >
           <option value="" disabled selected>{{ placeholder | translate }}</option>
           <option *ngFor="let option of options" [value]="option.value">
-            {{ option.labelKey | translate }}
+            {{ option.label || ((option.labelKey || '') | translate) }}
           </option>
         </select>
         

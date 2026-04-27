@@ -1,3 +1,20 @@
 :host {
   display: block;
 }
+
+.leaflet-map-wrapper {
+  width: 100%;
+  height: 340px;
+  z-index: 0;
+  cursor: crosshair;
+}
+
+// Override Leaflet z-index to stay below modals
+::ng-deep .leaflet-pane {
+  z-index: 1 !important;
+}
+
+::ng-deep .leaflet-top,
+::ng-deep .leaflet-bottom {
+  z-index: 2 !important;
+}

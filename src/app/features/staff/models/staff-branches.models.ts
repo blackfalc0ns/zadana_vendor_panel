@@ -44,6 +44,8 @@ export interface BranchVm {
   region: string;
   city: string;
   addressLine: string;
+  latitude: number;
+  longitude: number;
   deliveryRadiusKm: number;
   workingDays: number;
   createdAt: string;

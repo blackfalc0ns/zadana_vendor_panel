@@ -23,6 +23,7 @@ export interface VendorRegisterDraft {
   email: string;
   password: string;
   preferredStoreName?: string | null;
+  createdAtUtc?: string | null;
 }
 
 export interface RegisterVendorPayload {

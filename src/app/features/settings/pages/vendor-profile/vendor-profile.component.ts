@@ -3,9 +3,9 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
 import { SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
-import { finalize } from 'rxjs';
-import { Subscription } from 'rxjs';
-import { BANKS, BUSINESS_TYPES, CITIES, NATIONALITIES, PAYMENT_CYCLES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
+import { finalize, forkJoin, Subscription } from 'rxjs';
+import { BANKS, BUSINESS_TYPES, NATIONALITIES, PAYMENT_CYCLES, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
+import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
 import { VendorLegalDocumentType, VendorProfileService } from '../../services/vendor-profile.service';
 import { ProfileSectionNavItem, ProfileWorkspaceWindow, ProfileWorkspaceWindowId } from './vendor-profile.view-models';
@@ -284,8 +284,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   get paymentCycleOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.paymentCycles); }
   
   readonly businessTypes = BUSINESS_TYPES;
-  readonly regions = REGIONS;
-  readonly cities = CITIES;
+  regions: SelectOption[] = [];
+  cities: SelectOption[] = [];
   readonly nationalities = NATIONALITIES;
   readonly banks = BANKS;
   readonly paymentCycles = PAYMENT_CYCLES;
@@ -368,18 +368,76 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     'timeline-window': 'timeline'
   };
 
+  private loadGeographyOptions(): void {
+    this.geographyService.getRegions().subscribe({
+      next: (regions) => {
+        this.regions = regions.map((region) => this.toRegionOption(region));
+
+        forkJoin(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
+          this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
+        });
+      },
+      error: () => {
+        this.regions = [];
+        this.cities = [];
+      }
+    });
+  }
+
+  private refreshGeographyLabels(): void {
+    this.regions = this.regions.map((region) => ({
+      ...region,
+      label: this.localizeName(region.nameAr, region.nameEn)
+    }));
+
+    this.cities = this.cities.map((city) => ({
+      ...city,
+      label: this.localizeName(city.nameAr, city.nameEn)
+    }));
+  }
+
+  private toRegionOption(region: SaudiRegionDto): SelectOption {
+    return {
+      value: region.code,
+      label: this.localizeName(region.nameAr, region.nameEn),
+      nameAr: region.nameAr,
+      nameEn: region.nameEn
+    };
+  }
+
+  private toCityOption(city: SaudiCityDto): SelectOption {
+    return {
+      value: city.code,
+      label: this.localizeName(city.nameAr, city.nameEn),
+      nameAr: city.nameAr,
+      nameEn: city.nameEn
+    };
+  }
+
+  private localizeName(nameAr?: string, nameEn?: string): string {
+    return this.currentLang === 'ar'
+      ? (nameAr || nameEn || '')
+      : (nameEn || nameAr || '');
+  }
+
   constructor(
     private readonly fb: FormBuilder,
-    private readonly profileService: VendorProfileService,
-    private readonly translate: TranslateService
+  private readonly profileService: VendorProfileService,
+    private readonly translate: TranslateService,
+    private readonly geographyService: GeographyService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
-    this.langSub = this.translate.onLangChange.subscribe((event) => this.currentLang = event.lang);
+    this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.currentLang = event.lang;
+      this.refreshGeographyLabels();
+    });
     this.profileForm = this.buildForm();
     this.currentProfile = this.profileService.getProfileSnapshot();
   }
 
   ngOnInit(): void {
+    this.loadGeographyOptions();
+
     this.profileSub = this.profileService.getProfile().subscribe((profile) => {
       this.currentProfile = profile;
       this.patchProfile(profile);
@@ -1207,4 +1265,3 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       || fallback;
   }
 }
-

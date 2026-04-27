@@ -3,12 +3,16 @@ export type OrderStatus =
   | 'CONFIRMED'
   | 'IN_PROGRESS' 
   | 'READY_FOR_PICKUP'
+  | 'DRIVER_ASSIGNMENT_IN_PROGRESS'
+  | 'DRIVER_ASSIGNED'
   | 'PICKED_UP'
   | 'OUT_FOR_DELIVERY' 
   | 'DELIVERED' 
   | 'COMPLETED' 
   | 'CANCELLED' 
-  | 'RETURNED';
+  | 'RETURNED'
+  | 'DELIVERY_FAILED'
+  | 'REFUNDED';
 
 export type OrderPaymentStatus =
   | 'PENDING'

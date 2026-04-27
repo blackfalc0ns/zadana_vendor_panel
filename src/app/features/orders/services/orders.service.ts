@@ -50,8 +50,22 @@ interface VendorOrderDetailApiModel {
   totalAmount: number;
   notes?: string | null;
   placedAtUtc: string;
+  assignedDriver?: VendorAssignedDriverApiModel | null;
+  driverArrivalState?: string;
+  driverArrivalUpdatedAtUtc?: string | null;
+  pickupOtp?: string | null;
+  canConfirmPickup?: boolean;
+  pickupOtpStatus?: string;
   items: VendorOrderItemApiModel[];
   timeline: VendorOrderTimelineApiModel[];
+}
+
+interface VendorAssignedDriverApiModel {
+  id: string;
+  name: string;
+  phoneNumber?: string | null;
+  vehicleType: string;
+  plateNumber: string;
 }
 
 interface VendorOrderItemApiModel {
@@ -237,6 +251,7 @@ export class OrdersService {
     const status = this.mapBackendStatus(item.status);
     const paymentMethodType = this.mapPaymentMethod(item.paymentMethod);
     const tax = Math.max(0, item.totalAmount - item.subtotal - item.deliveryFee);
+    const driver = item.assignedDriver;
 
     return {
       id: item.id,
@@ -260,6 +275,10 @@ export class OrdersService {
       isLate: false,
       hasActiveIssue: status === 'CANCELLED',
       notes: item.notes ?? undefined,
+      driverName: driver?.name,
+      driverPhone: driver?.phoneNumber ?? undefined,
+      driverVehicleType: driver?.vehicleType,
+      driverVehiclePlate: driver?.plateNumber,
       items: item.items.map((orderItem) => this.mapOrderItem(orderItem)),
       timeline: item.timeline.map((timelineItem) => this.mapTimelineItem(timelineItem))
     };
@@ -316,6 +335,7 @@ export class OrdersService {
         return 'IN_PROGRESS';
       case 'ReadyForPickup':
         return 'READY_FOR_PICKUP';
+      case 'DriverAssignmentInProgress':
       case 'DriverAssigned':
       case 'PickedUp':
         return 'PICKED_UP';
@@ -388,12 +408,16 @@ export class OrdersService {
       CONFIRMED: { ar: 'تم التأكيد', en: 'Confirmed' },
       IN_PROGRESS: { ar: 'قيد التجهيز', en: 'Preparing' },
       READY_FOR_PICKUP: { ar: 'جاهز للاستلام', en: 'Ready for pickup' },
-      PICKED_UP: { ar: 'تم الاستلام من المندوب', en: 'Picked up' },
+      DRIVER_ASSIGNMENT_IN_PROGRESS: { ar: 'جاري البحث عن مندوب', en: 'Finding a driver' },
+      DRIVER_ASSIGNED: { ar: 'تم تعيين مندوب', en: 'Driver assigned' },
+      PICKED_UP: { ar: 'تم الاستلام من المتجر', en: 'Picked up' },
       OUT_FOR_DELIVERY: { ar: 'في الطريق', en: 'On the way' },
       DELIVERED: { ar: 'تم التوصيل', en: 'Delivered' },
       COMPLETED: { ar: 'مكتمل', en: 'Completed' },
       CANCELLED: { ar: 'ملغي', en: 'Cancelled' },
-      RETURNED: { ar: 'مرتجع', en: 'Returned' }
+      RETURNED: { ar: 'مرتجع', en: 'Returned' },
+      DELIVERY_FAILED: { ar: 'فشل التوصيل', en: 'Delivery failed' },
+      REFUNDED: { ar: 'تم الاسترداد', en: 'Refunded' }
     };
 
     return labels[status];

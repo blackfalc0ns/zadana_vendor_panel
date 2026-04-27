@@ -234,7 +234,7 @@
                   formControlName="city" 
                   [label]="'ONBOARDING.FIELDS.CITY'" 
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_CITY'"
-                  [options]="cities"
+                  [options]="filteredCities"
                   [isRequired]="true"
                   [error]="isInvalid('2', 'city') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step2.city')?.touched || false"
@@ -250,6 +250,62 @@
                   [error]="isInvalid('2', 'nationalAddress') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step2.nationalAddress')?.touched || false"
                 ></app-input>
+
+                <div class="md:col-span-2 overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-sm">
+                  <div class="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p class="text-[11px] font-black uppercase tracking-[0.2em] text-zadna-primary">{{ 'ONBOARDING.MAP.EYEBROW' | translate }}</p>
+                      <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.MAP.TITLE' | translate }}</h3>
+                      <p class="mt-1 text-[11px] font-bold leading-5 text-slate-500">{{ 'ONBOARDING.MAP.DESC' | translate }}</p>
+                    </div>
+
+                    <button type="button" (click)="useCurrentLocation()" [disabled]="isLocating"
+                      class="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-zadna-primary px-4 text-[11px] font-black text-white shadow-sm transition hover:bg-zadna-primaryDark disabled:cursor-not-allowed disabled:opacity-60">
+                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+                        <path d="M12 2v3m0 14v3M2 12h3m14 0h3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        <circle cx="12" cy="12" r="5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+                      </svg>
+                      {{ (isLocating ? 'ONBOARDING.MAP.LOCATING' : 'ONBOARDING.MAP.USE_CURRENT') | translate }}
+                    </button>
+                  </div>
+
+                  <!-- Interactive Leaflet Map -->
+                  <div id="leaflet-map-container" class="leaflet-map-wrapper"></div>
+
+                  <div *ngIf="!hasBranchCoordinates" class="flex items-center gap-2 border-t border-slate-100 bg-slate-50/40 px-4 py-2.5">
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor">
+                      <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+                      <path d="M12 8v4m0 4h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                    <p class="text-[11px] font-bold text-slate-500">{{ 'ONBOARDING.MAP.EMPTY_DESC' | translate }}</p>
+                  </div>
+
+                  <div class="grid gap-4 p-4 md:grid-cols-2">
+                    <app-input
+                      formControlName="branchLatitude"
+                      [label]="'ONBOARDING.FIELDS.LATITUDE'"
+                      [placeholder]="'ONBOARDING.PLACEHOLDERS.LATITUDE'"
+                      [isRequired]="true"
+                      [error]="isInvalid('2', 'branchLatitude') ? 'REGISTER.ERR_GENERAL' : ''"
+                      [isTouched]="onboardingForm.get('step2.branchLatitude')?.touched || false"
+                      dir="ltr"
+                    ></app-input>
+
+                    <app-input
+                      formControlName="branchLongitude"
+                      [label]="'ONBOARDING.FIELDS.LONGITUDE'"
+                      [placeholder]="'ONBOARDING.PLACEHOLDERS.LONGITUDE'"
+                      [isRequired]="true"
+                      [error]="isInvalid('2', 'branchLongitude') ? 'REGISTER.ERR_GENERAL' : ''"
+                      [isTouched]="onboardingForm.get('step2.branchLongitude')?.touched || false"
+                      dir="ltr"
+                    ></app-input>
+
+                    <p *ngIf="locationError" class="md:col-span-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-700">
+                      {{ locationError }}
+                    </p>
+                  </div>
+                </div>
               </div>
             </app-card>
           </div>
@@ -559,7 +615,7 @@
               <div class="space-y-2 text-sm font-bold text-slate-600">
                 <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ valueOrFallback(onboardingForm.get('step1.businessNameAr')?.value) }}</p>
                 <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step1.businessNameEn')?.value) }}</p>
-                <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(cities, onboardingForm.get('step2.city')?.value) | translate }}</p>
+                <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(allCities, onboardingForm.get('step2.city')?.value) | translate }}</p>
                 <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step1.contactPhone')?.value) }}</p>
               </div>
             </div>
@@ -636,7 +692,7 @@
             [isLoading]="isSubmitting"
             customClass="!rounded-xl px-8 shadow-lg shadow-zadna-primary/20"
           >
-             {{ 'ONBOARDING.BTN_SUBMIT' | translate }}
+             {{ (isEditMode ? 'ONBOARDING.BTN_RESUBMIT' : 'ONBOARDING.BTN_SUBMIT') | translate }}
           </app-button>
         </div>
       </div>

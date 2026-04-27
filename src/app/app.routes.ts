@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { vendorAuthGuard } from './core/auth/guards/vendor-auth.guard';
 import { vendorGuestGuard } from './core/auth/guards/vendor-guest.guard';
+import { vendorOnboardingGuard } from './core/auth/guards/vendor-onboarding.guard';
 
 export const routes: Routes = [
   // --- Auth Pages (No layout) ---
@@ -26,7 +27,7 @@ export const routes: Routes = [
   },
   {
     path: 'onboarding',
-    canActivate: [vendorGuestGuard],
+    canActivate: [vendorOnboardingGuard],
     loadComponent: () => import('./features/auth/pages/onboarding/onboarding.component').then((m) => m.OnboardingComponent)
   },
   {

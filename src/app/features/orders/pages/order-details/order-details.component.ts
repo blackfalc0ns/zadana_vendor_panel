@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Subscription, interval, switchMap } from 'rxjs';
 import { OrdersService } from '../../services/orders.service';
 import { OrderDetail, OrderStatus } from '../../models/orders.models';
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
@@ -233,15 +233,29 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
             </div>
 
             <ng-template #noDriver>
-              <div class="flex flex-col items-center justify-center py-6 text-center">
-                <div class="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center mb-3 text-slate-300">
-                  <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                  </svg>
+              <div *ngIf="isDispatchInProgress(); else staticNoDriver" class="flex flex-col items-center justify-center py-6 text-center">
+                <div class="relative h-14 w-14 mb-4">
+                  <span class="animate-ping absolute inset-0 rounded-full bg-indigo-400/20"></span>
+                  <div class="relative h-14 w-14 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-500 border border-indigo-100/50">
+                    <svg class="h-6 w-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                    </svg>
+                  </div>
                 </div>
-                <p class="text-[0.75rem] font-black text-slate-400">{{ 'ORDERS.DRIVER_NOT_ASSIGNED' | translate }}</p>
+                <p class="text-[0.8rem] font-black text-indigo-600 mb-1">{{ currentLang === 'ar' ? 'جارٍ البحث عن مندوب...' : 'Searching for a driver...' }}</p>
+                <p class="text-[0.68rem] font-bold text-slate-400">{{ currentLang === 'ar' ? 'سيتم تعيين مندوب تلقائيًا قريبًا' : 'A driver will be auto-assigned shortly' }}</p>
               </div>
+              <ng-template #staticNoDriver>
+                <div class="flex flex-col items-center justify-center py-6 text-center">
+                  <div class="h-12 w-12 rounded-full bg-slate-50 flex items-center justify-center mb-3 text-slate-300">
+                    <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                      <path d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                    </svg>
+                  </div>
+                  <p class="text-[0.75rem] font-black text-slate-400">{{ 'ORDERS.DRIVER_NOT_ASSIGNED' | translate }}</p>
+                </div>
+              </ng-template>
             </ng-template>
           </div>
 
@@ -298,6 +312,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   isUpdatingStatus = false;
   private sub: Subscription | null = null;
   private langSub: Subscription | null = null;
+  private pollSub: Subscription | null = null;
+  private readonly POLL_INTERVAL_MS = 8000;
 
   constructor(
     private route: ActivatedRoute,
@@ -318,6 +334,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     if (this.sub) this.sub.unsubscribe();
     if (this.langSub) this.langSub.unsubscribe();
+    this.stopPolling();
   }
 
   get orderMetaLine(): string {
@@ -333,6 +350,10 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   canPrepare(): boolean { return this.order?.backendStatus === 'Accepted'; }
   canMarkReady(): boolean { return this.order?.backendStatus === 'Preparing'; }
 
+  isDispatchInProgress(): boolean {
+    return this.order?.backendStatus === 'ReadyForPickup' || this.order?.backendStatus === 'DriverAssignmentInProgress';
+  }
+
   updateStatus(status: OrderStatus): void {
     if (!this.order || this.isUpdatingStatus) return;
 
@@ -343,6 +364,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
       next: (updated) => {
         this.order = updated;
         this.isUpdatingStatus = false;
+        this.startPollingIfNeeded();
       },
       error: (error: HttpErrorResponse) => {
         this.isUpdatingStatus = false;
@@ -354,7 +376,35 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
   private loadOrder(orderId: string): void {
     this.sub?.unsubscribe();
-    this.sub = this.ordersService.getOrderById(orderId).subscribe(o => this.order = o);
+    this.sub = this.ordersService.getOrderById(orderId).subscribe(o => {
+      this.order = o;
+      this.startPollingIfNeeded();
+    });
+  }
+
+  private startPollingIfNeeded(): void {
+    this.stopPolling();
+
+    if (!this.order || this.order.driverName || !this.isDispatchInProgress()) {
+      return;
+    }
+
+    const orderId = this.order.id;
+    this.pollSub = interval(this.POLL_INTERVAL_MS).pipe(
+      switchMap(() => this.ordersService.getOrderById(orderId))
+    ).subscribe(updated => {
+      if (!updated) return;
+      this.order = updated;
+
+      if (updated.driverName || !this.isDispatchInProgress()) {
+        this.stopPolling();
+      }
+    });
+  }
+
+  private stopPolling(): void {
+    this.pollSub?.unsubscribe();
+    this.pollSub = null;
   }
 
   private resolveUpdateErrorMessage(error: HttpErrorResponse): string {

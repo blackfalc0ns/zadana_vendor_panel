@@ -116,6 +116,32 @@
               <p class="mt-2 text-[0.88rem] font-black text-slate-900">{{ formatDate(branch.createdAt) }}</p>
             </div>
           </div>
+
+          <!-- Location Coordinates -->
+          <div class="mx-6 mb-6 rounded-[20px] border border-indigo-100/60 bg-gradient-to-r from-indigo-50/40 to-slate-50 px-5 py-4">
+            <div class="flex items-center gap-3 mb-3">
+              <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-indigo-100/70 text-indigo-600">
+                <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                </svg>
+              </div>
+              <div>
+                <p class="text-[0.72rem] font-black text-slate-700 uppercase tracking-wider">{{ currentLang === 'ar' ? 'إحداثيات الموقع' : 'Location Coordinates' }}</p>
+                <p class="text-[0.62rem] font-bold text-slate-400">{{ currentLang === 'ar' ? 'تُستخدم لحساب رسوم التوصيل' : 'Used for delivery fee calculation' }}</p>
+              </div>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
+                <p class="text-[0.6rem] font-extrabold uppercase tracking-[0.14em] text-slate-400 mb-1">{{ currentLang === 'ar' ? 'خط العرض' : 'Latitude' }}</p>
+                <p class="text-[0.82rem] font-black text-indigo-700 font-mono" dir="ltr">{{ branch.latitude }}</p>
+              </div>
+              <div class="rounded-xl border border-slate-100 bg-white px-3 py-2.5">
+                <p class="text-[0.6rem] font-extrabold uppercase tracking-[0.14em] text-slate-400 mb-1">{{ currentLang === 'ar' ? 'خط الطول' : 'Longitude' }}</p>
+                <p class="text-[0.82rem] font-black text-indigo-700 font-mono" dir="ltr">{{ branch.longitude }}</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">

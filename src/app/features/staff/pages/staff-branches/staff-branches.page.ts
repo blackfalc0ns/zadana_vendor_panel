@@ -5,8 +5,9 @@ import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
-import { Subscription, combineLatest } from 'rxjs';
-import { CITIES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
+import { Subscription, combineLatest, forkJoin } from 'rxjs';
+import { SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
+import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
@@ -145,8 +146,8 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
   employees: EmployeeVm[] = [];
   invitations: InvitationVm[] = [];
 
-  readonly regions: SelectOption[] = REGIONS;
-  readonly cities: SelectOption[] = CITIES;
+  regions: SelectOption[] = [];
+  cities: SelectOption[] = [];
   readonly roleTemplates = ROLE_TEMPLATE_OPTIONS;
   readonly permissionModules: PermissionModuleConfig[] = STAFF_PERMISSION_MODULES;
   readonly permissionActions: PermissionActionOption[] = STAFF_PERMISSION_ACTIONS;
@@ -197,6 +198,7 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
   private langSub: Subscription;
   private dataSub?: Subscription;
   private routeSub?: Subscription;
+  private geographySub?: Subscription;
   private lastFilterSignatures: Record<StaffView, string> = {
     branches: '',
     employees: '',
@@ -207,11 +209,13 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly staffBranchesService: StaffBranchesService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly geographyService: GeographyService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
       this.currentLang = event.lang;
+      this.refreshGeographyLabels();
       if (this.flashMessage) {
         this.flashMessage = '';
       }
@@ -219,6 +223,8 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.loadGeographyOptions();
+
     this.dataSub = combineLatest([
       this.staffBranchesService.getBranches(),
       this.staffBranchesService.getEmployees(),
@@ -248,6 +254,7 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
     this.langSub.unsubscribe();
     this.dataSub?.unsubscribe();
     this.routeSub?.unsubscribe();
+    this.geographySub?.unsubscribe();
   }
 
   ngDoCheck(): void {
@@ -713,9 +720,61 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
     this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_REVOKED', 'info');
   }
 
+  private loadGeographyOptions(): void {
+    this.geographySub = this.geographyService.getRegions().subscribe({
+      next: (regions) => {
+        this.regions = regions.map((region) => this.toRegionOption(region));
+
+        forkJoin(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
+          this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
+        });
+      },
+      error: () => {
+        this.regions = [];
+        this.cities = [];
+      }
+    });
+  }
+
+  private refreshGeographyLabels(): void {
+    this.regions = this.regions.map((region) => ({
+      ...region,
+      label: this.localizeName(region.nameAr, region.nameEn)
+    }));
+
+    this.cities = this.cities.map((city) => ({
+      ...city,
+      label: this.localizeName(city.nameAr, city.nameEn)
+    }));
+  }
+
+  private toRegionOption(region: SaudiRegionDto): SelectOption {
+    return {
+      value: region.code,
+      label: this.localizeName(region.nameAr, region.nameEn),
+      nameAr: region.nameAr,
+      nameEn: region.nameEn
+    };
+  }
+
+  private toCityOption(city: SaudiCityDto): SelectOption {
+    return {
+      value: city.code,
+      label: this.localizeName(city.nameAr, city.nameEn),
+      nameAr: city.nameAr,
+      nameEn: city.nameEn
+    };
+  }
+
+  private localizeName(nameAr?: string, nameEn?: string): string {
+    return this.currentLang === 'ar'
+      ? (nameAr || nameEn || '')
+      : (nameEn || nameAr || '');
+  }
+
   optionLabel(options: SelectOption[], value: string): string {
     const item = options.find((option) => option.value === value);
-    return item ? this.translate.instant(item.labelKey) : value;
+    return item ? (item.label || this.translate.instant(item.labelKey || '')) : value;
   }
 
   roleTemplateLabelKey(value: RoleTemplate): string {

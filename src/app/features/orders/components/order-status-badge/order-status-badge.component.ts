@@ -30,6 +30,10 @@ export class OrderStatusBadgeComponent {
         return 'bg-amber-50 text-amber-600 border border-amber-100/50';
       case 'READY_FOR_PICKUP':
         return 'bg-indigo-50 text-indigo-600 border border-indigo-100/50';
+      case 'DRIVER_ASSIGNMENT_IN_PROGRESS':
+        return 'bg-yellow-50 text-yellow-600 border border-yellow-100/50';
+      case 'DRIVER_ASSIGNED':
+        return 'bg-teal-50 text-teal-600 border border-teal-100/50';
       case 'PICKED_UP':
       case 'OUT_FOR_DELIVERY':
         return 'bg-purple-50 text-purple-600 border border-purple-100/50';
@@ -38,6 +42,7 @@ export class OrderStatusBadgeComponent {
         return 'bg-emerald-50 text-emerald-600 border border-emerald-100/50';
       case 'CANCELLED':
       case 'RETURNED':
+      case 'DELIVERY_FAILED':
         return 'bg-rose-50 text-rose-600 border border-rose-100/50';
       default:
         return 'bg-slate-50 text-slate-600 border border-slate-100/50';
@@ -50,12 +55,15 @@ export class OrderStatusBadgeComponent {
       case 'CONFIRMED': return 'bg-cyan-500';
       case 'IN_PROGRESS': return 'bg-amber-500';
       case 'READY_FOR_PICKUP': return 'bg-indigo-500';
+      case 'DRIVER_ASSIGNMENT_IN_PROGRESS': return 'bg-yellow-500 animate-pulse';
+      case 'DRIVER_ASSIGNED': return 'bg-teal-500';
       case 'PICKED_UP':
       case 'OUT_FOR_DELIVERY': return 'bg-purple-500';
       case 'DELIVERED':
       case 'COMPLETED': return 'bg-emerald-500';
       case 'CANCELLED':
-      case 'RETURNED': return 'bg-rose-500';
+      case 'RETURNED':
+      case 'DELIVERY_FAILED': return 'bg-rose-500';
       default: return 'bg-slate-400';
     }
   }

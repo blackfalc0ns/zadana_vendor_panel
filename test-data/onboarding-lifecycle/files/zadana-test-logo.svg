@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Zadana test logo">
+  <rect width="512" height="512" rx="96" fill="#0f766e"/>
+  <circle cx="256" cy="256" r="142" fill="#ffffff" opacity="0.14"/>
+  <path d="M154 174h204v48L235 338h128v56H149v-50l123-114H154z" fill="#ffffff"/>
+  <path d="M162 414h188" stroke="#99f6e4" stroke-width="20" stroke-linecap="round"/>
+</svg>
+

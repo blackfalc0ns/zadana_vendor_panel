@@ -1,6 +1,24 @@
-export interface SelectOption {
+﻿export interface SelectOption {
   value: string;
-  labelKey: string;
+  labelKey?: string;
+  label?: string;
+  nameAr?: string;
+  nameEn?: string;
+}
+
+/** Region with geographic center and zoom level for the map */
+export interface RegionOption extends SelectOption {
+  lat: number;
+  lng: number;
+  zoom: number;
+}
+
+/** City with geographic center, zoom level, and parent region */
+export interface CityOption extends SelectOption {
+  region: string;
+  lat: number;
+  lng: number;
+  zoom: number;
 }
 
 export const BUSINESS_TYPES: SelectOption[] = [
@@ -9,23 +27,6 @@ export const BUSINESS_TYPES: SelectOption[] = [
   { value: 'MANUFACTURER', labelKey: 'ONBOARDING.BUSINESS_TYPES.MANUFACTURER' },
   { value: 'SERVICES', labelKey: 'ONBOARDING.BUSINESS_TYPES.SERVICES' },
   { value: 'OTHER', labelKey: 'ONBOARDING.BUSINESS_TYPES.OTHER' }
-];
-
-export const REGIONS: SelectOption[] = [
-  { value: 'CENTRAL', labelKey: 'ONBOARDING.REGIONS.CENTRAL' },
-  { value: 'WESTERN', labelKey: 'ONBOARDING.REGIONS.WESTERN' },
-  { value: 'EASTERN', labelKey: 'ONBOARDING.REGIONS.EASTERN' },
-  { value: 'NORTHERN', labelKey: 'ONBOARDING.REGIONS.NORTHERN' },
-  { value: 'SOUTHERN', labelKey: 'ONBOARDING.REGIONS.SOUTHERN' }
-];
-
-export const CITIES: SelectOption[] = [
-  { value: 'RIYADH', labelKey: 'ONBOARDING.CITIES.RIYADH' },
-  { value: 'JEDDAH', labelKey: 'ONBOARDING.CITIES.JEDDAH' },
-  { value: 'DAMMAM', labelKey: 'ONBOARDING.CITIES.DAMMAM' },
-  { value: 'MAKKAH', labelKey: 'ONBOARDING.CITIES.MAKKAH' },
-  { value: 'MADINAH', labelKey: 'ONBOARDING.CITIES.MADINAH' },
-  { value: 'OTHER', labelKey: 'ONBOARDING.CITIES.OTHER' }
 ];
 
 export const NATIONALITIES: SelectOption[] = [
@@ -46,6 +47,7 @@ export const BANKS: SelectOption[] = [
 ];
 
 export const PAYMENT_CYCLES: SelectOption[] = [
+  { value: 'PER_ORDER_DIRECT_PAYOUT', labelKey: 'ONBOARDING.PAYMENT_CYCLES.PER_ORDER_DIRECT_PAYOUT' },
   { value: 'WEEKLY', labelKey: 'ONBOARDING.PAYMENT_CYCLES.WEEKLY' },
   { value: 'BIWEEKLY', labelKey: 'ONBOARDING.PAYMENT_CYCLES.BIWEEKLY' },
   { value: 'MONTHLY', labelKey: 'ONBOARDING.PAYMENT_CYCLES.MONTHLY' }

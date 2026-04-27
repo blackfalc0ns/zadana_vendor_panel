@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { VendorAuthService } from '../../../core/auth/services/vendor-auth.service';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem, VendorReviewSummary } from '../models/vendor-profile.models';
@@ -38,6 +38,7 @@ interface VendorWorkspaceApi {
   payoutCycle?: string | null;
   status: string;
   accountStatus: string;
+  rejectionReason?: string | null;
   logoUrl?: string | null;
   commercialRegisterDocumentUrl?: string | null;
   taxDocumentUrl?: string | null;
@@ -144,18 +145,24 @@ export class VendorProfileService {
       return of(this.profileSubject.value);
     }
 
-    return this.http.get<VendorWorkspaceApi>(this.apiUrl).pipe(
-      map((workspace) => this.mapWorkspaceToProfile(workspace)),
-      tap((profile) => {
-        this.hasLoaded = true;
-        this.profileSubject.next(profile);
-        localStorage.setItem('onboarding_biz_name', profile.storeNameAr || profile.storeNameEn || 'Vendor');
-      }),
+    return this.fetchProfile().pipe(
       catchError((error) => {
         console.error('Failed to load vendor profile from API.', error);
         return of(this.profileSubject.value);
       })
     );
+  }
+
+  loadProfileForGuard(force = false): Observable<VendorProfile> {
+    if (!this.authService.hasApiSession) {
+      return throwError(() => new Error('No vendor API session available.'));
+    }
+
+    if (this.hasLoaded && !force) {
+      return of(this.profileSubject.value);
+    }
+
+    return this.fetchProfile();
   }
 
   saveProfile(profile: VendorProfile): Observable<VendorProfile> {
@@ -168,11 +175,18 @@ export class VendorProfileService {
       switchMap(() => this.updateOperationsSettings(profile)),
       switchMap(() => this.updateNotificationSettings(profile)),
       map((workspace) => this.mapWorkspaceToProfile(workspace)),
-      tap((nextProfile) => {
-        this.hasLoaded = true;
-        this.profileSubject.next(nextProfile);
-        localStorage.setItem('onboarding_biz_name', nextProfile.storeNameAr || nextProfile.storeNameEn || 'Vendor');
-      })
+      tap((nextProfile) => this.persistProfile(nextProfile))
+    );
+  }
+
+  updateOnboardingProfile(profile: VendorProfile): Observable<VendorProfile> {
+    return this.updateStore(profile).pipe(
+      switchMap(() => this.updateOwner(profile)),
+      switchMap(() => this.updateContact(profile)),
+      switchMap(() => this.updateLegal(profile)),
+      switchMap(() => this.updateBanking(profile)),
+      map((workspace) => this.mapWorkspaceToProfile(workspace)),
+      tap((nextProfile) => this.persistProfile(nextProfile))
     );
   }
 
@@ -180,10 +194,7 @@ export class VendorProfileService {
     return this.http.post<ApiEnvelope<VendorWorkspaceApi>>(`${this.apiUrl}/submit-for-review`, {}).pipe(
       map((response) => this.unwrap(response)),
       map((workspace) => this.mapWorkspaceToProfile(workspace)),
-      tap((profile) => {
-        this.hasLoaded = true;
-        this.profileSubject.next(profile);
-      })
+      tap((profile) => this.persistProfile(profile))
     );
   }
 
@@ -230,7 +241,7 @@ export class VendorProfileService {
       contactPhone: profile.supportPhone,
       descriptionAr: profile.descriptionAr,
       descriptionEn: profile.descriptionEn,
-      logoUrl: null,
+      logoUrl: profile.logoUrl || null,
       ...(profile.commercialRegisterDocumentUrl ? { commercialRegisterDocumentUrl: profile.commercialRegisterDocumentUrl } : {}),
       region: profile.region,
       city: profile.city,
@@ -315,6 +326,19 @@ export class VendorProfileService {
     return response as T;
   }
 
+  private fetchProfile(): Observable<VendorProfile> {
+    return this.http.get<VendorWorkspaceApi>(this.apiUrl).pipe(
+      map((workspace) => this.mapWorkspaceToProfile(workspace)),
+      tap((profile) => this.persistProfile(profile))
+    );
+  }
+
+  private persistProfile(profile: VendorProfile): void {
+    this.hasLoaded = true;
+    this.profileSubject.next(profile);
+    localStorage.setItem('onboarding_biz_name', profile.storeNameAr || profile.storeNameEn || 'Vendor');
+  }
+
   private mapWorkspaceToProfile(workspace: VendorWorkspaceApi): VendorProfile {
     const operatingHours = [...(workspace.operatingHours || [])]
       .sort((left, right) => this.daySortIndex(left.dayOfWeek) - this.daySortIndex(right.dayOfWeek))
@@ -337,6 +361,7 @@ export class VendorProfileService {
     const reviewState = workspace.reviewState || (workspace.status === 'Active' ? 'Verified' : 'AwaitingSubmission');
 
     return {
+      status: workspace.status || '',
       storeNameAr: workspace.businessNameAr || '',
       storeNameEn: workspace.businessNameEn || '',
       businessType: workspace.businessType || '',
@@ -361,6 +386,7 @@ export class VendorProfileService {
       swiftCode: workspace.primaryBankAccount?.swiftCode || '',
       payoutCycle: workspace.payoutCycle || '',
       hasLogo: !!workspace.logoUrl,
+      logoUrl: workspace.logoUrl || null,
       hasCRDoc: !!workspace.commercialRegisterDocumentUrl,
       hasTaxDoc: !!workspace.taxDocumentUrl,
       hasLicenseDoc: !!workspace.licenseDocumentUrl,
@@ -369,6 +395,7 @@ export class VendorProfileService {
       licenseDocumentUrl: workspace.licenseDocumentUrl || null,
       reviewStatus: workspace.status === 'Active' ? 'active' : 'pending',
       reviewState,
+      rejectionReason: workspace.rejectionReason || null,
       commercialAccessEnabled: !!workspace.commercialAccessEnabled || workspace.status === 'Active',
       countryCode: workspace.countryCode || 'SA',
       complianceProfile: workspace.complianceProfile || 'SA_DEFAULT',
@@ -464,6 +491,7 @@ export class VendorProfileService {
 
   private getDefaultProfile(): VendorProfile {
     return {
+      status: '',
       storeNameAr: '',
       storeNameEn: '',
       businessType: '',
@@ -488,6 +516,7 @@ export class VendorProfileService {
       swiftCode: '',
       payoutCycle: '',
       hasLogo: false,
+      logoUrl: null,
       hasCRDoc: false,
       hasTaxDoc: false,
       hasLicenseDoc: false,
@@ -496,6 +525,7 @@ export class VendorProfileService {
       licenseDocumentUrl: null,
       reviewStatus: 'pending',
       reviewState: 'AwaitingSubmission',
+      rejectionReason: null,
       commercialAccessEnabled: false,
       countryCode: 'SA',
       complianceProfile: 'SA_DEFAULT',

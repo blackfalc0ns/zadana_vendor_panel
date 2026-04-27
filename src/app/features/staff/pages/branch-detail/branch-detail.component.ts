@@ -3,7 +3,8 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
-import { CITIES, REGIONS, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
+import { SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
+import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { BranchStatus, BranchVm, EmployeeVm, InvitationVm } from '../../models/staff-branches.models';
@@ -27,23 +28,30 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
   branch: BranchVm | null = null;
   employees: EmployeeVm[] = [];
   invitations: InvitationVm[] = [];
+  regions: SelectOption[] = [];
+  cities: SelectOption[] = [];
 
   private langSub: Subscription;
   private dataSub?: Subscription;
+  private geographySub?: Subscription;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly staffBranchesService: StaffBranchesService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly geographyService: GeographyService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
       this.currentLang = event.lang;
+      this.refreshGeographyLabels();
     });
   }
 
   ngOnInit(): void {
+    this.loadGeographyOptions();
+
     const branchId = this.route.snapshot.paramMap.get('id');
 
     if (!branchId) {
@@ -70,6 +78,7 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.langSub.unsubscribe();
     this.dataSub?.unsubscribe();
+    this.geographySub?.unsubscribe();
   }
 
   get branchEmployees(): EmployeeVm[] {
@@ -97,16 +106,68 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
   }
 
   cityLabel(value: string): string {
-    return this.optionLabel(CITIES, value);
+    return this.optionLabel(this.cities, value);
   }
 
   regionLabel(value: string): string {
-    return this.optionLabel(REGIONS, value);
+    return this.optionLabel(this.regions, value);
   }
 
   optionLabel(options: SelectOption[], value: string): string {
     const item = options.find((option) => option.value === value);
-    return item ? this.translate.instant(item.labelKey) : value;
+    return item ? (item.label || this.translate.instant(item.labelKey || '')) : value;
+  }
+
+  private loadGeographyOptions(): void {
+    this.geographySub = this.geographyService.getRegions().subscribe({
+      next: (regions) => {
+        this.regions = regions.map((region) => this.toRegionOption(region));
+
+        combineLatest(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
+          this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
+        });
+      },
+      error: () => {
+        this.regions = [];
+        this.cities = [];
+      }
+    });
+  }
+
+  private refreshGeographyLabels(): void {
+    this.regions = this.regions.map((region) => ({
+      ...region,
+      label: this.localizeName(region.nameAr, region.nameEn)
+    }));
+
+    this.cities = this.cities.map((city) => ({
+      ...city,
+      label: this.localizeName(city.nameAr, city.nameEn)
+    }));
+  }
+
+  private toRegionOption(region: SaudiRegionDto): SelectOption {
+    return {
+      value: region.code,
+      label: this.localizeName(region.nameAr, region.nameEn),
+      nameAr: region.nameAr,
+      nameEn: region.nameEn
+    };
+  }
+
+  private toCityOption(city: SaudiCityDto): SelectOption {
+    return {
+      value: city.code,
+      label: this.localizeName(city.nameAr, city.nameEn),
+      nameAr: city.nameAr,
+      nameEn: city.nameEn
+    };
+  }
+
+  private localizeName(nameAr?: string, nameEn?: string): string {
+    return this.currentLang === 'ar'
+      ? (nameAr || nameEn || '')
+      : (nameEn || nameAr || '');
   }
 
   formatDate(dateText: string): string {
