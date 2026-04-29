@@ -56,6 +56,14 @@ interface VendorOrderDetailApiModel {
   pickupOtp?: string | null;
   canConfirmPickup?: boolean;
   pickupOtpStatus?: string;
+  vendorLocation?: { latitude: number; longitude: number } | null;
+  customerLocation?: { latitude: number; longitude: number } | null;
+  driverLiveLocation?: {
+    latitude: number;
+    longitude: number;
+    accuracyMeters?: number | null;
+    recordedAtUtc: string;
+  } | null;
   items: VendorOrderItemApiModel[];
   timeline: VendorOrderTimelineApiModel[];
 }
@@ -126,6 +134,16 @@ export class OrdersService {
   updateOrderStatus(orderId: string, status: OrderStatus): Observable<OrderDetail> {
     const action = this.resolveMutationAction(status);
     return this.http.post<VendorOrderStatusMutationResponse>(`${this.apiUrl}/${orderId}/${action}`, {}).pipe(
+      switchMap(() => this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${orderId}`)),
+      map((order) => this.mapDetail(order))
+    );
+  }
+
+  confirmPickupOtp(orderId: string, otpCode: string): Observable<OrderDetail> {
+    return this.http.post<{ orderId: string; assignmentId: string; status: string; message: string }>(
+      `${this.apiUrl}/${orderId}/confirm-pickup`,
+      { otpCode }
+    ).pipe(
       switchMap(() => this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${orderId}`)),
       map((order) => this.mapDetail(order))
     );
@@ -280,7 +298,23 @@ export class OrdersService {
       driverVehicleType: driver?.vehicleType,
       driverVehiclePlate: driver?.plateNumber,
       items: item.items.map((orderItem) => this.mapOrderItem(orderItem)),
-      timeline: item.timeline.map((timelineItem) => this.mapTimelineItem(timelineItem))
+      timeline: item.timeline.map((timelineItem) => this.mapTimelineItem(timelineItem)),
+      canConfirmPickup: item.canConfirmPickup ?? false,
+      pickupOtpStatus: item.pickupOtpStatus ?? undefined,
+      vendorLocation: item.vendorLocation
+        ? { lat: item.vendorLocation.latitude, lng: item.vendorLocation.longitude }
+        : undefined,
+      customerLocation: item.customerLocation
+        ? { lat: item.customerLocation.latitude, lng: item.customerLocation.longitude }
+        : undefined,
+      driverLiveLocation: item.driverLiveLocation
+        ? {
+            lat: item.driverLiveLocation.latitude,
+            lng: item.driverLiveLocation.longitude,
+            accuracyMeters: item.driverLiveLocation.accuracyMeters ?? undefined,
+            recordedAtUtc: item.driverLiveLocation.recordedAtUtc
+          }
+        : undefined
     };
   }
 
@@ -336,7 +370,9 @@ export class OrdersService {
       case 'ReadyForPickup':
         return 'READY_FOR_PICKUP';
       case 'DriverAssignmentInProgress':
+        return 'DRIVER_ASSIGNMENT_IN_PROGRESS';
       case 'DriverAssigned':
+        return 'DRIVER_ASSIGNED';
       case 'PickedUp':
         return 'PICKED_UP';
       case 'OnTheWay':
@@ -386,7 +422,9 @@ export class OrdersService {
       case 'IN_PROGRESS':
         return 'PREPARING';
       case 'READY_FOR_PICKUP':
+      case 'DRIVER_ASSIGNMENT_IN_PROGRESS':
         return 'READY_FOR_PICKUP';
+      case 'DRIVER_ASSIGNED':
       case 'PICKED_UP':
         return 'PICKED_UP';
       case 'OUT_FOR_DELIVERY':

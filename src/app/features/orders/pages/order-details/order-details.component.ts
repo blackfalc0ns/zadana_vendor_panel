@@ -9,11 +9,12 @@ import { OrderDetail, OrderStatus } from '../../models/orders.models';
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
+import { DriverTrackingMapComponent } from '../../components/driver-tracking-map/driver-tracking-map.component';
 
 @Component({
   selector: 'app-order-details',
   standalone: true,
-  imports: [CommonModule, RouterModule, TranslateModule, OrderStatusBadgeComponent, AppPanelHeaderComponent, AppPageHeaderComponent],
+  imports: [CommonModule, RouterModule, TranslateModule, OrderStatusBadgeComponent, AppPanelHeaderComponent, AppPageHeaderComponent, DriverTrackingMapComponent],
   template: `
     <div class="space-y-6" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
       <app-page-header
@@ -259,6 +260,75 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
             </ng-template>
           </div>
 
+          <!-- Live Tracking Map -->
+          <app-driver-tracking-map
+            *ngIf="isTrackingActive()"
+            [driverLocation]="order?.driverLiveLocation"
+            [vendorLocation]="order?.vendorLocation"
+            [customerLocation]="order?.customerLocation"
+            [isArabic]="currentLang === 'ar'"
+          ></app-driver-tracking-map>
+
+          <!-- Pickup Confirmation Card -->
+          <div *ngIf="order?.canConfirmPickup" class="rounded-[28px] border-2 border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50 p-6 shadow-sm animate-fade-in">
+            <app-panel-header
+              [title]="currentLang === 'ar' ? 'تأكيد استلام المندوب' : 'Confirm Driver Pickup'"
+              containerClass="mb-5 border-b border-amber-100 pb-4"
+              contentClass="flex items-center justify-between gap-3"
+              titleClass="text-sm font-black uppercase tracking-wider text-amber-800"
+            ></app-panel-header>
+
+            <div class="space-y-5">
+              <!-- Info Banner -->
+              <div class="flex items-start gap-3 rounded-2xl bg-white/70 p-4 border border-amber-100">
+                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-amber-600">
+                  <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                  </svg>
+                </div>
+                <div>
+                  <p class="text-[0.8rem] font-black text-amber-900">{{ currentLang === 'ar' ? 'أدخل رمز الاستلام' : 'Enter Pickup Code' }}</p>
+                  <p class="text-[0.7rem] font-bold text-amber-600/80">{{ currentLang === 'ar' ? 'اطلب الرمز المكوّن من 4 أرقام من المندوب وأدخله أدناه' : 'Ask the driver for the 4-digit code and enter it below' }}</p>
+                </div>
+              </div>
+
+              <!-- OTP Input Boxes -->
+              <div class="flex justify-center gap-3" dir="ltr">
+                <input *ngFor="let i of [0,1,2,3]"
+                  type="text"
+                  inputmode="numeric"
+                  pattern="[0-9]"
+                  maxlength="1"
+                  [attr.data-otp-index]="i"
+                  [value]="otpDigits[i] || ''"
+                  (input)="onOtpDigitInput($event, i)"
+                  (keydown)="onOtpKeyDown($event, i)"
+                  (paste)="onOtpPaste($event)"
+                  class="h-16 w-14 rounded-2xl border-2 border-amber-200 bg-white text-center text-2xl font-black text-amber-900 transition-all duration-150 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200 focus:scale-110 placeholder:text-amber-200"
+                  placeholder="·"
+                />
+              </div>
+
+              <!-- Confirm Button -->
+              <button
+                (click)="confirmPickup()"
+                [disabled]="isConfirmingPickup || otpDigits.join('').length < 4"
+                class="w-full rounded-2xl bg-amber-500 px-6 py-3.5 text-[0.85rem] font-black text-white shadow-lg shadow-amber-500/20 transition-all hover:bg-amber-600 hover:shadow-xl hover:shadow-amber-500/30 hover:translate-y-[-1px] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 disabled:hover:shadow-lg"
+              >
+                <span *ngIf="!isConfirmingPickup">
+                  {{ currentLang === 'ar' ? '✓ تأكيد استلام الطلب' : '✓ Confirm Order Pickup' }}
+                </span>
+                <span *ngIf="isConfirmingPickup" class="flex items-center justify-center gap-2">
+                  <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                  </svg>
+                  {{ currentLang === 'ar' ? 'جاري التأكيد...' : 'Confirming...' }}
+                </span>
+              </button>
+            </div>
+          </div>
+
           <!-- Billing Card -->
           <div class="rounded-[28px] border border-slate-100 bg-white p-6 shadow-sm">
              <app-panel-header
@@ -304,12 +374,16 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
   `,
   styles: [`
     :host { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fade-in { animation: fadeIn 0.3s ease-out; }
   `]
 })
 export class OrderDetailsComponent implements OnInit, OnDestroy {
   order: OrderDetail | null = null;
   currentLang = 'ar';
   isUpdatingStatus = false;
+  isConfirmingPickup = false;
+  otpDigits: string[] = ['', '', '', ''];
   private sub: Subscription | null = null;
   private langSub: Subscription | null = null;
   private pollSub: Subscription | null = null;
@@ -354,6 +428,11 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     return this.order?.backendStatus === 'ReadyForPickup' || this.order?.backendStatus === 'DriverAssignmentInProgress';
   }
 
+  isTrackingActive(): boolean {
+    const s = this.order?.backendStatus;
+    return s === 'DriverAssigned' || s === 'PickedUp' || s === 'OnTheWay';
+  }
+
   updateStatus(status: OrderStatus): void {
     if (!this.order || this.isUpdatingStatus) return;
 
@@ -374,6 +453,84 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     });
   }
 
+  confirmPickup(): void {
+    const code = this.otpDigits.join('');
+    if (!this.order || this.isConfirmingPickup || code.length < 4) return;
+
+    const orderId = this.order.id;
+    this.isConfirmingPickup = true;
+
+    this.ordersService.confirmPickupOtp(orderId, code).subscribe({
+      next: (updated) => {
+        this.order = updated;
+        this.isConfirmingPickup = false;
+        this.otpDigits = ['', '', '', ''];
+        // Refresh order immediately so status updates in real-time
+        this.loadOrder(orderId);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.isConfirmingPickup = false;
+        this.otpDigits = ['', '', '', ''];
+        // Focus first box after error
+        setTimeout(() => {
+          const first = document.querySelector<HTMLInputElement>('[data-otp-index="0"]');
+          first?.focus();
+        });
+        const detail = error.error?.detail;
+        alert(typeof detail === 'string' && detail.trim() ? detail : (this.currentLang === 'ar' ? 'رمز غير صحيح' : 'Invalid code'));
+      }
+    });
+  }
+
+  onOtpDigitInput(event: Event, index: number): void {
+    const input = event.target as HTMLInputElement;
+    const value = input.value.replace(/[^0-9]/g, '');
+    input.value = value;
+    this.otpDigits[index] = value;
+
+    if (value && index < 3) {
+      const next = document.querySelector<HTMLInputElement>(`[data-otp-index="${index + 1}"]`);
+      next?.focus();
+    }
+
+    // Auto-submit when all 4 digits are entered
+    if (this.otpDigits.join('').length === 4) {
+      this.confirmPickup();
+    }
+  }
+
+  onOtpKeyDown(event: KeyboardEvent, index: number): void {
+    if (event.key === 'Backspace' && !this.otpDigits[index] && index > 0) {
+      const prev = document.querySelector<HTMLInputElement>(`[data-otp-index="${index - 1}"]`);
+      if (prev) {
+        this.otpDigits[index - 1] = '';
+        prev.value = '';
+        prev.focus();
+      }
+    }
+  }
+
+  onOtpPaste(event: ClipboardEvent): void {
+    event.preventDefault();
+    const paste = event.clipboardData?.getData('text')?.replace(/[^0-9]/g, '') || '';
+    const digits = paste.slice(0, 4).split('');
+    for (let i = 0; i < 4; i++) {
+      this.otpDigits[i] = digits[i] || '';
+      const input = document.querySelector<HTMLInputElement>(`[data-otp-index="${i}"]`);
+      if (input) input.value = this.otpDigits[i];
+    }
+    // Focus the next empty box or last
+    const nextEmpty = this.otpDigits.findIndex(d => !d);
+    const focusIndex = nextEmpty === -1 ? 3 : nextEmpty;
+    const target = document.querySelector<HTMLInputElement>(`[data-otp-index="${focusIndex}"]`);
+    target?.focus();
+
+    // Auto-submit if all 4 digits pasted
+    if (this.otpDigits.join('').length === 4) {
+      this.confirmPickup();
+    }
+  }
+
   private loadOrder(orderId: string): void {
     this.sub?.unsubscribe();
     this.sub = this.ordersService.getOrderById(orderId).subscribe(o => {
@@ -385,18 +542,24 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   private startPollingIfNeeded(): void {
     this.stopPolling();
 
-    if (!this.order || this.order.driverName || !this.isDispatchInProgress()) {
-      return;
-    }
+    if (!this.order) return;
 
+    // Terminal states — no polling needed
+    const terminal = ['DELIVERED', 'COMPLETED', 'CANCELLED', 'RETURNED', 'DELIVERY_FAILED', 'REFUNDED'];
+    if (terminal.includes(this.order.status)) return;
+
+    // Use faster polling during active delivery tracking
+    const pollInterval = this.isTrackingActive() ? 5000 : this.POLL_INTERVAL_MS;
     const orderId = this.order.id;
-    this.pollSub = interval(this.POLL_INTERVAL_MS).pipe(
+
+    this.pollSub = interval(pollInterval).pipe(
       switchMap(() => this.ordersService.getOrderById(orderId))
     ).subscribe(updated => {
       if (!updated) return;
       this.order = updated;
 
-      if (updated.driverName || !this.isDispatchInProgress()) {
+      // Stop if order reached a terminal state
+      if (terminal.includes(updated.status)) {
         this.stopPolling();
       }
     });

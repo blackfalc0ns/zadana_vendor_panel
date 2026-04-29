@@ -79,6 +79,13 @@ export interface OrderListItem {
 export interface OrderDetail extends OrderListItem {
   customerAddress: string;
   customerLocation?: { lat: number; lng: number };
+  vendorLocation?: { lat: number; lng: number };
+  driverLiveLocation?: {
+    lat: number;
+    lng: number;
+    accuracyMeters?: number;
+    recordedAtUtc: string;
+  };
   items: OrderItem[];
   timeline: OrderTimelineEntry[];
   subtotal: number;
@@ -94,6 +101,8 @@ export interface OrderDetail extends OrderListItem {
   driverCompanyAr?: string;
   driverCompanyEn?: string;
   estimatedDelivery?: string;
+  canConfirmPickup?: boolean;
+  pickupOtpStatus?: string;
 }
 
 export interface PaginatedOrdersResponse {
