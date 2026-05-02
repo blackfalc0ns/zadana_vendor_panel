@@ -2,20 +2,21 @@
   <app-page-header
     [title]="'STAFF_BRANCHES.TITLE' | translate"
     [description]="'STAFF_BRANCHES.SUBTITLE' | translate"
-    [customClass]="'gap-3 sm:items-start'"
+    [customClass]="'sticky top-0 z-30 -mx-4 mb-8 border-b border-white/40 bg-white/60 px-4 py-4 backdrop-blur-xl sm:mx-0 sm:rounded-[28px] sm:border sm:px-6 shadow-sm shadow-slate-200/20 transition-all duration-300 gap-3 sm:items-start'"
   >
     <div actions class="flex flex-wrap items-center gap-2">
       @if (activeView === 'branches') {
         <button
           type="button"
           (click)="openBranchWizard()"
-          class="group inline-flex min-h-11 items-center gap-3 whitespace-nowrap rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white shadow-[0_16px_30px_rgba(14,116,144,0.20)] transition-all hover:-translate-y-0.5">
-          <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-white/15 bg-white/10 text-white">
-            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 5v14m-7-7h14"></path>
+          class="group relative flex items-center justify-center gap-2 overflow-hidden rounded-[14px] bg-zadna-primary px-6 py-2.5 text-[0.78rem] font-black text-white shadow-[0_6px_15px_-4px_rgba(var(--color-zadna-primary),0.5)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_20px_-5px_rgba(var(--color-zadna-primary),0.6)] active:translate-y-0 active:scale-95">
+          <div class="absolute inset-0 bg-white/20 translate-y-full transition-transform duration-300 group-hover:translate-y-0"></div>
+          <span class="relative z-10 flex items-center gap-2">
+            <svg class="h-4.5 w-4.5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14m-7-7h14"></path>
             </svg>
+            {{ 'STAFF_BRANCHES.ACTIONS.ADD_BRANCH' | translate }}
           </span>
-          <span>{{ 'STAFF_BRANCHES.ACTIONS.ADD_BRANCH' | translate }}</span>
         </button>
       }
 
@@ -23,13 +24,14 @@
         <button
           type="button"
           (click)="openEmployeeInvite()"
-          class="group inline-flex min-h-11 items-center gap-3 whitespace-nowrap rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white shadow-[0_16px_30px_rgba(14,116,144,0.20)] transition-all hover:-translate-y-0.5">
-          <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[12px] border border-white/15 bg-white/10 text-white">
-            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 5v14m-7-7h14"></path>
+          class="group relative flex items-center justify-center gap-2 overflow-hidden rounded-[14px] bg-zadna-primary px-6 py-2.5 text-[0.78rem] font-black text-white shadow-[0_6px_15px_-4px_rgba(var(--color-zadna-primary),0.5)] transition-all duration-300 hover:-translate-y-0.5 hover:shadow-[0_10px_20px_-5px_rgba(var(--color-zadna-primary),0.6)] active:translate-y-0 active:scale-95">
+          <div class="absolute inset-0 bg-white/20 translate-y-full transition-transform duration-300 group-hover:translate-y-0"></div>
+          <span class="relative z-10 flex items-center gap-2">
+            <svg class="h-4.5 w-4.5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 5v14m-7-7h14"></path>
             </svg>
+            {{ 'STAFF_BRANCHES.ACTIONS.INVITE_EMPLOYEE' | translate }}
           </span>
-          <span>{{ 'STAFF_BRANCHES.ACTIONS.INVITE_EMPLOYEE' | translate }}</span>
         </button>
       }
     </div>
@@ -141,30 +143,24 @@
     [headerContainerClass]="'border-b border-slate-100 px-6 py-4'"
     [headerContentClass]="'flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between'">
     <div actions class="flex flex-wrap items-center gap-2">
-      <div class="inline-flex items-center gap-1 rounded-xl border border-slate-900/5 bg-slate-900/[0.04] p-[3px]">
+      <div class="inline-flex items-center gap-2 rounded-2xl bg-white p-1.5 shadow-sm border border-slate-100">
         <button
           type="button"
           (click)="setActiveView('branches')"
-          class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
+          class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-[14px] px-5 py-2.5 text-[0.75rem] font-black tracking-tight transition-all duration-300"
           [ngClass]="activeView === 'branches'
-            ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
-            : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
-          @if (activeView === 'branches') {
-            <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
-              <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
-            </div>
-          }
-
-          <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
-            <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
-              <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
+            ? 'bg-zadna-primary text-white shadow-[0_4px_12px_rgba(var(--color-zadna-primary),0.3)]'
+            : 'text-slate-500 hover:bg-slate-50 hover:text-zadna-primary'">
+          <div class="relative z-10 flex h-full w-full items-center justify-center gap-2">
+            <span class="flex h-4 w-4 items-center justify-center">
+              <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" aria-hidden="true">
                 <path d="M3.75 9h16.5M5.25 9V6.75A1.5 1.5 0 0 1 6.75 5.25h10.5a1.5 1.5 0 0 1 1.5 1.5V9m-12 0v8.25A1.5 1.5 0 0 0 8.25 18.75h7.5a1.5 1.5 0 0 0 1.5-1.5V9m-7.5 9.75v-4.5h4.5v4.5"></path>
               </svg>
             </span>
             <span class="whitespace-nowrap">{{ 'STAFF_BRANCHES.VIEWS.BRANCHES' | translate }}</span>
             <span
-              class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
-              [class]="activeView === 'branches' ? 'bg-white/20 text-white' : 'bg-slate-200/50 text-slate-500'">
+              class="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.6rem] font-bold transition-all duration-300"
+              [class]="activeView === 'branches' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'">
               {{ filteredBranches.length }}
             </span>
           </div>
@@ -173,26 +169,20 @@
         <button
           type="button"
           (click)="setActiveView('employees')"
-          class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
+          class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-[14px] px-5 py-2.5 text-[0.75rem] font-black tracking-tight transition-all duration-300"
           [ngClass]="activeView === 'employees'
-            ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
-            : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
-          @if (activeView === 'employees') {
-            <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
-              <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
-            </div>
-          }
-
-          <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
-            <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
-              <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
+            ? 'bg-zadna-primary text-white shadow-[0_4px_12px_rgba(var(--color-zadna-primary),0.3)]'
+            : 'text-slate-500 hover:bg-slate-50 hover:text-zadna-primary'">
+          <div class="relative z-10 flex h-full w-full items-center justify-center gap-2">
+            <span class="flex h-4 w-4 items-center justify-center">
+              <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" aria-hidden="true">
                 <path d="M15.75 6.75a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 19.5a7.5 7.5 0 0 1 15 0"></path>
               </svg>
             </span>
             <span class="whitespace-nowrap">{{ 'STAFF_BRANCHES.VIEWS.EMPLOYEES' | translate }}</span>
             <span
-              class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
-              [class]="activeView === 'employees' ? 'bg-white/20 text-white' : 'bg-slate-200/50 text-slate-500'">
+              class="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.6rem] font-bold transition-all duration-300"
+              [class]="activeView === 'employees' ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-500'">
               {{ filteredEmployees.length }}
             </span>
           </div>
@@ -201,33 +191,26 @@
         <button
           type="button"
           (click)="setActiveView('invitations')"
-          class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-lg px-3 py-1.5 text-[10px] font-black tracking-tight transition-all duration-300 sm:rounded-xl sm:px-6 sm:py-2.5 sm:text-xs md:text-sm"
+          class="relative flex shrink-0 items-center justify-center whitespace-nowrap rounded-[14px] px-5 py-2.5 text-[0.75rem] font-black tracking-tight transition-all duration-300"
           [ngClass]="activeView === 'invitations'
-            ? 'bg-gradient-to-br from-[#127c8c] to-[#0e5f6b] text-white shadow-md'
-            : 'text-slate-500 hover:bg-white/60 hover:text-slate-800'">
-          @if (activeView === 'invitations') {
-            <div class="pointer-events-none absolute inset-0 overflow-hidden rounded-lg bg-gradient-to-r from-transparent via-white/10 to-transparent sm:rounded-xl">
-              <div class="h-full w-full -translate-x-full animate-[shine_3s_infinite]"></div>
-            </div>
-          }
-
-          <div class="relative z-10 flex h-full w-full items-center justify-center gap-2 px-1">
-            <span class="flex h-4 w-4 items-center justify-center sm:h-[18px] sm:w-[18px]">
-              <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" aria-hidden="true">
+            ? 'bg-zadna-primary text-white shadow-[0_4px_12px_rgba(var(--color-zadna-primary),0.3)]'
+            : 'text-slate-500 hover:bg-slate-50 hover:text-zadna-primary'">
+          <div class="relative z-10 flex h-full w-full items-center justify-center gap-2">
+            <span class="flex h-4 w-4 items-center justify-center">
+              <svg viewBox="0 0 24 24" class="h-full w-full" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" aria-hidden="true">
                 <path d="M12 6.75v6l4.5 2.25M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"></path>
               </svg>
             </span>
             <span class="whitespace-nowrap">{{ invitationsToggleLabel }}</span>
             @if (pendingInvitationsCount > 0) {
               <span
-                class="flex h-[16px] min-w-[20px] items-center justify-center rounded-full px-1.5 text-[9px] font-bold transition-all duration-300 sm:h-[18px] sm:min-w-[22px] sm:text-[10px]"
+                class="flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-[0.6rem] font-bold transition-all duration-300"
                 [class]="activeView === 'invitations' ? 'bg-white/20 text-white' : 'bg-rose-100 text-rose-600'">
                 {{ pendingInvitationsCount }}
               </span>
             }
           </div>
         </button>
-
       </div>
 
       <button
@@ -248,23 +231,23 @@
     <div class="overflow-x-auto">
       @if (activeView === 'branches') {
         @if (filteredBranches.length > 0) {
-          <table class="w-full min-w-[1020px] text-start">
-            <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
+          <table class="w-full min-w-[1020px] text-start border-separate border-spacing-y-3 -mt-3">
+            <thead class="bg-transparent text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">
               <tr>
-                <th class="px-6 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.BRANCH' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.TYPE' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.CITY' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.MANAGER' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'COMMON.STATUS' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.WORKING_DAYS' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'COMMON.CREATED_AT' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'COMMON.ACTIONS' | translate }}</th>
+                <th class="px-6 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.BRANCH' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.TYPE' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.CITY' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.MANAGER' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'COMMON.STATUS' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.WORKING_DAYS' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'COMMON.CREATED_AT' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'COMMON.ACTIONS' | translate }}</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
               @for (branch of pagedBranches; track branch.id) {
-                <tr class="hover:bg-slate-50/40">
-                  <td class="px-6 py-4">
+                <tr class="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+                  <td class="px-6 py-4 border-y border-l border-slate-100/50 rounded-s-[20px] group-hover:border-zadna-primary/20 transition-colors">
                     <div class="min-w-0">
                       <a
                         [routerLink]="['/staff/branches', branch.id]"
@@ -274,53 +257,54 @@
                       <div class="mt-1 text-[0.72rem] font-bold text-slate-400">{{ branch.code }} • {{ branch.phone }}</div>
                     </div>
                   </td>
-                  <td class="px-4 py-4">
+                  <td class="px-4 py-4 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">
                     <span class="inline-flex rounded-full px-2.5 py-1 text-[0.68rem] font-black"
                       [ngClass]="branch.isPrimary ? 'bg-zadna-primary/10 text-zadna-primary' : 'bg-slate-100 text-slate-600'">
                       {{ branchTypeKey(branch) | translate }}
                     </span>
                   </td>
-                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700">{{ optionLabel(cities, branch.city) }}</td>
-                  <td class="px-4 py-4">
+                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ optionLabel(cities, branch.city) }}</td>
+                  <td class="px-4 py-4 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">
                     <div class="min-w-0">
                       <div class="truncate text-[0.8rem] font-black text-slate-900">{{ branch.managerName }}</div>
                       <div class="truncate text-[0.72rem] font-bold text-slate-400">{{ branch.managerContact }}</div>
                     </div>
                   </td>
-                  <td class="px-4 py-4">
+                  <td class="px-4 py-4 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">
                     <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="statusBadgeClass(branch.status)">
                       {{ branchStatusKey(branch.status) | translate }}
                     </span>
                   </td>
-                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700">{{ 'STAFF_BRANCHES.TABLE.DAYS_VALUE' | translate:{ count: branch.workingDays } }}</td>
-                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600">{{ formatDate(branch.createdAt) }}</td>
-                  <td class="px-4 py-4">
+                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ 'STAFF_BRANCHES.TABLE.DAYS_VALUE' | translate:{ count: branch.workingDays } }}</td>
+                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ formatDate(branch.createdAt) }}</td>
+                  <td class="px-4 py-4 border-y border-r border-slate-100/50 rounded-e-[20px] group-hover:border-zadna-primary/20 transition-colors">
                     <div class="flex flex-wrap items-center gap-2">
                       <a
                         [routerLink]="['/staff/branches', branch.id]"
-                        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
-                        {{ 'STAFF_BRANCHES.ACTIONS.VIEW_DETAILS' | translate }}
+                        class="flex items-center justify-center h-8 w-8 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition hover:border-zadna-primary/30 hover:bg-zadna-primary/10 hover:text-zadna-primary"
+                        [title]="'STAFF_BRANCHES.ACTIONS.VIEW_DETAILS' | translate">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                       </a>
 
                       @if (branch.status === 'pending') {
                         <button
                           type="button"
                           (click)="updateBranchStatus(branch, 'active')"
-                          class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[0.72rem] font-black text-emerald-700 transition hover:bg-emerald-100">
+                          class="flex items-center justify-center h-8 px-3 rounded-xl border border-emerald-200 bg-emerald-50 text-[0.72rem] font-black text-emerald-700 transition hover:bg-emerald-100">
                           {{ 'STAFF_BRANCHES.ACTIONS.ACTIVATE' | translate }}
                         </button>
                       } @else if (branch.status === 'active') {
                         <button
                           type="button"
                           (click)="updateBranchStatus(branch, 'suspended')"
-                          class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-[0.72rem] font-black text-amber-700 transition hover:bg-amber-100">
+                          class="flex items-center justify-center h-8 px-3 rounded-xl border border-amber-200 bg-amber-50 text-[0.72rem] font-black text-amber-700 transition hover:bg-amber-100">
                           {{ 'STAFF_BRANCHES.ACTIONS.SUSPEND' | translate }}
                         </button>
                       } @else if (branch.status === 'suspended' || branch.status === 'archived') {
                         <button
                           type="button"
                           (click)="updateBranchStatus(branch, 'active')"
-                          class="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-[0.72rem] font-black text-sky-700 transition hover:bg-sky-100">
+                          class="flex items-center justify-center h-8 px-3 rounded-xl border border-sky-200 bg-sky-50 text-[0.72rem] font-black text-sky-700 transition hover:bg-sky-100">
                           {{ 'STAFF_BRANCHES.ACTIONS.REACTIVATE' | translate }}
                         </button>
                       }
@@ -329,7 +313,7 @@
                         <button
                           type="button"
                           (click)="updateBranchStatus(branch, 'archived')"
-                          class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[0.72rem] font-black text-rose-700 transition hover:bg-rose-100">
+                          class="flex items-center justify-center h-8 px-3 rounded-xl border border-rose-200 bg-rose-50 text-[0.72rem] font-black text-rose-700 transition hover:bg-rose-100">
                           {{ 'STAFF_BRANCHES.ACTIONS.ARCHIVE' | translate }}
                         </button>
                       }
@@ -346,21 +330,21 @@
 
       @if (activeView === 'employees') {
         @if (filteredEmployees.length > 0) {
-          <table class="w-full min-w-[1020px] text-start">
-            <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
+          <table class="w-full min-w-[1020px] text-start border-separate border-spacing-y-3 -mt-3">
+            <thead class="bg-transparent text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">
               <tr>
-                <th class="px-6 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.EMPLOYEE' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.TEMPLATE' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.BRANCH_ACCESS' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'COMMON.STATUS' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.LAST_ACTIVE' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'COMMON.ACTIONS' | translate }}</th>
+                <th class="px-6 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.EMPLOYEE' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.TEMPLATE' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.BRANCH_ACCESS' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'COMMON.STATUS' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.LAST_ACTIVE' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'COMMON.ACTIONS' | translate }}</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
               @for (employee of pagedEmployees; track employee.id) {
-                <tr class="hover:bg-slate-50/40">
-                  <td class="px-6 py-4">
+                <tr class="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+                  <td class="px-6 py-4 border-y border-l border-slate-100/50 rounded-s-[20px] group-hover:border-zadna-primary/20 transition-colors">
                     <div class="min-w-0">
                       <a
                         [routerLink]="['/staff/employees', employee.id]"
@@ -370,33 +354,35 @@
                       <div class="truncate text-[0.72rem] font-bold text-slate-400">{{ employee.contact }}</div>
                     </div>
                   </td>
-                  <td class="px-4 py-4 text-[0.8rem] font-black text-slate-700">{{ employee.jobTitle | translate }}</td>
-                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700">{{ branchNamesText(employee.branchIds) }}</td>
-                  <td class="px-4 py-4">
+                  <td class="px-4 py-4 text-[0.8rem] font-black text-slate-700 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ employee.jobTitle | translate }}</td>
+                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ branchNamesText(employee.branchIds) }}</td>
+                  <td class="px-4 py-4 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">
                     <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="statusBadgeClass(employee.status)">
                       {{ employeeStatusKey(employee.status) | translate }}
                     </span>
                   </td>
-                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600">{{ formatDateTime(employee.lastActiveAt) }}</td>
-                  <td class="px-4 py-4">
+                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ formatDateTime(employee.lastActiveAt) }}</td>
+                  <td class="px-4 py-4 border-y border-r border-slate-100/50 rounded-e-[20px] group-hover:border-zadna-primary/20 transition-colors">
                     <div class="flex flex-wrap items-center gap-2">
                       <a
                         [routerLink]="['/staff/employees', employee.id]"
-                        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
-                        {{ 'STAFF_BRANCHES.ACTIONS.VIEW_DETAILS' | translate }}
+                        class="flex items-center justify-center h-8 w-8 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition hover:border-zadna-primary/30 hover:bg-zadna-primary/10 hover:text-zadna-primary"
+                        [title]="'STAFF_BRANCHES.ACTIONS.VIEW_DETAILS' | translate">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                       </a>
 
                       <button
                         type="button"
                         (click)="openEmployeePermissions(employee)"
-                        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                        class="flex items-center justify-center h-8 px-3 rounded-xl border border-slate-200 bg-white text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/30 hover:bg-zadna-primary/10 hover:text-zadna-primary"
+                        [title]="'STAFF_BRANCHES.ACTIONS.EDIT_PERMISSIONS' | translate">
                         {{ 'STAFF_BRANCHES.ACTIONS.EDIT_PERMISSIONS' | translate }}
                       </button>
 
                       <button
                         type="button"
                         (click)="toggleEmployeeStatus(employee)"
-                        class="rounded-xl border px-3 py-2 text-[0.72rem] font-black transition"
+                        class="flex items-center justify-center h-8 px-3 rounded-xl border text-[0.72rem] font-black transition"
                         [ngClass]="employee.status === 'suspended'
                           ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
                           : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'">
@@ -415,51 +401,52 @@
 
       @if (activeView === 'invitations') {
         @if (filteredInvitations.length > 0) {
-          <table class="w-full min-w-[1080px] text-start">
-            <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
+          <table class="w-full min-w-[1080px] text-start border-separate border-spacing-y-3 -mt-3">
+            <thead class="bg-transparent text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">
               <tr>
-                <th class="px-6 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.INVITATION_TYPE' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.TARGET' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.CONTACT' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.BRANCH_ACCESS' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'COMMON.STATUS' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.SENT_AT' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'STAFF_BRANCHES.TABLE.EXPIRES_AT' | translate }}</th>
-                <th class="px-4 py-4 text-start">{{ 'COMMON.ACTIONS' | translate }}</th>
+                <th class="px-6 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.INVITATION_TYPE' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.TARGET' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.CONTACT' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.BRANCH_ACCESS' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'COMMON.STATUS' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.SENT_AT' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'STAFF_BRANCHES.TABLE.EXPIRES_AT' | translate }}</th>
+                <th class="px-4 py-2 text-start">{{ 'COMMON.ACTIONS' | translate }}</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100">
+            <tbody>
               @for (invitation of pagedInvitations; track invitation.id) {
-                <tr class="hover:bg-slate-50/40">
-                  <td class="px-6 py-4 text-[0.8rem] font-black text-slate-700">{{ invitationTypeKey(invitation.type) | translate }}</td>
-                  <td class="px-4 py-4">
+                <tr class="group relative bg-white shadow-sm transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
+                  <td class="px-6 py-4 text-[0.8rem] font-black text-slate-700 border-y border-l border-slate-100/50 rounded-s-[20px] group-hover:border-zadna-primary/20 transition-colors">{{ invitationTypeKey(invitation.type) | translate }}</td>
+                  <td class="px-4 py-4 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">
                     <a
                       [routerLink]="['/staff/invitations', invitation.id]"
                       class="text-[0.82rem] font-black text-slate-900 transition hover:text-zadna-primary">
                       {{ invitation.targetName }}
                     </a>
                   </td>
-                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700">{{ invitation.contact }}</td>
-                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700">{{ branchNamesText(invitation.branchIds) }}</td>
-                  <td class="px-4 py-4">
+                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ invitation.contact }}</td>
+                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ branchNamesText(invitation.branchIds) }}</td>
+                  <td class="px-4 py-4 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">
                     <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="statusBadgeClass(invitation.status)">
                       {{ invitationStatusKey(invitation.status) | translate }}
                     </span>
                   </td>
-                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600">{{ formatDateTime(invitation.sentAt) }}</td>
-                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600">{{ formatDateTime(invitation.expiresAt) }}</td>
-                  <td class="px-4 py-4">
+                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ formatDateTime(invitation.sentAt) }}</td>
+                  <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600 border-y border-slate-100/50 group-hover:border-zadna-primary/20 transition-colors">{{ formatDateTime(invitation.expiresAt) }}</td>
+                  <td class="px-4 py-4 border-y border-r border-slate-100/50 rounded-e-[20px] group-hover:border-zadna-primary/20 transition-colors">
                     <div class="flex flex-wrap items-center gap-2">
                       <a
                         [routerLink]="['/staff/invitations', invitation.id]"
-                        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
-                        {{ 'STAFF_BRANCHES.ACTIONS.VIEW_DETAILS' | translate }}
+                        class="flex items-center justify-center h-8 w-8 rounded-xl border border-slate-200 bg-slate-50 text-slate-400 transition hover:border-zadna-primary/30 hover:bg-zadna-primary/10 hover:text-zadna-primary"
+                        [title]="'STAFF_BRANCHES.ACTIONS.VIEW_DETAILS' | translate">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
                       </a>
 
                       <button
                         type="button"
                         (click)="copyInvitationLink(invitation)"
-                        class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                        class="flex items-center justify-center h-8 px-3 rounded-xl border border-slate-200 bg-white text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/30 hover:bg-zadna-primary/10 hover:text-zadna-primary">
                         {{ 'STAFF_BRANCHES.ACTIONS.COPY_LINK' | translate }}
                       </button>
 
@@ -467,7 +454,7 @@
                         <button
                           type="button"
                           (click)="resendInvitation(invitation)"
-                          class="rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-[0.72rem] font-black text-emerald-700 transition hover:bg-emerald-100">
+                          class="flex items-center justify-center h-8 px-3 rounded-xl border border-emerald-200 bg-emerald-50 text-[0.72rem] font-black text-emerald-700 transition hover:bg-emerald-100">
                           {{ 'STAFF_BRANCHES.ACTIONS.RESEND' | translate }}
                         </button>
                       }
@@ -476,7 +463,7 @@
                         <button
                           type="button"
                           (click)="revokeInvitation(invitation)"
-                          class="rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[0.72rem] font-black text-rose-700 transition hover:bg-rose-100">
+                          class="flex items-center justify-center h-8 px-3 rounded-xl border border-rose-200 bg-rose-50 text-[0.72rem] font-black text-rose-700 transition hover:bg-rose-100">
                           {{ 'STAFF_BRANCHES.ACTIONS.REVOKE' | translate }}
                         </button>
                       }

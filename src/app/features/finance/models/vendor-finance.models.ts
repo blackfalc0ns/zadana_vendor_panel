@@ -49,6 +49,7 @@ export interface VendorFinanceSnapshot {
   nextPayoutDate: string;
   payoutMethod: string;
   holdAmount: number;
+  financialLifecycleModeStr: string;
   kpis: VendorFinanceKpi[];
   trend: VendorFinanceTrendPoint[];
   settlements: VendorSettlement[];

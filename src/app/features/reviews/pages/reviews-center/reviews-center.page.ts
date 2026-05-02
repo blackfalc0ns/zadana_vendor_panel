@@ -1,7 +1,7 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { Subscription, combineLatest } from 'rxjs';
@@ -89,7 +89,8 @@ export class ReviewsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
 
   constructor(
     private readonly reviewsService: ReviewsService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly route: ActivatedRoute
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
@@ -101,6 +102,7 @@ export class ReviewsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.applyQueryParams();
     this.dataSub = combineLatest([
       this.reviewsService.getReviews(),
       this.reviewsService.getSummary()
@@ -458,5 +460,24 @@ export class ReviewsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
         this.flashMessage = '';
       }
     }, 2800);
+  }
+
+  private applyQueryParams(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const attention = params.get('attention');
+    const replyState = params.get('replyState');
+    const ratingBucket = params.get('ratingBucket');
+
+    if (attention === 'needs_attention') {
+      this.activeQuickView = 'needs_reply';
+    }
+
+    if (replyState === 'pending') {
+      this.filters.replyStatus = 'none';
+    }
+
+    if (ratingBucket === 'low') {
+      this.activeQuickView = 'low_rating';
+    }
   }
 }

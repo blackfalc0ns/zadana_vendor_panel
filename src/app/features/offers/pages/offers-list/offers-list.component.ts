@@ -1,7 +1,7 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { combineLatest, Subscription } from 'rxjs';
@@ -74,6 +74,7 @@ import {
           }
         </ng-container>
       </app-page-header>
+
 
       @if (isFiltersExpanded) {
       <div class="overflow-hidden rounded-[28px] border border-slate-200/70 bg-white shadow-sm animate-in slide-in-from-top-2 duration-300">
@@ -470,6 +471,23 @@ export class OffersListComponent implements OnInit, OnDestroy {
   coupons: CouponOffer[] = [];
   categoryCampaigns: CategoryCampaign[] = [];
   clearanceOffers: ClearanceOffer[] = [];
+
+  get directOffersCount(): number {
+    return this.productOffers.length;
+  }
+
+  get activeCouponsCount(): number {
+    return this.coupons.filter(c => c.isActive).length;
+  }
+
+  get categoryCampaignsCount(): number {
+    return this.categoryCampaigns.length;
+  }
+
+  get clearanceCount(): number {
+    return this.clearanceOffers.length;
+  }
+
   directFilters: DirectOfferFilters = { category: '', discountBand: 'all', stockBand: 'all' };
   couponFilters: CouponOfferFilters = { status: 'all', type: 'all', expiry: 'all' };
   categoryFilters: CategoryCampaignFilters = { category: '', discountBand: 'all', expiry: 'all' };
@@ -493,13 +511,15 @@ export class OffersListComponent implements OnInit, OnDestroy {
   constructor(
     private readonly catalogService: CatalogService,
     private readonly offersService: OffersService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly route: ActivatedRoute
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => this.currentLang = event.lang);
   }
 
   ngOnInit(): void {
+    this.applyQueryParams();
     combineLatest([
       this.catalogService.getVendorProducts({ pageNumber: 1, pageSize: 100 }),
       this.catalogService.getCategories(),
@@ -976,5 +996,20 @@ export class OffersListComponent implements OnInit, OnDestroy {
     const currentPage = this.getClampedPage(view, items.length);
     const startIndex = (currentPage - 1) * this.pageSize;
     return items.slice(startIndex, startIndex + this.pageSize);
+  }
+
+  private applyQueryParams(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const expiryState = params.get('expiryState');
+    const type = params.get('type');
+
+    if (type === 'clearance' || type === 'coupons' || type === 'categories' || type === 'direct') {
+      this.activeView = type;
+    }
+
+    if (expiryState === 'soon' || expiryState === 'later') {
+      this.activeView = 'coupons';
+      this.couponFilters.expiry = expiryState;
+    }
   }
 }

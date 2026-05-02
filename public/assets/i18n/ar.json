@@ -30,7 +30,7 @@
     "WELCOME": "مرحباً بك",
     "READY_TODAY": "جاهز لليوم",
     "OPERATIONAL_PRIORITIES": "أولويات التشغيل",
-    "BRAND_GENERAL": "علامة موردينية عامة",
+    "BRAND_GENERAL": "علامة تجارية عامة",
     "UNIT_PIECE": "قطعة",
     "HEADER_PRODUCT": "المنتج",
     "ENGLISH": "English",
@@ -48,7 +48,8 @@
     "CONTINUE": "متابعة",
     "ERROR_OCCURRED": "حدث خطأ غير متوقع.",
     "STATUS_ACTIVE": "نشط",
-    "STATUS_INACTIVE": "غير نشط"
+    "STATUS_INACTIVE": "غير نشط",
+    "FILTERS": "الفلاتر"
   },
   "SIDEBAR": {
     "APP_NAME": "زدانا",
@@ -57,7 +58,7 @@
     "PRODUCTS": "المنتجات / الكتالوج",
     "ORDERS": "إدارة الطلبات",
     "OFFERS": "العروض والخصومات",
-    "FINANCE": "المالية",
+    "FINANCE": "محفظتي",
     "BRANCHES": "الفروع",
     "STAFF_BRANCHES": "الموظفين والفروع",
     "REVIEWS": "التقييمات",
@@ -73,42 +74,222 @@
     "VERIFIED_VENDOR": "مورد معتمد لدى زدانا",
     "STORE_SETUP": "إعداد الحساب",
     "STORE_SETUP_TITLE": "أكمل بياناتك للبدء في البيع",
-    "CONTINUE_SETUP": "متابعة الإعداد"
+    "CONTINUE_SETUP": "متابعة الإعداد",
+    "DISPUTES": "النزاعات"
   },
   "DASHBOARD": {
-    "TITLE": "لوحة تحكم النظام",
-    "SUBTITLE": "تابع أداء حسابك وإحصائيات المبيعات اليومية",
-    "PENDING_ORDERS": "طلبات قيد الانتظار",
-    "PENDING_ORDERS_NOTE": "يجب مراجعتها وتجهيزها بأسرع وقت",
-    "ACTIVE_OFFERS": "العروض النشطة",
-    "ACTIVE_OFFERS_NOTE": "منتجاتك المشمولة بالخصومات الحالية",
-    "STATUS_LIVE": "نشط / مباشر",
-    "TODAYS_PULSE": "نبض اليوم",
-    "QUICK_EXECUTION": "تنفيذ سريع",
-    "ADD_PRODUCTS": "إضافة منتجات",
-    "ADD_PRODUCTS_DESC": "أضف منتجات جديدة من الكتالوج",
-    "VIEW_OFFERS": "عرض العروض",
-    "VIEW_OFFERS_DESC": "إدارة الخصومات النشطة",
-    "TRACK_SHIPMENTS": "تتبع الشحنات",
-    "TRACK_SHIPMENTS_DESC": "متابعة حالة التوصيل",
-    "ADJUST_HOURS": "ساعات العمل",
-    "ADJUST_HOURS_DESC": "تعديل أوقات الفتح والإغلاق",
-    "TOTAL_SALES": "إجمالي المبيعات",
-    "TOTAL_SALES_NOTE": "نمو بنسبة 12% عن الشهر الماضي",
-    "ORDER_COUNT": "عدد الطلبات",
-    "CUSTOMER_COUNT": "عدد العملاء",
-    "CHECKLIST": {
-      "CONFIRM_ORDERS_TITLE": "تأكيد الطلبات الجديدة",
-      "CONFIRM_ORDERS_BODY": "لديك طلبات جديدة بانتظار التأكيد",
-      "LOW_STOCK_TITLE": "تنبيه المخزون",
-      "LOW_STOCK_BODY": "وصلت بعض المنتجات للحد الأدنى",
-      "REFRESH_OFFERS_TITLE": "تحديث العروض",
-      "REFRESH_OFFERS_BODY": "راجع العروض التي ستنتهي قريباً"
+    "TITLE": "مركز قيادة التاجر",
+    "SUBTITLE": "رؤية تشغيلية وتجارية وجودة ومالية في مكان واحد",
+    "LAST_UPDATED": "آخر تحديث",
+    "REFRESH": "تحديث",
+    "ERROR": "تعذر تحميل بيانات لوحة التحكم حالياً.",
+    "PERIODS": {
+      "today": "اليوم",
+      "7d": "آخر 7 أيام",
+      "30d": "آخر 30 يوماً",
+      "90d": "آخر 90 يوماً"
     },
-    "TIMELINE": {
-      "RAMADAN_CAMPAIGN": "حملة رمضان التسويقية",
-      "NEW_ORDERS": "استلام طلبات جديدة",
-      "LOW_INVENTORY": "نقص في المخزون"
+    "SECTION_NAV": {
+      "OPERATIONS": "التشغيل",
+      "SALES": "المبيعات",
+      "INVENTORY": "المخزون",
+      "OFFERS": "العروض",
+      "REVIEWS": "التقييمات",
+      "FINANCE": "المالية",
+      "RISK": "المخاطر",
+      "STAFF": "الفريق"
+    },
+    "DOMAIN": {
+      "OPERATIONS": "التشغيل",
+      "INVENTORY": "المخزون",
+      "FINANCE": "المالية",
+      "REVIEWS": "التقييمات",
+      "RISK": "المخاطر"
+    },
+    "HERO": {
+      "PENDING_ORDERS": "طلبات معلقة",
+      "LATE_ORDERS": "طلبات متأخرة",
+      "READY_FOR_PICKUP": "جاهز للاستلام",
+      "DRIVER_ISSUES": "مشكلات المندوب",
+      "OPEN_DISPUTES": "نزاعات مفتوحة",
+      "LOW_STOCK": "مخزون حرج"
+    },
+    "SECTIONS": {
+      "OPERATIONS": "مركز القيادة التشغيلية",
+      "OPERATIONS_HINT": "ما الذي يحتاج إلى تدخل الآن عبر الطلبات والتنفيذ.",
+      "SALES": "المبيعات والأداء التجاري",
+      "SALES_HINT": "الإيرادات وجودة الطلبات وأداء الفئات ونقاط الضعف.",
+      "INVENTORY": "المخزون والكتالوج",
+      "INVENTORY_HINT": "صحة المخزون وحركة الكتالوج والمنتجات التي تحتاج إلى تدخل.",
+      "OFFERS": "العروض والترويج",
+      "OFFERS_HINT": "العروض النشطة وشرائح الخصم والمنتجات المرشحة للترويج.",
+      "REVIEWS": "التقييمات وجودة العملاء",
+      "REVIEWS_HINT": "انطباع العملاء وضغط الردود ومؤشرات الجودة.",
+      "FINANCE": "ملخص المحفظة",
+      "FINANCE_HINT": "وضع السيولة والتسويات والتحويلات وحركة القيود المالية.",
+      "RISK": "النزاعات والمخاطر",
+      "RISK_HINT": "الحالات التي قد تؤثر على الخدمة أو الربحية.",
+      "STAFF": "الفريق والفروع",
+      "STAFF_HINT": "ملخص خفيف لتغطية الفروع والتشغيل.",
+      "URGENT_ORDERS": "طلبات عاجلة",
+      "LATEST_ALERTS": "آخر التنبيهات التشغيلية",
+      "TOP_PRODUCTS": "أفضل المنتجات",
+      "UNDERPERFORMING_PRODUCTS": "منتجات ضعيفة الأداء",
+      "CRITICAL_STOCK": "قائمة المخزون الحرج",
+      "NO_MOVEMENT_PRODUCTS": "منتجات بلا حركة",
+      "EXPIRING_OFFERS": "عروض قاربت على الانتهاء",
+      "PROMOTION_CANDIDATES": "مرشحون للترويج",
+      "LOW_RATING_UNREPLIED": "تقييمات منخفضة بدون رد",
+      "RECENT_HIGHLIGHTS": "أبرز التقييمات الأخيرة",
+      "RECENT_SETTLEMENTS": "أحدث التسويات",
+      "RECENT_LEDGER": "آخر الحركة المالية",
+      "AWAITING_ACTION": "حالات تنتظر إجراء التاجر",
+      "RECENT_ESCALATIONS": "آخر التصعيدات"
+    },
+    "CHARTS": {
+      "COUNT": "العدد",
+      "SALES": "المبيعات",
+      "ORDERS": "الطلبات",
+      "PAYOUTS": "التحويلات",
+      "PRODUCTS": "المنتجات",
+      "REVIEWS": "التقييمات",
+      "DISPUTES": "النزاعات",
+      "ORDERS_TREND": "اتجاه الطلبات",
+      "ORDER_STATUS_BREAKDOWN": "توزيع حالات الطلبات",
+      "ORDER_FUNNEL": "مسار الطلبات",
+      "SALES_VS_ORDERS": "المبيعات مقابل الطلبات",
+      "WEEKDAY_PERFORMANCE": "أداء أيام الأسبوع",
+      "TOP_CATEGORIES": "أفضل الفئات",
+      "STOCK_HEALTH": "توزيع صحة المخزون",
+      "INVENTORY_RISK": "قائمة مخاطر المخزون",
+      "CATALOG_GROWTH": "نمو الكتالوج",
+      "OFFERS_BY_TYPE": "العروض حسب النوع",
+      "DISCOUNT_BANDS": "شرائح الخصم",
+      "OFFER_LINKED_PRODUCTS": "المنتجات المرتبطة بالعروض",
+      "RATING_DISTRIBUTION": "توزيع التقييمات",
+      "REVIEWS_TREND": "اتجاه التقييمات",
+      "REPLY_BREAKDOWN": "توزيع الردود",
+      "SALES_VS_PAYOUTS": "المبيعات مقابل التحويلات",
+      "SETTLEMENT_STATUS": "حالة التسويات",
+      "LEDGER_BREAKDOWN": "توزيع القيود المالية",
+      "DISPUTES_BY_STATUS": "النزاعات حسب الحالة",
+      "DISPUTES_BY_TYPE": "النزاعات حسب النوع",
+      "DISPUTES_TREND": "اتجاه النزاعات",
+      "BRANCH_STATUS": "حالة الفروع",
+      "STAFF_ROLE_DISTRIBUTION": "توزيع أدوار الفريق"
+    },
+    "FUNNEL": {
+      "NEW": "جديد",
+      "CONFIRMED": "مؤكد",
+      "PREPARING": "قيد التجهيز",
+      "READY": "جاهز",
+      "DELIVERED": "تم التسليم",
+      "CANCELLED": "ملغي"
+    },
+    "STOCK_HEALTH": {
+      "HEALTHY": "جيد",
+      "LOW": "منخفض",
+      "OUT": "نافد"
+    },
+    "OFFER_TYPES": {
+      "DIRECT": "عروض مباشرة",
+      "COUPONS": "كوبونات",
+      "CATEGORY_CAMPAIGNS": "حملات الفئات",
+      "CLEARANCE": "تصفيات",
+      "CAMPAIGNS": "حملات"
+    },
+    "REPLY_BREAKDOWN": {
+      "REPLIED": "تم الرد",
+      "PENDING": "بانتظار الرد"
+    },
+    "SETTLEMENT_STATUS": {
+      "PAID": "مدفوعة",
+      "PROCESSING": "قيد المعالجة",
+      "SCHEDULED": "مجدولة"
+    },
+    "LEDGER_TYPES": {
+      "SALES": "مبيعات",
+      "FEES": "رسوم",
+      "PAYOUTS": "تحويلات",
+      "REFUNDS": "مرتجعات"
+    },
+    "SALES": {
+      "GROSS_SALES": "إجمالي المبيعات",
+      "PAID_SALES": "المبيعات المحصلة",
+      "ORDERS_COUNT": "عدد الطلبات",
+      "AVERAGE_ORDER_VALUE": "متوسط قيمة الطلب",
+      "CANCELLATION_RATE": "معدل الإلغاء",
+      "REFUND_RATE": "معدل الاسترجاع",
+      "LOST_REVENUE": "الإيرادات الضائعة"
+    },
+    "INVENTORY": {
+      "ACTIVE_PRODUCTS": "منتجات نشطة",
+      "OUT_OF_STOCK": "نافد المخزون",
+      "LOW_STOCK": "مخزون منخفض",
+      "INACTIVE_PRODUCTS": "منتجات غير نشطة",
+      "PRODUCTS_WITH_OFFERS": "منتجات عليها عروض",
+      "CRITICAL_STOCK_NOTE": "يوصى بإعادة التوريد فوراً",
+      "NO_MOVEMENT": "لا توجد حركة خلال الفترة المختارة",
+      "IDLE_CAPITAL": "رأس المال المعطل"
+    },
+    "OFFERS": {
+      "ACTIVE_OFFERS": "عروض نشطة",
+      "CLEARANCE_ITEMS": "منتجات تصفية",
+      "EXPIRING_OFFERS": "عروض تنتهي قريباً",
+      "OFFER_COVERAGE": "تغطية العروض",
+      "EXPIRING_HINT": "قيمة عرض معرّضة للانتهاء",
+      "PROMOTION_HINT": "مرشح لدفع ترويجي"
+    },
+    "REVIEWS": {
+      "AVERAGE_RATING": "متوسط التقييم",
+      "TOTAL_REVIEWS": "إجمالي التقييمات",
+      "LOW_RATING_COUNT": "تقييمات منخفضة",
+      "PENDING_REPLIES": "ردود معلقة",
+      "HIDDEN_REVIEWS": "تقييمات مخفية"
+    },
+    "FINANCE": {
+      "AVAILABLE_BALANCE": "الرصيد المتاح",
+      "PENDING_SETTLEMENT": "تسويات معلقة",
+      "NET_SALES": "صافي المبيعات",
+      "FEES": "الرسوم",
+      "PAYOUTS_PAID": "التحويلات المدفوعة",
+      "HOLD_AMOUNT": "المبلغ المحجوز",
+      "NEXT_SETTLEMENT": "التسوية القادمة",
+      "LIFECYCLE_MODE": "دورة التسوية"
+    },
+    "DISPUTES": {
+      "OPEN": "نزاعات مفتوحة",
+      "HIGH_PRIORITY": "أولوية عالية",
+      "REFUND_REQUESTS": "طلبات استرجاع",
+      "AWAITING_VENDOR_RESPONSE": "بانتظار رد التاجر"
+    },
+    "STAFF": {
+      "ACTIVE_BRANCHES": "فروع نشطة",
+      "ACTIVE_STAFF": "فريق نشط",
+      "PENDING_INVITATIONS": "دعوات معلقة",
+      "BRANCHES_NEEDING_COVERAGE": "فروع تحتاج تغطية"
+    },
+    "ALERTS": {
+      "LATE_ORDERS_TITLE": "طلبات متأخرة تحتاج متابعة",
+      "LATE_ORDERS_BODY": "بعض الطلبات تجاوزت الوقت المتوقع للتجهيز.",
+      "LOW_STOCK_TITLE": "مخزون حرج يحتاج إعادة تزويد",
+      "LOW_STOCK_BODY": "هناك منتجات وصلت إلى مستوى مخزون محفوف بالمخاطر.",
+      "DISPUTES_TITLE": "حالات تنتظر رد التاجر",
+      "DISPUTES_BODY": "توجد نزاعات تتطلب متابعة عاجلة من التاجر.",
+      "REVIEWS_TITLE": "تقييمات العملاء تحتاج ردوداً",
+      "REVIEWS_BODY": "التقييمات المنخفضة غير المردود عليها قد تؤثر على الثقة والتحويل.",
+      "LARGE_SETTLEMENT_TITLE": "تسوية معلقة ضمن الدورة",
+      "LARGE_SETTLEMENT_BODY": "أموال التسوية ما زالت قيد المعالجة وتحتاج مراجعة."
+    },
+    "EMPTY": {
+      "NO_ALERTS": "لا توجد تنبيهات نشطة حالياً.",
+      "NO_URGENT_ORDERS": "لا توجد طلبات عاجلة حالياً.",
+      "NO_STAFF_DISTRIBUTION": "لا توجد بيانات كافية عن توزيع الفريق حتى الآن."
+    },
+    "OPERATIONS": {
+      "PREP_EFFICIENCY": "كفاءة التجهيز (SLA)",
+      "AVG_PREP_TIME": "متوسط وقت التجهيز",
+      "MINUTES": "دقيقة"
     }
   },
   "AUTH": {
@@ -125,7 +306,7 @@
     "ADMIN_PORTAL": "بوابة الموردين",
     "WELCOME": "مرحباً بك مجدداً في زدانا",
     "HERO_TITLE_1": "شريكك المثالي",
-    "HERO_TITLE_2": "لنمو موردينتك",
+    "HERO_TITLE_2": "لنمو أعمالك",
     "HERO_DESC": "انضم إلى آلاف الموردين الناجحين في منصة زدانا، ووسع نطاق أعمالك في أكبر سوق للمواد الغذائية.",
     "EMAIL": "البريد الإلكتروني",
     "EMAIL_PLACEHOLDER": "أدخل بريدك الإلكتروني",
@@ -158,9 +339,9 @@
     "STEP_FINANCE": "البيانات المالية",
     "STEP_DOCS": "رفع المستندات",
     "STEP_DESCRIPTIONS": {
-      "BASIC": "بيانات تعريف المتجر والنشاط المورديني",
+      "BASIC": "بيانات تعريف المتجر والنشاط التجاري",
       "LOCATION": "تحديد المواقع الجغرافية للفروع والمستودعات",
-      "LEGAL": "رفع السجلات الموردينية والتراخيص القانونية",
+      "LEGAL": "رفع السجلات التجارية والتراخيص القانونية",
       "FINANCE": "إعداد الحسابات البنكية ودورات الدفع",
       "DOCS": "رفع الوثائق الثبوتية وصور المستندات"
     },
@@ -313,8 +494,8 @@
     "DOCS_CARD_TITLE": "الوثائق والمستندات",
     "UPLOAD_LOGO_TITLE": "شعار المتجر",
     "UPLOAD_LOGO_HELP": "يرجى رفع صورة واضحة لشعار المتجر (JPG, PNG)",
-    "UPLOAD_CR_TITLE": "السجل المورديني",
-    "UPLOAD_CR_HELP": "ارفع نسخة من السجل المورديني كملف PDF أو صورة",
+    "UPLOAD_CR_TITLE": "السجل التجاري",
+    "UPLOAD_CR_HELP": "ارفع نسخة من السجل التجاري كملف PDF أو صورة",
     "UPLOAD_ACTION": "رفع الملف",
     "UPLOAD_REMOVE": "حذف",
     "UPLOAD_PENDING": "لم يتم الرفع",
@@ -338,7 +519,7 @@
       "LONGITUDE": "خط الطول",
       "ID_NUMBER": "رقم الهوية / الإقامة",
       "NATIONALITY": "الجنسية",
-      "CR_NUMBER": "رقم السجل المورديني",
+      "CR_NUMBER": "رقم السجل التجاري",
       "CR_EXPIRY": "تاريخ انتهاء السجل",
       "TAX_ID": "الرقم الضريبي",
       "LICENSE": "رقم ترخيص النشاط",
@@ -347,7 +528,7 @@
       "IBAN": "رقم الحساب (IBAN)",
       "SWIFT": "كود السويفت (SWIFT)",
       "LOGO": "شعار المتجر",
-      "CR_DOC": "صورة السجل المورديني"
+      "CR_DOC": "صورة السجل التجاري"
     },
     "PLACEHOLDERS": {
       "SELECT_BIZ": "اختر نوع النشاط...",
@@ -378,6 +559,12 @@
   "PRODUCTS": {
     "LIST_TITLE": "إدارة المنتجات",
     "LIST_SUBTITLE": "عرض وتعديل مخزون منتجاتك وأسعارها",
+    "SUMMARY": {
+      "TOTAL": "إجمالي المنتجات",
+      "ACTIVE": "المنتجات النشطة",
+      "LOW_STOCK": "مخزون منخفض",
+      "OUT_OF_STOCK": "نفد من المخزون"
+    },
     "ADD_BUTTON": "إضافة منتج",
     "SEARCH_PLACEHOLDER": "البحث بالاسم أو الباركود...",
     "FILTERS": {
@@ -405,8 +592,8 @@
     "PRODUCT_SKU": "كود المنتج",
     "SKU": "كود",
     "ALREADY_ADDED": "مضاف مسبقاً",
-    "BRAND": "العلامة الموردينية",
-    "SELECT_BRAND": "اختر العلامة الموردينية...",
+    "BRAND": "العلامة التجارية",
+    "SELECT_BRAND": "اختر العلامة التجارية...",
     "CATEGORY": "التصنيف",
     "UNIT": "الوحدة",
     "EMPTY_TITLE": "لم تقم بإضافة منتجات بعد",
@@ -423,44 +610,44 @@
     "REQUEST_NEW_TITLE": "طلب منتج جديد",
     "REQUEST_HINT": "إذا لم تجد المنتج المطلوب، يمكنك طلب إضافته للكتالوج",
     "REQUESTS_TITLE": "طلبات الكتالوج",
-    "REQUESTS_SUBTITLE": "تابع طلبات المنتجات والعلامات الموردينية والتصنيفات التي أرسلتها إلى فريق زدانا.",
+    "REQUESTS_SUBTITLE": "تابع طلبات المنتجات والعلامات التجارية والتصنيفات التي أرسلتها إلى فريق زدانا.",
     "REQUESTS_BUTTON": "طلبات الكتالوج",
     "REQUESTS_ALL": "كل الطلبات",
     "REQUESTS_PRODUCTS": "طلبات المنتجات",
-    "REQUESTS_BRANDS": "طلبات العلامات الموردينية",
+    "REQUESTS_BRANDS": "طلبات العلامات التجارية",
     "REQUESTS_CATEGORIES": "طلبات التصنيفات",
     "REQUESTS_EMPTY_TITLE": "لا توجد طلبات بعد",
-    "REQUESTS_EMPTY_DESC": "عندما ترسل طلب منتج أو علامة موردينية أو تصنيف جديد سيظهر هنا مباشرة.",
+    "REQUESTS_EMPTY_DESC": "عندما ترسل طلب منتج أو علامة تجارية أو تصنيف جديد سيظهر هنا مباشرة.",
     "REQUESTS_UNNAMED_PRODUCT": "طلب بدون اسم",
     "REQUESTS_NO_CONTEXT": "لا توجد تفاصيل إضافية",
     "REQUESTS_UNREVIEWED": "لم تتم المراجعة بعد",
     "REQUEST_TYPE_PRODUCT": "منتج",
-    "REQUEST_TYPE_BRAND": "علامة موردينية",
+    "REQUEST_TYPE_BRAND": "علامة تجارية",
     "REQUEST_TYPE_CATEGORY": "تصنيف",
     "NO_RESULTS_FOR": "لا توجد نتائج للبحث عن '{{term}}'",
     "NO_RESULTS": "لا توجد نتائج",
     "ADD_TO_STORE_NOW": "أضف إلى المتجر الآن",
     "AGREE_POLICIES": "أوافق على سياسات إدراج المنتجات والتسعير.",
     "BASIC_INFO": "المعلومات الأساسية",
-    "BRAND_AR": "العلامة الموردينية بالعربية",
-    "BRAND_EN": "العلامة الموردينية بالإنجليزية",
-    "NEW_BRAND_AR": "اسم العلامة الموردينية الجديدة بالعربية",
-    "NEW_BRAND_EN": "اسم العلامة الموردينية الجديدة بالإنجليزية",
+    "BRAND_AR": "العلامة التجارية بالعربية",
+    "BRAND_EN": "العلامة التجارية بالإنجليزية",
+    "NEW_BRAND_AR": "اسم العلامة التجارية الجديدة بالعربية",
+    "NEW_BRAND_EN": "اسم العلامة التجارية الجديدة بالإنجليزية",
     "CATALOG_DESC_NOTE": "هذا الوصف مأخوذ من الكتالوج الرئيسي ولا يمكن تعديله من هنا.",
     "CATALOG_INFO": "معلومات الكتالوج",
     "CHANGE_IMAGE": "تغيير الصورة",
-    "REQUEST_MISSING_BRAND": "العلامة الموردينية غير موجودة؟",
-    "REQUEST_MISSING_BRAND_HINT": "فعّل هذا الخيار إذا كان المنتج يتبع علامة موردينية غير موجودة حاليًا.",
+    "REQUEST_MISSING_BRAND": "العلامة التجارية غير موجودة؟",
+    "REQUEST_MISSING_BRAND_HINT": "فعّل هذا الخيار إذا كان المنتج يتبع علامة تجارية غير موجودة حاليًا.",
     "REQUEST_MISSING_CATEGORY": "التصنيف غير موجود؟",
     "REQUEST_MISSING_CATEGORY_HINT": "فعّل هذا الخيار إذا كنت تحتاج إنشاء تصنيف جديد بالكامل لهذا المنتج.",
-    "OPEN_BRAND_MODAL": "العلامات الموردينية",
+    "OPEN_BRAND_MODAL": "العلامات التجارية",
     "OPEN_CATEGORY_MODAL": "التصنيف",
-    "BRAND_MODAL_TITLE": "اختيار العلامة الموردينية",
-    "BRAND_MODAL_DESC": "اختر علامة موردينية موجودة أو أضف علامة جديدة.",
+    "BRAND_MODAL_TITLE": "اختيار العلامة التجارية",
+    "BRAND_MODAL_DESC": "اختر علامة تجارية موجودة أو أضف علامة جديدة.",
     "SELECT_BRAND_CATEGORY": "اختر التصنيف التابع للعلامة...",
     "CATEGORY_MODAL_TITLE": "اختيار التصنيف",
     "CATEGORY_MODAL_DESC": "اختر تصنيفًا موجودًا أو أضف تصنيفًا جديدًا مع تفاصيل التسلسل.",
-    "ADD_NEW_BRAND": "إضافة علامة موردينية جديدة",
+    "ADD_NEW_BRAND": "إضافة علامة تجارية جديدة",
     "ADD_NEW_CATEGORY": "إضافة تصنيف جديد",
     "SELECT_PARENT_CATEGORY": "اختر التصنيف الأب...",
     "SELECT_ACTIVITY": "اختر النشاط...",
@@ -473,7 +660,7 @@
     "CATEGORY_KIND_CATEGORY": "تصنيف",
     "CATEGORY_KIND_SUB_CATEGORY": "تصنيف فرعي",
     "DISPLAY_ORDER": "ترتيب العرض",
-    "BRAND_IMAGE": "صورة العلامة الموردينية",
+    "BRAND_IMAGE": "صورة العلامة التجارية",
     "CATEGORY_IMAGE": "صورة التصنيف",
     "UPLOAD_IMAGE": "رفع صورة",
     "REMOVE_IMAGE": "حذف الصورة",
@@ -516,11 +703,17 @@
     "CATEGORY_L3": "تصنيف المستوى الثالث",
     "SELECTED_PATH": "المسار المختار",
     "REQUEST_SUBMITTED_SUCCESS": "تم إرسال طلب إضافة المنتج بنجاح، سيتم مراجعته من قبل الإدارة.",
-    "BRAND_NAME_PLACEHOLDER": "أدخل اسم العلامة الموردينية المقترحة..."
+    "BRAND_NAME_PLACEHOLDER": "أدخل اسم العلامة التجارية المقترحة..."
   },
   "OFFERS": {
     "TITLE": "العروض والخصومات",
     "SUBTITLE": "تابع المنتجات المشمولة بالعروض وعدلها بسرعة.",
+    "SUMMARY": {
+      "DIRECT": "خصومات المنتجات",
+      "COUPONS": "كوبونات نشطة",
+      "CATEGORIES": "حملات الأقسام",
+      "CLEARANCE": "عروض التصفية"
+    },
     "SEARCH_PLACEHOLDER": "ابحث داخل العروض...",
     "FILTERS": {
       "TITLE": "الفلاتر",
@@ -678,6 +871,12 @@
   "ORDERS": {
     "LIST_TITLE": "إدارة الطلبات",
     "LIST_SUBTITLE": "تتبع حالات الطلبات الواردة وتجهيزها",
+    "SUMMARY": {
+      "TOTAL": "إجمالي الطلبات",
+      "NEW": "طلبات جديدة",
+      "IN_PROGRESS": "قيد التجهيز",
+      "LATE": "طلبات متأخرة"
+    },
     "CREATE_MANUAL_ORDER": "إنشاء طلب يدوي",
     "CREATE_MANUAL_ORDER_DESC": "قم بإنشاء طلب جديد لعميلك مباشرة من هنا.",
     "SELECT_CUSTOMER": "اختيار العميل",
@@ -700,6 +899,8 @@
     "ORDER_PLACED_SUCCESS": "تم إنشاء الطلب بنجاح",
     "SEARCH_PLACEHOLDER": "بحث برقم الطلب أو اسم العميل...",
     "FILTERS": {
+      "TITLE": "فلاتر الطلبات",
+      "SUBTITLE": "تضييق النطاق بحسب الحالة والوقت وطريقة الدفع",
       "SEARCH": "بحث",
       "RESET": "إعادة تعيين",
       "STATUS": "الحالة",
@@ -765,7 +966,7 @@
   },
   "SETTINGS_PROFILE": {
     "TITLE": "ملف المورد",
-    "SUBTITLE": "إدارة كل بيانات المتجر والمالك والبيانات القانونية والتحويلات من مكان واحد",
+    "SUBTITLE": "إدارة كل بيانات المتجر والمالك والبيانات التجارية والتحويلات من مكان واحد",
     "ROLE_LABEL": "مورد معتمد",
     "SAVE": "حفظ الملف",
     "STATUS_ACTIVE": "الملف نشط",
@@ -777,7 +978,7 @@
       "JOINED_AT": "تاريخ الانضمام"
     },
     "UI": {
-      "STORE_BASICS": "الهوية الموردينية",
+      "STORE_BASICS": "هوية المتجر",
       "SUPPORT_CHANNELS": "قنوات الدعم",
       "STORE_DESCRIPTION": "وصف المتجر",
       "OWNER_DETAILS": "بيانات المالك",
@@ -798,7 +999,7 @@
       "CONTACT": "التواصل والعنوان",
       "CONTACT_HINT": "وسائل التواصل وعنوان المورد الكامل.",
       "LEGAL": "البيانات القانونية",
-      "LEGAL_HINT": "السجل المورديني والرقم الضريبي للحساب المورديني.",
+      "LEGAL_HINT": "السجل التجاري والرقم الضريبي للحساب التجاري.",
       "BANKING": "بيانات التحويل",
       "BANKING_HINT": "الحساب البنكي وجدولة التحويلات المالية.",
       "HOURS": "ساعات العمل",
@@ -818,7 +1019,7 @@
       "REGION": "المنطقة",
       "CITY": "المدينة",
       "NATIONAL_ADDRESS": "العنوان الوطني",
-      "COMMERCIAL_REGISTRATION": "السجل المورديني",
+      "COMMERCIAL_REGISTRATION": "السجل التجاري",
       "TAX_ID": "الرقم الضريبي",
       "BANK_NAME": "اسم البنك",
       "IBAN": "رقم الآيبان",
@@ -1344,7 +1545,7 @@
       "SUPPORT": "الدعم",
       "STAFF": "الفروع والموظفون",
       "REVIEWS": "التقييمات",
-      "PROFILE": "الملف المورديني"
+      "PROFILE": "ملف المورد"
     },
     "SEVERITY": {
       "INFO": "معلومة",
@@ -1437,7 +1638,7 @@
       "FINANCE": "المالية",
       "OFFERS": "العروض",
       "STAFF": "الفروع والموظفون",
-      "PROFILE": "الملف المورديني",
+      "PROFILE": "ملف المورد",
       "TECHNICAL": "تقني",
       "GENERAL": "عام"
     },
@@ -1516,8 +1717,8 @@
     }
   },
   "VENDOR_FINANCE": {
-    "TITLE": "النظرة المالية",
-    "SUBTITLE": "تابع التحويلات والرسوم والمبالغ المعلقة وآخر الحركات بنفس الوضوح المستخدم في السوبر أدمن.",
+    "TITLE": "محفظتي",
+    "SUBTITLE": "تابع رصيدك، وتتبع التسويات، وحركات التحويل بنفس الوضوح المستخدم في السوبر أدمن.",
     "PERIODS": {
       "TODAY": "اليوم",
       "WEEK": "الأسبوع",
@@ -1526,7 +1727,15 @@
     },
     "ACTIONS": {
       "DOWNLOAD_STATEMENT": "تحميل كشف الحساب",
+      "VIEW_ALL": "عرض كل القيود",
+      "SETTLEMENT_DETAILS": "تفاصيل التسوية",
       "REVIEW_ORDERS": "مراجعة الطلبات"
+    },
+    "LIFECYCLE_MODES": {
+      "PerOrderDirectPayout": "تحويل مباشر بالطلب",
+      "Weekly": "أسبوعي",
+      "Biweekly": "كل أسبوعين",
+      "Monthly": "شهري"
     },
     "OVERVIEW": {
       "AVAILABLE_BALANCE": "الرصيد المتاح",
@@ -1586,5 +1795,110 @@
     "STATUS_PENDING": "قيد المراجعة",
     "STATUS_APPROVED": "مقبول",
     "STATUS_REJECTED": "مرفوض"
+  },
+  "VENDOR_DISPUTES": {
+    "TITLE": "النزاعات",
+    "SUBTITLE": "تابع قضايا الدعم المرتبطة بطلباتك ورد على فريق المراجعة.",
+    "SUMMARY": {
+      "TOTAL": "إجمالي القضايا",
+      "OPEN": "القضايا المفتوحة",
+      "RESPONDED": "تم الرد عليها",
+      "WAITING": "بانتظار ردك"
+    },
+    "FILTERS": {
+      "TITLE": "فلاتر القضايا",
+      "SUBTITLE": "ضيّق قائمة النزاعات حسب الحالة أو نوع القضية.",
+      "SEARCH": "البحث",
+      "SEARCH_PLACEHOLDER": "ابحث برقم القضية أو رقم الطلب أو السبب أو الرسالة",
+      "STATUS": "الحالة",
+      "TYPE": "النوع",
+      "RESET": "إعادة التصفية",
+      "ALL_STATUSES": "كل الحالات",
+      "ALL_TYPES": "كل الأنواع"
+    },
+    "TABLE": {
+      "TITLE": "قائمة النزاعات",
+      "SUBTITLE": "افتح القضية لمراجعة التحديثات والمرفقات والرد عليها.",
+      "CASE": "رقم القضية",
+      "ORDER": "رقم الطلب",
+      "TYPE": "النوع",
+      "PRIORITY": "الأولوية",
+      "UPDATED": "آخر تحديث",
+      "NO_REASON": "لا يوجد سبب"
+    },
+    "TYPE": {
+      "COMPLAINT": "شكوى",
+      "RETURN_REQUEST": "طلب إرجاع",
+      "DRIVER_REPORT": "بلاغ سائق",
+      "DRIVER_DISPUTE": "نزاع سائق"
+    },
+    "STATUS": {
+      "SUBMITTED": "مقدمة",
+      "IN_REVIEW": "قيد المراجعة",
+      "AWAITING_CUSTOMER_EVIDENCE": "بانتظار أدلة العميل",
+      "APPROVED": "تمت الموافقة",
+      "REJECTED": "مرفوضة",
+      "RESOLVED": "مغلقة"
+    },
+    "PRIORITY": {
+      "LOW": "منخفضة",
+      "MEDIUM": "متوسطة",
+      "HIGH": "مرتفعة",
+      "CRITICAL": "حرجة"
+    },
+    "ACTIONS": {
+      "OPEN": "فتح القضية",
+      "SEND_RESPONSE": "إرسال الرد"
+    },
+    "WAITING_ON": {
+      "VENDOR": "بانتظار رد التاجر",
+      "CUSTOMER": "بانتظار رد العميل",
+      "DRIVER": "بانتظار رد المندوب",
+      "ADMIN": "قيد مراجعة الأدمن",
+      "REVIEW": "قيد المراجعة"
+    },
+    "PARTICIPANTS": {
+      "CUSTOMER": "العميل",
+      "VENDOR": "التاجر",
+      "DRIVER": "المندوب"
+    },
+    "EMPTY": {
+      "TITLE": "لا توجد نزاعات",
+      "SUBTITLE": "لا توجد قضايا تطابق الفلاتر الحالية."
+    },
+    "DETAIL": {
+      "TITLE": "قضية نزاع",
+      "SUMMARY_TITLE": "ملخص القضية",
+      "SUMMARY_SUBTITLE": "المعلومات الأساسية للنزاع وسياق المبالغ المرتبطة به.",
+      "QUEUE": "المسار",
+      "WAITING_ON": "بانتظار",
+      "REASON_CODE": "رمز السبب",
+      "REQUESTED_REFUND": "المبلغ المطلوب",
+      "APPROVED_REFUND": "المبلغ المعتمد",
+      "REFUND_METHOD": "طريقة الاسترداد",
+      "COST_BEARER": "متحمل التكلفة",
+      "CLOSED_AT": "تاريخ الإغلاق",
+      "NOTES_TITLE": "ملاحظات القضية",
+      "NOTES_SUBTITLE": "راجع رسالة القضية الأصلية وأي ملاحظات ظاهرة.",
+      "PARTICIPANTS": "الأطراف المشاركة",
+      "CASE_MESSAGE": "رسالة القضية",
+      "CUSTOMER_NOTE": "ملاحظة ظاهرة للعميل",
+      "DECISION_NOTES": "ملاحظات القرار",
+      "YOUR_RESPONSE": "آخر رد منك",
+      "ATTACHMENTS_TITLE": "المرفقات",
+      "ATTACHMENTS_SUBTITLE": "الملفات المرتبطة بهذه القضية.",
+      "OPEN_ATTACHMENT": "فتح المرفق",
+      "NO_ATTACHMENTS": "لا توجد مرفقات لهذه القضية.",
+      "ACTIVITY_TITLE": "سجل النشاط",
+      "ACTIVITY_SUBTITLE": "الأحداث الظاهرة وتحديثات فريق المراجعة.",
+      "CONVERSATION_TITLE": "المحادثة",
+      "CONVERSATION_SUBTITLE": "الرسائل الظاهرة لفريقك داخل هذه القضية.",
+      "REPLY_TITLE": "إرسال رد",
+      "REPLY_SUBTITLE": "أرسل ردًا إلى مراجع القضية مع أي تفاصيل إضافية.",
+      "REPLY_FIELD": "نص الرد",
+      "REPLY_PLACEHOLDER": "اكتب ردك أو التوضيح أو ملخص الأدلة هنا...",
+      "RESPONSE_SENT": "تم إرسال ردك بنجاح.",
+      "RESPONSE_FAILED": "تعذر إرسال ردك حاليًا."
+    }
   }
 }

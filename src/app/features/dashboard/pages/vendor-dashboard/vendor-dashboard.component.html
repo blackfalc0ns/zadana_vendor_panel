@@ -1,177 +1,626 @@
-<section class="grid gap-3.5 pb-2">
+<div class="space-y-4" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
   <app-page-header
     [title]="'DASHBOARD.TITLE' | translate"
     [description]="'DASHBOARD.SUBTITLE' | translate"
-    [eyebrow]="'COMMON.WELCOME' | translate"
-    customClass="mb-1"
-  ></app-page-header>
-
-  <div class="grid gap-3.5 xl:grid-cols-[1.6fr_minmax(260px,0.9fr)]">
-    <article class="relative overflow-hidden rounded-[24px] border border-white/70 bg-[linear-gradient(135deg,rgba(9,92,104,0.96),rgba(18,124,140,0.9),rgba(242,161,69,0.14))] p-5 text-white shadow-[0_14px_32px_rgba(18,124,140,0.16)] md:p-6">
-      <div class="pointer-events-none absolute inset-x-0 top-0 h-20 bg-white/5"></div>
-      <div class="relative z-10 grid gap-5 lg:grid-cols-[1.4fr_0.8fr] lg:items-end">
-        <div class="space-y-2.5">
-          <p class="text-[0.72rem] font-extrabold uppercase tracking-[0.16em] text-white/70">{{ 'COMMON.WELCOME' | translate }}</p>
-          <h1 class="max-w-2xl text-[clamp(1.8rem,3vw,2.5rem)] font-black leading-tight">{{ 'DASHBOARD.TITLE' | translate }}</h1>
-          <p class="max-w-2xl text-[0.86rem] leading-6 text-white/78">{{ 'DASHBOARD.SUBTITLE' | translate }}</p>
-
-          <div class="flex flex-wrap gap-2 pt-2">
-            <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-[0.75rem] font-bold text-white/90">
-              {{ 'COMMON.READY_TODAY' | translate }}
-            </span>
-            <span class="rounded-full border border-orange-200/20 bg-orange-300/10 px-3 py-1.5 text-[0.75rem] font-bold text-orange-50">
-              {{ 'COMMON.OPERATIONAL_PRIORITIES' | translate }}
-            </span>
-          </div>
-        </div>
-
-        <div class="rounded-[20px] border border-white/10 bg-slate-950/16 p-4">
-          <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-white/60">{{ 'COMMON.TODAY' | translate }}</p>
-          <div class="mt-3 space-y-3">
-            <div class="rounded-xl bg-white/10 p-3">
-              <span class="text-xs text-white/70">{{ 'DASHBOARD.PENDING_ORDERS' | translate }}</span>
-              <strong class="mt-0.5 block text-2xl font-black">{{ metrics[2].value }}</strong>
-            </div>
-            <div class="flex items-center justify-between rounded-xl border border-white/10 bg-white/5 px-3 py-2.5">
-              <span class="text-xs text-white/70">{{ 'DASHBOARD.ACTIVE_OFFERS' | translate }}</span>
-              <strong class="text-base font-black">{{ metrics[1].value }}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-    </article>
-
-    <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.97),rgba(244,248,251,0.94))] p-5 shadow-[0_14px_28px_rgba(15,23,42,0.045)]">
-      <app-panel-header
-        [eyebrow]="'COMMON.LIVE'"
-        [title]="'DASHBOARD.TODAYS_PULSE'"
-        containerClass="mb-4"
-        contentClass="flex items-center justify-between gap-3"
-        eyebrowClass="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/75"
-        titleClass="mt-0.5 text-[0.95rem] font-black text-slate-900"
-      >
-        <span actions class="inline-flex h-8 w-8 items-center justify-center rounded-[12px] bg-zadna-primary/10 text-zadna-primary">
-          <span class="h-2 w-2 rounded-full bg-zadna-primary"></span>
-        </span>
-      </app-panel-header>
-
-      <div class="mt-4 space-y-3">
-        @for (event of timeline; track event.time) {
-          <div class="relative overflow-hidden rounded-[16px] border border-slate-200/80 bg-white p-3 shadow-[0_6px_16px_rgba(15,23,42,0.03)]">
-            <div class="absolute start-0 top-0 h-full w-1 rounded-s-[16px] bg-gradient-to-b from-zadna-primary to-zadna-accent"></div>
-            <span class="inline-flex rounded-full bg-orange-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-orange-700">{{ event.time }}</span>
-            <p class="mt-2 ps-1 text-[0.78rem] font-bold leading-5 text-slate-700">{{ event.titleKey | translate }}</p>
-          </div>
+    customClass="mb-0">
+    <div actions class="flex flex-wrap items-center gap-2">
+      <div class="inline-flex rounded-[16px] border border-slate-200 bg-white p-1 shadow-sm">
+        @for (period of periods; track period) {
+          <button
+            type="button"
+            (click)="setPeriod(period)"
+            class="rounded-[12px] px-3 py-2 text-[0.72rem] font-black transition"
+            [class.bg-zadna-primary]="selectedPeriod === period"
+            [class.text-white]="selectedPeriod === period"
+            [class.text-slate-600]="selectedPeriod !== period">
+            {{ ('DASHBOARD.PERIODS.' + period) | translate }}
+          </button>
         }
       </div>
-    </article>
-  </div>
 
-  <section class="grid gap-3.5 md:grid-cols-3">
-    @for (metric of metrics; track metric.labelKey) {
-      <article class="group rounded-[20px] border border-slate-200/70 bg-white/92 p-4 shadow-[0_10px_22px_rgba(15,23,42,0.04)]">
-        <div class="flex items-start justify-between gap-2">
-          <span class="text-[0.8rem] font-bold text-slate-500">{{ metric.labelKey | translate }}</span>
-          <span class="rounded-[12px] bg-zadna-primary/10 px-2 py-0.5 text-[0.65rem] font-extrabold uppercase tracking-[0.12em] text-zadna-primary">{{ 'COMMON.LIVE' | translate }}</span>
-        </div>
-        <div class="mt-3 flex items-baseline gap-1">
-          @if (metric.isCurrency) {
-            <span class="text-[0.7rem] font-black text-slate-400">{{ 'COMMON.EGP' | translate }}</span>
-          }
-          <strong class="block text-2xl font-black tracking-tight text-slate-900">{{ metric.value }}</strong>
-        </div>
-        <p class="mt-1.5 text-[0.72rem] leading-5 text-slate-500">{{ metric.noteKey | translate }}</p>
-      </article>
-    }
-  </section>
+      <button
+        type="button"
+        (click)="refreshDashboard()"
+        class="inline-flex items-center gap-2 rounded-[16px] border border-slate-200 bg-white px-4 py-2 text-[0.72rem] font-black text-slate-700 shadow-sm"
+        [disabled]="isLoading">
+        <span class="material-symbols-outlined text-[18px]" [class.animate-spin]="isLoading">refresh</span>
+        {{ 'DASHBOARD.REFRESH' | translate }}
+      </button>
+    </div>
+  </app-page-header>
 
-  <section class="grid gap-3.5 xl:grid-cols-[1.2fr_0.8fr]">
-    <article class="rounded-[24px] border border-slate-200/70 bg-white/95 p-5 shadow-[0_12px_24px_rgba(15,23,42,0.04)]">
-      <app-panel-header
-        [eyebrow]="'COMMON.TODAY'"
-        [title]="'DASHBOARD.QUICK_EXECUTION'"
-        containerClass="mb-4"
-        contentClass="flex items-center justify-between gap-3"
-        eyebrowClass="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70"
-        titleClass="mt-0.5 text-[0.95rem] font-black text-slate-900"
-      >
-        <span actions class="rounded-full bg-slate-100 px-2 py-0.5 text-[0.68rem] font-extrabold text-slate-500">{{ checklist.length }} {{ 'COMMON.ITEMS' | translate }}</span>
-      </app-panel-header>
+  @if (dashboardError && !overview) {
+    <div class="rounded-[22px] border border-rose-200 bg-rose-50 px-5 py-4 text-sm font-bold text-rose-700">
+      {{ dashboardError }}
+    </div>
+  }
 
-      <div class="grid gap-3">
-        @for (item of checklist; track item.titleKey) {
-          <div class="flex gap-3 rounded-[16px] border border-slate-200/80 bg-[linear-gradient(180deg,#ffffff,#f9fbfc)] p-3 hover:border-zadna-primary/20">
-            <div class="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-zadna-primary/10 text-zadna-primary">
-              <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m5 13 4 4L19 7"></path>
-              </svg>
-            </div>
-            <div>
-              <strong class="block text-[0.82rem] font-extrabold text-slate-900">{{ item.titleKey | translate }}</strong>
-              <p class="mt-0.5 text-[0.72rem] leading-5 text-slate-500">{{ item.bodyKey | translate }}</p>
-            </div>
-          </div>
-        }
-      </div>
-    </article>
+  @if (isLoading && !overview) {
+    <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      @for (item of [1,2,3,4,5,6,7,8]; track item) {
+        <div class="h-32 animate-pulse rounded-[24px] border border-slate-200 bg-slate-100"></div>
+      }
+    </div>
+  }
 
-    <article class="rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.96),rgba(247,250,251,0.94))] p-5 shadow-[0_12px_24px_rgba(15,23,42,0.04)]">
-      <app-panel-header
-        [eyebrow]="'COMMON.OPEN'"
-        [title]="'DASHBOARD.TODAYS_PULSE'"
-        containerClass="mb-4"
-        contentClass="flex items-center justify-between gap-3"
-        eyebrowClass="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-zadna-primary/70"
-        titleClass="mt-0.5 text-[0.95rem] font-black text-slate-900"
-      >
-        <span actions class="rounded-full bg-emerald-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-emerald-600">{{ 'COMMON.LIVE' | translate }}</span>
-      </app-panel-header>
-
-      <div class="grid gap-3">
-        @for (action of quickActions; track action.titleKey) {
-          <article
-            class="rounded-[18px] border p-4"
-            [ngClass]="getActionCardClasses(action.accent)">
-            <h3 class="text-[0.9rem] font-extrabold" [class.text-slate-900]="action.accent !== 'dark'">{{ action.titleKey | translate }}</h3>
-            <p class="mt-1.5 text-[0.72rem] leading-5" [ngClass]="action.accent === 'dark' ? 'text-white/75' : 'text-slate-500'">
-              {{ action.bodyKey | translate }}
-            </p>
-            <button
-              type="button"
-              (click)="action.titleKey === 'DASHBOARD.ADD_PRODUCTS' ? onAddProductClick() : null"
-              class="mt-3 inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[0.72rem] font-bold transition"
-              [class.bg-slate-900]="action.accent !== 'dark'"
-              [class.text-white]="action.accent !== 'dark'"
-              [class.bg-white]="action.accent === 'dark'"
-              [class.text-slate-900]="action.accent === 'dark'">
-              {{ 'COMMON.OPEN' | translate }}
-              <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 12h14m-6-6 6 6-6 6"></path>
-              </svg>
+  @if (overview; as ov) {
+    <div class="sticky-nav rounded-[20px] border border-slate-200/80 bg-white/90 px-4 py-3 shadow-sm backdrop-blur">
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <div class="flex flex-wrap gap-2">
+          @for (item of sectionNav; track item.id) {
+            <button type="button" (click)="activeTabId = item.id"
+              class="rounded-full px-3 py-1.5 text-[0.7rem] font-black transition"
+              [class.bg-slate-100]="activeTabId !== item.id"
+              [class.text-slate-600]="activeTabId !== item.id"
+              [ngClass]="activeTabId !== item.id ? 'hover:bg-zadna-primary/10 hover:text-zadna-primary' : ''"
+              [class.bg-zadna-primary]="activeTabId === item.id"
+              [class.text-white]="activeTabId === item.id">
+              {{ item.labelKey | translate }}
             </button>
+          }
+        </div>
+        <div class="text-[0.72rem] font-bold text-slate-500">
+          {{ 'DASHBOARD.LAST_UPDATED' | translate }}: {{ lastUpdatedLabel }}
+        </div>
+      </div>
+    </div>
+
+    @if (ov.alertsFeed.length > 0) {
+      <section class="grid gap-3">
+        @for (alert of ov.alertsFeed; track alert.id) {
+          <a
+            [routerLink]="alert.route"
+            [queryParams]="alert.routeQuery"
+            class="rounded-[22px] border px-4 py-4 transition hover:-translate-y-0.5 hover:shadow-md"
+            [ngClass]="alertClass(alert.severity)">
+            <div class="flex items-start justify-between gap-3">
+              <div>
+                <p class="text-[0.74rem] font-black uppercase tracking-[0.14em] opacity-70">{{ ('DASHBOARD.DOMAIN.' + alert.domain.toUpperCase()) | translate }}</p>
+                <h3 class="mt-1 text-[0.95rem] font-black">{{ alert.titleKey | translate }}</h3>
+                <p class="mt-1 text-[0.78rem] font-bold opacity-80">{{ alert.bodyKey | translate }}</p>
+              </div>
+              <span class="material-symbols-outlined text-[20px]">arrow_outward</span>
+            </div>
+          </a>
+        }
+      </section>
+    }
+
+    <section class="grid gap-3 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-6">
+      @for (card of heroCards; track card.labelKey) {
+        <a
+          class="rounded-[24px] border p-4 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+          [ngClass]="metricToneClass(card.tone)"
+          [routerLink]="card.route || null"
+          [queryParams]="card.queryParams || null">
+          <p class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">{{ card.labelKey | translate }}</p>
+          <div class="mt-3 text-3xl font-black tracking-tight text-slate-900">{{ formatMetricValue(card) }}</div>
+        </a>
+      }
+    </section>
+
+    <section id="operations" class="dashboard-section" [class.hidden]="activeTabId !== 'operations'">
+      <app-panel-header [title]="'DASHBOARD.SECTIONS.OPERATIONS'" [subtitle]="'DASHBOARD.SECTIONS.OPERATIONS_HINT'"></app-panel-header>
+
+      <div class="dashboard-metric-grid dashboard-metric-grid--two">
+        @for (card of operationsCards; track card.labelKey) {
+          <article class="dashboard-metric-card" [ngClass]="metricToneClass(card.tone)">
+            <p>{{ card.labelKey | translate }}</p>
+            <strong>{{ formatMetricValue(card) }}</strong>
+            @if (card.labelKey === 'DASHBOARD.OPERATIONS.AVG_PREP_TIME') {
+              <span class="text-xs font-bold text-slate-400 mt-1 block">{{ 'DASHBOARD.OPERATIONS.MINUTES' | translate }}</span>
+            }
           </article>
         }
       </div>
-    </article>
-  </section>
-</section>
 
-<!-- Modals -->
-@defer (when isSelectorModalOpen) {
-  @if (isSelectorModalOpen) {
-    <app-master-product-selector-modal
-      (close)="isSelectorModalOpen = false"
-      (selected)="onProductSelected($event)">
-    </app-master-product-selector-modal>
-  }
-}
+      <div class="dashboard-grid">
+        <article class="dashboard-chart-card dashboard-chart-card--wide">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.ORDERS_TREND' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDualAxisChart(ov.ordersSection.ordersTrend, 'DASHBOARD.CHARTS.ORDERS', 'DASHBOARD.CHARTS.SALES')" [options]="dualAxisOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
 
-@defer (when isPricingModalOpen && !!selectedMasterProduct) {
-  @if (isPricingModalOpen && selectedMasterProduct) {
-    <app-add-product-modal
-      [product]="selectedMasterProduct"
-      (close)="isPricingModalOpen = false"
-      (confirm)="onPricingConfirm($event)">
-    </app-add-product-modal>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.ORDER_STATUS_BREAKDOWN' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDoughnutChart(ov.ordersSection.statusBreakdown, 'order-status')" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+          </div>
+        </article>
+
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.ORDER_FUNNEL' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildBarChart(ov.ordersSection.funnel, 'order-funnel')" [options]="barChartOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
+      </div>
+
+      <div class="dashboard-split">
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.URGENT_ORDERS' | translate }}</h3>
+            <a routerLink="/orders" [queryParams]="{ lateState: 'LATE' }">{{ 'COMMON.OPEN' | translate }}</a>
+          </div>
+          @if (ov.ordersSection.urgentOrders.length === 0) {
+            <div class="dashboard-empty">{{ 'DASHBOARD.EMPTY.NO_URGENT_ORDERS' | translate }}</div>
+          } @else {
+            <div class="dashboard-list">
+              @for (order of ov.ordersSection.urgentOrders; track order.id) {
+                <a [routerLink]="['/orders', order.id]" class="dashboard-list-row">
+                  <div>
+                    <strong>#{{ order.orderNumber }}</strong>
+                    <p>{{ order.status }}</p>
+                  </div>
+                  <span>{{ formatDateTime(order.placedAtUtc) }}</span>
+                </a>
+              }
+            </div>
+          }
+        </article>
+
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.LATEST_ALERTS' | translate }}</h3>
+          </div>
+          @if (ov.ordersSection.latestAlerts.length === 0) {
+            <div class="dashboard-empty">{{ 'DASHBOARD.EMPTY.NO_ALERTS' | translate }}</div>
+          } @else {
+            <div class="dashboard-list">
+              @for (alert of ov.ordersSection.latestAlerts; track alert.id) {
+                <a [routerLink]="alert.route" [queryParams]="alert.routeQuery" class="dashboard-list-row">
+                  <div>
+                    <strong>{{ alert.titleKey | translate }}</strong>
+                    <p>{{ alert.bodyKey | translate }}</p>
+                  </div>
+                  <span>{{ ('DASHBOARD.DOMAIN.' + alert.domain.toUpperCase()) | translate }}</span>
+                </a>
+              }
+            </div>
+          }
+        </article>
+      </div>
+    </section>
+
+    <section id="sales" class="dashboard-section" [class.hidden]="activeTabId !== 'sales'">
+      <app-panel-header [title]="'DASHBOARD.SECTIONS.SALES'" [subtitle]="'DASHBOARD.SECTIONS.SALES_HINT'"></app-panel-header>
+      <div class="dashboard-metric-grid dashboard-metric-grid--six">
+        @for (card of salesCards; track card.labelKey) {
+          <article class="dashboard-metric-card">
+            <p>{{ card.labelKey | translate }}</p>
+            <strong>{{ formatMetricValue(card) }}</strong>
+            @if (card.delta !== undefined) {
+              <span [ngClass]="deltaClass(card.delta)">{{ formatDelta(card.delta) }}</span>
+            }
+          </article>
+        }
+      </div>
+
+      <div class="dashboard-grid">
+        <article class="dashboard-chart-card dashboard-chart-card--wide">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.SALES_VS_ORDERS' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDualAxisChart(ov.salesSection.data.salesVsOrdersTrend, 'DASHBOARD.CHARTS.SALES', 'DASHBOARD.CHARTS.ORDERS')" [options]="dualAxisOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.WEEKDAY_PERFORMANCE' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildBarChart(ov.salesSection.data.weekdayPerformance, 'weekday')" [options]="barChartOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.TOP_CATEGORIES' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDoughnutChart(ov.salesSection.data.topCategories, 'generic')" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+          </div>
+        </article>
+      </div>
+
+      <div class="dashboard-split">
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.TOP_PRODUCTS' | translate }}</h3>
+            <a routerLink="/products">{{ 'COMMON.OPEN' | translate }}</a>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.salesSection.data.topProducts; track item.id) {
+              <a [routerLink]="['/products', item.id]" class="dashboard-list-row">
+                <div>
+                  <strong>{{ labelForRankedItem(item) }}</strong>
+                  <p>{{ item.secondaryMetric | number:'1.0-0' }} {{ 'DASHBOARD.TABLES.SALES' | translate }}</p>
+                </div>
+                <span>{{ formatCurrency(item.metric) }}</span>
+              </a>
+            }
+          </div>
+        </article>
+
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.UNDERPERFORMING_PRODUCTS' | translate }}</h3>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.salesSection.data.underperformingProducts; track item.id) {
+              <a [routerLink]="['/products', item.id]" class="dashboard-list-row">
+                <div>
+                  <strong>{{ labelForRankedItem(item) }}</strong>
+                  <p>{{ 'DASHBOARD.INVENTORY.NO_MOVEMENT' | translate }}</p>
+                </div>
+                <span>{{ item.metric | number:'1.0-0' }}</span>
+              </a>
+            }
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="inventory" class="dashboard-section" [class.hidden]="activeTabId !== 'inventory'">
+      <app-panel-header [title]="'DASHBOARD.SECTIONS.INVENTORY'" [subtitle]="'DASHBOARD.SECTIONS.INVENTORY_HINT'"></app-panel-header>
+      <div class="dashboard-metric-grid dashboard-metric-grid--five">
+        @for (card of inventoryCards; track card.labelKey) {
+          <article class="dashboard-metric-card">
+            <p>{{ card.labelKey | translate }}</p>
+            <strong>{{ formatMetricValue(card) }}</strong>
+          </article>
+        }
+      </div>
+      <div class="dashboard-grid">
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.STOCK_HEALTH' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDoughnutChart(ov.inventorySection.stockHealthDistribution, 'stock-health')" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.INVENTORY_RISK' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildBarChart(buildRankedSlices(ov.inventorySection.inventoryRiskList), 'generic')" [options]="barChartOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.CATALOG_GROWTH' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildLineChart(ov.inventorySection.catalogGrowth, 'DASHBOARD.CHARTS.PRODUCTS')" [options]="barChartOptions" [type]="'line'"></canvas>
+          </div>
+        </article>
+      </div>
+
+      <div class="dashboard-split">
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.CRITICAL_STOCK' | translate }}</h3>
+            <a routerLink="/products" [queryParams]="{ stockState: 'low' }">{{ 'COMMON.OPEN' | translate }}</a>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.inventorySection.criticalStockWatchlist; track item.id) {
+              <a [routerLink]="['/products', item.id]" class="dashboard-list-row">
+                <div>
+                  <strong>{{ labelForRankedItem(item) }}</strong>
+                  <p>{{ 'DASHBOARD.INVENTORY.CRITICAL_STOCK_NOTE' | translate }}</p>
+                </div>
+                <span>{{ item.metric | number:'1.0-0' }}</span>
+              </a>
+            }
+          </div>
+        </article>
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.NO_MOVEMENT_PRODUCTS' | translate }}</h3>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.inventorySection.noMovementProducts; track item.id) {
+              <a [routerLink]="['/products', item.id]" class="dashboard-list-row">
+                <div>
+                  <strong>{{ labelForRankedItem(item) }}</strong>
+                  <p>{{ 'DASHBOARD.INVENTORY.NO_MOVEMENT' | translate }}</p>
+                </div>
+                <span>{{ item.metric | number:'1.0-0' }}</span>
+              </a>
+            }
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="offers" class="dashboard-section" [class.hidden]="activeTabId !== 'offers'">
+      <app-panel-header [title]="'DASHBOARD.SECTIONS.OFFERS'" [subtitle]="'DASHBOARD.SECTIONS.OFFERS_HINT'"></app-panel-header>
+      <div class="dashboard-metric-grid dashboard-metric-grid--four">
+        @for (card of offersCards; track card.labelKey) {
+          <article class="dashboard-metric-card">
+            <p>{{ card.labelKey | translate }}</p>
+            <strong>{{ formatMetricValue(card) }}</strong>
+          </article>
+        }
+      </div>
+      <div class="dashboard-grid">
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.OFFERS_BY_TYPE' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDoughnutChart(ov.offersSection.offersByType, 'offer-types')" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.DISCOUNT_BANDS' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildBarChart(ov.offersSection.discountBands, 'discount-bands')" [options]="barChartOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.OFFER_LINKED_PRODUCTS' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildBarChart(ov.offersSection.linkedProductsByType, 'offer-types')" [options]="barChartOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
+      </div>
+
+      <div class="dashboard-split">
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.EXPIRING_OFFERS' | translate }}</h3>
+            <a routerLink="/offers" [queryParams]="{ expiryState: 'soon' }">{{ 'COMMON.OPEN' | translate }}</a>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.offersSection.expiringOffersList; track item.id) {
+              <a [routerLink]="['/products', item.id]" class="dashboard-list-row">
+                <div>
+                  <strong>{{ labelForRankedItem(item) }}</strong>
+                  <p>{{ 'DASHBOARD.OFFERS.EXPIRING_HINT' | translate }}</p>
+                </div>
+                <span>{{ formatCurrency(item.metric) }}</span>
+              </a>
+            }
+          </div>
+        </article>
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.PROMOTION_CANDIDATES' | translate }}</h3>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.offersSection.promotionCandidates; track item.id) {
+              <a [routerLink]="['/products', item.id]" class="dashboard-list-row">
+                <div>
+                  <strong>{{ labelForRankedItem(item) }}</strong>
+                  <p>{{ 'DASHBOARD.OFFERS.PROMOTION_HINT' | translate }}</p>
+                </div>
+                <span>{{ item.metric | number:'1.0-0' }}</span>
+              </a>
+            }
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="reviews" class="dashboard-section" [class.hidden]="activeTabId !== 'reviews'">
+      <app-panel-header [title]="'DASHBOARD.SECTIONS.REVIEWS'" [subtitle]="'DASHBOARD.SECTIONS.REVIEWS_HINT'"></app-panel-header>
+      <div class="dashboard-metric-grid dashboard-metric-grid--five">
+        @for (card of reviewsCards; track card.labelKey) {
+          <article class="dashboard-metric-card">
+            <p>{{ card.labelKey | translate }}</p>
+            <strong>{{ formatMetricValue(card) }}</strong>
+          </article>
+        }
+      </div>
+      <div class="dashboard-grid">
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.RATING_DISTRIBUTION' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildBarChart(ov.reviewsSection.ratingDistribution, 'generic')" [options]="barChartOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.REVIEWS_TREND' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildLineChart(ov.reviewsSection.reviewsTrend, 'DASHBOARD.CHARTS.REVIEWS')" [options]="barChartOptions" [type]="'line'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.REPLY_BREAKDOWN' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDoughnutChart(ov.reviewsSection.replyBreakdown, 'reply-breakdown')" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+          </div>
+        </article>
+      </div>
+      <div class="dashboard-split">
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.LOW_RATING_UNREPLIED' | translate }}</h3>
+            <a routerLink="/reviews" [queryParams]="{ attention: 'needs_attention' }">{{ 'COMMON.OPEN' | translate }}</a>
+          </div>
+          <div class="dashboard-list">
+            @for (review of ov.reviewsSection.lowRatingUnreplied; track review.id) {
+              <a routerLink="/reviews" [queryParams]="{ attention: 'needs_attention' }" class="dashboard-list-row">
+                <div>
+                  <strong>{{ review.customerName }}</strong>
+                  <p>{{ shortComment(review) }}</p>
+                </div>
+                <span>{{ review.rating }}/5</span>
+              </a>
+            }
+          </div>
+        </article>
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.RECENT_HIGHLIGHTS' | translate }}</h3>
+          </div>
+          <div class="dashboard-list">
+            @for (review of ov.reviewsSection.recentHighlights; track review.id) {
+              <a routerLink="/reviews" class="dashboard-list-row">
+                <div>
+                  <strong>{{ review.customerName }}</strong>
+                  <p>{{ shortComment(review) }}</p>
+                </div>
+                <span>{{ formatDate(review.createdAtUtc) }}</span>
+              </a>
+            }
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="finance" class="dashboard-section" [class.hidden]="activeTabId !== 'finance'">
+      <app-panel-header [title]="'DASHBOARD.SECTIONS.FINANCE'" [subtitle]="'DASHBOARD.SECTIONS.FINANCE_HINT'"></app-panel-header>
+      <div class="dashboard-metric-grid dashboard-metric-grid--six">
+        @for (card of financeCards; track card.labelKey) {
+          <article class="dashboard-metric-card">
+            <p>{{ card.labelKey | translate }}</p>
+            <strong>{{ formatMetricValue(card) }}</strong>
+          </article>
+        }
+      </div>
+      <div class="dashboard-grid">
+        <article class="dashboard-chart-card dashboard-chart-card--wide">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.SALES_VS_PAYOUTS' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDualAxisChart(ov.financeSection.salesVsPayoutsTrend, 'DASHBOARD.CHARTS.SALES', 'DASHBOARD.CHARTS.PAYOUTS')" [options]="dualAxisOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.SETTLEMENT_STATUS' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDoughnutChart(ov.financeSection.settlementStatusBreakdown, 'settlements')" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.LEDGER_BREAKDOWN' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDoughnutChart(ov.financeSection.ledgerTypeBreakdown, 'ledger')" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+          </div>
+        </article>
+      </div>
+      <div class="dashboard-split">
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.RECENT_SETTLEMENTS' | translate }}</h3>
+            <a routerLink="/finance" [queryParams]="{ period: 'month' }">{{ 'COMMON.OPEN' | translate }}</a>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.financeSection.recentSettlements; track item.id) {
+              <a routerLink="/finance" [queryParams]="{ period: 'month' }" class="dashboard-list-row">
+                <div>
+                  <strong>{{ item.code }}</strong>
+                  <p>{{ item.status }}</p>
+                </div>
+                <span>{{ formatCurrency(item.amount) }}</span>
+              </a>
+            }
+          </div>
+        </article>
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.RECENT_LEDGER' | translate }}</h3>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.financeSection.recentLedgerEntries; track item.id) {
+              <a routerLink="/finance" [queryParams]="{ period: 'month' }" class="dashboard-list-row">
+                <div>
+                  <strong>{{ item.label }}</strong>
+                  <p>{{ item.reference }}</p>
+                </div>
+                <span>{{ item.direction === 'out' ? '-' : '+' }}{{ formatCurrency(item.amount) }}</span>
+              </a>
+            }
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="risk" class="dashboard-section" [class.hidden]="activeTabId !== 'risk'">
+      <app-panel-header [title]="'DASHBOARD.SECTIONS.RISK'" [subtitle]="'DASHBOARD.SECTIONS.RISK_HINT'"></app-panel-header>
+      <div class="dashboard-metric-grid dashboard-metric-grid--four">
+        @for (card of disputesCards; track card.labelKey) {
+          <article class="dashboard-metric-card">
+            <p>{{ card.labelKey | translate }}</p>
+            <strong>{{ formatMetricValue(card) }}</strong>
+          </article>
+        }
+      </div>
+      <div class="dashboard-grid">
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.DISPUTES_BY_STATUS' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDoughnutChart(ov.disputesSection.statusBreakdown, 'dispute-status')" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.DISPUTES_BY_TYPE' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildBarChart(ov.disputesSection.typeBreakdown, 'dispute-type')" [options]="barChartOptions" [type]="'bar'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.DISPUTES_TREND' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildLineChart(ov.disputesSection.disputeTrend, 'DASHBOARD.CHARTS.DISPUTES')" [options]="barChartOptions" [type]="'line'"></canvas>
+          </div>
+        </article>
+      </div>
+      <div class="dashboard-split">
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.AWAITING_ACTION' | translate }}</h3>
+            <a routerLink="/disputes" [queryParams]="{ status: 'submitted' }">{{ 'COMMON.OPEN' | translate }}</a>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.disputesSection.awaitingAction; track item.id) {
+              <a [routerLink]="['/disputes', item.id]" class="dashboard-list-row">
+                <div>
+                  <strong>{{ item.type }}</strong>
+                  <p>{{ item.message }}</p>
+                </div>
+                <span>{{ item.priority }}</span>
+              </a>
+            }
+          </div>
+        </article>
+        <article class="dashboard-list-card">
+          <div class="dashboard-list-header">
+            <h3>{{ 'DASHBOARD.SECTIONS.RECENT_ESCALATIONS' | translate }}</h3>
+          </div>
+          <div class="dashboard-list">
+            @for (item of ov.disputesSection.recentEscalations; track item.id) {
+              <a [routerLink]="['/disputes', item.id]" class="dashboard-list-row">
+                <div>
+                  <strong>{{ item.type }}</strong>
+                  <p>{{ item.status }}</p>
+                </div>
+                <span>{{ formatDate(item.occurredAtUtc) }}</span>
+              </a>
+            }
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="staff" class="dashboard-section" [class.hidden]="activeTabId !== 'staff'">
+      <app-panel-header [title]="'DASHBOARD.SECTIONS.STAFF'" [subtitle]="'DASHBOARD.SECTIONS.STAFF_HINT'"></app-panel-header>
+      <div class="dashboard-metric-grid dashboard-metric-grid--four">
+        @for (card of staffCards; track card.labelKey) {
+          <article class="dashboard-metric-card">
+            <p>{{ card.labelKey | translate }}</p>
+            <strong>{{ formatMetricValue(card) }}</strong>
+          </article>
+        }
+      </div>
+      <div class="dashboard-grid">
+        <article class="dashboard-chart-card">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.BRANCH_STATUS' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            <canvas baseChart [data]="buildDoughnutChart(ov.staffSection.branchStatusBreakdown, 'branch-status')" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+          </div>
+        </article>
+        <article class="dashboard-chart-card dashboard-chart-card--wide">
+          <h3 class="dashboard-card-title">{{ 'DASHBOARD.CHARTS.STAFF_ROLE_DISTRIBUTION' | translate }}</h3>
+          <div class="dashboard-chart-body">
+            @if (ov.staffSection.staffRoleDistribution.length === 0) {
+              <div class="dashboard-empty">{{ 'DASHBOARD.EMPTY.NO_STAFF_DISTRIBUTION' | translate }}</div>
+            } @else {
+              <canvas baseChart [data]="buildBarChart(ov.staffSection.staffRoleDistribution, 'generic')" [options]="barChartOptions" [type]="'bar'"></canvas>
+            }
+          </div>
+        </article>
+      </div>
+    </section>
   }
-}
+</div>

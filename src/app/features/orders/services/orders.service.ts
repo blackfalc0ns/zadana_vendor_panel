@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, map, of, switchMap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   OrderDetail,
@@ -127,7 +127,8 @@ export class OrdersService {
 
   getOrderById(id: string): Observable<OrderDetail | null> {
     return this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${id}`).pipe(
-      map((order) => this.mapDetail(order))
+      map((order) => this.mapDetail(order)),
+      catchError(() => of(null))
     );
   }
 
@@ -270,6 +271,8 @@ export class OrdersService {
     const paymentMethodType = this.mapPaymentMethod(item.paymentMethod);
     const tax = Math.max(0, item.totalAmount - item.subtotal - item.deliveryFee);
     const driver = item.assignedDriver;
+    const items = Array.isArray(item.items) ? item.items : [];
+    const timeline = Array.isArray(item.timeline) ? item.timeline : [];
 
     return {
       id: item.id,
@@ -289,7 +292,7 @@ export class OrdersService {
       subtotal: item.subtotal,
       deliveryFee: item.deliveryFee,
       tax,
-      itemCount: item.items.length,
+      itemCount: items.length,
       isLate: false,
       hasActiveIssue: status === 'CANCELLED',
       notes: item.notes ?? undefined,
@@ -297,8 +300,8 @@ export class OrdersService {
       driverPhone: driver?.phoneNumber ?? undefined,
       driverVehicleType: driver?.vehicleType,
       driverVehiclePlate: driver?.plateNumber,
-      items: item.items.map((orderItem) => this.mapOrderItem(orderItem)),
-      timeline: item.timeline.map((timelineItem) => this.mapTimelineItem(timelineItem)),
+      items: items.map((orderItem) => this.mapOrderItem(orderItem)),
+      timeline: timeline.map((timelineItem) => this.mapTimelineItem(timelineItem)),
       canConfirmPickup: item.canConfirmPickup ?? false,
       pickupOtpStatus: item.pickupOtpStatus ?? undefined,
       vendorLocation: item.vendorLocation

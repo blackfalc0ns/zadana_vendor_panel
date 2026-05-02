@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AlertsCenterService } from '../../../alerts/services/alerts-center.service';
 import { OrdersService } from '../../services/orders.service';
@@ -35,11 +35,12 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
         customClass="mb-0"
       ></app-page-header>
 
-      <div class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50 transition-all duration-500">
+      <section class="relative z-20 overflow-visible rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
         <app-panel-header
+          [title]="'ORDERS.FILTERS.TITLE'"
+          [subtitle]="'ORDERS.FILTERS.SUBTITLE'"
           containerClass="border-b border-slate-100 px-6 py-5"
-          contentClass="flex flex-col gap-4"
-        >
+          contentClass="flex flex-col gap-4">
           <div actions class="grid w-full gap-4 xl:grid-cols-[minmax(260px,1.6fr)_repeat(3,minmax(170px,1fr))_auto]">
             <label class="space-y-2">
               <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'ORDERS.FILTERS.SEARCH' | translate }}</span>
@@ -83,6 +84,13 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
             </div>
           </div>
         </app-panel-header>
+      </section>
+
+      <section class="relative z-10 overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
+        <app-panel-header
+          [title]="'ORDERS.TABLE.TITLE'"
+          [subtitle]="'ORDERS.TABLE.SUBTITLE'">
+        </app-panel-header>
 
         <div class="overflow-x-auto no-scrollbar">
           @if (isLoading) {
@@ -101,7 +109,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
               <p class="max-w-xs text-sm font-bold text-slate-500">{{ 'ORDERS.EMPTY_DESC' | translate }}</p>
             </div>
           } @else {
-            <table class="w-full text-start border-collapse animate-in slide-in-from-bottom-2 duration-500">
+            <table class="hidden md:table w-full text-start border-collapse animate-in slide-in-from-bottom-2 duration-500">
               <thead>
                 <tr class="border-b border-slate-50 bg-slate-50/50 text-[0.62rem] font-black uppercase tracking-widest text-slate-400">
                   <th class="px-6 py-4 text-start">{{ 'ORDERS.HEADER_ORDER_ID' | translate }}</th>
@@ -174,6 +182,64 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
                 }
               </tbody>
             </table>
+
+            <!-- Mobile Cards View -->
+            <div class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 animate-in slide-in-from-bottom-2 duration-500">
+              @for (order of orders; track order.id) {
+                <div class="group flex flex-col rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-zadna-primary/30">
+                  <div class="flex items-start justify-between">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[0.85rem] font-black text-slate-900">#{{ order.displayId }}</span>
+                      @if (order.isLate) {
+                        <span class="inline-flex h-2 w-2 rounded-full bg-rose-500 animate-pulse" [title]="'ORDERS.LATE_ALERT' | translate"></span>
+                      }
+                    </div>
+                    <app-order-status-badge [status]="order.status"></app-order-status-badge>
+                  </div>
+
+                  <div class="mt-3">
+                    <span class="block truncate text-[0.85rem] font-black text-slate-800">{{ order.customerName }}</span>
+                    <span class="text-[0.7rem] font-bold text-slate-400">{{ order.customerPhone }}</span>
+                  </div>
+
+                  <div class="mt-3 grid grid-cols-2 gap-3 rounded-xl bg-slate-50/50 p-3">
+                    <div class="flex flex-col">
+                      <span class="text-[0.65rem] font-bold text-slate-400">{{ 'ORDERS.HEADER_DATE' | translate }}</span>
+                      <span class="text-[0.75rem] font-bold text-slate-700 mt-0.5">{{ order.date }}</span>
+                      <span class="text-[0.65rem] font-bold text-slate-400">{{ order.time }}</span>
+                    </div>
+                    <div class="flex flex-col text-end">
+                      <span class="text-[0.65rem] font-bold text-slate-400">{{ 'ORDERS.HEADER_TOTAL' | translate }}</span>
+                      <div class="flex items-baseline justify-end gap-1 mt-0.5">
+                        <span class="text-[0.9rem] font-black text-slate-900">{{ order.total | number:'1.2-2' }}</span>
+                        <span class="text-[0.6rem] font-black uppercase text-zadna-primary">{{ 'ORDERS.CURRENCY' | translate }}</span>
+                      </div>
+                      <span class="inline-flex mt-1 items-center justify-end gap-1 rounded bg-slate-100 px-1.5 py-0.5 text-[0.6rem] font-black text-slate-600">
+                        {{ (order.itemCount === 1 ? 'ORDERS.ITEM_COUNT' : 'ORDERS.ITEMS_COUNT') | translate:{count: order.itemCount} }}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div class="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                    <div class="flex items-center gap-2">
+                      <button
+                        [routerLink]="['/orders', order.id]"
+                        class="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-100 bg-white text-slate-500 shadow-sm transition hover:border-zadna-primary/30 hover:bg-zadna-primary/10 hover:text-zadna-primary">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                          <path d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+                        </svg>
+                      </button>
+                      <button class="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-100 bg-white text-slate-500 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-600">
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
           }
         </div>
 
@@ -190,7 +256,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
             </app-pagination>
           </div>
         }
-      </div>
+      </section>
     </div>
   `,
   styles: [`
@@ -209,6 +275,14 @@ export class OrderListComponent implements OnInit, OnDestroy {
     paymentMethod: 'ALL' as 'ALL' | 'CARD' | 'COD',
     lateState: 'ALL' as 'ALL' | 'LATE' | 'ONTIME'
   };
+
+  summary = {
+    total: 0,
+    new: 0,
+    inProgress: 0,
+    late: 0
+  };
+
   private langSub: Subscription;
   private realtimeOrdersSub?: Subscription;
 
@@ -220,13 +294,15 @@ export class OrderListComponent implements OnInit, OnDestroy {
   constructor(
     private ordersService: OrdersService,
     private alertsCenterService: AlertsCenterService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private route: ActivatedRoute
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => this.currentLang = event.lang);
   }
 
   ngOnInit(): void {
+    this.applyQueryParams();
     this.realtimeOrdersSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
       if (alert.source === 'orders') {
         this.loadOrders();
@@ -259,10 +335,28 @@ export class OrderListComponent implements OnInit, OnDestroy {
         this.totalCount = data.totalCount;
         this.totalPages = data.totalPages;
         this.isLoading = false;
+        this.updateSummary();
       },
       error: () => {
         this.isLoading = false;
       }
+    });
+  }
+
+  private updateSummary(): void {
+    this.ordersService.getOrders({
+      pageNumber: 1,
+      pageSize: 250,
+      status: 'ALL',
+      paymentMethod: 'ALL',
+      lateState: 'ALL'
+    }).subscribe((data) => {
+      this.summary = {
+        total: data.totalCount,
+        new: data.items.filter(o => o.status === 'NEW').length,
+        inProgress: data.items.filter(o => ['CONFIRMED', 'IN_PROGRESS', 'READY_FOR_PICKUP'].includes(o.status)).length,
+        late: data.items.filter(o => o.isLate).length
+      };
     });
   }
 
@@ -285,5 +379,24 @@ export class OrderListComponent implements OnInit, OnDestroy {
     };
     this.currentPage = 1;
     this.loadOrders();
+  }
+
+  private applyQueryParams(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const status = params.get('status');
+    const lateState = params.get('lateState');
+    const search = params.get('search');
+
+    if (status) {
+      this.filters.status = status as OrderStatus | 'ALL';
+    }
+
+    if (lateState === 'LATE' || lateState === 'ONTIME' || lateState === 'ALL') {
+      this.filters.lateState = lateState;
+    }
+
+    if (search) {
+      this.searchTerm = search;
+    }
   }
 }

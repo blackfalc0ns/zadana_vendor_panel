@@ -91,6 +91,14 @@ export const routes: Routes = [
         loadComponent: () => import('./features/orders/pages/order-details/order-details.component').then(m => m.OrderDetailsComponent)
       },
       {
+        path: 'disputes/:id',
+        loadComponent: () => import('./features/disputes/pages/vendor-dispute-detail/vendor-dispute-detail.component').then(m => m.VendorDisputeDetailComponent)
+      },
+      {
+        path: 'disputes',
+        loadComponent: () => import('./features/disputes/pages/vendor-disputes-list/vendor-disputes-list.component').then(m => m.VendorDisputesListComponent)
+      },
+      {
         path: 'finance',
         loadComponent: () => import('./features/finance/pages/finance-dashboard/vendor-finance-dashboard.component').then(m => m.VendorFinanceDashboardComponent)
       },

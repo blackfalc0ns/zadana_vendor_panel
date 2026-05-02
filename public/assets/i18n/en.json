@@ -48,7 +48,8 @@
     "CONTINUE": "Continue",
     "ERROR_OCCURRED": "An unexpected error occurred.",
     "STATUS_ACTIVE": "Active",
-    "STATUS_INACTIVE": "Inactive"
+    "STATUS_INACTIVE": "Inactive",
+    "FILTERS": "Filters"
   },
   "SIDEBAR": {
     "APP_NAME": "Zadana",
@@ -57,7 +58,7 @@
     "PRODUCTS": "Product Management",
     "ORDERS": "Order Management",
     "OFFERS": "Offers & Discounts",
-    "FINANCE": "Finance",
+    "FINANCE": "My Wallet",
     "BRANCHES": "Branches",
     "STAFF_BRANCHES": "Staff & Branches",
     "REVIEWS": "Reviews",
@@ -73,42 +74,222 @@
     "VERIFIED_VENDOR": "Verified Zadana Vendor",
     "STORE_SETUP": "Store Setup",
     "STORE_SETUP_TITLE": "Complete your store setup to start selling",
-    "CONTINUE_SETUP": "Continue Setup"
+    "CONTINUE_SETUP": "Continue Setup",
+    "DISPUTES": "Disputes"
   },
   "DASHBOARD": {
-    "TITLE": "Dashboard",
-    "SUBTITLE": "Track your store performance and daily sales stats",
-    "PENDING_ORDERS": "Pending Orders",
-    "PENDING_ORDERS_NOTE": "Review and prepare as soon as possible",
-    "ACTIVE_OFFERS": "Active Offers",
-    "ACTIVE_OFFERS_NOTE": "Your products currently under discount",
-    "STATUS_LIVE": "Active / Live",
-    "TODAYS_PULSE": "Today's Pulse",
-    "QUICK_EXECUTION": "Quick Execution",
-    "ADD_PRODUCTS": "Add Products",
-    "ADD_PRODUCTS_DESC": "Add new products from the catalog",
-    "VIEW_OFFERS": "View Offers",
-    "VIEW_OFFERS_DESC": "Manage active discounts",
-    "TRACK_SHIPMENTS": "Track Shipments",
-    "TRACK_SHIPMENTS_DESC": "Follow delivery status",
-    "ADJUST_HOURS": "Operating Hours",
-    "ADJUST_HOURS_DESC": "Adjust opening/closing times",
-    "TOTAL_SALES": "Total Sales",
-    "TOTAL_SALES_NOTE": "12% growth from last month",
-    "ORDER_COUNT": "Order Count",
-    "CUSTOMER_COUNT": "Customer Count",
-    "CHECKLIST": {
-      "CONFIRM_ORDERS_TITLE": "Confirm New Orders",
-      "CONFIRM_ORDERS_BODY": "You have new orders waiting for confirmation",
-      "LOW_STOCK_TITLE": "Stock Alert",
-      "LOW_STOCK_BODY": "Some products reached minimum level",
-      "REFRESH_OFFERS_TITLE": "Update Offers",
-      "REFRESH_OFFERS_BODY": "Review offers expiring soon"
+    "TITLE": "Vendor command center",
+    "SUBTITLE": "Operational, commercial, quality, and finance visibility in one place",
+    "LAST_UPDATED": "Last updated",
+    "REFRESH": "Refresh",
+    "ERROR": "Unable to load dashboard data right now.",
+    "PERIODS": {
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days"
     },
-    "TIMELINE": {
-      "RAMADAN_CAMPAIGN": "Ramadan Marketing Campaign",
-      "NEW_ORDERS": "Received new batch of orders",
-      "LOW_INVENTORY": "Low stock in Cooking Oil"
+    "SECTION_NAV": {
+      "OPERATIONS": "Operations",
+      "SALES": "Sales",
+      "INVENTORY": "Inventory",
+      "OFFERS": "Offers",
+      "REVIEWS": "Reviews",
+      "FINANCE": "Finance",
+      "RISK": "Risk",
+      "STAFF": "Staff"
+    },
+    "DOMAIN": {
+      "OPERATIONS": "Operations",
+      "INVENTORY": "Inventory",
+      "FINANCE": "Finance",
+      "REVIEWS": "Reviews",
+      "RISK": "Risk"
+    },
+    "HERO": {
+      "PENDING_ORDERS": "Pending orders",
+      "LATE_ORDERS": "Late orders",
+      "READY_FOR_PICKUP": "Ready for pickup",
+      "DRIVER_ISSUES": "Driver issues",
+      "OPEN_DISPUTES": "Open disputes",
+      "LOW_STOCK": "Critical stock"
+    },
+    "SECTIONS": {
+      "OPERATIONS": "Operational command center",
+      "OPERATIONS_HINT": "What needs action right now across orders and fulfillment.",
+      "SALES": "Sales and commercial performance",
+      "SALES_HINT": "Revenue, order quality, category performance, and weak spots.",
+      "INVENTORY": "Inventory and catalog",
+      "INVENTORY_HINT": "Stock health, catalog movement, and products that need intervention.",
+      "OFFERS": "Offers and merchandising",
+      "OFFERS_HINT": "Live promotions, discount bands, and promotion candidates.",
+      "REVIEWS": "Reviews and customer quality",
+      "REVIEWS_HINT": "Customer sentiment, reply pressure, and quality feedback.",
+      "FINANCE": "Wallet summary",
+      "FINANCE_HINT": "Cash posture, settlements, payouts, and ledger activity.",
+      "RISK": "Disputes and risk",
+      "RISK_HINT": "Cases that may hurt service quality or profitability.",
+      "STAFF": "Staff and branches",
+      "STAFF_HINT": "Light branch summary for operational coverage.",
+      "URGENT_ORDERS": "Urgent orders",
+      "LATEST_ALERTS": "Latest operational alerts",
+      "TOP_PRODUCTS": "Top products",
+      "UNDERPERFORMING_PRODUCTS": "Underperforming products",
+      "CRITICAL_STOCK": "Critical stock watchlist",
+      "NO_MOVEMENT_PRODUCTS": "Products with no movement",
+      "EXPIRING_OFFERS": "Expiring offers",
+      "PROMOTION_CANDIDATES": "Promotion candidates",
+      "LOW_RATING_UNREPLIED": "Low-rating reviews without reply",
+      "RECENT_HIGHLIGHTS": "Recent review highlights",
+      "RECENT_SETTLEMENTS": "Recent settlements",
+      "RECENT_LEDGER": "Recent ledger activity",
+      "AWAITING_ACTION": "Cases awaiting vendor action",
+      "RECENT_ESCALATIONS": "Recent escalations"
+    },
+    "CHARTS": {
+      "COUNT": "Count",
+      "SALES": "Sales",
+      "ORDERS": "Orders",
+      "PAYOUTS": "Payouts",
+      "PRODUCTS": "Products",
+      "REVIEWS": "Reviews",
+      "DISPUTES": "Disputes",
+      "ORDERS_TREND": "Orders trend",
+      "ORDER_STATUS_BREAKDOWN": "Order status breakdown",
+      "ORDER_FUNNEL": "Order funnel",
+      "SALES_VS_ORDERS": "Sales vs orders",
+      "WEEKDAY_PERFORMANCE": "Weekday performance",
+      "TOP_CATEGORIES": "Top categories",
+      "STOCK_HEALTH": "Stock health distribution",
+      "INVENTORY_RISK": "Inventory risk list",
+      "CATALOG_GROWTH": "Catalog growth",
+      "OFFERS_BY_TYPE": "Offers by type",
+      "DISCOUNT_BANDS": "Discount bands",
+      "OFFER_LINKED_PRODUCTS": "Offer-linked products",
+      "RATING_DISTRIBUTION": "Rating distribution",
+      "REVIEWS_TREND": "Reviews trend",
+      "REPLY_BREAKDOWN": "Reply breakdown",
+      "SALES_VS_PAYOUTS": "Sales vs payouts",
+      "SETTLEMENT_STATUS": "Settlement status",
+      "LEDGER_BREAKDOWN": "Ledger breakdown",
+      "DISPUTES_BY_STATUS": "Disputes by status",
+      "DISPUTES_BY_TYPE": "Disputes by type",
+      "DISPUTES_TREND": "Disputes trend",
+      "BRANCH_STATUS": "Branch status",
+      "STAFF_ROLE_DISTRIBUTION": "Staff role distribution"
+    },
+    "FUNNEL": {
+      "NEW": "New",
+      "CONFIRMED": "Confirmed",
+      "PREPARING": "Preparing",
+      "READY": "Ready",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    },
+    "STOCK_HEALTH": {
+      "HEALTHY": "Healthy",
+      "LOW": "Low",
+      "OUT": "Out of stock"
+    },
+    "OFFER_TYPES": {
+      "DIRECT": "Direct offers",
+      "COUPONS": "Coupons",
+      "CATEGORY_CAMPAIGNS": "Category campaigns",
+      "CLEARANCE": "Clearance",
+      "CAMPAIGNS": "Campaigns"
+    },
+    "REPLY_BREAKDOWN": {
+      "REPLIED": "Replied",
+      "PENDING": "Pending"
+    },
+    "SETTLEMENT_STATUS": {
+      "PAID": "Paid",
+      "PROCESSING": "Processing",
+      "SCHEDULED": "Scheduled"
+    },
+    "LEDGER_TYPES": {
+      "SALES": "Sales",
+      "FEES": "Fees",
+      "PAYOUTS": "Payouts",
+      "REFUNDS": "Refunds"
+    },
+    "SALES": {
+      "GROSS_SALES": "Gross sales",
+      "PAID_SALES": "Paid sales",
+      "ORDERS_COUNT": "Orders",
+      "AVERAGE_ORDER_VALUE": "Average order value",
+      "CANCELLATION_RATE": "Cancellation rate",
+      "REFUND_RATE": "Refund rate",
+      "LOST_REVENUE": "Lost Revenue"
+    },
+    "INVENTORY": {
+      "ACTIVE_PRODUCTS": "Active products",
+      "OUT_OF_STOCK": "Out of stock",
+      "LOW_STOCK": "Low stock",
+      "INACTIVE_PRODUCTS": "Inactive products",
+      "PRODUCTS_WITH_OFFERS": "Products with offers",
+      "CRITICAL_STOCK_NOTE": "Immediate replenishment recommended",
+      "NO_MOVEMENT": "No movement in selected period",
+      "IDLE_CAPITAL": "Idle Capital"
+    },
+    "OFFERS": {
+      "ACTIVE_OFFERS": "Active offers",
+      "CLEARANCE_ITEMS": "Clearance items",
+      "EXPIRING_OFFERS": "Expiring offers",
+      "OFFER_COVERAGE": "Offer coverage",
+      "EXPIRING_HINT": "Offer value currently exposed",
+      "PROMOTION_HINT": "Candidate for promotional push"
+    },
+    "REVIEWS": {
+      "AVERAGE_RATING": "Average rating",
+      "TOTAL_REVIEWS": "Total reviews",
+      "LOW_RATING_COUNT": "Low ratings",
+      "PENDING_REPLIES": "Pending replies",
+      "HIDDEN_REVIEWS": "Hidden reviews"
+    },
+    "FINANCE": {
+      "AVAILABLE_BALANCE": "Available balance",
+      "PENDING_SETTLEMENT": "Pending settlement",
+      "NET_SALES": "Net sales",
+      "FEES": "Fees",
+      "PAYOUTS_PAID": "Payouts paid",
+      "HOLD_AMOUNT": "Hold amount",
+      "NEXT_SETTLEMENT": "Next settlement",
+      "LIFECYCLE_MODE": "Lifecycle mode"
+    },
+    "DISPUTES": {
+      "OPEN": "Open disputes",
+      "HIGH_PRIORITY": "High priority",
+      "REFUND_REQUESTS": "Refund requests",
+      "AWAITING_VENDOR_RESPONSE": "Awaiting vendor response"
+    },
+    "STAFF": {
+      "ACTIVE_BRANCHES": "Active branches",
+      "ACTIVE_STAFF": "Active staff",
+      "PENDING_INVITATIONS": "Pending invitations",
+      "BRANCHES_NEEDING_COVERAGE": "Branches needing coverage"
+    },
+    "ALERTS": {
+      "LATE_ORDERS_TITLE": "Late orders need attention",
+      "LATE_ORDERS_BODY": "Some orders have exceeded the expected preparation window.",
+      "LOW_STOCK_TITLE": "Critical stock needs replenishment",
+      "LOW_STOCK_BODY": "A group of products is running at a risky stock level.",
+      "DISPUTES_TITLE": "Cases are waiting for vendor response",
+      "DISPUTES_BODY": "There are disputes that require immediate vendor follow-up.",
+      "REVIEWS_TITLE": "Customer reviews need replies",
+      "REVIEWS_BODY": "Unreplied low-rating reviews may affect trust and conversion.",
+      "LARGE_SETTLEMENT_TITLE": "Pending settlement in cycle",
+      "LARGE_SETTLEMENT_BODY": "Settlement funds are still in process and should be reviewed."
+    },
+    "EMPTY": {
+      "NO_ALERTS": "No active alerts right now.",
+      "NO_URGENT_ORDERS": "No urgent orders at the moment.",
+      "NO_STAFF_DISTRIBUTION": "No staff distribution data is available yet."
+    },
+    "OPERATIONS": {
+      "PREP_EFFICIENCY": "Prep Efficiency (SLA)",
+      "AVG_PREP_TIME": "Avg Prep Time",
+      "MINUTES": "minutes"
     }
   },
   "AUTH": {
@@ -378,6 +559,12 @@
   "PRODUCTS": {
     "LIST_TITLE": "Product Management",
     "LIST_SUBTITLE": "View and edit your product stock and prices",
+    "SUMMARY": {
+      "TOTAL": "Total Products",
+      "ACTIVE": "Active Products",
+      "LOW_STOCK": "Low Stock",
+      "OUT_OF_STOCK": "Out of Stock"
+    },
     "ADD_BUTTON": "Add Product",
     "SEARCH_PLACEHOLDER": "Search by name or barcode...",
     "FILTERS": {
@@ -521,6 +708,12 @@
   "OFFERS": {
     "TITLE": "Offers & Discounts",
     "SUBTITLE": "Track discounted products and update their offers quickly.",
+    "SUMMARY": {
+      "DIRECT": "Product Offers",
+      "COUPONS": "Active Coupons",
+      "CATEGORIES": "Category Campaigns",
+      "CLEARANCE": "Clearance Items"
+    },
     "SEARCH_PLACEHOLDER": "Search inside offers...",
     "FILTERS": {
       "TITLE": "Filters",
@@ -678,6 +871,12 @@
   "ORDERS": {
     "LIST_TITLE": "Order Management",
     "LIST_SUBTITLE": "Track and fulfill incoming orders",
+    "SUMMARY": {
+      "TOTAL": "Total Orders",
+      "NEW": "New Orders",
+      "IN_PROGRESS": "In Progress",
+      "LATE": "Late Orders"
+    },
     "CREATE_MANUAL_ORDER": "Create Manual Order",
     "CREATE_MANUAL_ORDER_DESC": "Create a new order for your customer directly from here.",
     "SELECT_CUSTOMER": "Select Customer",
@@ -700,6 +899,8 @@
     "ORDER_PLACED_SUCCESS": "Order placed successfully",
     "SEARCH_PLACEHOLDER": "Search by order ID or customer name...",
     "FILTERS": {
+      "TITLE": "Order Filters",
+      "SUBTITLE": "Narrow down orders by status, payment, and timing",
       "SEARCH": "Search",
       "RESET": "Reset",
       "STATUS": "Status",
@@ -1621,8 +1822,8 @@
     }
   },
   "VENDOR_FINANCE": {
-    "TITLE": "Financial Overview",
-    "SUBTITLE": "Track payouts, fees, holds, and recent movements with the same operational clarity used in super admin.",
+    "TITLE": "My Wallet",
+    "SUBTITLE": "Track your balance, settlements, and payout movements with the same operational clarity used in super admin.",
     "PERIODS": {
       "TODAY": "Today",
       "WEEK": "Week",
@@ -1631,7 +1832,15 @@
     },
     "ACTIONS": {
       "DOWNLOAD_STATEMENT": "Download Statement",
+      "VIEW_ALL": "View all entries",
+      "SETTLEMENT_DETAILS": "Settlement details",
       "REVIEW_ORDERS": "Review Orders"
+    },
+    "LIFECYCLE_MODES": {
+      "PerOrderDirectPayout": "Per Order",
+      "Weekly": "Weekly",
+      "Biweekly": "Every Two Weeks",
+      "Monthly": "Monthly"
     },
     "OVERVIEW": {
       "AVAILABLE_BALANCE": "Available Balance",
@@ -1691,5 +1900,106 @@
     "STATUS_PENDING": "Pending",
     "STATUS_APPROVED": "Approved",
     "STATUS_REJECTED": "Rejected"
+  },
+  "VENDOR_DISPUTES": {
+    "TITLE": "Disputes",
+    "SUBTITLE": "Track support cases linked to your orders and respond to the review team.",
+    "SUMMARY": {
+      "TOTAL": "Total cases",
+      "OPEN": "Open cases",
+      "RESPONDED": "Responded",
+      "WAITING": "Waiting your reply"
+    },
+    "FILTERS": {
+      "TITLE": "Case filters",
+      "SUBTITLE": "Narrow the disputes list by status or case type.",
+      "SEARCH": "Search",
+      "SEARCH_PLACEHOLDER": "Search by case ID, order #, reason, or message",
+      "STATUS": "Status",
+      "TYPE": "Type",
+      "RESET": "Reset filters",
+      "ALL_STATUSES": "All statuses",
+      "ALL_TYPES": "All types"
+    },
+    "TABLE": {
+      "TITLE": "Disputes queue",
+      "SUBTITLE": "Open a case to review updates, attachments, and respond.",
+      "CASE": "Case ID",
+      "ORDER": "Order #",
+      "TYPE": "Type",
+      "PRIORITY": "Priority",
+      "UPDATED": "Updated",
+      "NO_REASON": "No reason code"
+    },
+    "TYPE": {
+      "COMPLAINT": "Complaint",
+      "RETURN_REQUEST": "Return request",
+      "DRIVER_REPORT": "Driver report",
+      "DRIVER_DISPUTE": "Driver dispute"
+    },
+    "STATUS": {
+      "SUBMITTED": "Submitted",
+      "IN_REVIEW": "In review",
+      "AWAITING_CUSTOMER_EVIDENCE": "Awaiting evidence",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "RESOLVED": "Resolved"
+    },
+    "PRIORITY": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "ACTIONS": {
+      "OPEN": "Open case",
+      "SEND_RESPONSE": "Send response"
+    },
+    "WAITING_ON": {
+      "VENDOR": "Waiting on vendor",
+      "CUSTOMER": "Waiting on customer",
+      "DRIVER": "Waiting on driver",
+      "ADMIN": "Under admin review",
+      "REVIEW": "Under review"
+    },
+    "PARTICIPANTS": {
+      "CUSTOMER": "Customer",
+      "VENDOR": "Vendor",
+      "DRIVER": "Driver"
+    },
+    "EMPTY": {
+      "TITLE": "No disputes found",
+      "SUBTITLE": "There are no cases matching the current filters."
+    },
+    "DETAIL": {
+      "TITLE": "Dispute case",
+      "SUMMARY_TITLE": "Case summary",
+      "SUMMARY_SUBTITLE": "Core dispute information and refund context.",
+      "QUEUE": "Queue",
+      "WAITING_ON": "Waiting on",
+      "REQUESTED_REFUND": "Requested refund",
+      "APPROVED_REFUND": "Approved refund",
+      "NOTES_TITLE": "Case notes",
+      "NOTES_SUBTITLE": "Review the original case message and any visible notes.",
+      "PARTICIPANTS": "Participants",
+      "CASE_MESSAGE": "Case message",
+      "CUSTOMER_NOTE": "Customer-visible note",
+      "DECISION_NOTES": "Decision notes",
+      "YOUR_RESPONSE": "Your latest response",
+      "ATTACHMENTS_TITLE": "Attachments",
+      "ATTACHMENTS_SUBTITLE": "Files shared with this dispute case.",
+      "OPEN_ATTACHMENT": "Open attachment",
+      "NO_ATTACHMENTS": "No attachments were shared for this case.",
+      "ACTIVITY_TITLE": "Activity timeline",
+      "ACTIVITY_SUBTITLE": "Visible case events and reviewer updates.",
+      "CONVERSATION_TITLE": "Conversation",
+      "CONVERSATION_SUBTITLE": "Messages visible to your team inside this case.",
+      "REPLY_TITLE": "Send response",
+      "REPLY_SUBTITLE": "Reply to the case reviewer with additional context.",
+      "REPLY_FIELD": "Response message",
+      "REPLY_PLACEHOLDER": "Write your response, explanation, or evidence summary here...",
+      "RESPONSE_SENT": "Your response was sent successfully.",
+      "RESPONSE_FAILED": "Unable to send your response right now."
+    }
   }
 }

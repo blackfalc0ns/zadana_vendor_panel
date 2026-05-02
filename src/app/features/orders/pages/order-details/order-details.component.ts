@@ -17,6 +17,38 @@ import { DriverTrackingMapComponent } from '../../components/driver-tracking-map
   imports: [CommonModule, RouterModule, TranslateModule, OrderStatusBadgeComponent, AppPanelHeaderComponent, AppPageHeaderComponent, DriverTrackingMapComponent],
   template: `
     <div class="space-y-6" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+      <div *ngIf="isLoading" class="flex min-h-[50vh] flex-col items-center justify-center gap-4 rounded-[28px] border border-slate-100 bg-white p-10 text-center shadow-sm">
+        <div class="h-12 w-12 animate-spin rounded-full border-4 border-zadna-primary/15 border-t-zadna-primary"></div>
+        <p class="text-sm font-black text-slate-700">{{ 'COMMON.LOADING' | translate }}</p>
+      </div>
+
+      <div *ngIf="!isLoading && loadErrorMessage" class="rounded-[28px] border border-rose-200 bg-white p-8 shadow-sm">
+        <div class="mx-auto flex max-w-xl flex-col items-center text-center">
+          <div class="mb-4 flex h-16 w-16 items-center justify-center rounded-3xl bg-rose-50 text-rose-500">
+            <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 9v4m0 4h.01M10.29 3.86l-7.5 13A1 1 0 0 0 3.66 18h16.68a1 1 0 0 0 .87-1.5l-7.5-13a1 1 0 0 0-1.74 0z"></path>
+            </svg>
+          </div>
+          <h2 class="mb-2 text-lg font-black text-slate-900">
+            {{ currentLang === 'ar' ? 'تعذر تحميل الطلب' : 'Unable to load order' }}
+          </h2>
+          <p class="mb-5 text-sm font-bold text-slate-500">{{ loadErrorMessage }}</p>
+          <div class="flex flex-wrap items-center justify-center gap-3">
+            <a routerLink="/orders" class="rounded-2xl border border-slate-200 bg-slate-50 px-5 py-3 text-[0.8rem] font-black text-slate-700 transition hover:bg-slate-100">
+              {{ currentLang === 'ar' ? 'العودة إلى الطلبات' : 'Back to orders' }}
+            </a>
+            <button
+              *ngIf="orderId"
+              type="button"
+              (click)="retryLoad()"
+              class="rounded-2xl bg-zadna-primary px-5 py-3 text-[0.8rem] font-black text-white transition hover:opacity-95">
+              {{ currentLang === 'ar' ? 'إعادة المحاولة' : 'Retry' }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <ng-container *ngIf="!isLoading && !loadErrorMessage">
       <app-page-header
         [showBack]="true"
         backLink="/orders"
@@ -370,6 +402,7 @@ import { DriverTrackingMapComponent } from '../../components/driver-tracking-map
           </div>
         </div>
       </div>
+      </ng-container>
     </div>
   `,
   styles: [`
@@ -380,9 +413,12 @@ import { DriverTrackingMapComponent } from '../../components/driver-tracking-map
 })
 export class OrderDetailsComponent implements OnInit, OnDestroy {
   order: OrderDetail | null = null;
+  orderId: string | null = null;
   currentLang = 'ar';
   isUpdatingStatus = false;
   isConfirmingPickup = false;
+  isLoading = true;
+  loadErrorMessage = '';
   otpDigits: string[] = ['', '', '', ''];
   private sub: Subscription | null = null;
   private langSub: Subscription | null = null;
@@ -401,6 +437,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
+      this.orderId = id;
       this.loadOrder(id);
     }
   }
@@ -531,11 +568,41 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     }
   }
 
+  retryLoad(): void {
+    if (!this.orderId) {
+      return;
+    }
+
+    this.loadOrder(this.orderId);
+  }
+
   private loadOrder(orderId: string): void {
     this.sub?.unsubscribe();
-    this.sub = this.ordersService.getOrderById(orderId).subscribe(o => {
-      this.order = o;
-      this.startPollingIfNeeded();
+    this.isLoading = true;
+    this.loadErrorMessage = '';
+    this.sub = this.ordersService.getOrderById(orderId).subscribe({
+      next: (o) => {
+        this.order = o;
+        this.isLoading = false;
+
+        if (!o) {
+          this.stopPolling();
+          this.loadErrorMessage = this.currentLang === 'ar'
+            ? 'تعذر العثور على الطلب المطلوب أو أنك لا تملك صلاحية الوصول إليه.'
+            : 'The requested order was not found or you do not have access to it.';
+          return;
+        }
+
+        this.startPollingIfNeeded();
+      },
+      error: () => {
+        this.order = null;
+        this.isLoading = false;
+        this.stopPolling();
+        this.loadErrorMessage = this.currentLang === 'ar'
+          ? 'حدث خطأ أثناء تحميل تفاصيل الطلب. حاول مرة أخرى.'
+          : 'Failed to load order details. Please try again.';
+      }
     });
   }
 
@@ -555,7 +622,10 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     this.pollSub = interval(pollInterval).pipe(
       switchMap(() => this.ordersService.getOrderById(orderId))
     ).subscribe(updated => {
-      if (!updated) return;
+      if (!updated) {
+        this.stopPolling();
+        return;
+      }
       this.order = updated;
 
       // Stop if order reached a terminal state
