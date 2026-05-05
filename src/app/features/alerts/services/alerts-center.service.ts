@@ -298,7 +298,7 @@ export class AlertsCenterService {
   }
 
   private mapNotification(item: NotificationItemApiModel): AlertCenterItemVm {
-    const route = this.resolveRoute(item.referenceId, item.dataObject, item.data);
+    const route = this.resolveRoute(item.type, item.referenceId, item.dataObject, item.data);
 
     return {
       id: item.id,
@@ -691,6 +691,7 @@ export class AlertsCenterService {
   }
 
   private resolveRoute(
+    type?: string | null,
     referenceId?: string | null,
     dataObject?: Record<string, unknown> | null,
     data?: string | null
@@ -705,12 +706,39 @@ export class AlertsCenterService {
       return routeFromData;
     }
 
-    return referenceId ? `/orders/${referenceId}` : '/alerts';
+    const parsedData = this.tryParseData(data);
+    const caseId = this.extractGuid(dataObject?.['caseId']) ?? this.extractGuid(parsedData?.['caseId']);
+    if (caseId && this.isDisputeNotification(type)) {
+      return `/disputes/${caseId}`;
+    }
+
+    const orderId = this.extractGuid(dataObject?.['orderId']) ?? this.extractGuid(parsedData?.['orderId']);
+    if (orderId && this.isOrderNotification(type, dataObject, parsedData)) {
+      return `/orders/${orderId}`;
+    }
+
+    if (referenceId && this.isOrderReferenceFallback(type, dataObject, parsedData)) {
+      return `/orders/${referenceId}`;
+    }
+
+    if (this.isFinanceNotification(type, dataObject, parsedData)) {
+      return '/finance';
+    }
+
+    if (this.isDisputeNotification(type)) {
+      return '/disputes';
+    }
+
+    return '/alerts';
   }
 
   private extractTargetUrl(data?: Record<string, unknown> | null): string | null {
     const targetUrl = data?.['targetUrl'];
     return typeof targetUrl === 'string' && targetUrl.trim() ? targetUrl.trim() : null;
+  }
+
+  private extractGuid(value: unknown): string | null {
+    return typeof value === 'string' && value.trim() ? value.trim() : null;
   }
 
   private tryParseData(data?: string | null): Record<string, unknown> | null {
@@ -724,6 +752,63 @@ export class AlertsCenterService {
     } catch {
       return null;
     }
+  }
+
+  private isDisputeNotification(type?: string | null): boolean {
+    if (!type) {
+      return false;
+    }
+
+    const normalized = type.toLowerCase();
+    return normalized.includes('support_case') || normalized.includes('dispute');
+  }
+
+  private isFinanceNotification(
+    type?: string | null,
+    dataObject?: Record<string, unknown> | null,
+    parsedData?: Record<string, unknown> | null
+  ): boolean {
+    const targetCandidate = `${this.extractTargetUrl(dataObject) ?? ''} ${this.extractTargetUrl(parsedData) ?? ''}`.toLowerCase();
+    if (targetCandidate.includes('/finance')) {
+      return true;
+    }
+
+    if (!type) {
+      return false;
+    }
+
+    const normalized = type.toLowerCase();
+    return normalized.includes('payout')
+      || normalized.includes('settlement')
+      || normalized.includes('recovery')
+      || normalized.includes('wallet');
+  }
+
+  private isOrderNotification(
+    type?: string | null,
+    dataObject?: Record<string, unknown> | null,
+    parsedData?: Record<string, unknown> | null
+  ): boolean {
+    if (this.isDisputeNotification(type) || this.isFinanceNotification(type, dataObject, parsedData)) {
+      return false;
+    }
+
+    if (!type) {
+      return true;
+    }
+
+    const normalized = type.toLowerCase();
+    return normalized.includes('order')
+      || normalized.includes('vendor_new_order')
+      || normalized.includes('order_status');
+  }
+
+  private isOrderReferenceFallback(
+    type?: string | null,
+    dataObject?: Record<string, unknown> | null,
+    parsedData?: Record<string, unknown> | null
+  ): boolean {
+    return this.isOrderNotification(type, dataObject, parsedData);
   }
 
   private requestBrowserNotificationPermission(): void {

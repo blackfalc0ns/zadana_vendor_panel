@@ -10,6 +10,7 @@ import { AppEmptyStateComponent } from '../../../../shared/components/ui/data-di
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
+import { AlertsCenterService } from '../../../alerts/services/alerts-center.service';
 import {
   VendorDisputeListItemVm,
   VendorDisputePriority,
@@ -54,11 +55,13 @@ export class VendorDisputesListComponent implements OnInit, OnDestroy {
   private dataSub?: Subscription;
   private readonly searchTerm$ = new Subject<string>();
   private searchSub?: Subscription;
+  private alertsSub?: Subscription;
 
   constructor(
     private readonly disputesService: VendorDisputesService,
     private readonly translate: TranslateService,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    private readonly alertsCenterService: AlertsCenterService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
@@ -78,12 +81,18 @@ export class VendorDisputesListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.applyQueryParams();
     this.loadDisputes();
+    this.alertsSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      if (alert.route.startsWith('/disputes')) {
+        this.loadDisputes();
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.langSub.unsubscribe();
     this.dataSub?.unsubscribe();
     this.searchSub?.unsubscribe();
+    this.alertsSub?.unsubscribe();
   }
 
   get openCount(): number {
@@ -170,6 +179,50 @@ export class VendorDisputesListComponent implements OnInit, OnDestroy {
       default:
         return 'border-slate-200 bg-slate-100 text-slate-600';
     }
+  }
+
+  settlementLabel(value: string | null): string {
+    switch ((value || '').toLowerCase()) {
+      case 'cash_refunded':
+        return this.currentLang === 'ar' ? 'استرجاع نقدي' : 'Cash refunded';
+      case 'coupon_issued':
+        return this.currentLang === 'ar' ? 'تم إصدار كوبون' : 'Coupon issued';
+      case 'coupon_redeemed':
+        return this.currentLang === 'ar' ? 'تم استخدام الكوبون' : 'Coupon redeemed';
+      case 'rejected':
+        return this.currentLang === 'ar' ? 'مرفوض' : 'Rejected';
+      default:
+        return this.currentLang === 'ar' ? 'بانتظار المراجعة' : 'Pending review';
+    }
+  }
+
+  settlementClass(value: string | null): string {
+    switch ((value || '').toLowerCase()) {
+      case 'cash_refunded':
+        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+      case 'coupon_issued':
+      case 'coupon_redeemed':
+        return 'border-cyan-200 bg-cyan-50 text-cyan-700';
+      case 'rejected':
+        return 'border-rose-200 bg-rose-50 text-rose-700';
+      default:
+        return 'border-amber-200 bg-amber-50 text-amber-700';
+    }
+  }
+
+  compensationLabel(value: string | null): string {
+    switch ((value || '').toLowerCase()) {
+      case 'cash_refund':
+        return this.currentLang === 'ar' ? 'استرجاع نقدي' : 'Cash refund';
+      case 'coupon_compensation':
+        return this.currentLang === 'ar' ? 'تعويض بكوبون' : 'Coupon compensation';
+      default:
+        return this.currentLang === 'ar' ? 'قيد التحديد' : 'Pending decision';
+    }
+  }
+
+  isReturnRequest(dispute: VendorDisputeListItemVm): boolean {
+    return this.normalizeType(dispute.type) === 'return_request';
   }
 
   private loadDisputes(): void {

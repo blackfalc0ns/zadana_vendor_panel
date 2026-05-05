@@ -1,31 +1,30 @@
 export interface CouponOffer {
   id: string;
   code: string;
+  title: string;
   type: 'percentage' | 'fixed';
   value: number;
   minOrder: number;
   usageCount: number;
-  usageLimit: number;
+  usageLimit?: number | null;
+  perUserLimit?: number | null;
+  maxDiscountAmount?: number | null;
+  startsAt?: string | null;
   endsAt: string;
   isActive: boolean;
-  audienceAr: string;
-  audienceEn: string;
-  noteAr: string;
-  noteEn: string;
 }
 
 export interface CreateCouponOfferPayload {
   code: string;
+  title: string;
   type: 'percentage' | 'fixed';
   value: number;
   minOrder: number;
-  usageLimit: number;
+  usageLimit?: number | null;
+  perUserLimit?: number | null;
+  maxDiscountAmount?: number | null;
   endsAt: string;
   isActive: boolean;
-  audienceAr: string;
-  audienceEn: string;
-  noteAr: string;
-  noteEn: string;
 }
 
 export interface CategoryCampaign {

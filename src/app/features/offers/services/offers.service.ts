@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, map, tap, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { Category, VendorProduct } from '../../products/models/catalog.models';
 import {
@@ -13,9 +13,24 @@ import {
 } from '../models/offers.models';
 
 interface OffersWorkspaceState {
-  coupons: CouponOffer[];
   categoryCampaigns: CategoryCampaign[];
   clearanceOffers: ClearanceOffer[];
+}
+
+interface VendorCouponDto {
+  id: string;
+  code: string;
+  title: string;
+  discountType: 'Percentage' | 'Fixed' | string;
+  discountValue: number;
+  minOrderAmount?: number | null;
+  maxDiscountAmount?: number | null;
+  startsAtUtc?: string | null;
+  endsAtUtc?: string | null;
+  usageCount: number;
+  usageLimit?: number | null;
+  perUserLimit?: number | null;
+  isActive: boolean;
 }
 
 @Injectable({
@@ -23,11 +38,14 @@ interface OffersWorkspaceState {
 })
 export class OffersService {
   private readonly stateUrl = `${environment.apiUrl}/vendor/workspace-state/offers`;
+  private readonly couponsUrl = `${environment.apiUrl}/vendor/coupons`;
   private readonly couponsSubject = new BehaviorSubject<CouponOffer[]>([]);
   private readonly categoryCampaignsSubject = new BehaviorSubject<CategoryCampaign[]>([]);
   private readonly clearanceOffersSubject = new BehaviorSubject<ClearanceOffer[]>([]);
+  private derivedCollectionsInitialized = false;
 
   constructor(private readonly http: HttpClient) {
+    this.loadCoupons();
     this.loadWorkspace();
   }
 
@@ -44,6 +62,10 @@ export class OffersService {
   }
 
   initializeDerivedCollections(categories: Category[], products: VendorProduct[]): void {
+    if (this.derivedCollectionsInitialized) {
+      return;
+    }
+
     let didChange = false;
 
     if (!this.categoryCampaignsSubject.value.length) {
@@ -59,17 +81,34 @@ export class OffersService {
     if (didChange) {
       this.persistWorkspace();
     }
+
+    this.derivedCollectionsInitialized = true;
   }
 
-  createCouponOffer(payload: CreateCouponOfferPayload): void {
-    const nextCoupon: CouponOffer = {
-      id: `coupon-${Date.now()}`,
-      usageCount: 0,
-      ...payload
+  createCouponOffer(payload: CreateCouponOfferPayload): Observable<CouponOffer> {
+    const requestBody = {
+      code: payload.code,
+      title: payload.title,
+      discountType: payload.type === 'percentage' ? 'Percentage' : 'Fixed',
+      discountValue: payload.value,
+      minOrderAmount: payload.minOrder > 0 ? payload.minOrder : null,
+      maxDiscountAmount: payload.type === 'percentage' && payload.maxDiscountAmount && payload.maxDiscountAmount > 0
+        ? payload.maxDiscountAmount
+        : null,
+      startsAtUtc: null,
+      endsAtUtc: payload.endsAt ? new Date(payload.endsAt).toISOString() : null,
+      usageLimit: payload.usageLimit && payload.usageLimit > 0 ? payload.usageLimit : null,
+      perUserLimit: payload.perUserLimit && payload.perUserLimit > 0 ? payload.perUserLimit : null,
+      isActive: payload.isActive
     };
 
-    this.couponsSubject.next([nextCoupon, ...this.couponsSubject.value]);
-    this.persistWorkspace();
+    return this.http.post<VendorCouponDto>(this.couponsUrl, requestBody).pipe(
+      timeout(15000),
+      map((coupon) => this.mapVendorCoupon(coupon)),
+      tap((nextCoupon) => {
+        this.couponsSubject.next([nextCoupon, ...this.couponsSubject.value]);
+      })
+    );
   }
 
   createCategoryCampaign(payload: CreateCategoryCampaignPayload): void {
@@ -145,12 +184,10 @@ export class OffersService {
   private loadWorkspace(): void {
     this.http.get<Partial<OffersWorkspaceState>>(this.stateUrl).subscribe({
       next: (workspace) => {
-        this.couponsSubject.next(workspace.coupons ?? []);
         this.categoryCampaignsSubject.next(workspace.categoryCampaigns ?? []);
         this.clearanceOffersSubject.next(workspace.clearanceOffers ?? []);
       },
       error: () => {
-        this.couponsSubject.next([]);
         this.categoryCampaignsSubject.next([]);
         this.clearanceOffersSubject.next([]);
       }
@@ -159,7 +196,6 @@ export class OffersService {
 
   private persistWorkspace(): void {
     const workspace: OffersWorkspaceState = {
-      coupons: this.couponsSubject.value,
       categoryCampaigns: this.categoryCampaignsSubject.value,
       clearanceOffers: this.clearanceOffersSubject.value
     };
@@ -183,5 +219,34 @@ export class OffersService {
     const discount = this.getRecommendedDiscount(product.stockQty);
     const compareAtPrice = product.sellingPrice / (1 - discount / 100);
     return Number(compareAtPrice.toFixed(2));
+  }
+
+  private loadCoupons(): void {
+    this.http.get<VendorCouponDto[]>(this.couponsUrl).subscribe({
+      next: (coupons) => {
+        this.couponsSubject.next(coupons.map((coupon) => this.mapVendorCoupon(coupon)));
+      },
+      error: () => {
+        this.couponsSubject.next([]);
+      }
+    });
+  }
+
+  private mapVendorCoupon(coupon: VendorCouponDto): CouponOffer {
+    return {
+      id: coupon.id,
+      code: coupon.code,
+      title: coupon.title,
+      type: coupon.discountType === 'Percentage' ? 'percentage' : 'fixed',
+      value: coupon.discountValue,
+      minOrder: coupon.minOrderAmount ?? 0,
+      usageCount: coupon.usageCount,
+      usageLimit: coupon.usageLimit ?? null,
+      perUserLimit: coupon.perUserLimit ?? null,
+      maxDiscountAmount: coupon.maxDiscountAmount ?? null,
+      startsAt: coupon.startsAtUtc ?? null,
+      endsAt: coupon.endsAtUtc ? coupon.endsAtUtc.slice(0, 10) : '',
+      isActive: coupon.isActive
+    };
   }
 }

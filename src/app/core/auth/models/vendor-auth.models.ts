@@ -1,9 +1,24 @@
+export interface VendorAccessScope {
+  panelScope: string;
+  scopeType: string;
+  scopeEntityId?: string | null;
+  roleCode: string;
+  roleName: string;
+}
+
+export interface VendorEffectiveAccess {
+  permissionVersion: number;
+  permissions: string[];
+  activeScope?: VendorAccessScope | null;
+}
+
 export interface VendorCurrentUser {
   id: string;
   fullName: string;
   email?: string | null;
   phone?: string | null;
   role: string;
+  access?: VendorEffectiveAccess | null;
 }
 
 export interface VendorTokenPair {

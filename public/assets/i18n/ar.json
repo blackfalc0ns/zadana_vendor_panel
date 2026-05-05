@@ -1341,7 +1341,7 @@
         "INVITATIONS_SUBTITLE": "كل الدعوات المرتبطة بهذه الهوية داخل مساحة العمل.",
         "EMPTY_INVITATIONS": "لا توجد دعوات مرتبطة بهذا الموظف.",
         "PERMISSIONS_TITLE": "مصفوفة الصلاحيات",
-        "PERMISSIONS_SUBTITLE": "عرض للـ permissions الفعالة عبر الوحدات التشغيلية المختلفة.",
+        "PERMISSIONS_SUBTITLE": "عرض للصلاحيات الفعالة عبر الوحدات التشغيلية المختلفة.",
         "SUMMARY_TITLE": "الأثر التشغيلي",
         "SUMMARY_SUBTITLE": "ملخص سريع لعدد الفروع المغطاة والدعوات المرتبطة.",
         "METRICS": {

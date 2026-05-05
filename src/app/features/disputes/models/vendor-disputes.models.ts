@@ -28,6 +28,10 @@ export interface VendorDisputeListItemVm {
   customerVisibleNote: string | null;
   initiatorRole: string;
   waitingOnRole: string | null;
+  requestedRefundAmount: number | null;
+  approvedRefundAmount: number | null;
+  compensationType: string | null;
+  settlementStatus: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -69,9 +73,10 @@ export interface VendorDisputeParticipantVm {
 export interface VendorDisputeDetailVm extends VendorDisputeListItemVm {
   queue: string;
   decisionNotes: string | null;
-  requestedRefundAmount: number | null;
-  approvedRefundAmount: number | null;
   refundMethod: string | null;
+  couponCode: string | null;
+  couponExpiresAtUtc: string | null;
+  couponRedeemed: boolean;
   costBearer: string | null;
   closedAt: string | null;
   participants: VendorDisputeParticipantVm[];

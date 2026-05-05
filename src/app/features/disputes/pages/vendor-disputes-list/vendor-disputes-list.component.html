@@ -149,18 +149,41 @@
                     <div class="flex flex-wrap items-center gap-2 text-[0.68rem] font-black">
                       <span class="rounded-full bg-slate-100 px-2 py-1 text-slate-500">{{ dispute.initiatorRole }}</span>
                       <span class="rounded-full bg-amber-50 px-2 py-1 text-amber-700">{{ waitingLabelKey(dispute.waitingOnRole) | translate }}</span>
+                      @if (isReturnRequest(dispute)) {
+                        <span class="rounded-full bg-cyan-50 px-2 py-1 text-cyan-700">{{ compensationLabel(dispute.compensationType) }}</span>
+                      }
                     </div>
                   </div>
                 </td>
                 <td class="px-4 py-4">
-                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="statusClass(dispute.status)">
-                    {{ statusKey(dispute.status) | translate }}
-                  </span>
+                  <div class="space-y-2">
+                    <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="statusClass(dispute.status)">
+                      {{ statusKey(dispute.status) | translate }}
+                    </span>
+                    @if (isReturnRequest(dispute)) {
+                      <div>
+                        <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="settlementClass(dispute.settlementStatus)">
+                          {{ settlementLabel(dispute.settlementStatus) }}
+                        </span>
+                      </div>
+                    }
+                  </div>
                 </td>
                 <td class="px-4 py-4">
-                  <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="priorityClass(dispute.priority)">
-                    {{ priorityKey(dispute.priority) | translate }}
-                  </span>
+                  <div class="space-y-2">
+                    <span class="inline-flex rounded-full border px-2.5 py-1 text-[0.68rem] font-black" [ngClass]="priorityClass(dispute.priority)">
+                      {{ priorityKey(dispute.priority) | translate }}
+                    </span>
+                    @if (isReturnRequest(dispute) && dispute.approvedRefundAmount !== null) {
+                      <div class="text-[0.7rem] font-black text-slate-500">
+                        {{ dispute.approvedRefundAmount | number:'1.2-2' }} {{ 'COMMON.CURRENCY' | translate }}
+                      </div>
+                    } @else if (isReturnRequest(dispute) && dispute.requestedRefundAmount !== null) {
+                      <div class="text-[0.7rem] font-black text-slate-500">
+                        {{ dispute.requestedRefundAmount | number:'1.2-2' }} {{ 'COMMON.CURRENCY' | translate }}
+                      </div>
+                    }
+                  </div>
                 </td>
                 <td class="px-4 py-4 text-[0.76rem] font-bold text-slate-600">{{ formatDateTime(dispute.updatedAt) }}</td>
                 <td class="px-4 py-4">

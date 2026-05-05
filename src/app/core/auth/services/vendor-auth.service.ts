@@ -138,6 +138,18 @@ export class VendorAuthService {
     );
   }
 
+  refreshAccess(): Observable<VendorCurrentUser | null> {
+    return this.http.get<VendorCurrentUser>(`${this.apiUrl}/me`).pipe(
+      tap((user) => this.persistUser(user)),
+      catchError((err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.logoutLocally();
+        }
+        return of(null);
+      })
+    );
+  }
+
   refreshSession(): Observable<string> {
     const refreshToken = this.getRefreshToken();
     if (!refreshToken) {

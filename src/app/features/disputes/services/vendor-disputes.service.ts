@@ -29,6 +29,10 @@ interface VendorOrderCaseListItemApi {
   customerVisibleNote: string | null;
   initiatorRole: string;
   waitingOnRole: string | null;
+  requestedRefundAmount: number | null;
+  approvedRefundAmount: number | null;
+  compensationType: string | null;
+  settlementStatus: string | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,9 +40,10 @@ interface VendorOrderCaseListItemApi {
 interface VendorOrderCaseDetailApi extends VendorOrderCaseListItemApi {
   queue: string;
   decisionNotes: string | null;
-  requestedRefundAmount: number | null;
-  approvedRefundAmount: number | null;
   refundMethod: string | null;
+  couponCode: string | null;
+  couponExpiresAtUtc: string | null;
+  couponRedeemed: boolean;
   costBearer: string | null;
   closedAt: string | null;
   participants: Array<{
@@ -132,7 +137,7 @@ export class VendorDisputesService {
   }
 
   respondToDispute(caseId: string, response: string): Observable<VendorOrderCaseRespondResponseApi> {
-    return this.http.post<VendorOrderCaseRespondResponseApi>(`${this.apiUrl}/${caseId}/respond`, { response });
+    return this.http.post<VendorOrderCaseRespondResponseApi>(`${this.apiUrl}/${caseId}/messages`, { response });
   }
 
   private mapListItem(item: VendorOrderCaseListItemApi): VendorDisputeListItemVm {
@@ -150,6 +155,10 @@ export class VendorDisputesService {
       customerVisibleNote: item.customerVisibleNote,
       initiatorRole: item.initiatorRole,
       waitingOnRole: item.waitingOnRole,
+      requestedRefundAmount: item.requestedRefundAmount,
+      approvedRefundAmount: item.approvedRefundAmount,
+      compensationType: this.normalizeNullableToken(item.compensationType),
+      settlementStatus: this.normalizeNullableToken(item.settlementStatus),
       createdAt: item.createdAt,
       updatedAt: item.updatedAt
     };
@@ -160,10 +169,11 @@ export class VendorDisputesService {
       ...this.mapListItem(item),
       queue: item.queue,
       decisionNotes: item.decisionNotes,
-      requestedRefundAmount: item.requestedRefundAmount,
-      approvedRefundAmount: item.approvedRefundAmount,
-      refundMethod: item.refundMethod,
-      costBearer: item.costBearer,
+      refundMethod: this.normalizeNullableToken(item.refundMethod),
+      couponCode: item.couponCode,
+      couponExpiresAtUtc: item.couponExpiresAtUtc,
+      couponRedeemed: item.couponRedeemed,
+      costBearer: this.normalizeNullableToken(item.costBearer),
       closedAt: item.closedAt,
       participants: item.participants.map((participant) => ({ ...participant })),
       allowedActions: [...item.allowedActions],
@@ -207,5 +217,9 @@ export class VendorDisputesService {
 
   private normalizePriority(value: string): string {
     return value.trim().toLowerCase();
+  }
+
+  private normalizeNullableToken(value: string | null): string | null {
+    return value?.trim().toLowerCase() ?? null;
   }
 }

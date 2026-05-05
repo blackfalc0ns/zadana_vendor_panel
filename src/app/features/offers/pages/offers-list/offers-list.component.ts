@@ -1,10 +1,11 @@
 import { CommonModule, NgClass } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
-import { combineLatest, Subscription } from 'rxjs';
+import { TimeoutError, combineLatest, Subscription } from 'rxjs';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
@@ -286,7 +287,7 @@ import {
                       <th class="px-6 py-4 text-start">{{ 'OFFERS.TABLE.COUPON_CODE' | translate }}</th>
                       <th class="px-4 py-4 text-start">{{ 'OFFERS.TABLE.DISCOUNT_VALUE' | translate }}</th>
                       <th class="px-4 py-4 text-start">{{ 'OFFERS.TABLE.MIN_ORDER' | translate }}</th>
-                      <th class="px-4 py-4 text-start">{{ 'OFFERS.TABLE.AUDIENCE' | translate }}</th>
+                      <th class="px-4 py-4 text-start">{{ currentLang === 'ar' ? 'لكل عميل' : 'Per user' }}</th>
                       <th class="px-4 py-4 text-start">{{ 'OFFERS.TABLE.USAGE' | translate }}</th>
                       <th class="px-4 py-4 text-start">{{ 'OFFERS.TABLE.ENDS_AT' | translate }}</th>
                       <th class="px-4 py-4 text-start">{{ 'COMMON.STATUS' | translate }}</th>
@@ -297,12 +298,12 @@ import {
                       <tr class="hover:bg-slate-50/50">
                         <td class="px-6 py-4">
                           <div class="text-[0.86rem] font-black text-slate-900">{{ coupon.code }}</div>
-                          <div class="mt-1 text-[0.72rem] font-bold text-slate-400">{{ currentLang === 'ar' ? coupon.noteAr : coupon.noteEn }}</div>
+                          <div class="mt-1 text-[0.72rem] font-bold text-slate-400">{{ coupon.title }}</div>
                         </td>
                         <td class="px-4 py-4 text-[0.8rem] font-black text-slate-900">{{ formatCouponValue(coupon) }}</td>
                         <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700">{{ coupon.minOrder }} {{ 'COMMON.EGP' | translate }}</td>
-                        <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600">{{ currentLang === 'ar' ? coupon.audienceAr : coupon.audienceEn }}</td>
-                        <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700">{{ coupon.usageCount }}/{{ coupon.usageLimit }}</td>
+                        <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-600">{{ formatPerUserLimit(coupon) }}</td>
+                        <td class="px-4 py-4 text-[0.8rem] font-bold text-slate-700">{{ formatUsageLabel(coupon) }}</td>
                         <td class="px-4 py-4 text-[0.8rem] font-bold" [ngClass]="isEndingSoon(coupon.endsAt) ? 'text-orange-600' : 'text-slate-600'">
                           {{ coupon.endsAt }}
                         </td>
@@ -436,7 +437,9 @@ import {
 
       <app-coupon-offer-modal
         [isOpen]="isCouponModalOpen"
-        (close)="isCouponModalOpen = false"
+        [isSaving]="isSavingCoupon"
+        [errorMessage]="couponSaveError"
+        (close)="closeCouponModal()"
         (saved)="createCouponOffer($event)">
       </app-coupon-offer-modal>
 
@@ -463,6 +466,8 @@ export class OffersListComponent implements OnInit, OnDestroy {
   activeView: OffersView = 'direct';
   isFiltersExpanded = false;
   isCouponModalOpen = false;
+  isSavingCoupon = false;
+  couponSaveError = '';
   isCategoryCampaignModalOpen = false;
   isClearanceModalOpen = false;
   vendorProducts: VendorProduct[] = [];
@@ -568,10 +573,7 @@ export class OffersListComponent implements OnInit, OnDestroy {
     return this.coupons.filter((coupon) =>
       this.matchesSearch([
         coupon.code,
-        coupon.audienceAr,
-        coupon.audienceEn,
-        coupon.noteAr,
-        coupon.noteEn
+        coupon.title
       ]) &&
       this.matchesCouponFilters(coupon)
     );
@@ -797,9 +799,12 @@ export class OffersListComponent implements OnInit, OnDestroy {
   }
 
   formatCouponValue(coupon: CouponOffer): string {
-    return coupon.type === 'percentage'
-      ? `${coupon.value}%`
-      : `${coupon.value} ${this.translate.instant('COMMON.EGP')}`;
+    if (coupon.type === 'percentage') {
+      const maxCap = coupon.maxDiscountAmount ? ` (${this.currentLang === 'ar' ? 'حد أقصى' : 'Max'} ${coupon.maxDiscountAmount} ${this.translate.instant('COMMON.EGP')})` : '';
+      return `${coupon.value}%${maxCap}`;
+    }
+
+    return `${coupon.value} ${this.translate.instant('COMMON.EGP')}`;
   }
 
   isEndingSoon(dateText: string): boolean {
@@ -840,15 +845,47 @@ export class OffersListComponent implements OnInit, OnDestroy {
   }
 
   openCreateModal(): void {
+    this.couponSaveError = '';
     this.isCouponModalOpen = this.activeView === 'coupons';
     this.isCategoryCampaignModalOpen = this.activeView === 'categories';
     this.isClearanceModalOpen = this.activeView === 'clearance';
   }
 
   createCouponOffer(payload: CreateCouponOfferPayload): void {
-    this.offersService.createCouponOffer(payload);
+    this.isSavingCoupon = true;
+    this.couponSaveError = '';
+
+    this.offersService.createCouponOffer(payload).subscribe({
+      next: () => {
+        this.isSavingCoupon = false;
+        this.closeCouponModal();
+        this.currentPages.coupons = 1;
+      },
+      error: (error) => {
+        this.isSavingCoupon = false;
+        this.couponSaveError = this.describeCouponSaveError(error);
+      }
+    });
+  }
+
+  closeCouponModal(): void {
     this.isCouponModalOpen = false;
-    this.currentPages.coupons = 1;
+    this.isSavingCoupon = false;
+    this.couponSaveError = '';
+  }
+
+  formatUsageLabel(coupon: CouponOffer): string {
+    return coupon.usageLimit && coupon.usageLimit > 0
+      ? `${coupon.usageCount}/${coupon.usageLimit}`
+      : `${coupon.usageCount}/∞`;
+  }
+
+  formatPerUserLimit(coupon: CouponOffer): string {
+    if (!coupon.perUserLimit || coupon.perUserLimit <= 0) {
+      return this.currentLang === 'ar' ? 'بدون حد' : 'No limit';
+    }
+
+    return coupon.perUserLimit.toString();
   }
 
   createCategoryCampaign(payload: CreateCategoryCampaignPayload): void {
@@ -982,6 +1019,37 @@ export class OffersListComponent implements OnInit, OnDestroy {
     }
 
     return values.some((value) => (value || '').toLowerCase().includes(term));
+  }
+
+  private describeCouponSaveError(error: unknown): string {
+    if (error instanceof TimeoutError) {
+      return this.currentLang === 'ar'
+        ? 'استغرقت عملية حفظ الكوبون وقتًا أطول من المتوقع. حاول مرة أخرى.'
+        : 'Saving the coupon took too long. Please try again.';
+    }
+
+    if (error instanceof HttpErrorResponse) {
+      if (error.status === 403) {
+        return this.currentLang === 'ar'
+          ? 'ليس لديك صلاحية لإنشاء أو تعديل الكوبونات لهذا الحساب.'
+          : 'You do not have permission to create or edit coupons for this account.';
+      }
+
+      const detail = error.error?.detail;
+      const title = error.error?.title;
+
+      if (typeof detail === 'string' && detail.trim()) {
+        return detail;
+      }
+
+      if (typeof title === 'string' && title.trim()) {
+        return title;
+      }
+    }
+
+    return this.currentLang === 'ar'
+      ? 'تعذر حفظ الكوبون الآن. حاول مرة أخرى.'
+      : 'Unable to save the coupon right now. Please try again.';
   }
 
   private totalPagesForCount(count: number): number {

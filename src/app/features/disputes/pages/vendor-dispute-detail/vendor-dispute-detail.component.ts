@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
+import { AlertsCenterService } from '../../../alerts/services/alerts-center.service';
 import {
   VendorDisputeActivityVm,
   VendorDisputeDetailVm,
@@ -38,12 +39,14 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
 
   private langSub: Subscription;
   private detailSub?: Subscription;
+  private alertsSub?: Subscription;
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly disputesService: VendorDisputesService,
-    private readonly translate: TranslateService
+    private readonly translate: TranslateService,
+    private readonly alertsCenterService: AlertsCenterService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
@@ -61,11 +64,21 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
     }
 
     this.loadDispute(caseId);
+    this.alertsSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      if (!this.dispute) {
+        return;
+      }
+
+      if (alert.route === `/disputes/${this.dispute.id}` || alert.route.startsWith('/disputes')) {
+        this.loadDispute(this.dispute.id);
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.langSub.unsubscribe();
     this.detailSub?.unsubscribe();
+    this.alertsSub?.unsubscribe();
   }
 
   get canRespond(): boolean {
@@ -144,6 +157,56 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
 
   isOwnMessage(authorRole: string): boolean {
     return authorRole.trim().toLowerCase() === 'vendor';
+  }
+
+  settlementLabel(value: string | null): string {
+    switch ((value || '').toLowerCase()) {
+      case 'cash_refunded':
+        return this.currentLang === 'ar' ? 'تم الاسترجاع النقدي' : 'Cash refunded';
+      case 'coupon_issued':
+        return this.currentLang === 'ar' ? 'تم إصدار كوبون' : 'Coupon issued';
+      case 'coupon_redeemed':
+        return this.currentLang === 'ar' ? 'تم استخدام الكوبون' : 'Coupon redeemed';
+      case 'rejected':
+        return this.currentLang === 'ar' ? 'تم الرفض' : 'Rejected';
+      default:
+        return this.currentLang === 'ar' ? 'بانتظار المراجعة' : 'Pending review';
+    }
+  }
+
+  compensationLabel(value: string | null): string {
+    switch ((value || '').toLowerCase()) {
+      case 'cash_refund':
+        return this.currentLang === 'ar' ? 'استرجاع نقدي' : 'Cash refund';
+      case 'coupon_compensation':
+        return this.currentLang === 'ar' ? 'تعويض بكوبون' : 'Coupon compensation';
+      default:
+        return this.currentLang === 'ar' ? 'غير محدد' : 'Not set';
+    }
+  }
+
+  refundMethodLabel(value: string | null): string {
+    switch ((value || '').toLowerCase()) {
+      case 'same_method':
+        return this.currentLang === 'ar' ? 'نفس وسيلة الدفع' : 'Same payment method';
+      case 'coupon':
+        return this.currentLang === 'ar' ? 'كوبون تعويضي' : 'Compensation coupon';
+      default:
+        return value ?? (this.currentLang === 'ar' ? 'غير محدد' : 'Not set');
+    }
+  }
+
+  costBearerLabel(value: string | null): string {
+    switch ((value || '').toLowerCase()) {
+      case 'vendor':
+        return this.currentLang === 'ar' ? 'المتجر' : 'Vendor';
+      case 'platform':
+        return this.currentLang === 'ar' ? 'المنصة' : 'Platform';
+      case 'shared':
+        return this.currentLang === 'ar' ? 'مشترك' : 'Shared';
+      default:
+        return value ?? (this.currentLang === 'ar' ? 'غير محدد' : 'Not set');
+    }
   }
 
   submitResponse(): void {

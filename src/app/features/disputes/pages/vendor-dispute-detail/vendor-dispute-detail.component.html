@@ -88,14 +88,28 @@
             @if (dispute.refundMethod) {
               <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
                 <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.REFUND_METHOD' | translate }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ dispute.refundMethod }}</p>
+                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ refundMethodLabel(dispute.refundMethod) }}</p>
+              </div>
+            }
+
+            @if (dispute.compensationType) {
+              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ currentLang === 'ar' ? 'نوع التسوية' : 'Compensation type' }}</p>
+                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ compensationLabel(dispute.compensationType) }}</p>
+              </div>
+            }
+
+            @if (dispute.settlementStatus) {
+              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
+                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ currentLang === 'ar' ? 'حالة التسوية' : 'Settlement status' }}</p>
+                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ settlementLabel(dispute.settlementStatus) }}</p>
               </div>
             }
 
             @if (dispute.costBearer) {
               <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
                 <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.COST_BEARER' | translate }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ dispute.costBearer }}</p>
+                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ costBearerLabel(dispute.costBearer) }}</p>
               </div>
             }
 
@@ -119,6 +133,21 @@
               <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
                 <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.APPROVED_REFUND' | translate }}</p>
                 <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ dispute.approvedRefundAmount | number:'1.2-2' }} {{ 'COMMON.CURRENCY' | translate }}</p>
+              </div>
+            }
+
+            @if (dispute.couponCode) {
+              <div class="rounded-[18px] border border-cyan-100 bg-cyan-50 px-4 py-4">
+                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-cyan-600">{{ currentLang === 'ar' ? 'الكوبون التعويضي' : 'Compensation coupon' }}</p>
+                <p class="mt-2 text-[0.92rem] font-black text-cyan-900" dir="ltr">{{ dispute.couponCode }}</p>
+                @if (dispute.couponExpiresAtUtc) {
+                  <p class="mt-2 text-[0.74rem] font-bold text-cyan-800">
+                    {{ currentLang === 'ar' ? 'ينتهي في' : 'Expires on' }} {{ formatDate(dispute.couponExpiresAtUtc) }}
+                  </p>
+                }
+                <p class="mt-2 text-[0.74rem] font-black" [ngClass]="dispute.couponRedeemed ? 'text-emerald-700' : 'text-amber-700'">
+                  {{ dispute.couponRedeemed ? (currentLang === 'ar' ? 'تم استخدام الكوبون' : 'Coupon redeemed') : (currentLang === 'ar' ? 'لم يُستخدم بعد' : 'Not redeemed yet') }}
+                </p>
               </div>
             }
           </div>

@@ -30,53 +30,48 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
         <div [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
           <form [formGroup]="form" class="grid gap-4 md:grid-cols-2" (ngSubmit)="submit()">
             <label class="space-y-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.COUPON_CODE' | translate }}</span>
+              <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'كود الكوبون' : 'Coupon code' }}</span>
               <input formControlName="code" type="text" class="offer-input" [placeholder]="'OFFERS.CREATE.COUPON_CODE_PLACEHOLDER' | translate">
             </label>
 
             <label class="space-y-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.DISCOUNT_TYPE' | translate }}</span>
+              <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'عنوان الكوبون' : 'Coupon title' }}</span>
+              <input formControlName="title" type="text" class="offer-input" [placeholder]="currentLang === 'ar' ? 'مثال: خصم نهاية الأسبوع' : 'Example: Weekend discount'">
+            </label>
+
+            <label class="space-y-2">
+              <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'نوع الخصم' : 'Discount type' }}</span>
               <app-searchable-select formControlName="type" [options]="[{value: 'percentage', labelKey: 'OFFERS.CREATE.VALUE_PERCENTAGE'}, {value: 'fixed', labelKey: 'OFFERS.CREATE.VALUE_FIXED'}]" [placeholder]="'OFFERS.CREATE.TYPE'"></app-searchable-select>
             </label>
 
             <label class="space-y-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.DISCOUNT_VALUE' | translate }}</span>
+              <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'قيمة الخصم' : 'Discount value' }}</span>
               <input formControlName="value" type="number" class="offer-input" [placeholder]="'0'">
             </label>
 
             <label class="space-y-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.MIN_ORDER' | translate }}</span>
+              <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'الحد الأدنى للطلب' : 'Minimum order' }}</span>
               <input formControlName="minOrder" type="number" class="offer-input" [placeholder]="'0'">
             </label>
 
             <label class="space-y-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.USAGE_LIMIT' | translate }}</span>
+              <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'حد الاستخدام الكلي' : 'Usage limit' }}</span>
               <input formControlName="usageLimit" type="number" class="offer-input" [placeholder]="'100'">
             </label>
 
             <label class="space-y-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.ENDS_AT' | translate }}</span>
+              <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'ينتهي في' : 'Ends at' }}</span>
               <input formControlName="endsAt" type="date" class="offer-input">
             </label>
 
             <label class="space-y-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.AUDIENCE_AR' | translate }}</span>
-              <input formControlName="audienceAr" type="text" class="offer-input" [placeholder]="'OFFERS.CREATE.AUDIENCE_AR_PLACEHOLDER' | translate">
+              <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'حد الاستخدام لكل عميل' : 'Per-user limit' }}</span>
+              <input formControlName="perUserLimit" type="number" min="0" class="offer-input" [placeholder]="currentLang === 'ar' ? 'اختياري' : 'Optional'">
             </label>
 
             <label class="space-y-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.AUDIENCE_EN' | translate }}</span>
-              <input formControlName="audienceEn" type="text" class="offer-input" [placeholder]="'OFFERS.CREATE.AUDIENCE_EN_PLACEHOLDER' | translate">
-            </label>
-
-            <label class="space-y-2 md:col-span-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.NOTE_AR' | translate }}</span>
-              <textarea formControlName="noteAr" rows="3" class="offer-textarea" [placeholder]="'OFFERS.CREATE.NOTE_AR_PLACEHOLDER' | translate"></textarea>
-            </label>
-
-            <label class="space-y-2 md:col-span-2">
-              <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.NOTE_EN' | translate }}</span>
-              <textarea formControlName="noteEn" rows="3" class="offer-textarea" [placeholder]="'OFFERS.CREATE.NOTE_EN_PLACEHOLDER' | translate"></textarea>
+              <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'الحد الأقصى للخصم' : 'Max discount cap' }}</span>
+              <input formControlName="maxDiscountAmount" type="number" min="0" class="offer-input" [placeholder]="currentLang === 'ar' ? 'اختياري مع النسبة' : 'Optional for percentage'">
             </label>
 
             <div class="md:col-span-2 rounded-[20px] border border-slate-200 bg-slate-50/80 px-4 py-3">
@@ -84,6 +79,11 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
                 {{ 'OFFERS.CREATE.ACTIVE_COUPON' | translate }}
               </app-checkbox>
             </div>
+            @if (errorMessage) {
+              <div class="md:col-span-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-[0.78rem] font-bold text-rose-700">
+                {{ errorMessage }}
+              </div>
+            }
           </form>
         </div>
 
@@ -95,8 +95,8 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
             <app-button variant="ghost" (btnClick)="handleClose()">
               {{ 'COMMON.CANCEL' | translate }}
             </app-button>
-            <app-button [disabled]="form.invalid" (btnClick)="submit()">
-              {{ 'OFFERS.CREATE.SAVE_COUPON' | translate }}
+            <app-button [disabled]="form.invalid || isSaving" (btnClick)="submit()">
+              {{ isSaving ? (currentLang === 'ar' ? 'جارٍ الحفظ...' : 'Saving...') : ('OFFERS.CREATE.SAVE_COUPON' | translate) }}
             </app-button>
           </div>
         </div>
@@ -142,6 +142,8 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
 })
 export class CouponOfferModalComponent {
   @Input() isOpen = false;
+  @Input() isSaving = false;
+  @Input() errorMessage = '';
   @Output() readonly close = new EventEmitter<void>();
   @Output() readonly saved = new EventEmitter<CreateCouponOfferPayload>();
 
@@ -153,15 +155,14 @@ export class CouponOfferModalComponent {
   ) {
     this.form = this.fb.nonNullable.group({
       code: ['', [Validators.required, Validators.minLength(4)]],
+      title: ['', [Validators.required, Validators.minLength(3)]],
       type: this.fb.nonNullable.control<'percentage' | 'fixed'>('percentage'),
       value: this.fb.nonNullable.control(10, [Validators.required, Validators.min(1)]),
-      minOrder: this.fb.nonNullable.control(100, [Validators.required, Validators.min(0)]),
-      usageLimit: this.fb.nonNullable.control(100, [Validators.required, Validators.min(1)]),
+      minOrder: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0)]),
+      usageLimit: this.fb.control<number | null>(100, [Validators.min(1)]),
       endsAt: this.fb.nonNullable.control(this.buildDefaultEndDate(), Validators.required),
-      audienceAr: ['', [Validators.required, Validators.minLength(2)]],
-      audienceEn: ['', [Validators.required, Validators.minLength(2)]],
-      noteAr: ['', [Validators.required, Validators.minLength(4)]],
-      noteEn: ['', [Validators.required, Validators.minLength(4)]],
+      perUserLimit: this.fb.control<number | null>(null, [Validators.min(1)]),
+      maxDiscountAmount: this.fb.control<number | null>(null, [Validators.min(1)]),
       isActive: this.fb.nonNullable.control(true)
     });
   }
@@ -171,13 +172,12 @@ export class CouponOfferModalComponent {
   }
 
   submit(): void {
-    if (this.form.invalid) {
+    if (this.form.invalid || this.isSaving) {
       this.form.markAllAsTouched();
       return;
     }
 
     this.saved.emit(this.form.getRawValue());
-    this.resetForm();
   }
 
   handleClose(): void {
@@ -188,15 +188,14 @@ export class CouponOfferModalComponent {
   private resetForm(): void {
     this.form.reset({
       code: '',
+      title: '',
       type: 'percentage',
       value: 10,
-      minOrder: 100,
+      minOrder: 0,
       usageLimit: 100,
       endsAt: this.buildDefaultEndDate(),
-      audienceAr: '',
-      audienceEn: '',
-      noteAr: '',
-      noteEn: '',
+      perUserLimit: null,
+      maxDiscountAmount: null,
       isActive: true
     });
   }
