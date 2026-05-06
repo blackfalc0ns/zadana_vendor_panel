@@ -15,6 +15,14 @@ import {
   VendorDisputeType
 } from '../../models/vendor-disputes.models';
 import { VendorDisputesService } from '../../services/vendor-disputes.service';
+import {
+  getVendorDisputeCompensationLabel,
+  getVendorDisputeDisplayState,
+  getVendorDisputeSettlementLabel,
+  normalizeVendorDisputePriority,
+  normalizeVendorDisputeStatus,
+  normalizeVendorDisputeType
+} from '../../utils/vendor-dispute-display.utils';
 
 @Component({
   selector: 'app-vendor-dispute-detail',
@@ -36,6 +44,7 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
   responseDraft = '';
   flashMessage = '';
   isSubmitting = false;
+  selectedImage: string | null = null;
 
   private langSub: Subscription;
   private detailSub?: Subscription;
@@ -119,19 +128,28 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
   }
 
   statusClass(status: VendorDisputeStatus | string): string {
-    switch (this.normalizeStatus(status)) {
-      case 'in_review':
-        return 'border-sky-200 bg-sky-50 text-sky-700';
-      case 'awaiting_customer_evidence':
-        return 'border-amber-200 bg-amber-50 text-amber-700';
-      case 'approved':
-      case 'resolved':
-        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
-      case 'rejected':
-        return 'border-rose-200 bg-rose-50 text-rose-700';
-      default:
-        return 'border-violet-200 bg-violet-50 text-violet-700';
-    }
+    return getVendorDisputeDisplayState(
+      {
+        type: 'complaint',
+        status,
+        settlementStatus: null,
+        compensationType: null,
+        message: ''
+      },
+      this.currentLang
+    ).displayStatusClass;
+  }
+
+  displayStatusLabel(dispute: VendorDisputeDetailVm): string {
+    return getVendorDisputeDisplayState(dispute, this.currentLang).displayStatusLabel;
+  }
+
+  displayTypeLabel(dispute: VendorDisputeDetailVm): string {
+    return getVendorDisputeDisplayState(dispute, this.currentLang).displayTypeLabel;
+  }
+
+  displayTypeMetaLabel(dispute: VendorDisputeDetailVm): string {
+    return getVendorDisputeDisplayState(dispute, this.currentLang).displayTypeMetaLabel;
   }
 
   priorityClass(priority: VendorDisputePriority | string): string {
@@ -160,29 +178,16 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
   }
 
   settlementLabel(value: string | null): string {
-    switch ((value || '').toLowerCase()) {
-      case 'cash_refunded':
-        return this.currentLang === 'ar' ? 'تم الاسترجاع النقدي' : 'Cash refunded';
-      case 'coupon_issued':
-        return this.currentLang === 'ar' ? 'تم إصدار كوبون' : 'Coupon issued';
-      case 'coupon_redeemed':
-        return this.currentLang === 'ar' ? 'تم استخدام الكوبون' : 'Coupon redeemed';
-      case 'rejected':
-        return this.currentLang === 'ar' ? 'تم الرفض' : 'Rejected';
-      default:
-        return this.currentLang === 'ar' ? 'بانتظار المراجعة' : 'Pending review';
-    }
+    return getVendorDisputeSettlementLabel(value, this.currentLang);
+  }
+
+  shouldShowWaitingOn(dispute: VendorDisputeDetailVm): boolean {
+    const status = this.normalizeStatus(dispute.status);
+    return status !== 'resolved' && status !== 'rejected' && this.normalizeRole(dispute.waitingOnRole).length > 0;
   }
 
   compensationLabel(value: string | null): string {
-    switch ((value || '').toLowerCase()) {
-      case 'cash_refund':
-        return this.currentLang === 'ar' ? 'استرجاع نقدي' : 'Cash refund';
-      case 'coupon_compensation':
-        return this.currentLang === 'ar' ? 'تعويض بكوبون' : 'Coupon compensation';
-      default:
-        return this.currentLang === 'ar' ? 'غير محدد' : 'Not set';
-    }
+    return getVendorDisputeCompensationLabel(value, this.currentLang);
   }
 
   refundMethodLabel(value: string | null): string {
@@ -244,14 +249,35 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
   }
 
   private normalizeType(value: string): string {
-    return value.trim().toLowerCase();
+    return normalizeVendorDisputeType(value);
   }
 
   private normalizeStatus(value: string): string {
-    return value.trim().toLowerCase();
+    return normalizeVendorDisputeStatus(value);
   }
 
   private normalizePriority(value: string): string {
-    return value.trim().toLowerCase();
+    return normalizeVendorDisputePriority(value);
+  }
+
+  private normalizeRole(value: string | null | undefined): string {
+    return value?.trim().toLowerCase() ?? '';
+  }
+
+  isImageUrl(url: string): boolean {
+    const lowerUrl = url.toLowerCase();
+    return lowerUrl.match(/\.(jpeg|jpg|gif|png|webp|bmp)$/) !== null || lowerUrl.startsWith('data:image/');
+  }
+
+  openImage(url: string): void {
+    if (this.isImageUrl(url)) {
+      this.selectedImage = url;
+    } else {
+      window.open(url, '_blank', 'noreferrer');
+    }
+  }
+
+  closeImage(): void {
+    this.selectedImage = null;
   }
 }

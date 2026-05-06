@@ -1,151 +1,162 @@
-<div class="space-y-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+<div class="space-y-4 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
   <app-page-header
     [showBack]="true"
     backLink="/disputes"
     [description]="dispute?.message || ''"
   >
-    <span title>
+    <span title class="flex items-center gap-2">
       {{ 'VENDOR_DISPUTES.DETAIL.TITLE' | translate }}
       @if (dispute) {
-        <span dir="ltr">#{{ dispute.orderNumber }}</span>
+        <span dir="ltr" class="text-slate-500">#{{ dispute.orderNumber }}</span>
       }
     </span>
 
-    <div actions class="flex flex-wrap items-center gap-3">
+    <div actions class="flex flex-wrap items-center gap-2">
       @if (dispute) {
-        <span class="inline-flex rounded-full border px-3 py-1.5 text-[0.72rem] font-black" [ngClass]="statusClass(dispute.status)">
-          {{ statusKey(dispute.status) | translate }}
+        <span class="inline-flex items-center rounded-full border px-2.5 py-1 text-[0.7rem] font-black" [ngClass]="statusClass(dispute.status)">
+          {{ displayStatusLabel(dispute) }}
         </span>
       }
     </div>
   </app-page-header>
 
   @if (flashMessage) {
-    <div class="rounded-[20px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-[0.82rem] font-black text-emerald-700 shadow-sm">
+    <div class="rounded-[16px] border border-emerald-200 bg-emerald-50 px-4 py-2.5 text-[0.75rem] font-black text-emerald-800 shadow-sm">
       {{ flashMessage }}
     </div>
   }
 
   @if (!dispute) {
-    <div class="flex h-72 items-center justify-center rounded-[28px] border border-slate-200 bg-white text-[0.85rem] font-black text-slate-500 shadow-sm">
+    <div class="flex h-56 items-center justify-center rounded-[24px] border border-slate-200 bg-white text-[0.8rem] font-black text-slate-500 shadow-sm">
       {{ 'COMMON.LOADING' | translate }}
     </div>
   } @else {
-    <div class="grid gap-6 xl:grid-cols-[0.86fr_1.14fr]">
-      <div class="space-y-6">
-        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+    <div class="grid gap-4 xl:grid-cols-12">
+      <!-- Left Column: Case Information -->
+      <div class="space-y-4 xl:col-span-5">
+        
+        <!-- Summary Panel -->
+        <div class="rounded-[24px] border border-slate-200/70 bg-white shadow-sm overflow-hidden">
           <app-panel-header
             [title]="'VENDOR_DISPUTES.DETAIL.SUMMARY_TITLE'"
             [subtitle]="'VENDOR_DISPUTES.DETAIL.SUMMARY_SUBTITLE'">
           </app-panel-header>
 
-          <div class="grid gap-4 px-6 py-6 md:grid-cols-2">
-            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.TABLE.CASE' | translate }}</p>
-              <p class="mt-2 text-[0.92rem] font-black text-slate-900" dir="ltr">{{ dispute.id }}</p>
+          <div class="grid gap-3 px-5 py-5 md:grid-cols-2">
+            <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+              <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.TABLE.CASE' | translate }}</p>
+              <p class="mt-1.5 text-[0.8rem] font-black text-slate-900" dir="ltr">{{ dispute.id }}</p>
             </div>
 
-            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.TABLE.ORDER' | translate }}</p>
-              <p class="mt-2 text-[0.92rem] font-black text-slate-900">#{{ dispute.orderNumber }}</p>
+            <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+              <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.TABLE.ORDER' | translate }}</p>
+              <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">#{{ dispute.orderNumber }}</p>
             </div>
 
-            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.TABLE.TYPE' | translate }}</p>
-              <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ typeKey(dispute.type) | translate }}</p>
+            <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+              <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.TABLE.TYPE' | translate }}</p>
+              <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ displayTypeLabel(dispute) }}</p>
+              <p class="mt-1 text-[0.68rem] font-bold leading-5 text-slate-500">{{ displayTypeMetaLabel(dispute) }}</p>
             </div>
 
-            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.TABLE.PRIORITY' | translate }}</p>
-              <span class="mt-2 inline-flex rounded-full border px-2.5 py-1 text-[0.72rem] font-black" [ngClass]="priorityClass(dispute.priority)">
+            <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+              <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.TABLE.PRIORITY' | translate }}</p>
+              <span class="mt-1.5 inline-flex rounded-full border px-2 py-0.5 text-[0.65rem] font-black" [ngClass]="priorityClass(dispute.priority)">
                 {{ priorityKey(dispute.priority) | translate }}
               </span>
             </div>
 
-            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.QUEUE' | translate }}</p>
-              <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ dispute.queue }}</p>
+            <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+              <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.QUEUE' | translate }}</p>
+              <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ dispute.queue }}</p>
             </div>
 
-            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.WAITING_ON' | translate }}</p>
-              <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ ('VENDOR_DISPUTES.WAITING_ON.' + (dispute.waitingOnRole || 'review').toUpperCase()) | translate }}</p>
+            <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+              <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</p>
+              <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ displayStatusLabel(dispute) }}</p>
             </div>
 
-            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-              <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.CREATED_AT' | translate }}</p>
-              <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ formatDate(dispute.createdAt) }}</p>
-              <p class="mt-1 text-[0.72rem] font-bold text-slate-500">{{ formatDateTime(dispute.updatedAt) }}</p>
+            @if (shouldShowWaitingOn(dispute)) {
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.WAITING_ON' | translate }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ ('VENDOR_DISPUTES.WAITING_ON.' + dispute.waitingOnRole!.toUpperCase()) | translate }}</p>
+              </div>
+            }
+
+            <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+              <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.CREATED_AT' | translate }}</p>
+              <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ formatDate(dispute.createdAt) }}</p>
+              <p class="mt-0.5 text-[0.65rem] font-bold text-slate-500">{{ formatDateTime(dispute.updatedAt) }}</p>
             </div>
 
             @if (dispute.reasonCode) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.REASON_CODE' | translate }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ dispute.reasonCode }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.REASON_CODE' | translate }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ dispute.reasonCode }}</p>
               </div>
             }
 
             @if (dispute.refundMethod) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.REFUND_METHOD' | translate }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ refundMethodLabel(dispute.refundMethod) }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.REFUND_METHOD' | translate }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ refundMethodLabel(dispute.refundMethod) }}</p>
               </div>
             }
 
             @if (dispute.compensationType) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ currentLang === 'ar' ? 'نوع التسوية' : 'Compensation type' }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ compensationLabel(dispute.compensationType) }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ currentLang === 'ar' ? 'نوع التسوية' : 'Compensation type' }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ compensationLabel(dispute.compensationType) }}</p>
               </div>
             }
 
             @if (dispute.settlementStatus) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ currentLang === 'ar' ? 'حالة التسوية' : 'Settlement status' }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ settlementLabel(dispute.settlementStatus) }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ currentLang === 'ar' ? 'حالة التسوية' : 'Settlement status' }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ settlementLabel(dispute.settlementStatus) }}</p>
               </div>
             }
 
             @if (dispute.costBearer) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.COST_BEARER' | translate }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ costBearerLabel(dispute.costBearer) }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.COST_BEARER' | translate }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ costBearerLabel(dispute.costBearer) }}</p>
               </div>
             }
 
             @if (dispute.closedAt) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.CLOSED_AT' | translate }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ formatDateTime(dispute.closedAt) }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.CLOSED_AT' | translate }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ formatDateTime(dispute.closedAt) }}</p>
               </div>
             }
           </div>
 
-          <div class="grid gap-4 px-6 pb-6 md:grid-cols-2">
+          <div class="grid gap-3 px-5 pb-5 md:grid-cols-2">
             @if (dispute.requestedRefundAmount !== null) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.REQUESTED_REFUND' | translate }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ dispute.requestedRefundAmount | number:'1.2-2' }} {{ 'COMMON.CURRENCY' | translate }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.REQUESTED_REFUND' | translate }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ dispute.requestedRefundAmount | number:'1.2-2' }} {{ 'COMMON.CURRENCY' | translate }}</p>
               </div>
             }
 
             @if (dispute.approvedRefundAmount !== null) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.APPROVED_REFUND' | translate }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-slate-900">{{ dispute.approvedRefundAmount | number:'1.2-2' }} {{ 'COMMON.CURRENCY' | translate }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.APPROVED_REFUND' | translate }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-slate-900">{{ dispute.approvedRefundAmount | number:'1.2-2' }} {{ 'COMMON.CURRENCY' | translate }}</p>
               </div>
             }
 
             @if (dispute.couponCode) {
-              <div class="rounded-[18px] border border-cyan-100 bg-cyan-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-cyan-600">{{ currentLang === 'ar' ? 'الكوبون التعويضي' : 'Compensation coupon' }}</p>
-                <p class="mt-2 text-[0.92rem] font-black text-cyan-900" dir="ltr">{{ dispute.couponCode }}</p>
+              <div class="rounded-[16px] border border-cyan-100 bg-cyan-50 p-3 md:col-span-2">
+                <p class="text-[0.62rem] font-extrabold uppercase tracking-[0.14em] text-cyan-600">{{ currentLang === 'ar' ? 'الكوبون التعويضي' : 'Compensation coupon' }}</p>
+                <p class="mt-1.5 text-[0.8rem] font-black text-cyan-900" dir="ltr">{{ dispute.couponCode }}</p>
                 @if (dispute.couponExpiresAtUtc) {
-                  <p class="mt-2 text-[0.74rem] font-bold text-cyan-800">
+                  <p class="mt-1.5 text-[0.68rem] font-bold text-cyan-800">
                     {{ currentLang === 'ar' ? 'ينتهي في' : 'Expires on' }} {{ formatDate(dispute.couponExpiresAtUtc) }}
                   </p>
                 }
-                <p class="mt-2 text-[0.74rem] font-black" [ngClass]="dispute.couponRedeemed ? 'text-emerald-700' : 'text-amber-700'">
+                <p class="mt-1 text-[0.68rem] font-black" [ngClass]="dispute.couponRedeemed ? 'text-emerald-700' : 'text-amber-700'">
                   {{ dispute.couponRedeemed ? (currentLang === 'ar' ? 'تم استخدام الكوبون' : 'Coupon redeemed') : (currentLang === 'ar' ? 'لم يُستخدم بعد' : 'Not redeemed yet') }}
                 </p>
               </div>
@@ -153,172 +164,232 @@
           </div>
         </div>
 
-        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+        <!-- Notes Panel -->
+        <div class="rounded-[24px] border border-slate-200/70 bg-white shadow-sm overflow-hidden">
           <app-panel-header
             [title]="'VENDOR_DISPUTES.DETAIL.NOTES_TITLE'"
             [subtitle]="'VENDOR_DISPUTES.DETAIL.NOTES_SUBTITLE'">
           </app-panel-header>
 
-          <div class="space-y-4 px-6 py-6">
-            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-              <p class="text-[0.72rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.PARTICIPANTS' | translate }}</p>
-              <div class="mt-3 flex flex-wrap gap-2">
+          <div class="space-y-3 px-5 py-5">
+            <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+              <p class="text-[0.65rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.PARTICIPANTS' | translate }}</p>
+              <div class="mt-2 flex flex-wrap gap-1.5">
                 @for (participant of dispute.participants; track participant.role) {
-                  <span class="inline-flex rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.72rem] font-black text-slate-700">
+                  <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[0.65rem] font-black text-slate-700">
                     {{ participantLabel(participant.role) | translate }}
                   </span>
                 }
               </div>
             </div>
 
-            <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-              <p class="text-[0.72rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.CASE_MESSAGE' | translate }}</p>
-              <p class="mt-2 text-[0.82rem] font-bold leading-7 text-slate-800">{{ dispute.message }}</p>
+            <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+              <p class="text-[0.65rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.CASE_MESSAGE' | translate }}</p>
+              <p class="mt-1.5 text-[0.75rem] font-bold leading-6 text-slate-800">{{ dispute.message }}</p>
             </div>
 
             @if (dispute.customerVisibleNote) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.72rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.CUSTOMER_NOTE' | translate }}</p>
-                <p class="mt-2 text-[0.82rem] font-bold leading-7 text-slate-800">{{ dispute.customerVisibleNote }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.65rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.CUSTOMER_NOTE' | translate }}</p>
+                <p class="mt-1.5 text-[0.75rem] font-bold leading-6 text-slate-800">{{ dispute.customerVisibleNote }}</p>
               </div>
             }
 
             @if (dispute.decisionNotes) {
-              <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                <p class="text-[0.72rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.DECISION_NOTES' | translate }}</p>
-                <p class="mt-2 text-[0.82rem] font-bold leading-7 text-slate-800">{{ dispute.decisionNotes }}</p>
+              <div class="rounded-[16px] border border-slate-100 bg-slate-50 p-3">
+                <p class="text-[0.65rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.DECISION_NOTES' | translate }}</p>
+                <p class="mt-1.5 text-[0.75rem] font-bold leading-6 text-slate-800">{{ dispute.decisionNotes }}</p>
               </div>
             }
 
             @if (dispute.vendorResponse) {
-              <div class="rounded-[18px] border border-emerald-100 bg-emerald-50 px-4 py-4">
-                <p class="text-[0.72rem] font-black text-emerald-700">{{ 'VENDOR_DISPUTES.DETAIL.YOUR_RESPONSE' | translate }}</p>
-                <p class="mt-2 text-[0.82rem] font-bold leading-7 text-emerald-900">{{ dispute.vendorResponse }}</p>
+              <div class="rounded-[16px] border border-emerald-100 bg-emerald-50 p-3">
+                <p class="text-[0.65rem] font-black text-emerald-700">{{ 'VENDOR_DISPUTES.DETAIL.YOUR_RESPONSE' | translate }}</p>
+                <p class="mt-1.5 text-[0.75rem] font-bold leading-6 text-emerald-900">{{ dispute.vendorResponse }}</p>
                 @if (dispute.vendorRespondedAt) {
-                  <p class="mt-2 text-[0.68rem] font-black text-emerald-700/80">{{ formatDateTime(dispute.vendorRespondedAt) }}</p>
+                  <p class="mt-1.5 text-[0.62rem] font-black text-emerald-700/80">{{ formatDateTime(dispute.vendorRespondedAt) }}</p>
                 }
               </div>
             }
           </div>
         </div>
 
-        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+        <!-- Attachments Panel -->
+        <div class="rounded-[24px] border border-slate-200/70 bg-white shadow-sm overflow-hidden">
           <app-panel-header
             [title]="'VENDOR_DISPUTES.DETAIL.ATTACHMENTS_TITLE'"
             [subtitle]="'VENDOR_DISPUTES.DETAIL.ATTACHMENTS_SUBTITLE'">
           </app-panel-header>
 
           @if (dispute.attachments.length > 0) {
-            <div class="space-y-3 px-6 py-6">
+            <div class="space-y-2.5 px-5 py-5">
               @for (attachment of dispute.attachments; track attachment.fileUrl) {
                 <a
                   [href]="attachment.fileUrl"
-                  target="_blank"
-                  rel="noreferrer"
-                  class="flex items-center justify-between rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4 no-underline transition hover:border-zadna-primary/20 hover:bg-white">
+                  (click)="openImage(attachment.fileUrl); $event.preventDefault()"
+                  class="flex items-center justify-between rounded-[16px] border border-slate-100 bg-slate-50 p-3 no-underline transition hover:border-zadna-primary/20 hover:bg-white cursor-pointer">
                   <div class="min-w-0">
-                    <p class="truncate text-[0.82rem] font-black text-slate-900">{{ attachment.fileName }}</p>
-                    <p class="mt-1 text-[0.7rem] font-bold text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.OPEN_ATTACHMENT' | translate }}</p>
+                    <p class="truncate text-[0.75rem] font-black text-slate-900">{{ attachment.fileName }}</p>
+                    <p class="mt-1 text-[0.65rem] font-bold text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.OPEN_ATTACHMENT' | translate }}</p>
                   </div>
-                  <span class="text-[0.72rem] font-black text-zadna-primary">{{ 'COMMON.OPEN' | translate }}</span>
+                  <span class="text-[0.65rem] font-black text-zadna-primary">{{ 'COMMON.OPEN' | translate }}</span>
                 </a>
               }
             </div>
           } @else {
-            <div class="px-6 py-8 text-center text-[0.8rem] font-bold text-slate-500">
+            <div class="px-5 py-6 text-center text-[0.75rem] font-bold text-slate-500">
               {{ 'VENDOR_DISPUTES.DETAIL.NO_ATTACHMENTS' | translate }}
             </div>
           }
         </div>
       </div>
 
-      <div class="space-y-6">
-        @if (dispute.activities && dispute.activities.length > 0) {
-          <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
-            <app-panel-header
-              [title]="'VENDOR_DISPUTES.DETAIL.ACTIVITY_TITLE'"
-              [subtitle]="'VENDOR_DISPUTES.DETAIL.ACTIVITY_SUBTITLE'">
-            </app-panel-header>
-
-            <div class="max-h-[25rem] space-y-4 overflow-y-auto px-6 py-6 pe-3">
-              @for (activity of dispute.activities; track activity.id) {
-                <div class="rounded-[18px] border border-slate-100 bg-slate-50 px-4 py-4">
-                  <div class="flex items-start justify-between gap-3">
-                    <div>
-                      <p class="text-[0.8rem] font-black text-slate-900">{{ activity.title }}</p>
-                      <p class="mt-1 text-[0.68rem] font-black uppercase tracking-[0.08em] text-slate-400">{{ activity.actorRole }}</p>
-                    </div>
-                    <span class="text-[0.64rem] font-black text-slate-400" dir="ltr">{{ formatDateTime(activity.createdAt) }}</span>
-                  </div>
-                  @if (activity.note) {
-                    <p class="mt-3 text-[0.78rem] font-bold leading-7 text-slate-600">{{ activity.note }}</p>
-                  }
-                </div>
-              }
-            </div>
-          </div>
-        }
-
-        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
-          <app-panel-header
-            [title]="'VENDOR_DISPUTES.DETAIL.CONVERSATION_TITLE'"
-            [subtitle]="'VENDOR_DISPUTES.DETAIL.CONVERSATION_SUBTITLE'">
-          </app-panel-header>
-
-          <div class="max-h-[38rem] space-y-4 overflow-y-auto px-6 py-6 pe-3">
-            @for (message of dispute.messages; track message.id) {
-              <div class="rounded-[18px] border px-4 py-4" [ngClass]="isOwnMessage(message.authorRole) ? 'border-emerald-100 bg-emerald-50' : 'border-slate-100 bg-slate-50'">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <p class="text-[0.8rem] font-black text-slate-900">{{ message.title }}</p>
-                    <p class="mt-1 text-[0.68rem] font-black uppercase tracking-[0.08em] text-slate-400">{{ message.authorRole }}</p>
-                  </div>
-                  <span class="text-[0.64rem] font-black text-slate-400" dir="ltr">{{ formatDateTime(message.createdAt) }}</span>
-                </div>
-                @if (message.body) {
-                  <p class="mt-3 text-[0.78rem] font-bold leading-7 text-slate-600">{{ message.body }}</p>
-                }
-                @if (message.attachments.length > 0) {
-                  <div class="mt-4 flex flex-wrap gap-2">
-                    @for (attachment of message.attachments; track attachment.fileUrl) {
-                      <a [href]="attachment.fileUrl" target="_blank" rel="noreferrer" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-[0.68rem] font-bold text-slate-700 transition hover:border-zadna-primary/40 hover:text-zadna-primary">
-                        <span class="material-symbols-outlined text-[14px]">attachment</span>
-                        {{ attachment.fileName }}
-                      </a>
-                    }
-                  </div>
-                }
-              </div>
-            }
-          </div>
-        </div>
-
-        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+      <!-- Right Column: Timeline & Discussion -->
+      <div class="space-y-4 xl:col-span-7">
+        
+        <!-- Reply Panel -->
+        <div class="rounded-[24px] border border-slate-200/70 bg-white shadow-sm overflow-hidden">
           <app-panel-header
             [title]="'VENDOR_DISPUTES.DETAIL.REPLY_TITLE'"
             [subtitle]="'VENDOR_DISPUTES.DETAIL.REPLY_SUBTITLE'">
           </app-panel-header>
 
-          <div class="px-6 py-6">
+          <div class="px-5 py-5">
             <label class="block space-y-2">
-              <span class="text-[0.75rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.REPLY_FIELD' | translate }}</span>
+              <span class="text-[0.7rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.REPLY_FIELD' | translate }}</span>
               <textarea
-                rows="6"
+                rows="3"
                 [(ngModel)]="responseDraft"
                 [placeholder]="'VENDOR_DISPUTES.DETAIL.REPLY_PLACEHOLDER' | translate"
-                class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-[0.8rem] font-bold text-slate-900 outline-none transition-all resize-none focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5"></textarea>
+                class="w-full rounded-[14px] border border-slate-200 bg-slate-50 px-3 py-2.5 text-[0.75rem] font-bold text-slate-900 outline-none transition-all resize-none focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5"></textarea>
             </label>
 
-            <div class="mt-4 flex justify-end">
+            <div class="mt-3 flex justify-end">
               <button
                 type="button"
                 (click)="submitResponse()"
                 [disabled]="!canRespond"
-                class="inline-flex items-center justify-center rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
+                class="inline-flex items-center justify-center rounded-[14px] bg-zadna-primary px-4 py-2 text-[0.75rem] font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
                 {{ 'VENDOR_DISPUTES.ACTIONS.SEND_RESPONSE' | translate }}
               </button>
             </div>
           </div>
+        </div>
+
+        <!-- Conversation Panel -->
+        <div class="rounded-[24px] border border-slate-200/70 bg-white shadow-sm flex flex-col overflow-hidden">
+          <app-panel-header
+            [title]="'VENDOR_DISPUTES.DETAIL.CONVERSATION_TITLE'"
+            [subtitle]="'VENDOR_DISPUTES.DETAIL.CONVERSATION_SUBTITLE'">
+          </app-panel-header>
+
+          <div class="flex-1 max-h-[34rem] overflow-y-auto px-5 py-5 space-y-5">
+            @for (message of dispute.messages; track message.id) {
+              <div class="flex gap-3" [ngClass]="isOwnMessage(message.authorRole) ? 'flex-row-reverse' : 'flex-row'">
+                <!-- Avatar -->
+                <div class="flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center text-slate-500 text-[0.75rem] font-black bg-slate-200">
+                  {{ message.authorRole.substring(0, 1).toUpperCase() }}
+                </div>
+                
+                <!-- Bubble Wrapper -->
+                <div class="flex flex-col max-w-[85%] w-full" [ngClass]="isOwnMessage(message.authorRole) ? 'items-end' : 'items-start'">
+                  
+                  <div class="rounded-[16px] border border-slate-100 bg-white shadow-sm px-4 py-3 w-full text-start">
+                    <p class="font-black text-slate-900 text-[0.75rem]">{{ message.title }}</p>
+
+                    @if (message.body) {
+                      <p class="mt-1.5 text-[0.75rem] font-bold leading-6 text-slate-600 whitespace-pre-wrap">{{ message.body }}</p>
+                    }
+                    
+                    @if (message.attachments.length > 0) {
+                      <div class="mt-3 flex flex-wrap gap-1.5">
+                        @for (attachment of message.attachments; track attachment.fileUrl) {
+                          <a
+                            [href]="attachment.fileUrl"
+                            (click)="openImage(attachment.fileUrl); $event.preventDefault()"
+                            class="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-1 text-[0.62rem] font-bold text-slate-700 transition hover:border-zadna-primary/40 hover:text-zadna-primary cursor-pointer">
+                            <span class="material-symbols-outlined text-[12px]">attachment</span>
+                            {{ attachment.fileName }}
+                          </a>
+                        }
+                      </div>
+                    }
+                  </div>
+                  
+                  <!-- Metadata under bubble -->
+                  <div class="flex items-baseline gap-1.5 mt-1.5 px-1" [ngClass]="isOwnMessage(message.authorRole) ? 'flex-row-reverse' : 'flex-row'">
+                    <span class="text-[0.65rem] font-black text-slate-900">{{ message.authorRole }}</span>
+                    <span class="text-[0.62rem] font-black text-slate-400" dir="ltr">{{ formatDateTime(message.createdAt) }}</span>
+                  </div>
+
+                </div>
+              </div>
+            } @empty {
+              <div class="text-center py-6 text-[0.75rem] font-black text-slate-500">
+                {{ 'COMMON.NO_DATA' | translate }}
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Activity Panel -->
+        @if (dispute.activities && dispute.activities.length > 0) {
+          <div class="rounded-[24px] border border-slate-200/70 bg-white shadow-sm overflow-hidden">
+            <app-panel-header
+              [title]="'VENDOR_DISPUTES.DETAIL.ACTIVITY_TITLE'"
+              [subtitle]="'VENDOR_DISPUTES.DETAIL.ACTIVITY_SUBTITLE'">
+            </app-panel-header>
+
+            <div class="p-5">
+              <div class="relative space-y-5 before:absolute before:inset-0 before:ml-4 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-[1.5px] before:bg-gradient-to-b before:from-transparent before:via-slate-200 before:to-transparent rtl:before:mr-4 rtl:before:ml-auto md:rtl:before:mx-auto">
+                @for (activity of dispute.activities; track activity.id) {
+                  <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group is-active">
+                    <!-- Icon -->
+                    <div class="flex items-center justify-center w-8 h-8 rounded-full border-[2.5px] border-white bg-slate-100 text-slate-500 shadow-sm shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 rtl:md:group-odd:translate-x-1/2 rtl:md:group-even:-translate-x-1/2 z-10">
+                      <span class="material-symbols-outlined text-[14px]">history</span>
+                    </div>
+                    
+                    <!-- Card -->
+                    <div class="w-[calc(100%-3rem)] md:w-[calc(50%-2rem)] rounded-[16px] border border-slate-100 bg-white shadow-sm p-3 text-start">
+                      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-1">
+                        <span class="text-[0.75rem] font-black text-slate-900">{{ activity.title }}</span>
+                        <time class="mt-1 sm:mt-0 text-[0.6rem] font-black text-slate-400" dir="ltr">{{ formatDateTime(activity.createdAt) }}</time>
+                      </div>
+                      <div class="mt-1 text-[0.62rem] font-black uppercase tracking-[0.08em] text-slate-400">{{ activity.actorRole }}</div>
+                      @if (activity.note) {
+                        <p class="mt-2 text-[0.72rem] font-bold leading-6 text-slate-600">{{ activity.note }}</p>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+
+  <!-- Image Preview Modal -->
+  @if (selectedImage) {
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-slate-900/80 backdrop-blur-sm" (click)="closeImage()"></div>
+      <div class="relative z-10 flex max-h-[90vh] max-w-[90vw] flex-col overflow-hidden rounded-[20px] bg-white shadow-2xl animate-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between border-b border-slate-100 px-5 py-3">
+          <h3 class="text-[0.9rem] font-black text-slate-900">{{ 'VENDOR_DISPUTES.DETAIL.ATTACHMENTS_TITLE' | translate }}</h3>
+          <button type="button" (click)="closeImage()" class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition-colors hover:bg-slate-200 hover:text-slate-900">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+        <div class="overflow-auto p-4 bg-slate-50/50 flex-1 flex items-center justify-center">
+          <img [src]="selectedImage" alt="Attachment Preview" class="max-h-[70vh] w-auto max-w-full rounded-[10px] object-contain shadow-sm" />
+        </div>
+        <div class="border-t border-slate-100 bg-white px-5 py-3 flex justify-end">
+          <a [href]="selectedImage" target="_blank" rel="noreferrer" class="inline-flex items-center justify-center gap-2 rounded-[14px] bg-slate-900 px-4 py-2 text-[0.75rem] font-black text-white transition hover:bg-slate-800">
+            <span class="material-symbols-outlined text-[16px]">open_in_new</span>
+            {{ 'COMMON.OPEN' | translate }}
+          </a>
         </div>
       </div>
     </div>
