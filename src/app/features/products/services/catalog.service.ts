@@ -48,8 +48,11 @@ interface VendorProductApi {
   id: string;
   vendorId: string;
   masterProductId: string;
+  costPrice?: number | null;
+  tradePrice?: number | null;
   sellingPrice: number;
   compareAtPrice?: number | null;
+  commissionRate?: number | null;
   stockQuantity: number;
   isAvailable: boolean;
   status?: string;
@@ -179,9 +182,10 @@ export class CatalogService {
   addToStore(request: any): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/products`, {
       masterProductId: request.masterProductId,
+      costPrice: request.costPrice ?? null,
+      tradePrice: request.tradePrice ?? null,
       sellingPrice: request.sellingPrice,
       compareAtPrice: request.compareAtPrice ?? null,
-      costPrice: null,
       stockQty: request.stockQty,
       minOrderQty: 1,
       maxOrderQty: null,
@@ -195,6 +199,8 @@ export class CatalogService {
       idempotencyKey: this.generateIdempotencyKey(),
       items: items.map((item) => ({
         masterProductId: item.masterProductId,
+        costPrice: item.costPrice ?? null,
+        tradePrice: item.tradePrice ?? null,
         sellingPrice: item.sellingPrice,
         compareAtPrice: item.compareAtPrice ?? this.calculateCompareAtPrice(item.sellingPrice ?? 0, item.discountPercentage ?? 0),
         stockQty: item.stockQty,
@@ -220,12 +226,18 @@ export class CatalogService {
     return this.http.put<void>(`${this.baseUrl}/products/${id}`, {
       sellingPrice: data.sellingPrice,
       compareAtPrice: data.compareAtPrice ?? null,
+      costPrice: data.costPrice ?? null,
+      tradePrice: data.tradePrice ?? null,
       stockQty: data.stockQty,
       customNameAr: null,
       customNameEn: null,
       customDescriptionAr: null,
       customDescriptionEn: null
     });
+  }
+
+  changeProductStatus(id: string, isActive: boolean): Observable<void> {
+    return this.http.patch<void>(`${this.baseUrl}/products/${id}/status`, { isActive });
   }
 
   calculateDiscountPercentage(sellingPrice: number, compareAtPrice?: number | null): number {
@@ -286,11 +298,14 @@ export class CatalogService {
       brandNameEn: product.brandNameEn,
       unitNameAr: product.unitNameAr,
       unitNameEn: product.unitNameEn,
+      costPrice: item.costPrice ?? null,
+      tradePrice: item.tradePrice ?? null,
       sellingPrice: item.sellingPrice,
       compareAtPrice: item.compareAtPrice ?? null,
+      commissionRate: item.commissionRate ?? null,
       discountPercentage: this.calculateDiscountPercentage(item.sellingPrice, item.compareAtPrice),
       stockQty: item.stockQuantity,
-      isActive: item.isAvailable
+      isActive: item.status === 'Active' || item.status === 'OutOfStock'
     };
   }
 

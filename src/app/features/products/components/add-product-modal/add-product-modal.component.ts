@@ -42,6 +42,7 @@ import { ProductPriceStockFormComponent } from '../product-price-stock-form/prod
             
             <app-product-price-stock-form 
               [form]="productForm" 
+              [currentLang]="currentLang"
               [unitName]="(currentLang === 'ar' ? product?.unitNameAr : product?.unitNameEn) || ''">
             </app-product-price-stock-form>
 
@@ -79,12 +80,14 @@ export class AddProductModalComponent {
   @Input() product: MasterProduct | null = null;
   @Input() currentLang: string = 'ar';
   @Output() close = new EventEmitter<void>();
-  @Output() confirm = new EventEmitter<{ sellingPrice: number, stockQuantity: number, discountPercentage: number }>();
+  @Output() confirm = new EventEmitter<{ costPrice: number | null, tradePrice: number | null, sellingPrice: number, stockQuantity: number, discountPercentage: number }>();
 
   productForm: FormGroup;
 
   constructor(private fb: FormBuilder) {
     this.productForm = this.fb.group({
+      costPrice: [0, [Validators.min(0)]],
+      tradePrice: [null, [Validators.required, Validators.min(0.01)]],
       sellingPrice: [null, [Validators.required, Validators.min(0.01)]],
       stockQty: [0, [Validators.required, Validators.min(0)]],
       discountPercentage: [0, [Validators.min(0), Validators.max(100)]]
@@ -100,6 +103,8 @@ export class AddProductModalComponent {
     if (this.productForm.valid) {
       const formValue = this.productForm.value;
       this.confirm.emit({ 
+        costPrice: formValue.costPrice,
+        tradePrice: formValue.tradePrice,
         sellingPrice: formValue.sellingPrice, 
         stockQuantity: formValue.stockQty,
         discountPercentage: formValue.discountPercentage

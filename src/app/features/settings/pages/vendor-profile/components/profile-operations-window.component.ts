@@ -45,6 +45,94 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
         </app-page-section-shell>
       </div>
 
+      <div id="operations-settings-section">
+        <app-page-section-shell
+          [title]="'SETTINGS_PROFILE.SECTIONS.OPERATIONS_SETTINGS'"
+          [subtitle]="'SETTINGS_PROFILE.SECTIONS.OPERATIONS_SETTINGS_HINT'"
+          bodyClass="grid gap-6 px-5 py-5">
+          <div class="grid gap-4 lg:grid-cols-2">
+            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.OPERATIONS.ACCEPT_ORDERS' | translate }}</p>
+                  <p class="mt-1 text-[0.72rem] font-semibold text-slate-500">{{ 'SETTINGS_PROFILE.OPERATIONS.ACCEPT_ORDERS_HINT' | translate }}</p>
+                </div>
+                <label class="group relative flex cursor-pointer items-center justify-center">
+                  <input formControlName="acceptOrders" type="checkbox" class="peer sr-only">
+                  <div class="h-6 w-11 rounded-full bg-slate-200 transition-colors peer-checked:bg-emerald-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500/20"></div>
+                  <div class="absolute left-[2px] top-[2px] h-5 w-5 rounded-full border border-slate-300 bg-white transition-all peer-checked:left-[22px] peer-checked:border-white shadow-sm"></div>
+                </label>
+              </div>
+            </div>
+
+            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="grid gap-4 md:grid-cols-2">
+                <label class="space-y-2">
+                  <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.OPERATIONS.MINIMUM_ORDER_AMOUNT' | translate }}</span>
+                  <input formControlName="minimumOrderAmount" type="number" min="0" [class]="fieldClass('minimumOrderAmount', 'ltr')">
+                </label>
+
+                <label class="space-y-2">
+                  <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.OPERATIONS.PREPARATION_TIME' | translate }}</span>
+                  <input formControlName="preparationTimeMinutes" type="number" min="0" [class]="fieldClass('preparationTimeMinutes', 'ltr')">
+                </label>
+              </div>
+            </div>
+          </div>
+        </app-page-section-shell>
+      </div>
+
+      <div id="notification-settings-section">
+        <app-page-section-shell
+          [title]="'SETTINGS_PROFILE.SECTIONS.NOTIFICATION_SETTINGS'"
+          [subtitle]="'SETTINGS_PROFILE.SECTIONS.NOTIFICATION_SETTINGS_HINT'"
+          bodyClass="grid gap-4 px-5 py-5">
+          <div class="grid gap-4 lg:grid-cols-3">
+            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.EMAIL' | translate }}</p>
+                  <p class="mt-1 text-[0.72rem] font-semibold text-slate-500">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.EMAIL_HINT' | translate }}</p>
+                </div>
+                <label class="group relative flex cursor-pointer items-center justify-center">
+                  <input formControlName="emailNotificationsEnabled" type="checkbox" class="peer sr-only">
+                  <div class="h-6 w-11 rounded-full bg-slate-200 transition-colors peer-checked:bg-emerald-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500/20"></div>
+                  <div class="absolute left-[2px] top-[2px] h-5 w-5 rounded-full border border-slate-300 bg-white transition-all peer-checked:left-[22px] peer-checked:border-white shadow-sm"></div>
+                </label>
+              </div>
+            </div>
+
+            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.SMS' | translate }}</p>
+                  <p class="mt-1 text-[0.72rem] font-semibold text-slate-500">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.SMS_HINT' | translate }}</p>
+                </div>
+                <label class="group relative flex cursor-pointer items-center justify-center">
+                  <input formControlName="smsNotificationsEnabled" type="checkbox" class="peer sr-only">
+                  <div class="h-6 w-11 rounded-full bg-slate-200 transition-colors peer-checked:bg-emerald-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500/20"></div>
+                  <div class="absolute left-[2px] top-[2px] h-5 w-5 rounded-full border border-slate-300 bg-white transition-all peer-checked:left-[22px] peer-checked:border-white shadow-sm"></div>
+                </label>
+              </div>
+            </div>
+
+            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.NEW_ORDERS' | translate }}</p>
+                  <p class="mt-1 text-[0.72rem] font-semibold text-slate-500">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.NEW_ORDERS_HINT' | translate }}</p>
+                </div>
+                <label class="group relative flex cursor-pointer items-center justify-center">
+                  <input formControlName="newOrdersNotificationsEnabled" type="checkbox" class="peer sr-only">
+                  <div class="h-6 w-11 rounded-full bg-slate-200 transition-colors peer-checked:bg-emerald-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500/20"></div>
+                  <div class="absolute left-[2px] top-[2px] h-5 w-5 rounded-full border border-slate-300 bg-white transition-all peer-checked:left-[22px] peer-checked:border-white shadow-sm"></div>
+                </label>
+              </div>
+            </div>
+          </div>
+        </app-page-section-shell>
+      </div>
+
       <div id="hours-section">
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.HOURS'"

@@ -78,109 +78,82 @@ import {
 
 
       @if (isFiltersExpanded) {
-      <div class="overflow-hidden rounded-[28px] border border-slate-200/70 bg-white shadow-sm animate-in slide-in-from-top-2 duration-300">
-        <app-panel-header
-          [title]="'OFFERS.FILTERS.TITLE'"
-          [subtitle]="'OFFERS.FILTERS.SUBTITLE'"
-          containerClass="border-b border-slate-100 px-6 py-4"
-          contentClass="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between"
-          titleClass="text-[0.95rem] font-black text-slate-900"
-          subtitleClass="text-[0.72rem] font-bold text-slate-500"
-        >
-          <div actions>
-            <button
-              type="button"
-              (click)="resetFilters()"
-              class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-[0.72rem] font-black text-rose-600 transition hover:bg-rose-100">
-              {{ 'OFFERS.FILTERS.RESET' | translate }}
-            </button>
-          </div>
-        </app-panel-header>
+      <div class="overflow-hidden rounded-[28px] border border-slate-200/70 bg-white p-5 shadow-sm animate-in slide-in-from-top-2 duration-300">
+        <div class="flex flex-col gap-2 mb-4">
+          <h2 class="text-sm font-black text-slate-800">{{ 'OFFERS.FILTERS.TITLE' | translate }}</h2>
+          <p class="text-[0.72rem] font-bold text-slate-500">{{ 'OFFERS.FILTERS.SUBTITLE' | translate }}</p>
+        </div>
 
-        <div class="grid gap-4 px-6 py-5 md:grid-cols-2 xl:grid-cols-4">
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.SEARCH' | translate }}</span>
-            <div class="relative group">
-              <span class="absolute inset-y-0 start-4 flex items-center text-slate-400 group-focus-within:text-zadna-primary transition-colors">
-                <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
-                </svg>
-              </span>
-              <input
-                type="text"
-                [(ngModel)]="searchTerm"
-                [placeholder]="'OFFERS.SEARCH_PLACEHOLDER' | translate"
-                class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 pe-4 ps-11 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-            </div>
-          </label>
+        <div class="grid w-full items-center gap-3 md:grid-cols-2 lg:grid-cols-[minmax(200px,1.5fr)_repeat(3,minmax(120px,1fr))_auto]">
+          <div class="relative group">
+            <span class="absolute inset-y-0 start-4 flex items-center text-slate-400 group-focus-within:text-zadna-primary transition-colors">
+              <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
+              </svg>
+            </span>
+            <input
+              type="text"
+              [(ngModel)]="searchTerm"
+              [placeholder]="'OFFERS.SEARCH_PLACEHOLDER' | translate"
+              class="h-11 w-full rounded-[16px] border border-slate-200 bg-slate-50 pe-4 ps-11 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
+          </div>
 
           @if (activeView === 'direct') {
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.CATEGORY' | translate }}</span>
+            <div>
               <app-searchable-select [(ngModel)]="directFilters.category" [searchable]="false" [options]="directCatOptions" [placeholder]="'OFFERS.FILTERS.CATEGORY'"></app-searchable-select>
-            </label>
-
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.MIN_DISCOUNT' | translate }}</span>
+            </div>
+            <div>
               <app-searchable-select [(ngModel)]="directFilters.discountBand" [searchable]="false" [options]="discountBandOptions" [placeholder]="'OFFERS.FILTERS.MIN_DISCOUNT'"></app-searchable-select>
-            </label>
-
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.STOCK' | translate }}</span>
+            </div>
+            <div>
               <app-searchable-select [(ngModel)]="directFilters.stockBand" [searchable]="false" [options]="stockBandOptions" [placeholder]="'OFFERS.FILTERS.STOCK'"></app-searchable-select>
-            </label>
+            </div>
           }
 
           @if (activeView === 'coupons') {
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.STATUS' | translate }}</span>
+            <div>
               <app-searchable-select [(ngModel)]="couponFilters.status" [searchable]="false" [options]="couponStatusOptions" [placeholder]="'OFFERS.FILTERS.STATUS'"></app-searchable-select>
-            </label>
-
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.TYPE' | translate }}</span>
+            </div>
+            <div>
               <app-searchable-select [(ngModel)]="couponFilters.type" [searchable]="false" [options]="couponTypeOptions" [placeholder]="'OFFERS.FILTERS.TYPE'"></app-searchable-select>
-            </label>
-
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.EXPIRY' | translate }}</span>
+            </div>
+            <div>
               <app-searchable-select [(ngModel)]="couponFilters.expiry" [searchable]="false" [options]="expiryOptions" [placeholder]="'OFFERS.FILTERS.EXPIRY'"></app-searchable-select>
-            </label>
+            </div>
           }
 
           @if (activeView === 'categories') {
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.CATEGORY' | translate }}</span>
+            <div>
               <app-searchable-select [(ngModel)]="categoryFilters.category" [searchable]="false" [options]="campaignCatOptions" [placeholder]="'OFFERS.FILTERS.CATEGORY'"></app-searchable-select>
-            </label>
-
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.MIN_DISCOUNT' | translate }}</span>
+            </div>
+            <div>
               <app-searchable-select [(ngModel)]="categoryFilters.discountBand" [searchable]="false" [options]="catDiscountBandOptions" [placeholder]="'OFFERS.FILTERS.MIN_DISCOUNT'"></app-searchable-select>
-            </label>
-
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.EXPIRY' | translate }}</span>
+            </div>
+            <div>
               <app-searchable-select [(ngModel)]="categoryFilters.expiry" [searchable]="false" [options]="expiryOptions" [placeholder]="'OFFERS.FILTERS.EXPIRY'"></app-searchable-select>
-            </label>
+            </div>
           }
 
           @if (activeView === 'clearance') {
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.URGENCY' | translate }}</span>
+            <div>
               <app-searchable-select [(ngModel)]="clearanceFilters.urgency" [searchable]="false" [options]="clearanceUrgencyOptions" [placeholder]="'OFFERS.FILTERS.URGENCY'"></app-searchable-select>
-            </label>
-
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.STOCK_LIMIT' | translate }}</span>
+            </div>
+            <div>
               <app-searchable-select [(ngModel)]="clearanceFilters.stockLimit" [searchable]="false" [options]="stockLimitOptions" [placeholder]="'OFFERS.FILTERS.STOCK_LIMIT'"></app-searchable-select>
-            </label>
-
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'OFFERS.FILTERS.CATEGORY' | translate }}</span>
+            </div>
+            <div>
               <app-searchable-select [(ngModel)]="clearanceFilters.category" [searchable]="false" [options]="clearanceCatOptions" [placeholder]="'OFFERS.FILTERS.CATEGORY'"></app-searchable-select>
-            </label>
+            </div>
           }
+
+          <div>
+            <button
+              type="button"
+              (click)="resetFilters()"
+              class="inline-flex h-11 w-full items-center justify-center rounded-[16px] border border-rose-200 bg-rose-50 px-5 text-[0.78rem] font-black text-rose-600 transition hover:bg-rose-100">
+              {{ 'OFFERS.FILTERS.RESET' | translate }}
+            </button>
+          </div>
         </div>
       </div>
       }

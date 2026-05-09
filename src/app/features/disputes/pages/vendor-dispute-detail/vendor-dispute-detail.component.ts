@@ -4,8 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
-import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AlertsCenterService } from '../../../alerts/services/alerts-center.service';
 import {
   VendorDisputeActivityVm,
@@ -32,11 +30,58 @@ import {
     FormsModule,
     RouterModule,
     TranslateModule,
-    NgClass,
-    AppPageHeaderComponent,
-    AppPanelHeaderComponent
+    NgClass
   ],
-  templateUrl: './vendor-dispute-detail.component.html'
+  templateUrl: './vendor-dispute-detail.component.html',
+  styles: [`
+    :host {
+      display: block;
+    }
+
+    .dispute-detail-shell {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(165, 238, 253, 0.32), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(255, 184, 112, 0.14), transparent 30%),
+        #f8fafb;
+    }
+
+    .dispute-glass-card {
+      background: rgba(255, 255, 255, 0.74);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.55);
+      box-shadow: 0 14px 40px -24px rgba(0, 73, 83, 0.34);
+    }
+
+    .dispute-glass-button {
+      background: linear-gradient(135deg, #004953, #00626f);
+      box-shadow: 0 10px 24px -18px rgba(0, 98, 111, 0.85);
+    }
+
+    .conversation-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: #bec8cb transparent;
+    }
+
+    .conversation-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    .conversation-scrollbar::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .conversation-scrollbar::-webkit-scrollbar-thumb {
+      background: #bec8cb;
+      border-radius: 999px;
+    }
+
+    .conversation-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #00626f;
+    }
+  `]
 })
 export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
   currentLang = 'ar';
@@ -234,6 +279,94 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
         this.isSubmitting = false;
       }
     });
+  }
+
+  goBack(): void {
+    this.router.navigate(['/disputes']);
+  }
+
+  printPage(): void {
+    window.print();
+  }
+
+  authorRoleLabel(role: string): string {
+    switch (this.normalizeRole(role)) {
+      case 'vendor':
+        return this.currentLang === 'ar' ? 'التاجر' : 'Vendor';
+      case 'customer':
+        return this.currentLang === 'ar' ? 'العميل' : 'Customer';
+      case 'support':
+      case 'admin':
+        return this.currentLang === 'ar' ? 'الدعم' : 'Support';
+      case 'driver':
+        return this.currentLang === 'ar' ? 'المندوب' : 'Driver';
+      case 'system':
+        return this.currentLang === 'ar' ? 'النظام' : 'System';
+      default:
+        return role;
+    }
+  }
+
+  authorInitial(role: string): string {
+    const normalizedRole = this.normalizeRole(role);
+    if (this.currentLang === 'ar') {
+      switch (normalizedRole) {
+        case 'vendor':
+          return 'ت';
+        case 'customer':
+          return 'ع';
+        case 'support':
+        case 'admin':
+          return 'د';
+        case 'driver':
+          return 'م';
+        case 'system':
+          return 'ن';
+        default:
+          return role.slice(0, 1).toUpperCase();
+      }
+    }
+
+    return role.slice(0, 1).toUpperCase();
+  }
+
+  authorBadgeClass(role: string): string {
+    switch (this.normalizeRole(role)) {
+      case 'vendor':
+        return 'border-[#00626f]/20 bg-[#00626f]/10 text-[#00626f]';
+      case 'customer':
+        return 'border-slate-200 bg-slate-100 text-slate-700';
+      case 'support':
+      case 'admin':
+        return 'border-amber-200 bg-amber-50 text-amber-700';
+      case 'driver':
+        return 'border-sky-200 bg-sky-50 text-sky-700';
+      default:
+        return 'border-slate-200 bg-slate-100 text-slate-600';
+    }
+  }
+
+  authorBubbleClass(role: string): string {
+    return this.isOwnMessage(role)
+      ? 'border-[#00626f]/12 bg-[#00626f]/6 text-slate-800'
+      : 'border-slate-200/80 bg-white text-slate-800';
+  }
+
+  attachmentIcon(fileName: string): string {
+    const lowerFileName = fileName.toLowerCase();
+    if (lowerFileName.endsWith('.pdf')) {
+      return 'picture_as_pdf';
+    }
+    if (lowerFileName.match(/\.(xlsx|xls|csv)$/)) {
+      return 'table_view';
+    }
+    if (lowerFileName.match(/\.(doc|docx)$/)) {
+      return 'description';
+    }
+    if (lowerFileName.match(/\.(zip|rar|7z)$/)) {
+      return 'folder_zip';
+    }
+    return this.isImageUrl(fileName) ? 'image' : 'attach_file';
   }
 
   private loadDispute(caseId: string): void {

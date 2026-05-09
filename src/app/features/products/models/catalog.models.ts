@@ -28,8 +28,11 @@ export interface VendorProduct {
   brandNameEn?: string;
   unitNameAr?: string;
   unitNameEn?: string;
+  costPrice?: number | null;
+  tradePrice?: number | null;
   sellingPrice: number;
   compareAtPrice?: number | null;
+  commissionRate?: number | null;
   discountPercentage?: number;
   stockQty: number;
   isActive: boolean;
@@ -125,6 +128,8 @@ export interface BulkVendorProductDraft {
   imageUrl?: string;
   branchId?: string | null;
   sku?: string | null;
+  costPrice?: number | null;
+  tradePrice?: number | null;
   sellingPrice: number | null;
   discountPercentage?: number | null;
   compareAtPrice?: number | null;
@@ -155,6 +160,8 @@ export interface VendorProductBulkOperationItem {
   masterProductId: string;
   productNameAr?: string | null;
   productNameEn?: string | null;
+  costPrice?: number | null;
+  tradePrice?: number | null;
   sellingPrice: number;
   compareAtPrice?: number | null;
   stockQty: number;

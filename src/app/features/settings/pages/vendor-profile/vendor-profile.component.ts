@@ -254,13 +254,13 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   readonly fieldClassFn = (controlName: string, mode?: 'context' | 'ltr' | 'rtl') => this.fieldClass(controlName, mode);
   readonly textareaClassFn = (controlName: string, mode?: 'context' | 'ltr' | 'rtl') => this.textareaClass(controlName, mode);
   readonly timeFieldClassFn = (isOpen: boolean) => this.timeFieldClass(isOpen);
-  readonly documentActionLabelFn = (document: LegalDocumentCardLike) => this.documentActionLabel(document as LegalDocumentCard);
+  readonly documentActionLabelFn = (document: LegalDocumentCardLike) => this.localizedDocumentActionLabel(document as LegalDocumentCard);
   readonly documentCardClassesFn = (document: LegalDocumentCardLike) => this.documentCardClasses(document as LegalDocumentCard);
   readonly completedFieldsFn = (item: ProfileSectionNavItem) => this.completedFields(item);
   readonly totalFieldsFn = (item: ProfileSectionNavItem) => this.totalFields(item);
   readonly sectionPercentFn = (item: ProfileSectionNavItem) => this.sectionPercent(item);
-  readonly reviewItemLabelFn = (code: string) => this.reviewItemLabel(code);
-  readonly reviewItemStatusLabelFn = (status: string) => this.reviewItemStatusLabel(status);
+  readonly reviewItemLabelFn = (code: string) => this.localizedReviewItemLabel(code);
+  readonly reviewItemStatusLabelFn = (status: string) => this.localizedReviewItemStatusLabel(status);
   readonly reviewItemCardClassesFn = (item: VendorReviewItem) => this.reviewItemCardClasses(item);
   readonly reviewItemStatusBadgeClassesFn = (item: VendorReviewItem) => this.reviewItemStatusBadgeClasses(item);
   readonly reviewItemStatusBadgeClassesOptionalFn = (item?: VendorReviewItem) =>
@@ -276,10 +276,26 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     }));
   }
 
-  get businessTypeOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.businessTypes); }
-  get regionOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.regions); }
-  get cityOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.cities); }
-  get nationalityOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.nationalities); }
+  get businessTypeOptions(): SearchableSelectOption[] {
+    return this.buildFormOptions(
+      this.optionsWithCurrent(this.businessTypes, this.profileForm?.get('businessType')?.value || this.currentProfile.businessType)
+    );
+  }
+  get regionOptions(): SearchableSelectOption[] {
+    return this.buildFormOptions(
+      this.optionsWithCurrent(this.regions, this.profileForm?.get('region')?.value || this.currentProfile.region)
+    );
+  }
+  get cityOptions(): SearchableSelectOption[] {
+    return this.buildFormOptions(
+      this.optionsWithCurrent(this.cities, this.profileForm?.get('city')?.value || this.currentProfile.city)
+    );
+  }
+  get nationalityOptions(): SearchableSelectOption[] {
+    return this.buildFormOptions(
+      this.optionsWithCurrent(this.nationalities, this.profileForm?.get('nationality')?.value || this.currentProfile.nationality)
+    );
+  }
   get bankOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.banks); }
   get paymentCycleOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.paymentCycles); }
   
@@ -375,7 +391,10 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
         forkJoin(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
           this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
+          this.reconcileLookupSelections();
         });
+
+        this.reconcileLookupSelections();
       },
       error: () => {
         this.regions = [];
@@ -975,7 +994,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   }
 
   optionsWithCurrent(options: SelectOption[], currentValue?: string | null): SelectOption[] {
-    if (!currentValue || options.some((option) => option.value === currentValue)) {
+    const matchedOption = this.findMatchingOption(options, currentValue);
+    if (!currentValue || matchedOption) {
       return options;
     }
 
@@ -983,9 +1003,65 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       ...options,
       {
         value: currentValue,
-        labelKey: ''
+        labelKey: '',
+        label: currentValue
       }
     ];
+  }
+
+  private normalizeBusinessType(value?: string | null): string {
+    return this.normalizeSelectValue(this.businessTypes, value);
+  }
+
+  private normalizeRegion(value?: string | null): string {
+    return this.normalizeSelectValue(this.regions, value);
+  }
+
+  private normalizeCity(value?: string | null): string {
+    return this.normalizeSelectValue(this.cities, value);
+  }
+
+  private normalizeNationality(value?: string | null): string {
+    return this.normalizeSelectValue(this.nationalities, value);
+  }
+
+  private normalizeSelectValue(options: SelectOption[], value?: string | null): string {
+    if (!value) {
+      return '';
+    }
+
+    const matchingOption = this.findMatchingOption(options, value);
+    return matchingOption?.value ?? value;
+  }
+
+  private findMatchingOption(options: SelectOption[], value?: string | null): SelectOption | undefined {
+    if (!value) {
+      return undefined;
+    }
+
+    const normalizedValue = this.normalizeLookupValue(value);
+
+    return options.find((option) => {
+      const candidates = [option.value, option.label, option.nameAr, option.nameEn];
+      return candidates.some((candidate) => this.normalizeLookupValue(candidate) === normalizedValue);
+    });
+  }
+
+  private normalizeLookupValue(value?: string | null): string {
+    return (value || '')
+      .trim()
+      .toLowerCase()
+      .replace(/[_-]+/g, ' ')
+      .replace(/\s+/g, ' ');
+  }
+
+  private reconcileLookupSelections(): void {
+    this.profileForm.patchValue({
+      businessType: this.normalizeBusinessType(this.profileForm.get('businessType')?.value),
+      region: this.normalizeRegion(this.profileForm.get('region')?.value),
+      city: this.normalizeCity(this.profileForm.get('city')?.value),
+      nationality: this.normalizeNationality(this.profileForm.get('nationality')?.value)
+    }, { emitEvent: false });
   }
 
   saveProfile(): void {
@@ -1098,6 +1174,57 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     }
   }
 
+  private localizedDocumentActionLabel(document: LegalDocumentCard): string {
+    if (this.uploadingDocumentType === document.type) {
+      return this.translate.instant('SETTINGS_PROFILE.ACTIONS.UPLOADING');
+    }
+
+    const status = (document.reviewItem?.status || '').toLowerCase();
+    if (status === 'changesrequested' || status === 'changes_requested') {
+      return this.translate.instant('SETTINGS_PROFILE.ACTIONS.REUPLOAD');
+    }
+
+    return document.uploaded
+      ? this.translate.instant('SETTINGS_PROFILE.ACTIONS.REPLACE')
+      : this.translate.instant('SETTINGS_PROFILE.ACTIONS.UPLOAD_PDF');
+  }
+
+  private localizedReviewItemLabel(code: string): string {
+    const keyMap: Record<string, string> = {
+      commercial: 'COMMERCIAL',
+      tax: 'TAX',
+      license: 'LICENSE',
+      identity: 'IDENTITY',
+      bank: 'BANK'
+    };
+
+    const key = keyMap[(code || '').trim().toLowerCase()];
+    if (key) {
+      return this.translate.instant(`SETTINGS_PROFILE.REVIEW_ITEMS.${key}`);
+    }
+
+    const normalized = code.replace(/([a-z])([A-Z])/g, '$1 $2');
+    return normalized
+      .replace(/_/g, ' ')
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+  }
+
+  private localizedReviewItemStatusLabel(status: string): string {
+    const keyMap: Record<string, string> = {
+      approved: 'APPROVED',
+      submitted: 'SUBMITTED',
+      changesrequested: 'CHANGES',
+      changes_requested: 'CHANGES',
+      waived: 'WAIVED',
+      pendingvendor: 'PENDING_VENDOR',
+      pending_vendor: 'PENDING_VENDOR'
+    };
+
+    const normalizedStatus = (status || '').trim().toLowerCase();
+    const key = keyMap[normalizedStatus] || 'PENDING_VENDOR';
+    return this.translate.instant(`SETTINGS_PROFILE.REVIEW_STATUS.${key}`);
+  }
+
   reviewItemCardClasses(item: VendorReviewItem): string {
     switch ((item.status || '').toLowerCase()) {
       case 'approved':
@@ -1177,6 +1304,12 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       iban: ['', Validators.required],
       swiftCode: [''],
       payoutCycle: ['', Validators.required],
+      acceptOrders: [true],
+      minimumOrderAmount: [null],
+      preparationTimeMinutes: [null],
+      emailNotificationsEnabled: [true],
+      smsNotificationsEnabled: [false],
+      newOrdersNotificationsEnabled: [true],
       hasLogo: [false],
       hasCRDoc: [false],
       hasTaxDoc: [false],
@@ -1190,6 +1323,10 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   private patchProfile(profile: VendorProfile): void {
     this.profileForm.patchValue({
       ...profile,
+      businessType: this.normalizeBusinessType(profile.businessType),
+      region: this.normalizeRegion(profile.region),
+      city: this.normalizeCity(profile.city),
+      nationality: this.normalizeNationality(profile.nationality),
       operatingHours: []
     }, { emitEvent: false });
 

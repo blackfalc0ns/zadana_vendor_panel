@@ -57,8 +57,9 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
   dashboardError = '';
   selectedPeriod: 'today' | '7d' | '30d' | '90d' = '7d';
   readonly periods: Array<'today' | '7d' | '30d' | '90d'> = ['today', '7d', '30d', '90d'];
-  activeTabId = 'operations';
+  activeTabId = 'overview';
   readonly sectionNav: DashboardNavItem[] = [
+    { id: 'overview', labelKey: 'DASHBOARD.SECTION_NAV.OVERVIEW' },
     { id: 'operations', labelKey: 'DASHBOARD.SECTION_NAV.OPERATIONS' },
     { id: 'sales', labelKey: 'DASHBOARD.SECTION_NAV.SALES' },
     { id: 'inventory', labelKey: 'DASHBOARD.SECTION_NAV.INVENTORY' },
@@ -541,6 +542,32 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
         return 'border-amber-200 bg-amber-50 text-amber-800';
       default:
         return 'border-sky-200 bg-sky-50 text-sky-700';
+    }
+  }
+
+  alertIcon(severity: VendorDashboardAlertItem['severity']): string {
+    switch (severity) {
+      case 'critical': return 'warning';
+      case 'warning': return 'error_outline';
+      default: return 'notifications';
+    }
+  }
+
+  alertIconBgClass(severity: VendorDashboardAlertItem['severity']): string {
+    switch (severity) {
+      case 'critical': return 'bg-rose-100/80 text-rose-600';
+      case 'warning': return 'bg-amber-100/80 text-amber-600';
+      default: return 'bg-sky-100/80 text-sky-600';
+    }
+  }
+
+  kpiToneLineClass(tone: DashboardMetricCard['tone']): string {
+    switch (tone) {
+      case 'critical': return 'bg-rose-500';
+      case 'warning': return 'bg-amber-500';
+      case 'success': return 'bg-emerald-500';
+      case 'primary': return 'bg-zadna-primary';
+      default: return 'bg-slate-200';
     }
   }
 

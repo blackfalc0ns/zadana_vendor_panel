@@ -2,200 +2,31 @@
   display: block;
 }
 
-.sticky-nav {
-  position: sticky;
-  top: 0.75rem;
-  z-index: 15;
+/* Hide scrollbar for the master navigation but allow scrolling */
+.hide-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome, Safari and Opera */
 }
 
-.dashboard-section {
-  display: grid;
-  gap: 1rem;
-
-  &.hidden {
-    display: none !important;
-  }
+/* Base animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.dashboard-grid {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
-.dashboard-chart-card,
-.dashboard-list-card,
-.dashboard-metric-card {
-  border: 1px solid rgba(148, 163, 184, 0.18);
-  border-radius: 24px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
-  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.04);
+/* Chart container minimum heights */
+canvas {
+  max-height: 100% !important;
 }
 
-.dashboard-chart-card,
-.dashboard-list-card {
-  padding: 1rem;
-}
-
-.dashboard-card-title {
-  font-size: 0.95rem;
-  font-weight: 900;
-  color: rgb(15 23 42);
-}
-
-.dashboard-chart-body {
-  margin-top: 1rem;
-  height: 20rem;
-}
-
-.dashboard-split {
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(1, minmax(0, 1fr));
-}
-
-.dashboard-list-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.dashboard-list-header h3 {
-  font-size: 0.92rem;
-  font-weight: 900;
-  color: rgb(15 23 42);
-}
-
-.dashboard-list-header a {
-  font-size: 0.72rem;
-  font-weight: 900;
-  color: rgb(13 148 136);
-}
-
-.dashboard-list {
-  display: grid;
-}
-
-.dashboard-list-row {
-  display: flex;
-  align-items: start;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.95rem 0;
-  border-bottom: 1px solid rgba(226, 232, 240, 0.65);
-  transition: background-color 0.2s ease;
-}
-
-.dashboard-list-row:last-child {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.dashboard-list-row strong {
-  display: block;
-  font-size: 0.82rem;
-  font-weight: 900;
-  color: rgb(15 23 42);
-}
-
-.dashboard-list-row p {
-  margin-top: 0.2rem;
-  font-size: 0.72rem;
-  line-height: 1.5;
-  color: rgb(100 116 139);
-}
-
-.dashboard-list-row span {
-  white-space: nowrap;
-  font-size: 0.72rem;
-  font-weight: 800;
-  color: rgb(71 85 105);
-}
-
-.dashboard-empty {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 7rem;
-  border-radius: 18px;
-  background: rgba(248, 250, 252, 0.85);
-  color: rgb(100 116 139);
-  font-size: 0.8rem;
-  font-weight: 800;
-}
-
-.dashboard-metric-grid {
-  display: grid;
-  gap: 0.75rem;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.dashboard-metric-card {
-  padding: 1rem;
-}
-
-.dashboard-metric-card p {
-  font-size: 0.7rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgb(100 116 139);
-}
-
-.dashboard-metric-card strong {
-  display: block;
-  margin-top: 0.55rem;
-  font-size: 1.35rem;
-  font-weight: 900;
-  color: rgb(15 23 42);
-}
-
-.dashboard-metric-card span {
-  display: block;
-  margin-top: 0.4rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-}
-
-@media (min-width: 768px) {
-  .dashboard-split {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .dashboard-metric-grid--four {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-  }
-
-  .dashboard-metric-grid--five {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-
-  .dashboard-metric-grid--six {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (min-width: 1280px) {
-  .dashboard-grid {
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-  }
-
-  .dashboard-chart-card {
-    grid-column: span 4 / span 4;
-  }
-
-  .dashboard-chart-card--wide {
-    grid-column: span 8 / span 8;
-  }
-
-  .dashboard-metric-grid--five {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
-  }
-
-  .dashboard-metric-grid--six {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
+.kpi-card {
+  /* Provide a slight hover glow based on the border color for the tone if desired */
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }

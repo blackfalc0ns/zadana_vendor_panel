@@ -20,7 +20,7 @@
     "BACK": "رجوع",
     "OPTIONAL": "(اختياري)",
     "EGP": "ج.م",
-    "CURRENCY": "ج.م",
+    "CURRENCY": "ر.س",
     "ITEMS": "عناصر",
     "ALL": "الكل",
     "LIVE": "مباشر",
@@ -49,7 +49,11 @@
     "ERROR_OCCURRED": "حدث خطأ غير متوقع.",
     "STATUS_ACTIVE": "نشط",
     "STATUS_INACTIVE": "غير نشط",
-    "FILTERS": "الفلاتر"
+    "FILTERS": "الفلاتر",
+    "VIEW_ALL": "عرض الكل",
+    "DATE": "التاريخ",
+    "AMOUNT": "المبلغ",
+    "TOTAL": "الإجمالي"
   },
   "SIDEBAR": {
     "APP_NAME": "زدانا",
@@ -962,7 +966,18 @@
     "DRIVER_VEHICLE": "نوع المركبة",
     "DRIVER_PLATE": "رقم اللوحة",
     "ESTIMATED_DELIVERY": "الوقت المتوقع",
-    "DRIVER_NOT_ASSIGNED": "لم يتم تعيين مندوب بعد"
+    "DRIVER_NOT_ASSIGNED": "لم يتم تعيين مندوب بعد",
+    "PAYLOAD_COMPONENTS": "{{count}} مكونات الشحنة",
+    "DIGITAL_MANIFEST": "البيان الرقمي",
+    "QUANTITY_LABEL": "الكمية",
+    "AUTHENTICATED_CLIENT": "عميل مصادق عليه",
+    "VERIFIED_SECURE": "عملية مؤمنة ومحققة",
+    "SATELLITE_TELEMETRY": "تتبع القمر الصناعي",
+    "CARRIER_HANDOVER": "بروتوكول تسليم الطلب",
+    "SYNCHRONIZE_HANDOFF": "يرجى إدخال رمز الأمان المكون من 4 أرقام لتزامن عملية التسليم مع المندوب المعتمد.",
+    "AUTHORIZE_HANDOVER": "تأكيد التسليم الآمن",
+    "CARRIER_SYNTHESIS": "جارٍ تخصيص المندوب",
+    "LOGISTICS_ORCHESTRATION": "يتم الآن تحليل الشبكة اللوجستية لتخصيص أقرب مندوب متاح."
   },
   "SETTINGS_PROFILE": {
     "TITLE": "ملف المورد",
@@ -982,6 +997,8 @@
       "SUPPORT_CHANNELS": "قنوات الدعم",
       "STORE_DESCRIPTION": "وصف المتجر",
       "OWNER_DETAILS": "بيانات المالك",
+      "REPRESENTATIVE_INFO": "بيانات الممثل القانوني",
+      "CONTACT_PROFILE": "العنوان ووسائل التواصل",
       "ADDRESS_LOCATION": "العنوان والموقع",
       "PROFILE_STATUS": "حالة الملف",
       "LEGAL_COMPLETION": "الاكتمال القانوني",
@@ -989,7 +1006,8 @@
       "REVIEW_HINT": "تأكد من تطابق السجل والرقم الضريبي",
       "LEGAL_IDENTIFIERS": "معرفات قانونية",
       "VERIFICATION_SUMMARY": "ملخص التحقق",
-      "BANK_PROFILE": "ملف البنك"
+      "BANK_PROFILE": "ملف البنك",
+      "REQUIRED_DOCUMENTS": "المستندات المطلوبة"
     },
     "SECTIONS": {
       "STORE": "بيانات المتجر",
@@ -1000,8 +1018,14 @@
       "CONTACT_HINT": "وسائل التواصل وعنوان المورد الكامل.",
       "LEGAL": "البيانات القانونية",
       "LEGAL_HINT": "السجل التجاري والرقم الضريبي للحساب التجاري.",
+      "DOCUMENTS": "المستندات الرسمية",
+      "DOCUMENTS_HINT": "ارفع ملفات PDF المطلوبة لاستكمال الامتثال ومراجعة الحساب.",
       "BANKING": "بيانات التحويل",
       "BANKING_HINT": "الحساب البنكي وجدولة التحويلات المالية.",
+      "OPERATIONS_SETTINGS": "إعدادات التشغيل",
+      "OPERATIONS_SETTINGS_HINT": "التحكم في استقبال الطلبات والحد الأدنى ووقت التجهيز.",
+      "NOTIFICATION_SETTINGS": "إعدادات الإشعارات",
+      "NOTIFICATION_SETTINGS_HINT": "تحديد أنواع الإشعارات التي تصلك من المنصة.",
       "HOURS": "ساعات العمل",
       "HOURS_HINT": "الأيام والساعات المتاحة لاستقبال وتجهيز الطلبات."
     },
@@ -1019,8 +1043,12 @@
       "REGION": "المنطقة",
       "CITY": "المدينة",
       "NATIONAL_ADDRESS": "العنوان الوطني",
+      "ID_NUMBER": "رقم الهوية",
+      "NATIONALITY": "الجنسية",
       "COMMERCIAL_REGISTRATION": "السجل التجاري",
+      "EXPIRY_DATE": "تاريخ انتهاء السجل التجاري",
       "TAX_ID": "الرقم الضريبي",
+      "LICENSE_NUMBER": "رقم الرخصة",
       "BANK_NAME": "اسم البنك",
       "IBAN": "رقم الآيبان",
       "PAYOUT_CYCLE": "دورة التحويل"
@@ -1033,6 +1061,20 @@
       "WEDNESDAY": "الأربعاء",
       "THURSDAY": "الخميس",
       "FRIDAY": "الجمعة"
+    },
+    "OPERATIONS": {
+      "ACCEPT_ORDERS": "استقبال الطلبات",
+      "ACCEPT_ORDERS_HINT": "إيقاف هذا الخيار يمنع استقبال طلبات جديدة مؤقتًا.",
+      "MINIMUM_ORDER_AMOUNT": "الحد الأدنى للطلب",
+      "PREPARATION_TIME": "وقت التجهيز بالدقائق"
+    },
+    "NOTIFICATIONS": {
+      "EMAIL": "إشعارات البريد الإلكتروني",
+      "EMAIL_HINT": "استلام التنبيهات العامة عبر البريد الإلكتروني.",
+      "SMS": "إشعارات الرسائل النصية",
+      "SMS_HINT": "استلام التنبيهات المهمة عبر الرسائل النصية.",
+      "NEW_ORDERS": "إشعارات الطلبات الجديدة",
+      "NEW_ORDERS_HINT": "تنبيه فوري عند وصول طلب جديد."
     },
     "COMMAND_CENTER": {
       "READINESS": "جاهزية المراجعة",
@@ -1721,15 +1763,15 @@
     "SUBTITLE": "تابع رصيدك، وتتبع التسويات، وحركات التحويل بنفس الوضوح المستخدم في السوبر أدمن.",
     "PERIODS": {
       "TODAY": "اليوم",
-      "WEEK": "الأسبوع",
-      "MONTH": "الشهر",
-      "QUARTER": "الربع"
+      "WEEK": "هذا الأسبوع",
+      "MONTH": "هذا الشهر",
+      "QUARTER": "هذا الربع"
     },
     "ACTIONS": {
+      "VIEW_REPORTS": "عرض التقارير",
       "DOWNLOAD_STATEMENT": "تحميل كشف الحساب",
-      "VIEW_ALL": "عرض كل القيود",
-      "SETTLEMENT_DETAILS": "تفاصيل التسوية",
-      "REVIEW_ORDERS": "مراجعة الطلبات"
+      "REQUEST_PAYOUT": "طلب سحب الأرباح",
+      "PAYOUT_SUCCESS_MSG": "تم إرسال طلب سحب الأرباح بنجاح للمراجعة"
     },
     "LIFECYCLE_MODES": {
       "PerOrderDirectPayout": "تحويل مباشر بالطلب",
@@ -1739,12 +1781,9 @@
     },
     "OVERVIEW": {
       "AVAILABLE_BALANCE": "الرصيد المتاح",
-      "READY_FOR_TRANSFER": "جاهز للتحويل القادم",
-      "PENDING_SETTLEMENT": "تسوية معلقة",
-      "IN_NEXT_CYCLE": "ستدخل في الدورة القادمة",
-      "PAYOUT_PROFILE": "ملف التحويل",
-      "NEXT_PAYOUT": "التحويل القادم",
-      "HOLD_AMOUNT": "المبلغ المعلق"
+      "PENDING_SETTLEMENT": "تسويات معلقة",
+      "NEXT_PAYOUT": "الدفعة القادمة",
+      "HOLD_AMOUNT": "المبالغ المحتجزة"
     },
     "KPIS": {
       "NET_SALES": "صافي المبيعات",
@@ -1754,33 +1793,43 @@
     },
     "CHART": {
       "TITLE": "اتجاه المبيعات مقابل التحويلات",
-      "SUBTITLE": "مقارنة ما تم بيعه بما دخل فعليًا أو سيُحوّل ضمن التسويات.",
       "SALES": "المبيعات",
-      "PAYOUTS": "التحويلات"
+      "PAYOUTS": "التحويلات",
+      "DETAILS": "عرض تفصيلي",
+      "PEAK_SALES": "أعلى فترة مبيعات",
+      "PEAK_PAYOUTS": "أعلى فترة تحويلات",
+      "AVG_SALES": "متوسط المبيعات",
+      "AVG_PAYOUTS": "متوسط التحويلات",
+      "NET_GAP": "صافي الفرق",
+      "BREAKDOWN": "تفصيل الفترات"
+    },
+    "PAYOUT_METHODS": {
+      "BANK_TRANSFER": "تحويل بنكي"
     },
     "SETTLEMENTS": {
-      "TITLE": "التسويات القادمة",
-      "SUBTITLE": "أحدث دفعات التسوية المرتبطة بحسابك.",
-      "ORDERS": "طلب",
-      "SCHEDULED": "مجدولة",
+      "TITLE": "أحدث التسويات",
+      "BATCH_ID": "رقم الدفعة",
+      "PAID": "مدفوع",
       "PROCESSING": "قيد المعالجة",
-      "PAID": "مدفوعة"
+      "SCHEDULED": "مجدول"
     },
     "LEDGER": {
-      "TITLE": "آخر الحركات المالية",
-      "SUBTITLE": "أحدث الحركات عبر المبيعات والرسوم والاسترجاعات والتحويلات.",
-      "SALE": "مبيعات",
+      "TITLE": "أحدث المعاملات",
+      "DESCRIPTION": "الوصف",
+      "REF": "المرجع",
+      "PAGE_STATUS": "الصفحة {{page}} من {{totalPages}}",
+      "REFERENCES": {
+        "ORDER_REVENUE": "إيراد طلب",
+        "VENDOR_RECOVERY": "استرداد التاجر"
+      },
+      "COMMISSION": "عمولة",
       "PAYOUT": "تحويل",
       "FEE": "رسوم",
       "REFUND": "استرجاع"
     },
     "ALERTS": {
-      "TITLE": "تنبيهات مالية",
-      "SUBTITLE": "عناصر قد تحتاج تدخلًا قبل دورة التحويل القادمة.",
-      "HOLD_TITLE": "جزء من رصيد هذا الأسبوع ما زال معلقًا",
-      "HOLD_BODY": "بعض الطلبات ما زالت داخل فترة الإرجاع، لذلك يتم حجز جزء من التسوية مؤقتًا.",
-      "PAYOUT_TITLE": "ملف التحويل القادم أصبح شبه جاهز",
-      "PAYOUT_BODY": "كشف الحساب الخاص بدورة التحويل القادمة جاهز للمراجعة قبل صرف التسوية."
+      "TITLE": "مركز التنبيهات",
+      "EMPTY": "لا توجد تنبيهات جديدة."
     },
     "MONTHS": {
       "JAN": "يناير",
@@ -1788,7 +1837,13 @@
       "MAR": "مارس",
       "APR": "أبريل",
       "MAY": "مايو",
-      "JUN": "يونيو"
+      "JUN": "يونيو",
+      "JUL": "يوليو",
+      "AUG": "أغسطس",
+      "SEP": "سبتمبر",
+      "OCT": "أكتوبر",
+      "NOV": "نوفمبر",
+      "DEC": "ديسمبر"
     }
   },
   "CATALOG": {

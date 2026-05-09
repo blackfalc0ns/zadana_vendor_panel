@@ -13,7 +13,6 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
   imports: [CommonModule, ReactiveFormsModule, TranslateModule, SearchableSelectComponent, AppPageSectionShellComponent],
   template: `
     <div [formGroup]="form" class="space-y-6">
-      <!-- Legal Representative Data -->
       <div id="legal-data-section">
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.LEGAL'"
@@ -33,9 +32,9 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
               <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.NATIONALITY' | translate }}</span>
               <app-searchable-select formControlName="nationality" [options]="nationalityOptions" [placeholder]="'SETTINGS_PROFILE.FIELDS.NATIONALITY'"></app-searchable-select>
             </label>
-            
+
             <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.COMMERCIAL_REGISTER' | translate }}</span>
+              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.COMMERCIAL_REGISTRATION' | translate }}</span>
               <input formControlName="commercialRegistrationNumber" type="text" dir="ltr" [class]="fieldClass('commercialRegistrationNumber', 'ltr')">
             </label>
 
@@ -43,12 +42,21 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
               <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.TAX_ID' | translate }}</span>
               <input formControlName="taxId" type="text" dir="ltr" [class]="fieldClass('taxId', 'ltr')">
             </label>
+
+            <label class="space-y-2">
+              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.EXPIRY_DATE' | translate }}</span>
+              <input formControlName="expiryDate" type="date" dir="ltr" [class]="fieldClass('expiryDate', 'ltr')">
+            </label>
+
+            <label class="space-y-2">
+              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.LICENSE_NUMBER' | translate }}</span>
+              <input formControlName="licenseNumber" type="text" dir="ltr" [class]="fieldClass('licenseNumber', 'ltr')">
+            </label>
           </div>
         </div>
         </app-page-section-shell>
       </div>
 
-      <!-- Legal Documents -->
       <div id="documents-section">
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.DOCUMENTS'"
@@ -58,30 +66,30 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
           <div class="border-b border-slate-100 bg-slate-50 px-5 py-3 flex justify-between items-center">
             <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.REQUIRED_DOCUMENTS' | translate }}</span>
             <span class="text-xs font-bold" [ngClass]="missingDocumentsCount > 0 ? 'text-amber-600' : 'text-emerald-600'">
-              {{ missingDocumentsCount }} {{ currentLang === 'ar' ? 'نواقص' : 'Missing' }}
+              {{ missingDocumentsCount }} {{ 'SETTINGS_PROFILE.REVIEW_PANEL.MISSING_ITEMS' | translate }}
             </span>
           </div>
-          
+
           <div class="grid gap-3 p-5">
             <article
               *ngFor="let document of legalDocumentCards"
-              class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between rounded-[8px] border border-slate-200 bg-white p-4 transition-all hover:shadow-sm">
+              class="flex flex-col gap-4 rounded-[8px] border border-slate-200 bg-white p-4 transition-all hover:shadow-sm md:flex-row md:items-center md:justify-between">
               <div class="flex items-start gap-4">
                 <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-slate-100 text-slate-500">
                   <span class="material-symbols-outlined text-[20px]" [ngClass]="document.uploaded ? 'text-zadna-primary' : 'text-slate-400'">description</span>
                 </div>
                 <div class="min-w-0 pt-0.5">
                   <div class="flex flex-wrap items-center gap-2">
-                    <p class="text-sm font-bold text-slate-900">{{ currentLang === 'ar' ? document.titleAr : document.titleEn }}</p>
-                    <span class="rounded-[4px] px-2 py-0.5 text-[0.65rem] font-bold tracking-wider" [ngClass]="document.uploaded ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-amber-50 text-amber-700 border border-amber-200'">
-                      {{ document.uploaded ? (currentLang === 'ar' ? 'مرفوع' : 'Uploaded') : (currentLang === 'ar' ? 'ناقص' : 'Missing') }}
+                    <p class="text-sm font-bold text-slate-900">{{ currentLang === 'ar' ? normalizeArabic(document.titleAr) : document.titleEn }}</p>
+                    <span class="rounded-[4px] border px-2 py-0.5 text-[0.65rem] font-bold tracking-wider" [ngClass]="document.uploaded ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'">
+                      {{ document.uploaded ? ('SETTINGS_PROFILE.REVIEW_PANEL.UPLOADED' | translate) : ('SETTINGS_PROFILE.REVIEW_PANEL.MISSING' | translate) }}
                     </span>
                     <span class="rounded-[4px] px-2 py-0.5 text-[0.65rem] font-bold tracking-wider" [ngClass]="reviewItemStatusBadgeClasses(document.reviewItem)">
                       {{ reviewItemStatusLabel(document.reviewItem?.status || 'PendingVendor') }}
                     </span>
                   </div>
-                  <p class="mt-1 text-xs text-slate-500">{{ currentLang === 'ar' ? document.hintAr : document.hintEn }}</p>
-                  
+                  <p class="mt-1 text-xs text-slate-500">{{ currentLang === 'ar' ? normalizeArabic(document.hintAr) : document.hintEn }}</p>
+
                   <div *ngIf="document.reviewItem?.decisionNote" class="mt-2 flex items-start gap-2 rounded-[6px] border border-amber-200 bg-amber-50 px-3 py-2">
                     <span class="material-symbols-outlined shrink-0 text-[16px] text-amber-600">info</span>
                     <p class="text-xs font-medium text-amber-800">{{ document.reviewItem?.decisionNote }}</p>
@@ -97,7 +105,7 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
                   rel="noopener"
                   class="inline-flex items-center justify-center gap-1.5 rounded-[6px] border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50">
                   <span class="material-symbols-outlined text-[16px]">visibility</span>
-                  {{ currentLang === 'ar' ? 'عرض' : 'View' }}
+                  {{ 'SETTINGS_PROFILE.REVIEW_PANEL.VIEW_FILE' | translate }}
                 </a>
                 <button
                   type="button"
@@ -136,4 +144,20 @@ export class ProfileReviewWindowComponent {
 
   @Output() uploadClick = new EventEmitter<VendorLegalDocumentType>();
   @Output() documentSelected = new EventEmitter<{ event: Event; type: VendorLegalDocumentType }>();
+
+  normalizeArabic(value?: string | null): string {
+    if (!value) {
+      return '';
+    }
+
+    if (!/[ØÙÃ]/.test(value)) {
+      return value;
+    }
+
+    try {
+      return decodeURIComponent(escape(value));
+    } catch {
+      return value;
+    }
+  }
 }

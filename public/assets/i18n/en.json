@@ -7,7 +7,7 @@
     "EDIT": "Edit",
     "ADD": "Add",
     "LOADING": "Loading...",
-    "NO_DATA": "No data available",
+    "NO_DATA": "No Data Available",
     "ACTIONS": "Actions",
     "STATUS": "Status",
     "CREATED_AT": "Created At",
@@ -20,7 +20,7 @@
     "BACK": "Back",
     "OPTIONAL": "(Optional)",
     "EGP": "EGP",
-    "CURRENCY": "EGP",
+    "CURRENCY": "SAR",
     "ITEMS": "Items",
     "ALL": "All",
     "LIVE": "Live",
@@ -49,7 +49,11 @@
     "ERROR_OCCURRED": "An unexpected error occurred.",
     "STATUS_ACTIVE": "Active",
     "STATUS_INACTIVE": "Inactive",
-    "FILTERS": "Filters"
+    "FILTERS": "Filters",
+    "VIEW_ALL": "View All",
+    "DATE": "Date",
+    "AMOUNT": "Amount",
+    "TOTAL": "Total"
   },
   "SIDEBAR": {
     "APP_NAME": "Zadana",
@@ -962,7 +966,18 @@
     "DRIVER_VEHICLE": "Vehicle Type",
     "DRIVER_PLATE": "Plate Number",
     "ESTIMATED_DELIVERY": "Estimated Time",
-    "DRIVER_NOT_ASSIGNED": "No driver assigned yet"
+    "DRIVER_NOT_ASSIGNED": "No driver assigned yet",
+    "PAYLOAD_COMPONENTS": "{{count}} Payload Components",
+    "DIGITAL_MANIFEST": "Digital Manifest",
+    "QUANTITY_LABEL": "Quantity",
+    "AUTHENTICATED_CLIENT": "Authenticated Client",
+    "VERIFIED_SECURE": "Verified Secure Transaction",
+    "SATELLITE_TELEMETRY": "Satellite Telemetry",
+    "CARRIER_HANDOVER": "Carrier Handover Protocol",
+    "SYNCHRONIZE_HANDOFF": "Synchronize the physical handoff by entering the 4-digit cryptographic security code provided to the carrier.",
+    "AUTHORIZE_HANDOVER": "Authorize Handover",
+    "CARRIER_SYNTHESIS": "Carrier Synthesis",
+    "LOGISTICS_ORCHESTRATION": "Orchestrating logistics network to secure the optimal delivery carrier."
   },
   "SETTINGS_PROFILE": {
     "TITLE": "Vendor profile",
@@ -1005,6 +1020,7 @@
       "SUPPORT_CHANNELS": "Support channels",
       "STORE_DESCRIPTION": "Store description",
       "OWNER_DETAILS": "Owner details",
+      "REPRESENTATIVE_INFO": "Legal representative information",
       "CONTACT_PROFILE": "Address and communication",
       "ADDRESS_LOCATION": "Address & location",
       "PROFILE_STATUS": "Profile status",
@@ -1013,7 +1029,8 @@
       "REVIEW_HINT": "Make sure the commercial registration and tax data match the uploaded documents.",
       "LEGAL_IDENTIFIERS": "Legal identifiers",
       "VERIFICATION_SUMMARY": "Verification summary",
-      "BANK_PROFILE": "Bank profile"
+      "BANK_PROFILE": "Bank profile",
+      "REQUIRED_DOCUMENTS": "Required documents"
     },
     "SECTIONS": {
       "STORE": "Store details",
@@ -1024,8 +1041,14 @@
       "CONTACT_HINT": "Support contacts and the merchant address.",
       "LEGAL": "Legal documents",
       "LEGAL_HINT": "Commercial registration, tax details, and operational license.",
+      "DOCUMENTS": "Official documents",
+      "DOCUMENTS_HINT": "Upload the required PDF documents for compliance and account review.",
       "BANKING": "Payout details",
       "BANKING_HINT": "Settlement account and payout schedule.",
+      "OPERATIONS_SETTINGS": "Operations settings",
+      "OPERATIONS_SETTINGS_HINT": "Control order intake, minimum order amount, and preparation timing.",
+      "NOTIFICATION_SETTINGS": "Notification settings",
+      "NOTIFICATION_SETTINGS_HINT": "Choose which platform notifications you want to receive.",
       "HOURS": "Operating hours",
       "HOURS_HINT": "Weekly operating availability for receiving and preparing orders."
     },
@@ -1043,8 +1066,12 @@
       "REGION": "Region",
       "CITY": "City",
       "NATIONAL_ADDRESS": "National address",
+      "ID_NUMBER": "ID number",
+      "NATIONALITY": "Nationality",
       "COMMERCIAL_REGISTRATION": "Commercial registration",
+      "EXPIRY_DATE": "Commercial registration expiry date",
       "TAX_ID": "Tax ID",
+      "LICENSE_NUMBER": "License number",
       "BANK_NAME": "Bank name",
       "IBAN": "IBAN",
       "PAYOUT_CYCLE": "Payout cycle"
@@ -1052,6 +1079,20 @@
     "ACCOUNT": {
       "ACTIVE_ACCESS": "Commercial access enabled",
       "GATED_ACCESS": "Commercial access still gated"
+    },
+    "OPERATIONS": {
+      "ACCEPT_ORDERS": "Accept orders",
+      "ACCEPT_ORDERS_HINT": "Disable this option to temporarily stop receiving new orders.",
+      "MINIMUM_ORDER_AMOUNT": "Minimum order amount",
+      "PREPARATION_TIME": "Preparation time in minutes"
+    },
+    "NOTIFICATIONS": {
+      "EMAIL": "Email notifications",
+      "EMAIL_HINT": "Receive general updates by email.",
+      "SMS": "SMS notifications",
+      "SMS_HINT": "Receive important alerts by text message.",
+      "NEW_ORDERS": "New order notifications",
+      "NEW_ORDERS_HINT": "Instant alert whenever a new order arrives."
     },
     "REVIEW_PANEL": {
       "TITLE": "Documents and review",
@@ -1826,15 +1867,15 @@
     "SUBTITLE": "Track your balance, settlements, and payout movements with the same operational clarity used in super admin.",
     "PERIODS": {
       "TODAY": "Today",
-      "WEEK": "Week",
-      "MONTH": "Month",
-      "QUARTER": "Quarter"
+      "WEEK": "This Week",
+      "MONTH": "This Month",
+      "QUARTER": "This Quarter"
     },
     "ACTIONS": {
+      "VIEW_REPORTS": "View Reports",
       "DOWNLOAD_STATEMENT": "Download Statement",
-      "VIEW_ALL": "View all entries",
-      "SETTLEMENT_DETAILS": "Settlement details",
-      "REVIEW_ORDERS": "Review Orders"
+      "REQUEST_PAYOUT": "Request Payout",
+      "PAYOUT_SUCCESS_MSG": "Payout request submitted successfully and is pending review"
     },
     "LIFECYCLE_MODES": {
       "PerOrderDirectPayout": "Per Order",
@@ -1844,48 +1885,59 @@
     },
     "OVERVIEW": {
       "AVAILABLE_BALANCE": "Available Balance",
-      "READY_FOR_TRANSFER": "Ready for your next transfer",
       "PENDING_SETTLEMENT": "Pending Settlement",
-      "IN_NEXT_CYCLE": "Will be included in the next cycle",
-      "PAYOUT_PROFILE": "Payout Profile",
-      "NEXT_PAYOUT": "Next payout",
-      "HOLD_AMOUNT": "Held amount"
+      "NEXT_PAYOUT": "Next Payout",
+      "HOLD_AMOUNT": "Hold Amount"
     },
     "KPIS": {
       "NET_SALES": "Net Sales",
       "PAYOUTS": "Vendor Payouts",
       "FEES": "Platform Fees",
-      "REFUNDS": "Refunds"
+      "REFUNDS": "Refunds",
+      "GROSS_SALES": "Gross Sales",
+      "VENDOR_PROFIT": "Vendor Profit",
+      "PLATFORM_FEES": "Platform Fees",
+      "VENDOR_NET": "Vendor Net"
     },
     "CHART": {
-      "TITLE": "Sales vs payouts trend",
-      "SUBTITLE": "Compare what was sold against what is already moving into settlement.",
+      "TITLE": "Sales vs Payouts Trend",
       "SALES": "Sales",
-      "PAYOUTS": "Payouts"
+      "PAYOUTS": "Payouts",
+      "DETAILS": "Detailed View",
+      "PEAK_SALES": "Top sales window",
+      "PEAK_PAYOUTS": "Top payout window",
+      "AVG_SALES": "Average sales",
+      "AVG_PAYOUTS": "Average payouts",
+      "NET_GAP": "Net gap",
+      "BREAKDOWN": "Period breakdown"
+    },
+    "PAYOUT_METHODS": {
+      "BANK_TRANSFER": "Bank Transfer"
     },
     "SETTLEMENTS": {
-      "TITLE": "Upcoming Settlements",
-      "SUBTITLE": "The latest settlement batches scheduled for your account.",
-      "ORDERS": "orders",
-      "SCHEDULED": "Scheduled",
+      "TITLE": "Recent Settlements",
+      "BATCH_ID": "Batch ID",
+      "PAID": "Paid",
       "PROCESSING": "Processing",
-      "PAID": "Paid"
+      "SCHEDULED": "Scheduled"
     },
     "LEDGER": {
-      "TITLE": "Recent Ledger",
-      "SUBTITLE": "Your latest financial movements across sales, fees, refunds, and payouts.",
-      "SALE": "Sale",
+      "TITLE": "Period Transactions",
+      "DESCRIPTION": "Description",
+      "REF": "Ref",
+      "PAGE_STATUS": "Page {{page}} of {{totalPages}}",
+      "REFERENCES": {
+        "ORDER_REVENUE": "Order Revenue",
+        "VENDOR_RECOVERY": "Vendor Recovery"
+      },
+      "COMMISSION": "Commission",
       "PAYOUT": "Payout",
       "FEE": "Fee",
       "REFUND": "Refund"
     },
     "ALERTS": {
-      "TITLE": "Finance Alerts",
-      "SUBTITLE": "Items that may need action before the next payout cycle.",
-      "HOLD_TITLE": "A portion of this week balance is on hold",
-      "HOLD_BODY": "Some orders are still within the return window, so part of the settlement remains temporarily reserved.",
-      "PAYOUT_TITLE": "Your next payout file is almost ready",
-      "PAYOUT_BODY": "The statement for the upcoming transfer cycle is ready for review before settlement is released."
+      "TITLE": "Action Center",
+      "EMPTY": "All caught up. No new alerts."
     },
     "MONTHS": {
       "JAN": "Jan",
@@ -1893,7 +1945,22 @@
       "MAR": "Mar",
       "APR": "Apr",
       "MAY": "May",
-      "JUN": "Jun"
+      "JUN": "Jun",
+      "JUL": "Jul",
+      "AUG": "Aug",
+      "SEP": "Sep",
+      "OCT": "Oct",
+      "NOV": "Nov",
+      "DEC": "Dec"
+    },
+    "DAYS": {
+      "MON": "Mon",
+      "TUE": "Tue",
+      "WED": "Wed",
+      "THU": "Thu",
+      "FRI": "Fri",
+      "SAT": "Sat",
+      "SUN": "Sun"
     }
   },
   "CATALOG": {

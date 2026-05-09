@@ -1,0 +1,33 @@
+:host {
+  display: block;
+}
+
+.custom-scrollbar {
+  &::-webkit-scrollbar {
+    height: 4px;
+    width: 4px;
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 10px;
+    &:hover {
+      background: #cbd5e1;
+    }
+  }
+}
+
+/* RTL Adjustments for Material Icons */
+[dir="rtl"] {
+  .material-symbols-outlined {
+    &.rtl-flip {
+      transform: scaleX(-1);
+    }
+  }
+}
+
+.font-inter {
+  font-family: 'Inter', sans-serif;
+}

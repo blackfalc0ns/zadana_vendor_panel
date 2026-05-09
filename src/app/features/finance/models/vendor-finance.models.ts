@@ -35,6 +35,14 @@ export interface VendorLedgerEntry {
   reference: string;
 }
 
+export interface VendorFinanceLedgerPage {
+  items: VendorLedgerEntry[];
+  page: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+}
+
 export interface VendorFinanceAlert {
   id: string;
   severity: 'info' | 'warning' | 'critical';

@@ -61,58 +61,49 @@ import { CatalogService } from '../../services/catalog.service';
         </div>
       </app-page-header>
 
-      <section class="relative z-20 overflow-visible rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
-        <app-panel-header
-          [title]="'COMMON.FILTERS'"
-          containerClass="border-b border-slate-100 px-6 py-5"
-          contentClass="flex flex-col gap-4">
-          <div actions class="grid w-full gap-4 xl:grid-cols-[minmax(260px,1.6fr)_repeat(4,minmax(150px,1fr))_auto]">
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'PRODUCTS.FILTERS.SEARCH' | translate }}</span>
-              <div class="relative group">
-                <span class="absolute inset-y-0 start-4 flex items-center text-slate-400 group-focus-within:text-zadna-primary transition-colors">
-                  <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
-                  </svg>
-                </span>
-                <input
-                  type="text"
-                  [(ngModel)]="searchTerm"
-                  (ngModelChange)="onFiltersChange()"
-                  [placeholder]="'PRODUCTS.SEARCH_PLACEHOLDER' | translate"
-                  class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 pe-4 ps-11 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
-              </div>
-            </label>
+      <section class="relative z-20 overflow-visible rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-sm font-black text-slate-800">{{ 'COMMON.FILTERS' | translate }}</h2>
+        </div>
+        <div class="grid w-full items-center gap-3 md:grid-cols-3 lg:grid-cols-[minmax(200px,1.5fr)_repeat(4,minmax(120px,1fr))_auto]">
+            <div class="relative group">
+              <span class="absolute inset-y-0 start-4 flex items-center text-slate-400 group-focus-within:text-zadna-primary transition-colors">
+                <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="m21 21-6-6m2-5a7 7 0 1 1-14 0 7 7 0 0 1 14 0Z"></path>
+                </svg>
+              </span>
+              <input
+                type="text"
+                [(ngModel)]="searchTerm"
+                (ngModelChange)="onFiltersChange()"
+                [placeholder]="'PRODUCTS.SEARCH_PLACEHOLDER' | translate"
+                class="h-11 w-full rounded-[16px] border border-slate-100 bg-slate-50 pe-4 ps-11 text-[0.8rem] font-bold text-slate-900 transition-all focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5 outline-none">
+            </div>
 
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'PRODUCTS.FILTERS.CATEGORY' | translate }}</span>
+            <div>
               <app-searchable-select [(ngModel)]="filters.category" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="categoryOptions" [allowClear]="false" [placeholder]="'PRODUCTS.FILTERS.CATEGORY'"></app-searchable-select>
-            </label>
+            </div>
 
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'PRODUCTS.FILTERS.STATUS' | translate }}</span>
+            <div>
               <app-searchable-select [(ngModel)]="filters.status" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="statusOptions" [allowClear]="false" [placeholder]="'PRODUCTS.FILTERS.STATUS'"></app-searchable-select>
-            </label>
+            </div>
 
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'PRODUCTS.FILTERS.STOCK' | translate }}</span>
+            <div>
               <app-searchable-select [(ngModel)]="filters.stock" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="stockOptions" [allowClear]="false" [placeholder]="'PRODUCTS.FILTERS.STOCK'"></app-searchable-select>
-            </label>
+            </div>
 
-            <label class="space-y-2">
-              <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'PRODUCTS.FILTERS.OFFERS' | translate }}</span>
+            <div>
               <app-searchable-select [(ngModel)]="filters.offers" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="offerOptions" [allowClear]="false" [placeholder]="'PRODUCTS.FILTERS.OFFERS'"></app-searchable-select>
-            </label>
+            </div>
 
-            <div class="flex items-end">
+            <div>
               <button
                 (click)="resetFilters()"
-                class="inline-flex h-11 items-center justify-center rounded-[16px] border border-rose-200 bg-rose-50 px-5 text-[0.78rem] font-black text-rose-600 transition hover:bg-rose-100">
+                class="inline-flex h-11 w-full items-center justify-center rounded-[16px] border border-rose-200 bg-rose-50 px-5 text-[0.78rem] font-black text-rose-600 transition hover:bg-rose-100">
                 {{ 'PRODUCTS.FILTERS.RESET' | translate }}
               </button>
             </div>
           </div>
-        </app-panel-header>
       </section>
 
       <section class="relative z-10 overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
@@ -162,6 +153,11 @@ import { CatalogService } from '../../services/catalog.service';
                             {{ currentLang === 'ar' ? product.nameAr : product.nameEn }}
                           </span>
                           <span class="text-[0.65rem] font-bold text-slate-400">ID: {{ product.id.substring(0, 8) }}</span>
+                          @if (product.tradePrice === null || product.tradePrice === undefined) {
+                            <span class="mt-1 inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[0.58rem] font-black text-rose-700">
+                              {{ currentLang === 'ar' ? 'تسعير غير مكتمل' : 'Pricing incomplete' }}
+                            </span>
+                          }
                         </div>
                       </div>
                     </td>
@@ -173,6 +169,11 @@ import { CatalogService } from '../../services/catalog.service';
                     <td class="px-6 py-4">
                       <div class="flex flex-col items-start leading-tight">
                         <span class="text-[0.85rem] font-black text-slate-900">{{ product.sellingPrice | number:'1.2-2' }}</span>
+                        @if (product.tradePrice !== null && product.tradePrice !== undefined) {
+                          <span class="mt-1 text-[0.62rem] font-black text-slate-400">
+                            {{ currentLang === 'ar' ? 'تجاري' : 'Trade' }}: {{ product.tradePrice | number:'1.2-2' }}
+                          </span>
+                        }
                         <span class="text-[0.6rem] font-black uppercase tracking-tighter text-zadna-primary">{{ 'COMMON.CURRENCY' | translate }}</span>
                       </div>
                     </td>
@@ -230,6 +231,11 @@ import { CatalogService } from '../../services/catalog.service';
                         {{ (currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn) || ('COMMON.NO_DATA' | translate) }}
                       </span>
                       <div class="mt-2 text-[0.65rem] font-bold text-slate-400">ID: {{ product.id.substring(0, 8) }}</div>
+                      @if (product.tradePrice === null || product.tradePrice === undefined) {
+                        <span class="mt-2 inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[0.58rem] font-black text-rose-700">
+                          {{ currentLang === 'ar' ? 'تسعير غير مكتمل' : 'Pricing incomplete' }}
+                        </span>
+                      }
                     </div>
                   </div>
 
@@ -240,6 +246,11 @@ import { CatalogService } from '../../services/catalog.service';
                         <span class="text-[0.9rem] font-black text-slate-900">{{ product.sellingPrice | number:'1.2-2' }}</span>
                         <span class="text-[0.6rem] font-black text-zadna-primary">{{ 'COMMON.CURRENCY' | translate }}</span>
                       </div>
+                      @if (product.tradePrice !== null && product.tradePrice !== undefined) {
+                        <span class="mt-1 text-[0.62rem] font-black text-slate-400">
+                          {{ currentLang === 'ar' ? 'تجاري' : 'Trade' }}: {{ product.tradePrice | number:'1.2-2' }}
+                        </span>
+                      }
                     </div>
                     <div class="flex flex-col items-end text-end">
                       <span class="text-[0.65rem] font-bold text-slate-400">{{ 'PRODUCTS.HEADER_STOCK' | translate }}</span>
@@ -539,7 +550,30 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   onPricingConfirm(pricingData: any): void {
     this.isPricingModalOpen = false;
-    this.loadProducts();
+    if (!this.selectedMasterProduct) {
+      this.loadProducts();
+      return;
+    }
+
+    this.catalogService.addToStore({
+      masterProductId: this.selectedMasterProduct.id,
+      costPrice: pricingData.costPrice,
+      tradePrice: pricingData.tradePrice,
+      sellingPrice: pricingData.sellingPrice,
+      compareAtPrice: this.catalogService.calculateCompareAtPrice(
+        pricingData.sellingPrice,
+        pricingData.discountPercentage
+      ),
+      stockQty: pricingData.stockQuantity
+    }).subscribe({
+      next: () => {
+        this.selectedMasterProduct = null;
+        this.loadProducts();
+      },
+      error: () => {
+        this.loadProducts();
+      }
+    });
   }
 
   onBulkCompleted(): void {

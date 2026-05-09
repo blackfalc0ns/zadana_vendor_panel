@@ -3,6 +3,8 @@ import { provideRouter } from '@angular/router';
 import { provideHttpClient, HttpClient, withInterceptors } from '@angular/common/http';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, Observable } from 'rxjs';
+import { provideAnimations } from '@angular/platform-browser/animations';
+import { DialogModule } from '@angular/cdk/dialog';
 
 import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
@@ -34,7 +36,9 @@ export const appConfig: ApplicationConfig = {
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
     provideHttpClient(withInterceptors([vendorAuthInterceptor])),
+    provideAnimations(),
     importProvidersFrom(
+      DialogModule,
       TranslateModule.forRoot({
         fallbackLang: 'ar',
         loader: {

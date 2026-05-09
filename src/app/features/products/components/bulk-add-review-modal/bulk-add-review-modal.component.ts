@@ -19,13 +19,13 @@ type BulkReviewStage = 'review' | 'submitting' | 'done';
   imports: [CommonModule, FormsModule, TranslateModule],
   template: `
     <div class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
-      <div class="flex h-full max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[30px] bg-white shadow-2xl shadow-slate-900/20" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+      <div class="flex h-full max-h-[92vh] w-full max-w-7xl flex-col overflow-hidden rounded-[30px] bg-white shadow-2xl shadow-slate-900/20" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
         <div class="border-b border-slate-100 px-6 py-5">
           <div class="flex items-start justify-between gap-4">
             <div>
-              <h2 class="text-xl font-black text-slate-900">{{ currentLang === 'ar' ? 'إضافة جماعية من البنك' : 'Bulk Add From Product Bank' }}</h2>
+              <h2 class="text-xl font-black text-slate-900">{{ currentLang === 'ar' ? 'إضافة جماعية من بنك المنتجات' : 'Bulk Add From Product Bank' }}</h2>
               <p class="mt-1 text-sm font-bold text-slate-500">
-                {{ currentLang === 'ar' ? 'راجع البيانات الأساسية لكل منتج قبل الإرسال.' : 'Review the basic values for each product before submit.' }}
+                {{ currentLang === 'ar' ? 'راجع التكلفة والسعر التجاري وسعر البيع والمخزون قبل الإرسال.' : 'Review cost, trade, selling price, and stock before submit.' }}
               </p>
             </div>
             <button type="button" (click)="onClose()" class="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-500 transition hover:bg-slate-200">
@@ -39,9 +39,19 @@ type BulkReviewStage = 'review' | 'submitting' | 'done';
             <h3 class="text-sm font-black text-slate-900">{{ currentLang === 'ar' ? 'إعدادات جماعية سريعة' : 'Bulk defaults' }}</h3>
             <div class="mt-3 grid gap-3 md:grid-cols-3">
               <label class="space-y-1">
+                <span class="text-[0.72rem] font-black text-slate-500">{{ currentLang === 'ar' ? 'سعر التكلفة' : 'Cost price' }}</span>
+                <input type="number" [(ngModel)]="defaults.costPrice" class="h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm font-bold outline-none focus:border-zadna-primary/40">
+              </label>
+              <label class="space-y-1">
+                <span class="text-[0.72rem] font-black text-slate-500">{{ currentLang === 'ar' ? 'السعر التجاري' : 'Trade price' }}</span>
+                <input type="number" [(ngModel)]="defaults.tradePrice" class="h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm font-bold outline-none focus:border-zadna-primary/40">
+              </label>
+              <label class="space-y-1">
                 <span class="text-[0.72rem] font-black text-slate-500">{{ currentLang === 'ar' ? 'سعر البيع' : 'Selling price' }}</span>
                 <input type="number" [(ngModel)]="defaults.sellingPrice" class="h-11 w-full rounded-2xl border border-slate-200 px-3 text-sm font-bold outline-none focus:border-zadna-primary/40">
               </label>
+            </div>
+            <div class="mt-3 grid gap-3 md:grid-cols-2">
               <label class="space-y-1">
                 <span class="text-[0.72rem] font-black text-slate-500">{{ 'PRODUCTS.DISCOUNT_LABEL' | translate }}</span>
                 <div class="relative">
@@ -94,12 +104,14 @@ type BulkReviewStage = 'review' | 'submitting' | 'done';
             </div>
           }
 
-          <table class="min-w-[860px] w-full border-collapse">
+          <table class="min-w-[1120px] w-full border-collapse">
             <thead>
               <tr class="border-b border-slate-100 text-[0.68rem] uppercase tracking-[0.12em] text-slate-400">
                 <th class="pb-3 text-start"><input type="checkbox" [checked]="allRowsSelected" (change)="toggleAllRows($any($event.target).checked)"></th>
                 <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'المنتج' : 'Product' }}</th>
-                <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'سعر البيع' : 'Selling' }}</th>
+                <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'التكلفة' : 'Cost' }}</th>
+                <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'التجاري' : 'Trade' }}</th>
+                <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'البيع' : 'Selling' }}</th>
                 <th class="pb-3 text-start">{{ 'PRODUCTS.DISCOUNT_LABEL' | translate }}</th>
                 <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'المخزون' : 'Stock' }}</th>
                 <th class="pb-3 text-end">{{ currentLang === 'ar' ? 'إجراء' : 'Action' }}</th>
@@ -137,6 +149,8 @@ type BulkReviewStage = 'review' | 'submitting' | 'done';
                       </div>
                     </div>
                   </td>
+                  <td class="py-3"><input type="number" [(ngModel)]="row.costPrice" [disabled]="stage !== 'review'" class="h-10 w-24 rounded-xl border border-slate-200 px-3 text-sm font-bold"></td>
+                  <td class="py-3"><input type="number" [(ngModel)]="row.tradePrice" [disabled]="stage !== 'review'" class="h-10 w-24 rounded-xl border border-slate-200 px-3 text-sm font-bold"></td>
                   <td class="py-3"><input type="number" [(ngModel)]="row.sellingPrice" [disabled]="stage !== 'review'" class="h-10 w-28 rounded-xl border border-slate-200 px-3 text-sm font-bold"></td>
                   <td class="py-3">
                     <div class="relative">
@@ -175,7 +189,7 @@ type BulkReviewStage = 'review' | 'submitting' | 'done';
               </button>
               @if (stage === 'review') {
                 <button type="button" (click)="submit()" [disabled]="hasValidationErrors || rows.length === 0" class="rounded-2xl bg-zadna-primary px-5 py-2.5 text-xs font-black text-white shadow-lg shadow-zadna-primary/20 disabled:opacity-40">
-                  {{ currentLang === 'ar' ? 'إرسال إضافة جماعية' : 'Submit bulk add' }}
+                  {{ currentLang === 'ar' ? 'إرسال الإضافة الجماعية' : 'Submit bulk add' }}
                 </button>
               }
             </div>
@@ -200,6 +214,8 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
   readonly pageSize = 50;
 
   defaults = {
+    costPrice: 0 as number | null,
+    tradePrice: null as number | null,
     sellingPrice: null as number | null,
     discountPercentage: 0 as number | null,
     stockQty: 0
@@ -213,6 +229,8 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
       productNameAr: product.nameAr,
       productNameEn: product.nameEn,
       imageUrl: product.imageUrl,
+      costPrice: 0,
+      tradePrice: null,
       sellingPrice: null,
       discountPercentage: 0,
       compareAtPrice: null,
@@ -287,6 +305,8 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
   }
 
   applyDefaults(row: BulkVendorProductDraft): void {
+    row.costPrice = this.defaults.costPrice ?? 0;
+    if (this.defaults.tradePrice !== null) row.tradePrice = this.defaults.tradePrice;
     if (this.defaults.sellingPrice !== null) row.sellingPrice = this.defaults.sellingPrice;
     row.discountPercentage = this.defaults.discountPercentage ?? 0;
     row.compareAtPrice = this.catalogService.calculateCompareAtPrice(row.sellingPrice ?? 0, row.discountPercentage ?? 0);
@@ -301,8 +321,22 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
   }
 
   validateRow(row: BulkVendorProductDraft): string | null {
+    if ((row.costPrice ?? 0) < 0) {
+      return this.currentLang === 'ar' ? 'سعر التكلفة لا يمكن أن يكون سالبًا.' : 'Cost price cannot be negative.';
+    }
+
+    if (row.tradePrice == null || row.tradePrice <= 0) {
+      return this.currentLang === 'ar' ? 'السعر التجاري مطلوب ويجب أن يكون أكبر من صفر.' : 'Trade price is required and must be greater than zero.';
+    }
+
     if (row.sellingPrice === null || row.sellingPrice <= 0) {
       return this.currentLang === 'ar' ? 'سعر البيع مطلوب ويجب أن يكون أكبر من صفر.' : 'Selling price is required and must be greater than zero.';
+    }
+
+    const tradePrice = row.tradePrice ?? null;
+
+    if (tradePrice !== null && tradePrice > row.sellingPrice) {
+      return this.currentLang === 'ar' ? 'السعر التجاري لا يمكن أن يكون أكبر من سعر البيع.' : 'Trade price cannot be greater than selling price.';
     }
 
     if ((row.discountPercentage ?? 0) < 0 || (row.discountPercentage ?? 0) >= 100) {

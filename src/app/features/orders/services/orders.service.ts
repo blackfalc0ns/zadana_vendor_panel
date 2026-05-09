@@ -301,7 +301,7 @@ export class OrdersService {
       driverVehicleType: driver?.vehicleType,
       driverVehiclePlate: driver?.plateNumber,
       items: items.map((orderItem) => this.mapOrderItem(orderItem)),
-      timeline: timeline.map((timelineItem) => this.mapTimelineItem(timelineItem)),
+      timeline: this.normalizeTimeline(timeline.map((timelineItem) => this.mapTimelineItem(timelineItem))),
       canConfirmPickup: item.canConfirmPickup ?? false,
       pickupOtpStatus: item.pickupOtpStatus ?? undefined,
       vendorLocation: item.vendorLocation
@@ -345,6 +345,51 @@ export class OrdersService {
       isCompleted: item.isCompleted,
       notes: item.note ?? undefined
     };
+  }
+
+  private normalizeTimeline(entries: OrderTimelineEntry[]): OrderTimelineEntry[] {
+    if (!entries.length) {
+      return [];
+    }
+
+    const normalized = [...entries]
+      .sort((a, b) => {
+        const aTime = new Date(a.timestamp).getTime();
+        const bTime = new Date(b.timestamp).getTime();
+
+        if (Number.isNaN(aTime) || Number.isNaN(bTime)) {
+          return 0;
+        }
+
+        return aTime - bTime;
+      })
+      .reduce<OrderTimelineEntry[]>((acc, entry) => {
+        const previous = acc[acc.length - 1];
+        if (!previous) {
+          acc.push(entry);
+          return acc;
+        }
+
+        const previousNote = (previous.notes || '').trim();
+        const currentNote = (entry.notes || '').trim();
+        const isDuplicateStep =
+          previous.status === entry.status &&
+          previous.isCompleted === entry.isCompleted;
+
+        if (isDuplicateStep) {
+          acc[acc.length - 1] = {
+            ...previous,
+            timestamp: entry.timestamp,
+            notes: currentNote || previousNote || undefined
+          };
+          return acc;
+        }
+
+        acc.push(entry);
+        return acc;
+      }, []);
+
+    return normalized.slice(-8);
   }
 
   private resolveMutationAction(status: OrderStatus): string {

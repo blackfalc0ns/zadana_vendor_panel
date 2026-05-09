@@ -17,12 +17,12 @@ import * as L from 'leaflet';
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="relative overflow-hidden rounded-[28px] border-2 border-indigo-100 bg-gradient-to-br from-indigo-50 to-blue-50 shadow-sm">
-      <!-- Header -->
-      <div class="flex items-center justify-between border-b border-indigo-100 bg-white/80 px-5 py-3 backdrop-blur-sm">
-        <div class="flex items-center gap-3">
-          <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-100 text-indigo-600">
-            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div class="relative overflow-hidden rounded-[2.5rem] border border-white/40 oasis-glass shadow-2xl group/map">
+      <!-- Executive Telemetry Header -->
+      <div class="flex items-center justify-between border-b border-[#004953]/5 bg-white/40 px-6 py-4 backdrop-blur-xl relative z-10">
+        <div class="flex items-center gap-4">
+          <div class="flex h-11 w-11 items-center justify-center rounded-xl bg-[#004953] text-white shadow-lg shadow-[#004953]/20 transition-transform group-hover/map:scale-110">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
                 d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
@@ -30,52 +30,54 @@ import * as L from 'leaflet';
             </svg>
           </div>
           <div>
-            <p class="text-[0.8rem] font-black uppercase tracking-wider text-indigo-900">
-              {{ isArabic ? 'تتبع المندوب مباشر' : 'Live Driver Tracking' }}
+            <p class="text-[0.85rem] font-black uppercase tracking-[0.2em] text-[#004953]">
+              {{ isArabic ? 'تتبع المندوب مباشر' : 'Satellite Telemetry' }}
             </p>
-            <p class="text-[0.65rem] font-bold text-indigo-500">
-              {{ isArabic ? 'تحديث كل 5 ثوانٍ' : 'Updates every 5 seconds' }}
+            <p class="text-[0.65rem] font-black text-[#00626F]/60 uppercase tracking-widest">
+              {{ isArabic ? 'تحديث كل 5 ثوانٍ' : 'Active Feedback Loop' }}
             </p>
           </div>
         </div>
 
-        <!-- Status Indicator -->
-        <div class="flex items-center gap-2 rounded-full px-3 py-1.5"
-          [class]="isStale ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'">
-          <span class="relative flex h-2 w-2">
-            <span *ngIf="!isStale"
-              class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-            <span class="relative inline-flex h-2 w-2 rounded-full"
-              [class]="isStale ? 'bg-amber-500' : 'bg-emerald-500'"></span>
-          </span>
-          <span class="text-[0.65rem] font-black">
+        <!-- Pulse Indicator -->
+        <div class="flex items-center gap-3 rounded-xl px-4 py-2 bg-white/50 border border-white shadow-inner"
+          [class]="isStale ? 'text-amber-600' : 'text-[#00626F]'">
+          <div class="relative flex h-2.5 w-2.5">
+            <div *ngIf="!isStale"
+              class="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#00626F] opacity-75"></div>
+            <div class="relative inline-flex h-2.5 w-2.5 rounded-full shadow-[0_0_8px_currentColor]"
+              [class]="isStale ? 'bg-amber-500' : 'bg-[#00626F]'"></div>
+          </div>
+          <span class="text-[0.7rem] font-black uppercase tracking-[0.2em]">
             {{ isStale
-              ? (isArabic ? 'جاري التحديث...' : 'Updating...')
-              : (isArabic ? 'مباشر' : 'LIVE') }}
+              ? (isArabic ? 'جاري التحديث...' : 'SYNCHRONIZING')
+              : (isArabic ? 'مباشر' : 'LIVE FEED') }}
           </span>
         </div>
       </div>
 
-      <!-- Map Container -->
-      <div #mapContainer class="h-[320px] w-full" style="z-index: 0;"></div>
+      <!-- Map Interface -->
+      <div #mapContainer class="h-[320px] w-full" style="z-index: 0; filter: contrast(1.1) saturate(1.1);"></div>
 
-      <!-- Driver Info Bar -->
-      <div *ngIf="driverLocation" class="flex items-center justify-between border-t border-indigo-100 bg-white/90 px-5 py-3 backdrop-blur-sm">
-        <div class="flex items-center gap-3">
-          <div class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-500 text-white text-sm font-black">
-            🚗
+      <!-- Live Data Overlay -->
+      <div *ngIf="driverLocation" class="absolute bottom-6 inset-x-6 flex items-center justify-between px-6 py-4 rounded-2xl bg-[#004953]/90 text-white backdrop-blur-xl border border-white/20 shadow-2xl transition-all group-hover/map:bottom-8">
+        <div class="flex items-center gap-5">
+          <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-white/10 border border-white/10 text-2xl shadow-inner">
+            🛰️
           </div>
           <div>
-            <p class="text-[0.72rem] font-black text-slate-800">
-              {{ isArabic ? 'موقع المندوب' : 'Driver Location' }}
+            <p class="text-[0.8rem] font-black uppercase tracking-widest leading-none mb-1">
+              {{ isArabic ? 'موقع المندوب' : 'Carrier Coordinates' }}
             </p>
-            <p class="text-[0.62rem] font-bold text-slate-400">
+            <p class="text-[0.65rem] font-bold text-white/50 uppercase tracking-[0.2em]">
               {{ lastUpdateText }}
             </p>
           </div>
         </div>
-        <div *ngIf="driverLocation?.accuracyMeters" class="text-[0.62rem] font-bold text-slate-400">
-          ± {{ driverLocation.accuracyMeters | number:'1.0-0' }}m
+        
+        <div *ngIf="driverLocation?.accuracyMeters" class="flex flex-col items-end">
+           <span class="text-[0.6rem] font-black text-white/40 uppercase tracking-widest mb-1">Precision</span>
+           <span class="text-[0.9rem] font-black font-inter text-[#FF9800]">±{{ driverLocation.accuracyMeters | number:'1.0-0' }}m</span>
         </div>
       </div>
     </div>
@@ -83,66 +85,72 @@ import * as L from 'leaflet';
   styles: [`
     :host { display: block; }
 
+    .oasis-glass {
+      background: rgba(255, 255, 255, 0.4);
+      backdrop-filter: blur(24px) saturate(200%);
+      -webkit-backdrop-filter: blur(24px) saturate(200%);
+    }
+
+    .font-inter { font-family: 'Inter', sans-serif; }
+
     :host ::ng-deep .leaflet-control-attribution {
-      font-size: 9px !important;
-      opacity: 0.6;
+      font-size: 8px !important;
+      opacity: 0.4;
+      background: none !important;
+      color: #004953;
     }
 
-    :host ::ng-deep .driver-marker-icon {
-      background: none;
-      border: none;
-    }
-
-    :host ::ng-deep .vendor-marker-icon {
-      background: none;
-      border: none;
-    }
-
+    :host ::ng-deep .driver-marker-icon, 
+    :host ::ng-deep .vendor-marker-icon, 
     :host ::ng-deep .customer-marker-icon {
       background: none;
       border: none;
     }
 
     :host ::ng-deep .driver-marker-pulse {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background: rgba(16, 185, 129, 0.25);
-      border: 3px solid rgba(16, 185, 129, 0.6);
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: #00626F;
+      border: 3px solid white;
+      color: white;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 18px;
+      font-size: 20px;
+      box-shadow: 0 12px 24px rgba(0, 98, 111, 0.4);
       animation: markerPulse 2s ease-in-out infinite;
     }
 
     :host ::ng-deep .vendor-marker-dot {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(249, 115, 22, 0.15);
-      border: 3px solid rgba(249, 115, 22, 0.7);
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #FF9800;
+      border: 3px solid white;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 16px;
+      box-shadow: 0 8px 16px rgba(255, 152, 0, 0.3);
     }
 
     :host ::ng-deep .customer-marker-dot {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: rgba(99, 102, 241, 0.15);
-      border: 3px solid rgba(99, 102, 241, 0.7);
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      background: #127C8C;
+      border: 3px solid white;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 16px;
+      box-shadow: 0 8px 16px rgba(18, 124, 140, 0.3);
     }
 
     @keyframes markerPulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
-      50% { transform: scale(1.1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 98, 111, 0.4); }
+      50% { transform: scale(1.05); box-shadow: 0 0 0 12px rgba(0, 98, 111, 0); }
     }
   `]
 })
