@@ -7,8 +7,9 @@ import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 export interface AlertModalData {
   title: string;
   message: string;
-  type: 'success' | 'error' | 'info';
+  type: 'success' | 'error' | 'info' | 'warning';
   confirmText?: string;
+  direction?: 'rtl' | 'ltr';
 }
 
 @Component({
@@ -22,14 +23,15 @@ export interface AlertModalData {
         [@toastAnimation]="'in'"
         (mouseenter)="pauseTimer()"
         (mouseleave)="resumeTimer()"
-        [dir]="'rtl'">
+        [dir]="data.direction || 'rtl'">
       
         <!-- Decorative Side Line -->
         <div class="absolute inset-y-0 right-0 w-1.5"
           [ngClass]="{
             'bg-emerald-500': data.type === 'success',
             'bg-rose-500': data.type === 'error',
-            'bg-sky-500': data.type === 'info'
+            'bg-sky-500': data.type === 'info',
+            'bg-amber-500': data.type === 'warning'
           }">
         </div>
 
@@ -38,7 +40,8 @@ export interface AlertModalData {
           [ngClass]="{
             'bg-emerald-100 text-emerald-600': data.type === 'success',
             'bg-rose-100 text-rose-600': data.type === 'error',
-            'bg-sky-100 text-sky-600': data.type === 'info'
+            'bg-sky-100 text-sky-600': data.type === 'info',
+            'bg-amber-100 text-amber-700': data.type === 'warning'
           }">
           @if (data.type === 'success') {
             <svg class="h-6 w-6 animate-[check_0.5s_ease-out_forwards]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -47,6 +50,10 @@ export interface AlertModalData {
           } @else if (data.type === 'error') {
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
               <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          } @else if (data.type === 'warning') {
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86l-7.55 13.1A1 1 0 003.61 18h16.78a1 1 0 00.87-1.5l-7.55-13.1a1 1 0 00-1.74 0z" />
             </svg>
           } @else {
             <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">

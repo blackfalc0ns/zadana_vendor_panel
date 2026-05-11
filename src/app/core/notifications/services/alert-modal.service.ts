@@ -40,4 +40,12 @@ export class AlertModalService {
       type: 'info'
     });
   }
+
+  warning(message: string, title: string = 'COMMON.WARNING') {
+    return this.open({
+      title,
+      message,
+      type: 'warning'
+    });
+  }
 }

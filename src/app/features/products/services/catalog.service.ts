@@ -305,7 +305,7 @@ export class CatalogService {
       commissionRate: item.commissionRate ?? null,
       discountPercentage: this.calculateDiscountPercentage(item.sellingPrice, item.compareAtPrice),
       stockQty: item.stockQuantity,
-      isActive: item.status === 'Active' || item.status === 'OutOfStock'
+      isActive: ['active', 'outofstock'].includes((item.status || '').toLowerCase())
     };
   }
 

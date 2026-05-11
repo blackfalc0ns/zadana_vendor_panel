@@ -299,19 +299,14 @@ export class AlertsCenterService {
 
   private mapNotification(item: NotificationItemApiModel): AlertCenterItemVm {
     const route = this.resolveRoute(item.type, item.referenceId, item.dataObject, item.data);
+    const localizedContent = this.resolveLocalizedNotificationContent(item);
 
     return {
       id: item.id,
       source: this.resolveSource(item.type, route),
       severity: this.resolveSeverity(item.type),
-      title: {
-        ar: item.titleAr,
-        en: item.titleEn
-      },
-      summary: {
-        ar: item.bodyAr,
-        en: item.bodyEn
-      },
+      title: localizedContent.title,
+      summary: localizedContent.summary,
       createdAt: item.createdAtUtc,
       route,
       routeQuery: undefined,
@@ -335,6 +330,132 @@ export class AlertsCenterService {
       isRead: item.isRead,
       createdAtUtc: item.createdAtUtc
     });
+  }
+
+  private resolveLocalizedNotificationContent(item: NotificationItemApiModel): {
+    title: { ar: string; en: string };
+    summary: { ar: string; en: string };
+  } {
+    const defaultContent = {
+      title: {
+        ar: item.titleAr,
+        en: item.titleEn
+      },
+      summary: {
+        ar: item.bodyAr,
+        en: item.bodyEn
+      }
+    };
+
+    const auditType = this.parseVendorAuditType(item.type);
+    if (!auditType) {
+      return defaultContent;
+    }
+
+    const localizedSummary = this.getVendorAuditSummary(auditType.kind);
+    if (!localizedSummary) {
+      return defaultContent;
+    }
+
+    return {
+      title: defaultContent.title,
+      summary: localizedSummary
+    };
+  }
+
+  private parseVendorAuditType(type?: string | null): { prefix: string; kind: string; severity: string; roleLabel: string } | null {
+    if (!type) {
+      return null;
+    }
+
+    const parts = type.split('|');
+    if (parts.length < 4) {
+      return null;
+    }
+
+    const [prefix, kind, severity, roleLabel] = parts;
+    if (prefix !== 'vendor-activity' && prefix !== 'vendor-review') {
+      return null;
+    }
+
+    return { prefix, kind, severity, roleLabel };
+  }
+
+  private getVendorAuditSummary(kind: string): { ar: string; en: string } | null {
+    switch (kind) {
+      case 'profile-notifications-updated':
+        return {
+          ar: 'تم تحديث تفضيلات الإشعارات من بوابة التاجر.',
+          en: 'Notification preferences were updated from the Vendor Portal.'
+        };
+      case 'profile-operations-updated':
+        return {
+          ar: 'تم تحديث إعدادات التشغيل من بوابة التاجر.',
+          en: 'Operational settings were updated from the Vendor Portal.'
+        };
+      case 'profile-hours-updated':
+        return {
+          ar: 'تم تحديث ساعات العمل من بوابة التاجر.',
+          en: 'Operating hours were updated from the Vendor Portal.'
+        };
+      case 'profile-banking-updated':
+        return {
+          ar: 'تم تحديث بيانات البنك وإعدادات التحويل من بوابة التاجر.',
+          en: 'Banking and payout setup were updated from the Vendor Portal.'
+        };
+      case 'profile-contact-updated':
+        return {
+          ar: 'تم تحديث بيانات العنوان وموقع التواصل من بوابة التاجر.',
+          en: 'Address and contact location details were updated from the Vendor Portal.'
+        };
+      case 'profile-owner-updated':
+        return {
+          ar: 'تم تحديث بيانات المالك من بوابة التاجر.',
+          en: 'Owner information was updated from the Vendor Portal.'
+        };
+      case 'profile-store-updated':
+        return {
+          ar: 'تم تحديث بيانات المتجر من بوابة التاجر.',
+          en: 'Store profile details were updated from the Vendor Portal.'
+        };
+      case 'profile-legal-updated':
+        return {
+          ar: 'تم تحديث البيانات القانونية والامتثال من بوابة التاجر.',
+          en: 'Legal and compliance information was updated from the Vendor Portal.'
+        };
+      case 'vendor-document-reuploaded':
+        return {
+          ar: 'تمت إعادة رفع المستند المطلوب من بوابة التاجر.',
+          en: 'The requested document was reuploaded from the Vendor Portal.'
+        };
+      case 'vendor-profile-submitted':
+        return {
+          ar: 'تم إرسال الملف التجاري للمراجعة.',
+          en: 'The vendor profile was submitted for review.'
+        };
+      case 'notification-settings-updated':
+        return {
+          ar: 'تم تحديث إعدادات الإشعارات بواسطة فريق الإدارة.',
+          en: 'Notification settings were updated by the admin team.'
+        };
+      case 'operations-settings-updated':
+        return {
+          ar: 'تم تحديث إعدادات التشغيل بواسطة فريق الإدارة.',
+          en: 'Operations settings were updated by the admin team.'
+        };
+      case 'password-reset':
+        return {
+          ar: 'تمت إعادة تعيين كلمة المرور بواسطة الإدارة وإنهاء الجلسات النشطة.',
+          en: 'The password was reset by the admin team and active sessions were revoked.'
+        };
+      case 'login-unlocked':
+        return {
+          ar: 'تم فتح تسجيل الدخول واستعادة الوصول إلى الحساب.',
+          en: 'Login was unlocked and account access was restored.'
+        };
+      default:
+        return null;
+    }
   }
 
   private resolveSeverity(type?: string | null): 'info' | 'warning' | 'critical' {
@@ -451,9 +572,15 @@ export class AlertsCenterService {
     }
 
     for (const alert of newlyArrived) {
-      this.showDesktopNotification(alert);
+      if (!this.isDocumentVisible()) {
+        this.showDesktopNotification(alert);
+      }
       this.playNotificationTone();
     }
+  }
+
+  private isDocumentVisible(): boolean {
+    return this.document.visibilityState === 'visible';
   }
 
   private startPolling(): void {

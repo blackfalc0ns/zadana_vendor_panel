@@ -3,9 +3,11 @@ import { DOCUMENT } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VendorAuthService } from './core/auth/services/vendor-auth.service';
+import { AlertModalService } from './core/notifications/services/alert-modal.service';
 import { AlertsCenterService } from './features/alerts/services/alerts-center.service';
 import { VendorWebPushService } from './core/notifications/services/vendor-web-push.service';
 import { VendorProfileService } from './features/settings/services/vendor-profile.service';
+import { AlertCenterItemVm, LocalizedAlertText } from './features/alerts/models/alerts-center.models';
 
 @Component({
   selector: 'app-root',
@@ -21,6 +23,7 @@ export class AppComponent implements OnInit {
   constructor(
     private readonly translate: TranslateService,
     private readonly authService: VendorAuthService,
+    private readonly alertModalService: AlertModalService,
     private readonly alertsCenterService: AlertsCenterService,
     private readonly vendorProfileService: VendorProfileService,
     private readonly vendorWebPushService: VendorWebPushService,
@@ -48,6 +51,8 @@ export class AppComponent implements OnInit {
 
     this.alertsCenterService.startMonitoring();
     this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      this.showRealtimeAlertToast(alert);
+
       if (alert.route === '/profile' || alert.route === '/finance' || alert.source === 'profile') {
         this.vendorProfileService.loadProfile(true).subscribe();
       }
@@ -67,5 +72,33 @@ export class AppComponent implements OnInit {
 
     this.renderer.setAttribute(htmlTag, 'dir', dir);
     this.renderer.setAttribute(htmlTag, 'lang', lang);
+  }
+
+  private showRealtimeAlertToast(alert: AlertCenterItemVm): void {
+    if (this.document.visibilityState !== 'visible') {
+      return;
+    }
+
+    this.alertModalService.open({
+      title: this.getLocalizedAlertText(alert.title),
+      message: this.getLocalizedAlertText(alert.summary),
+      type: this.resolveRealtimeAlertType(alert),
+      direction: this.currentLang === 'ar' ? 'rtl' : 'ltr'
+    });
+  }
+
+  private getLocalizedAlertText(text: LocalizedAlertText): string {
+    return this.currentLang === 'ar' ? text.ar : text.en;
+  }
+
+  private resolveRealtimeAlertType(alert: AlertCenterItemVm): 'success' | 'error' | 'info' | 'warning' {
+    switch (alert.severity) {
+      case 'critical':
+        return 'error';
+      case 'warning':
+        return 'warning';
+      default:
+        return 'info';
+    }
   }
 }

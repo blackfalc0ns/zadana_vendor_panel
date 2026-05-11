@@ -9,13 +9,15 @@ import { DialogModule } from '@angular/cdk/dialog';
 import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
 
+const TRANSLATION_ASSET_VERSION = '2026-05-09-stock-ui-1';
+
 // Custom Loader to guarantee compatibility and fix "0 arguments" error
 export class CustomTranslateLoader implements TranslateLoader {
   constructor(private http: HttpClient) {}
   
   getTranslation(lang: string): Observable<any> {
-    // Direct path to your translation files
-    return this.http.get(`./assets/i18n/${lang}.json`);
+    // Version the request so updated translations are fetched instead of stale cached JSON.
+    return this.http.get(`./assets/i18n/${lang}.json?v=${TRANSLATION_ASSET_VERSION}`);
   }
 }
 

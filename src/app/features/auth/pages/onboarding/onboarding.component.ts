@@ -86,18 +86,18 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   };
   readonly vendorSeed: OnboardingSeedData = {
     store: {
-      businessNameAr: 'Ù…Ø¤Ø³Ø³Ø© Ø§Ù„ØªÙ‚Ù†ÙŠØ© Ø§Ù„Ø­Ø¯ÙŠØ«Ø© Ø§Ù„ØªØ¬Ø§Ø±ÙŠØ©',
+      businessNameAr: 'مؤسسة التقنية الحديثة التجارية',
       businessNameEn: 'Modern Tech Trading Est.',
       businessType: 'RETAIL',
       contactPhone: '+966501234567',
-      description: 'Ù…ØªØ¬Ø± Ù…ØªØ®ØµØµ ÙÙŠ Ø¨ÙŠØ¹ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠØ§Øª ÙˆØ§Ù„Ø£Ø¬Ù‡Ø²Ø© Ø§Ù„Ø°ÙƒÙŠØ© Ù…Ø¹ ØªØ¬Ù‡ÙŠØ²Ø§Øª Ù„Ù„Ø´Ø­Ù† Ø§Ù„Ø³Ø±ÙŠØ¹ ÙˆØ®Ø¯Ù…Ø© Ù…Ø§ Ø¨Ø¹Ø¯ Ø§Ù„Ø¨ÙŠØ¹.',
+      description: 'متجر متخصص في بيع الإلكترونيات والأجهزة الذكية مع تجهيزات للشحن السريع وخدمة ما بعد البيع.',
       region: 'CENTRAL',
       city: 'RIYADH',
-      nationalAddress: '7293 Ø·Ø±ÙŠÙ‚ Ø§Ù„Ù…Ù„Ùƒ ÙÙ‡Ø¯ØŒ Ø­ÙŠ Ø§Ù„Ù…Ù„Ù‚Ø§ØŒ Ø§Ù„Ø±ÙŠØ§Ø¶ 13524',
+      nationalAddress: '7293 طريق الملك فهد، حي الملقا، الرياض 13524',
       registrationDate: '15 Jan 2022'
     },
     owner: {
-      fullName: 'Ø¹Ø¨Ø¯Ø§Ù„Ù„Ù‡ Ø¨Ù† Ø®Ø§Ù„Ø¯ Ø¨Ù† Ø¹Ø¨Ø¯Ø§Ù„Ø¹Ø²ÙŠØ²',
+      fullName: 'عبدالله بن خالد بن عبدالعزيز',
       email: 'info@moderntech.com',
       phone: '+966501234567',
       idNumber: '1012344321',
@@ -116,10 +116,10 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
       paymentCycle: 'BIWEEKLY'
     },
     meta: {
-      reviewStatusAr: 'Ù‚ÙŠØ¯ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©',
+      reviewStatusAr: 'قيد المراجعة',
       reviewStatusEn: 'In review',
       lastUpdate: '18:01 - 14/03/2026',
-      syncedFromAr: 'Ù…Ø³ØªÙˆØ­Ù‰ Ù…Ù† Ù…Ù„Ù Vendor Details ÙÙŠ Ù„ÙˆØ­Ø© Ø§Ù„Ø³ÙˆØ¨Ø± Ø£Ø¯Ù…Ù† Ù„ØªÙƒÙˆÙ† Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© Ø£ÙˆØ¶Ø­ ÙˆØ£Ø³Ù‡Ù„.',
+      syncedFromAr: 'مستوحى من ملف Vendor Details في لوحة السوبر أدمن لتكون المراجعة أوضح وأسهل.',
       syncedFromEn: 'Inspired by the Vendor Details view in the super admin panel for clearer review.'
     }
   };
@@ -342,7 +342,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!this.isPdfFile(file)) {
       this.submissionError = this.isRTL
-        ? 'ÙŠØ¬Ø¨ Ø±ÙØ¹ Ø§Ù„Ø³Ø¬Ù„ Ø§Ù„ØªØ¬Ø§Ø±ÙŠ Ø¨ØµÙŠØºØ© PDF.'
+        ? 'يجب رفع السجل التجاري بصيغة PDF.'
         : 'Commercial registration must be uploaded as a PDF file.';
       return;
     }
@@ -361,7 +361,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!this.isPdfFile(file)) {
       this.submissionError = this.isRTL
-        ? 'ÙŠØ¬Ø¨ Ø±ÙØ¹ Ø§Ù„Ø´Ù‡Ø§Ø¯Ø© Ø§Ù„Ø¶Ø±ÙŠØ¨ÙŠØ© Ø¨ØµÙŠØºØ© PDF.'
+        ? 'يجب رفع الشهادة الضريبية بصيغة PDF.'
         : 'Tax certificate must be uploaded as a PDF file.';
       return;
     }
@@ -380,7 +380,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (!this.isPdfFile(file)) {
       this.submissionError = this.isRTL
-        ? 'ÙŠØ¬Ø¨ Ø±ÙØ¹ Ø§Ù„Ø±Ø®ØµØ© Ø¨ØµÙŠØºØ© PDF.'
+        ? 'يجب رفع الرخصة بصيغة PDF.'
         : 'License document must be uploaded as a PDF file.';
       return;
     }

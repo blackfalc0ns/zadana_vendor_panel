@@ -174,6 +174,40 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
 
                 <div class="p-8 relative">
                   <div class="absolute right-0 top-0 w-64 h-64 bg-emerald-50/30 rounded-full blur-3xl -z-10 pointer-events-none"></div>
+                  <div class="mb-6 overflow-hidden rounded-[24px] border p-5 shadow-sm transition-all duration-300"
+                       [ngClass]="getStockInsightCardClasses()">
+                    <div class="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+                      <div class="space-y-3">
+                        <div class="flex flex-wrap items-center gap-3">
+                          <span class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.68rem] font-black uppercase tracking-[0.24em]"
+                                [ngClass]="getStockHealthBadgeClasses()">
+                            <span class="h-2 w-2 rounded-full" [ngClass]="getStockHealthDotClasses()"></span>
+                            {{ getStockHealthLabel() }}
+                          </span>
+                          <span class="rounded-full bg-white/80 px-3 py-1 text-[0.7rem] font-black text-slate-600 shadow-sm">
+                            {{ 'PRODUCTS.STOCK_STATUS' | translate:{ count: product.stockQty } }}
+                          </span>
+                        </div>
+                        <div>
+                          <h3 class="text-[0.82rem] font-black uppercase tracking-widest text-slate-900">
+                            {{ 'PRODUCTS.STOCK_AUTOMATION_TITLE' | translate }}
+                          </h3>
+                          <p class="mt-1 max-w-2xl text-[0.78rem] font-bold leading-6 text-slate-600">
+                            {{ 'PRODUCTS.STOCK_AUTOMATION_BODY' | translate }}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="min-w-[220px] rounded-[20px] border border-white/70 bg-white/75 p-4 shadow-sm backdrop-blur-sm">
+                        <p class="text-[0.64rem] font-black uppercase tracking-[0.22em] text-slate-400">
+                          {{ 'PRODUCTS.STOCK_ACTION_TITLE' | translate }}
+                        </p>
+                        <p class="mt-2 text-[0.78rem] font-black leading-6 text-slate-700">
+                          {{ getStockActionMessage() }}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
                   @if (product.tradePrice === null || product.tradePrice === undefined) {
                     <div class="mb-6 rounded-[20px] border border-amber-200 bg-amber-50 px-4 py-3 text-[0.75rem] font-black text-amber-800">
                       {{ currentLang === 'ar' ? 'هذا المنتج يحتاج سعرًا تجاريًا قبل أن يكون جاهزًا للطلبات الفعلية.' : 'This product needs a trade price before it is ready for live orders.' }}
@@ -336,6 +370,75 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
   toggleStatus(): void {
     if (!this.product) return;
     this.product.isActive = !this.product.isActive;
+  }
+
+  getStockHealth(): 'healthy' | 'low' | 'out' {
+    const stockQty = this.product?.stockQty ?? 0;
+
+    if (stockQty <= 0) {
+      return 'out';
+    }
+
+    if (stockQty <= 20) {
+      return 'low';
+    }
+
+    return 'healthy';
+  }
+
+  getStockHealthLabel(): string {
+    switch (this.getStockHealth()) {
+      case 'out':
+        return this.translate.instant('PRODUCTS.STOCK_HEALTH_OUT');
+      case 'low':
+        return this.translate.instant('PRODUCTS.STOCK_HEALTH_LOW');
+      default:
+        return this.translate.instant('PRODUCTS.STOCK_HEALTH_HEALTHY');
+    }
+  }
+
+  getStockHealthBadgeClasses(): string {
+    switch (this.getStockHealth()) {
+      case 'out':
+        return 'bg-rose-100 text-rose-700';
+      case 'low':
+        return 'bg-amber-100 text-amber-700';
+      default:
+        return 'bg-emerald-100 text-emerald-700';
+    }
+  }
+
+  getStockHealthDotClasses(): string {
+    switch (this.getStockHealth()) {
+      case 'out':
+        return 'bg-rose-500';
+      case 'low':
+        return 'bg-amber-500';
+      default:
+        return 'bg-emerald-500';
+    }
+  }
+
+  getStockInsightCardClasses(): string {
+    switch (this.getStockHealth()) {
+      case 'out':
+        return 'border-rose-200 bg-gradient-to-br from-rose-50 via-white to-rose-50/70';
+      case 'low':
+        return 'border-amber-200 bg-gradient-to-br from-amber-50 via-white to-amber-50/70';
+      default:
+        return 'border-emerald-200 bg-gradient-to-br from-emerald-50 via-white to-emerald-50/70';
+    }
+  }
+
+  getStockActionMessage(): string {
+    switch (this.getStockHealth()) {
+      case 'out':
+        return this.translate.instant('PRODUCTS.STOCK_ACTION_OUT');
+      case 'low':
+        return this.translate.instant('PRODUCTS.STOCK_ACTION_LOW');
+      default:
+        return this.translate.instant('PRODUCTS.STOCK_ACTION_HEALTHY');
+    }
   }
 
   onHandleImageChange(): void {

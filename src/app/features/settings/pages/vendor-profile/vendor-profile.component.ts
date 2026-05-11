@@ -4,7 +4,7 @@ import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } fr
 import { TranslateService } from '@ngx-translate/core';
 import { SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { finalize, forkJoin, Subscription } from 'rxjs';
-import { BANKS, BUSINESS_TYPES, NATIONALITIES, PAYMENT_CYCLES, SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
+import { BANKS, BUSINESS_TYPES, NATIONALITIES, PAYMENT_CYCLES, SelectOption, CityOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
 import { VendorLegalDocumentType, VendorProfileService } from '../../services/vendor-profile.service';
@@ -287,8 +287,13 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     );
   }
   get cityOptions(): SearchableSelectOption[] {
+    const selectedRegion = this.profileForm?.get('region')?.value;
+    const filteredCities = selectedRegion
+      ? this.cities.filter((c) => c.region === selectedRegion)
+      : this.cities;
+
     return this.buildFormOptions(
-      this.optionsWithCurrent(this.cities, this.profileForm?.get('city')?.value || this.currentProfile.city)
+      this.optionsWithCurrent(filteredCities, this.profileForm?.get('city')?.value || this.currentProfile.city)
     );
   }
   get nationalityOptions(): SearchableSelectOption[] {
@@ -301,7 +306,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   
   readonly businessTypes = BUSINESS_TYPES;
   regions: SelectOption[] = [];
-  cities: SelectOption[] = [];
+  cities: CityOption[] = [];
   readonly nationalities = NATIONALITIES;
   readonly banks = BANKS;
   readonly paymentCycles = PAYMENT_CYCLES;
@@ -353,7 +358,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       icon: 'verified_user',
       labelAr: 'المستندات والمراجعة',
       labelEn: 'Documents & review',
-      summaryAr: 'Ø§Ù„Ù…Ù„ÙØ§Øª Ø§Ù„Ø±Ø³Ù…ÙŠØ© ÙˆØ§Ù„Ù…Ø·Ù„ÙˆØ¨ Ù‚Ø¨Ù„ Ø§Ù„Ø¥Ø±Ø³Ø§Ù„',
+      summaryAr: 'الملفات الرسمية والمطلوبة قبل الإرسال',
       summaryEn: 'Official files and review checklist'
     },
     {
@@ -424,12 +429,16 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     };
   }
 
-  private toCityOption(city: SaudiCityDto): SelectOption {
+  private toCityOption(city: SaudiCityDto): CityOption {
     return {
       value: city.code,
       label: this.localizeName(city.nameAr, city.nameEn),
       nameAr: city.nameAr,
-      nameEn: city.nameEn
+      nameEn: city.nameEn,
+      region: city.regionCode,
+      lat: city.latitude,
+      lng: city.longitude,
+      zoom: city.mapZoom
     };
   }
 
@@ -460,6 +469,16 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     this.profileSub = this.profileService.getProfile().subscribe((profile) => {
       this.currentProfile = profile;
       this.patchProfile(profile);
+    });
+
+    this.profileForm.get('region')?.valueChanges.subscribe((regionCode) => {
+      const currentCity = this.profileForm.get('city')?.value;
+      if (currentCity) {
+        const cityObj = this.cities.find((c) => c.value === currentCity);
+        if (cityObj && cityObj.region !== regionCode) {
+          this.profileForm.get('city')?.setValue('', { emitEvent: false });
+        }
+      }
     });
 
     this.profileService.loadProfile().subscribe();
@@ -598,12 +617,12 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     if ((this.currentProfile.reviewState || '').toLowerCase() === 'changesrequested'
       || (this.currentProfile.reviewState || '').toLowerCase() === 'changes_requested') {
       return this.currentLang === 'ar'
-        ? 'Ù†ÙØ° Ø§Ù„Ù…Ø·Ù„ÙˆØ¨ Ø«Ù… Ø§Ø­ÙØ¸ ÙˆØ£Ø¹Ø¯ Ø±ÙØ¹ Ø§Ù„Ù…Ù„ÙØ§Øª Ø§Ù„Ù…Ø±ÙÙˆØ¶Ø© Ù‚Ø¨Ù„ Ø¥Ø¹Ø§Ø¯Ø© Ø§Ù„Ø¥Ø±Ø³Ø§Ù„ Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©.'
+        ? 'نفّذ المطلوب ثم احفظ وأعد رفع الملفات المرفوضة قبل إعادة الإرسال للمراجعة.'
         : 'Apply the requested fixes, save, and re-upload rejected files before resubmitting.';
     }
 
     return this.currentLang === 'ar'
-      ? 'ÙŠÙ…ÙƒÙ†Ùƒ Ø§Ù„ØªØ¹Ø¯ÙŠÙ„ØŒ Ù„ÙƒÙ† Ø£ÙŠ ØªØ­Ø¯ÙŠØ« Ù…Ù‡Ù… Ø£Ùˆ Ø¥Ø¹Ø§Ø¯Ø© Ø±ÙØ¹ Ù…Ù„Ù Ø³ÙŠØ¸Ù‡Ø± Ù„Ù„Ø£Ø¯Ù…Ù† ÙƒØ¨Ù†Ø¯ ÙŠØ­ØªØ§Ø¬ Ù…Ø±Ø§Ø¬Ø¹Ø© Ø¬Ø¯ÙŠØ¯Ø©.'
+      ? 'يمكنك التعديل، لكن أي تحديث مهم أو إعادة رفع ملف سيظهر للأدمن كبند يحتاج مراجعة جديدة.'
       : 'You can still edit, but important updates or file re-uploads will be visible to admin as items needing review.';
   }
 
@@ -733,7 +752,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
         inputId: 'profileCommercialDocInput',
         titleAr: 'السجل التجاري',
         titleEn: 'Commercial registration',
-        hintAr: 'Ù…Ù„Ù PDF Ø±Ø³Ù…ÙŠ Ù„Ù„Ø³Ø¬Ù„ Ø§Ù„ØªØ¬Ø§Ø±ÙŠ. ÙŠØ¸Ù‡Ø± Ù„Ù„Ø£Ø¯Ù…Ù† Ù…Ø¨Ø§Ø´Ø±Ø© Ø¨Ø¹Ø¯ Ø§Ù„Ø±ÙØ¹.',
+        hintAr: 'ملف PDF رسمي للسجل التجاري. يظهر للأدمن مباشرة بعد الرفع.',
         hintEn: 'Official commercial registration PDF. Admin sees it immediately after upload.',
         url: this.currentProfile.commercialRegisterDocumentUrl,
         uploaded: !!this.currentProfile.commercialRegisterDocumentUrl,
@@ -745,7 +764,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
         inputId: 'profileTaxDocInput',
         titleAr: 'الشهادة الضريبية',
         titleEn: 'Tax certificate',
-        hintAr: 'Ù…Ù„Ù PDF Ù„Ù„Ø´Ù‡Ø§Ø¯Ø© Ø§Ù„Ø¶Ø±ÙŠØ¨ÙŠØ© Ù…Ø·Ù„ÙˆØ¨ Ù„Ø§Ø³ØªÙƒÙ…Ø§Ù„ Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©.',
+        hintAr: 'ملف PDF للشهادة الضريبية مطلوب لاستكمال المراجعة.',
         hintEn: 'Tax certificate PDF is required to complete compliance review.',
         url: this.currentProfile.taxDocumentUrl,
         uploaded: !!this.currentProfile.taxDocumentUrl,
@@ -757,7 +776,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
         inputId: 'profileLicenseDocInput',
         titleAr: 'الرخصة التشغيلية',
         titleEn: 'Operating license',
-        hintAr: 'Ù…Ù„Ù PDF Ù„Ù„Ø±Ø®ØµØ© Ø£Ùˆ Ø§Ù„ØªØµØ±ÙŠØ­ Ø§Ù„Ø¨Ù„Ø¯ÙŠ/Ø§Ù„ØªØ´ØºÙŠÙ„ÙŠ.',
+        hintAr: 'ملف PDF للرخصة أو التصريح البلدي/التشغيلي.',
         hintEn: 'PDF for the municipal or operating license.',
         url: this.currentProfile.licenseDocumentUrl,
         uploaded: !!this.currentProfile.licenseDocumentUrl,
@@ -840,7 +859,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
           this.pageError = this.resolveErrorMessage(
             error,
             this.currentLang === 'ar'
-              ? 'ØªØ¹Ø°Ø± Ø±ÙØ¹ Ø§Ù„Ù…Ø³ØªÙ†Ø¯ Ø§Ù„Ø¢Ù†.'
+              ? 'تعذر رفع المستند الآن.'
               : 'Unable to upload the document right now.'
           );
         }
@@ -1069,7 +1088,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       this.profileForm.markAllAsTouched();
       this.pageNotice = '';
       this.pageError = this.currentLang === 'ar'
-        ? 'Ø±Ø§Ø¬Ø¹ Ø§Ù„Ø­Ù‚ÙˆÙ„ Ø§Ù„Ù…Ø·Ù„ÙˆØ¨Ø© Ù‚Ø¨Ù„ Ø­ÙØ¸ Ù…Ù„Ù Ø§Ù„ØªØ§Ø¬Ø±.'
+        ? 'راجع الحقول المطلوبة قبل حفظ ملف التاجر.'
         : 'Please review the required fields before saving the vendor profile.';
       return;
     }
@@ -1088,7 +1107,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.pageNotice = this.currentLang === 'ar'
-            ? 'ØªÙ… Ø­ÙØ¸ ØªØ¹Ø¯ÙŠÙ„Ø§Øª Ø§Ù„Ù…Ù„Ù ÙˆØ¥Ø±Ø³Ø§Ù„Ù‡Ø§ Ù„Ù„Ø£Ø¯Ù…Ù† Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹Ø©.'
+            ? 'تم حفظ تعديلات الملف وإرسالها للأدمن للمراجعة.'
             : 'Profile changes were saved and synced to the admin workspace.';
         },
         error: (error) => {
@@ -1096,7 +1115,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
           this.pageError = this.resolveErrorMessage(
             error,
             this.currentLang === 'ar'
-              ? 'ØªØ¹Ø°Ø± Ø­ÙØ¸ ØªØ¹Ø¯ÙŠÙ„Ø§Øª Ø§Ù„Ù…Ù„Ù Ø§Ù„Ø¢Ù†.'
+              ? 'تعذر حفظ تعديلات الملف الآن.'
               : 'Unable to save profile changes right now.'
           );
         }
@@ -1123,7 +1142,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       .subscribe({
         next: () => {
           this.pageNotice = this.currentLang === 'ar'
-            ? 'ØªÙ… Ø¥Ø±Ø³Ø§Ù„ Ù…Ù„Ù Ø§Ù„ØªØ§Ø¬Ø± Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© ÙˆØ³ÙŠØ¸Ù‡Ø± ÙÙˆØ±Ù‹Ø§ Ù„Ø¯Ù‰ Ø§Ù„Ø£Ø¯Ù…Ù†.'
+            ? 'تم إرسال ملف التاجر للمراجعة وسيظهر فورًا لدى الأدمن.'
             : 'The vendor profile was submitted for review and is visible to admin.';
         },
         error: (error) => {
@@ -1131,7 +1150,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
           this.pageError = this.resolveErrorMessage(
             error,
             this.currentLang === 'ar'
-              ? 'ØªØ¹Ø°Ø± Ø¥Ø±Ø³Ø§Ù„ Ø§Ù„Ù…Ù„Ù Ù„Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© Ø§Ù„Ø¢Ù†.'
+              ? 'تعذر إرسال الملف للمراجعة الآن.'
               : 'Unable to submit the profile for review right now.'
           );
         }
