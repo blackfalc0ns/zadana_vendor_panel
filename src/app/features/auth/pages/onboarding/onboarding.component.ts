@@ -86,41 +86,41 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   };
   readonly vendorSeed: OnboardingSeedData = {
     store: {
-      businessNameAr: 'مؤسسة التقنية الحديثة التجارية',
-      businessNameEn: 'Modern Tech Trading Est.',
-      businessType: 'RETAIL',
-      contactPhone: '+966501234567',
-      description: 'متجر متخصص في بيع الإلكترونيات والأجهزة الذكية مع تجهيزات للشحن السريع وخدمة ما بعد البيع.',
-      region: 'CENTRAL',
-      city: 'RIYADH',
-      nationalAddress: '7293 طريق الملك فهد، حي الملقا، الرياض 13524',
-      registrationDate: '15 Jan 2022'
+      businessNameAr: '',
+      businessNameEn: '',
+      businessType: '',
+      contactPhone: '',
+      description: '',
+      region: '',
+      city: '',
+      nationalAddress: '',
+      registrationDate: ''
     },
     owner: {
-      fullName: 'عبدالله بن خالد بن عبدالعزيز',
-      email: 'info@moderntech.com',
-      phone: '+966501234567',
-      idNumber: '1012344321',
-      nationality: 'SAUDI'
+      fullName: '',
+      email: '',
+      phone: '',
+      idNumber: '',
+      nationality: ''
     },
     legal: {
-      commercialRegistrationNumber: '1010123456',
-      expiryDate: '2026-12-31',
-      taxId: '300123456789012',
-      licenseNumber: 'L-987654'
+      commercialRegistrationNumber: '',
+      expiryDate: '',
+      taxId: '',
+      licenseNumber: ''
     },
     banking: {
-      bankName: 'ALRAJHI',
-      iban: 'SA1280000000608012345678',
-      swiftCode: 'RJHISARI',
-      paymentCycle: 'BIWEEKLY'
+      bankName: '',
+      iban: '',
+      swiftCode: '',
+      paymentCycle: ''
     },
     meta: {
-      reviewStatusAr: 'قيد المراجعة',
-      reviewStatusEn: 'In review',
-      lastUpdate: '18:01 - 14/03/2026',
-      syncedFromAr: 'مستوحى من ملف Vendor Details في لوحة السوبر أدمن لتكون المراجعة أوضح وأسهل.',
-      syncedFromEn: 'Inspired by the Vendor Details view in the super admin panel for clearer review.'
+      reviewStatusAr: '',
+      reviewStatusEn: '',
+      lastUpdate: '',
+      syncedFromAr: '',
+      syncedFromEn: ''
     }
   };
 
@@ -972,14 +972,12 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private patchSeedData(): void {
-    const defaultAr = this.translate.instant('COMMON.DEFAULT_VENDOR_NAME');
-    const defaultEn = 'Modern Tech Trading Est.';
     const draft = this.authService.getValidRegistrationDraft();
 
     this.onboardingForm.patchValue({
       step1: {
-        businessNameAr: draft?.preferredStoreName || defaultAr || this.vendorSeed.store.businessNameAr,
-        businessNameEn: draft?.preferredStoreName || defaultEn || this.vendorSeed.store.businessNameEn,
+        businessNameAr: draft?.preferredStoreName || this.vendorSeed.store.businessNameAr,
+        businessNameEn: draft?.preferredStoreName || this.vendorSeed.store.businessNameEn,
         businessType: this.vendorSeed.store.businessType,
         contactPhone: this.vendorSeed.store.contactPhone,
         description: this.vendorSeed.store.description,

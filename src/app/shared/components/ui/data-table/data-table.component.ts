@@ -187,16 +187,26 @@ export interface BulkAction {
     </div>
 
     <!-- Empty State -->
-    <div *ngIf="data.length === 0 && !isLoading" 
-         class="relative p-20 text-center animate-in zoom-in duration-700">
-      <div class="max-w-md mx-auto space-y-6">
-        <div class="w-32 h-32 bg-white rounded-[3rem] shadow-2xl flex items-center justify-center mx-auto text-slate-100">
-          <svg class="w-16 h-16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 009.586 13H7" />
-          </svg>
+    <div *ngIf="data.length === 0 && !isLoading"
+         class="p-4 animate-in zoom-in duration-500">
+      <div class="min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
+        <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">{{ emptyStateIcon }}</span>
+        <h3 class="text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight">{{ emptyStateTitle | translate }}</h3>
+        <p class="mt-3 max-w-md text-[0.86rem] font-extrabold text-slate-500 leading-6">{{ emptyStateMessage | translate }}</p>
+
+        <div *ngIf="emptyStateActionsTemplate || emptyStateActionLabel" class="mt-7 flex flex-wrap items-center justify-center gap-3">
+          <ng-container *ngIf="emptyStateActionsTemplate; else defaultEmptyStateAction"
+                        [ngTemplateOutlet]="emptyStateActionsTemplate"></ng-container>
+          <ng-template #defaultEmptyStateAction>
+            <button
+              type="button"
+              (click)="emptyStateAction.emit()"
+              class="inline-flex h-12 items-center justify-center gap-2 rounded-[0.8rem] bg-zadna-primary px-6 text-[0.82rem] font-black text-white shadow-lg shadow-zadna-primary/20 transition hover:bg-teal-700 active:scale-95">
+              <span class="material-symbols-outlined text-[20px]">{{ emptyStateActionIcon }}</span>
+              {{ emptyStateActionLabel | translate }}
+            </button>
+          </ng-template>
         </div>
-        <h3 class="text-3xl font-black text-slate-900 tracking-tight">{{ emptyStateTitle | translate }}</h3>
-        <p class="text-sm font-bold text-slate-400 leading-relaxed">{{ emptyStateMessage | translate }}</p>
       </div>
     </div>
   `,
@@ -217,8 +227,11 @@ export class DataTableComponent<T extends object = Record<string, unknown>> {
   @Input() selectable = false;
   @Input() showBulkActions = true;
   @Input() clickableRows = false;
-  @Input() emptyStateTitle = 'COMMON.NO_RESULTS';
-  @Input() emptyStateMessage = 'COMMON.NO_RESULTS';
+  @Input() emptyStateTitle = 'لم يتم العثور على عناصر';
+  @Input() emptyStateMessage = 'لا توجد أنشطة رئيسية مهيأة بعد.';
+  @Input() emptyStateIcon = 'category';
+  @Input() emptyStateActionLabel = '';
+  @Input() emptyStateActionIcon = 'add';
   @Input() idField = 'id';
   @Input() isLoading = false;
   @Input() containerClass = '';
@@ -227,9 +240,11 @@ export class DataTableComponent<T extends object = Record<string, unknown>> {
   @Output() actionClick = new EventEmitter<{ action: TableAction; item: T }>();
   @Output() bulkActionClick = new EventEmitter<{ action: BulkAction; items: T[] }>();
   @Output() selectionChange = new EventEmitter<T[]>();
+  @Output() emptyStateAction = new EventEmitter<void>();
 
   @ContentChild('customColumn') customColumnTemplate: TemplateRef<unknown> | null = null;
   @ContentChild('mobileCard') mobileCardTemplate: TemplateRef<unknown> | null = null;
+  @ContentChild('emptyStateActions') emptyStateActionsTemplate: TemplateRef<unknown> | null = null;
 
   selectedItems = new Set<unknown>();
   readonly selectionColumnWidth = '3.5rem';

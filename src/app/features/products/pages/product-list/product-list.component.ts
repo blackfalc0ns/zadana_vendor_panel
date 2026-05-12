@@ -119,14 +119,19 @@ import { CatalogService } from '../../services/catalog.service';
               <span class="text-sm font-bold text-slate-400">{{ 'COMMON.LOADING' | translate }}</span>
             </div>
           } @else if (products.length === 0) {
-            <div class="flex h-80 flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
-              <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-slate-50 rotate-3">
-                <svg class="h-10 w-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
+            <div class="p-4 animate-in zoom-in duration-500">
+              <div class="min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
+                <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">inventory_2</span>
+                <h3 class="text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight">{{ 'PRODUCTS.EMPTY_TITLE' | translate }}</h3>
+                <p class="mt-3 max-w-md text-[0.86rem] font-extrabold text-slate-500 leading-6">{{ 'PRODUCTS.EMPTY_DESC' | translate }}</p>
+                <button
+                  type="button"
+                  (click)="onAddProductClick()"
+                  class="mt-7 inline-flex h-12 items-center justify-center gap-2 rounded-[0.8rem] bg-zadna-primary px-6 text-[0.82rem] font-black text-white shadow-lg shadow-zadna-primary/20 transition hover:bg-teal-700 active:scale-95">
+                  <span class="material-symbols-outlined text-[20px]">add</span>
+                  {{ 'PRODUCTS.ADD_BUTTON' | translate }}
+                </button>
               </div>
-              <h3 class="text-lg font-black text-slate-900">{{ 'PRODUCTS.EMPTY_TITLE' | translate }}</h3>
-              <p class="max-w-xs text-sm font-bold text-slate-500">{{ 'PRODUCTS.EMPTY_DESC' | translate }}</p>
             </div>
           } @else {
             <table class="hidden md:table w-full text-start border-collapse animate-in slide-in-from-bottom-2 duration-500">

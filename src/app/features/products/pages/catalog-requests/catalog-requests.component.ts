@@ -49,15 +49,11 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
             <div class="h-12 w-12 animate-spin rounded-[16px] border-[5px] border-zadna-primary/20 border-t-zadna-primary"></div>
           </div>
         } @else if (requests.length === 0) {
-          <div class="flex h-64 flex-col items-center justify-center gap-4 text-center bg-slate-50/30">
-            <div class="flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
-              <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-              </svg>
-            </div>
-            <div>
-              <h3 class="text-lg font-black text-slate-800">{{ 'PRODUCTS.REQUESTS_EMPTY_TITLE' | translate }}</h3>
-              <p class="mt-1 text-sm font-bold text-slate-500">{{ 'PRODUCTS.REQUESTS_EMPTY_DESC' | translate }}</p>
+          <div class="p-4 animate-in zoom-in duration-500">
+            <div class="min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
+              <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">inventory</span>
+              <h3 class="text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight">{{ 'PRODUCTS.REQUESTS_EMPTY_TITLE' | translate }}</h3>
+              <p class="mt-3 max-w-md text-[0.86rem] font-extrabold text-slate-500 leading-6">{{ 'PRODUCTS.REQUESTS_EMPTY_DESC' | translate }}</p>
             </div>
           </div>
         } @else {

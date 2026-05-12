@@ -9,10 +9,11 @@ import { EmptyStateVm } from '../../models/ui-contracts.models';
   imports: [CommonModule, NgClass, TranslateModule],
   template: `
     <div [ngClass]="resolvedContainerClass">
+      <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">{{ icon }}</span>
       <ng-content select="[icon]"></ng-content>
-      <p [ngClass]="resolvedTitleClass">
+      <h3 [ngClass]="resolvedTitleClass">
         {{ shouldTranslateTitle ? (resolvedTitle | translate) : resolvedTitle }}
-      </p>
+      </h3>
       @if (resolvedSubtitle) {
         <p [ngClass]="resolvedSubtitleClass">
           {{ shouldTranslateSubtitle ? (resolvedSubtitle | translate) : resolvedSubtitle }}
@@ -33,28 +34,25 @@ export class AppEmptyStateComponent {
   @Input() dashed = false;
   @Input() compact = false;
   @Input() customClass = '';
+  @Input() icon = 'category';
 
   get resolvedContainerClass(): string {
-    const base = this.isCompact
-      ? 'px-6 py-12 text-center'
-      : 'rounded-[24px] px-6 py-12 text-center';
-    const border = this.isDashed
-      ? 'border border-dashed border-slate-300 bg-slate-50'
-      : '';
+    const base = 'min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center';
+    const border = this.isDashed ? '' : '';
 
     return `${base} ${border} ${this.state?.customClass || this.customClass}`.trim();
   }
 
   get resolvedTitleClass(): string {
     return this.isCompact
-      ? 'text-[0.98rem] font-black text-slate-900'
-      : 'text-[0.95rem] font-black text-slate-900';
+      ? 'text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight'
+      : 'text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight';
   }
 
   get resolvedSubtitleClass(): string {
     return this.isCompact
-      ? 'mt-2 text-[0.8rem] font-bold text-slate-500'
-      : 'mt-2 text-[0.78rem] font-bold text-slate-500';
+      ? 'mt-3 max-w-md text-[0.86rem] font-extrabold text-slate-500 leading-6'
+      : 'mt-3 max-w-md text-[0.86rem] font-extrabold text-slate-500 leading-6';
   }
 
   get resolvedTitle(): string {

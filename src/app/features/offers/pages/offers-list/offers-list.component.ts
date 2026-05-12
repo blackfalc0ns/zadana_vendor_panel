@@ -248,7 +248,10 @@ import {
                   </tbody>
                 </table>
               } @else {
-                <div class="p-8 text-center text-[0.82rem] font-bold text-slate-500">{{ 'OFFERS.EMPTY_DIRECT' | translate }}</div>
+                <div class="m-4 min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
+                  <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">local_offer</span>
+                  <h3 class="text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight">{{ 'OFFERS.EMPTY_DIRECT' | translate }}</h3>
+                </div>
               }
             }
 
@@ -291,7 +294,10 @@ import {
                   </tbody>
                 </table>
               } @else {
-                <div class="p-8 text-center text-[0.82rem] font-bold text-slate-500">{{ 'OFFERS.EMPTY_COUPONS' | translate }}</div>
+                <div class="m-4 min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
+                  <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">sell</span>
+                  <h3 class="text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight">{{ 'OFFERS.EMPTY_COUPONS' | translate }}</h3>
+                </div>
               }
             }
 
@@ -331,7 +337,10 @@ import {
                   </tbody>
                 </table>
               } @else {
-                <div class="p-8 text-center text-[0.82rem] font-bold text-slate-500">{{ 'OFFERS.EMPTY_CATEGORIES' | translate }}</div>
+                <div class="m-4 min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
+                  <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">category</span>
+                  <h3 class="text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight">{{ 'OFFERS.EMPTY_CATEGORIES' | translate }}</h3>
+                </div>
               }
             }
 
@@ -387,7 +396,10 @@ import {
                   </tbody>
                 </table>
               } @else {
-                <div class="p-8 text-center text-[0.82rem] font-bold text-slate-500">{{ 'OFFERS.EMPTY_CLEARANCE' | translate }}</div>
+                <div class="m-4 min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
+                  <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">inventory_2</span>
+                  <h3 class="text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight">{{ 'OFFERS.EMPTY_CLEARANCE' | translate }}</h3>
+                </div>
               }
             }
           </div>

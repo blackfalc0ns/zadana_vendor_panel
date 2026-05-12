@@ -91,14 +91,12 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
               <span class="text-sm font-bold text-slate-400">{{ 'COMMON.LOADING' | translate }}</span>
             </div>
           } @else if (orders.length === 0) {
-            <div class="flex h-80 flex-col items-center justify-center p-8 text-center animate-in fade-in duration-700">
-              <div class="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-slate-50 rotate-3">
-                <svg class="h-10 w-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
-                </svg>
+            <div class="p-4 animate-in zoom-in duration-500">
+              <div class="min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
+                <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">receipt_long</span>
+                <h3 class="text-[1.35rem] font-black text-slate-900 tracking-normal leading-tight">{{ 'ORDERS.EMPTY_TITLE' | translate }}</h3>
+                <p class="mt-3 max-w-md text-[0.86rem] font-extrabold text-slate-500 leading-6">{{ 'ORDERS.EMPTY_DESC' | translate }}</p>
               </div>
-              <h3 class="text-lg font-black text-slate-900">{{ 'ORDERS.EMPTY_TITLE' | translate }}</h3>
-              <p class="max-w-xs text-sm font-bold text-slate-500">{{ 'ORDERS.EMPTY_DESC' | translate }}</p>
             </div>
           } @else {
             <table class="hidden md:table w-full text-start border-collapse animate-in slide-in-from-bottom-2 duration-500">
