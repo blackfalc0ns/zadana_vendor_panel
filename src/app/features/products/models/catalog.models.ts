@@ -12,7 +12,15 @@ export interface MasterProduct {
   categoryId: string;
   unitNameAr?: string;
   unitNameEn?: string;
+  displaySizeAr?: string;
+  displaySizeEn?: string;
+  packageTypeId?: string | null;
+  measurementUnitId?: string | null;
+  measurementValue?: number | null;
+  variantGroupId?: string;
   isInVendorStore?: boolean;
+  barcode?: string;
+  slug?: string;
 }
 
 export interface VendorProduct {
@@ -28,6 +36,12 @@ export interface VendorProduct {
   brandNameEn?: string;
   unitNameAr?: string;
   unitNameEn?: string;
+  packageTypeId?: string | null;
+  measurementUnitId?: string | null;
+  measurementValue?: number | null;
+  displaySizeAr?: string;
+  displaySizeEn?: string;
+  variantGroupId?: string;
   costPrice?: number | null;
   tradePrice?: number | null;
   sellingPrice: number;
@@ -73,6 +87,7 @@ export interface UnitOption {
   id: string;
   nameAr: string;
   nameEn: string;
+  kind?: 'Packaging' | 'Measurement';
 }
 
 export type CatalogRequestType = 'product' | 'brand' | 'category';
@@ -126,6 +141,8 @@ export interface BulkVendorProductDraft {
   productNameAr: string;
   productNameEn: string;
   imageUrl?: string;
+  displaySizeAr?: string;
+  displaySizeEn?: string;
   branchId?: string | null;
   sku?: string | null;
   costPrice?: number | null;

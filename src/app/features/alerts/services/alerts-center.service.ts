@@ -17,6 +17,7 @@ import {
 } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { VendorAuthService } from '../../../core/auth/services/vendor-auth.service';
+import { VendorNotificationSoundService } from '../../../core/notifications/services/vendor-notification-sound.service';
 import {
   AlertCenterItemVm,
   AlertSummaryVm,
@@ -29,6 +30,7 @@ import {
   persistWorkspaceState,
   readWorkspaceState
 } from '../../../shared/utils/workspace-storage.util';
+import { repairUtf8Mojibake } from '../../../shared/utils/text-normalization.util';
 
 interface NotificationsApiResponse {
   items: NotificationItemApiModel[];
@@ -128,7 +130,6 @@ export class AlertsCenterService {
   private monitoringInitialized = false;
   private unreadIds = new Set<string>();
   private notificationsPermissionRequested = false;
-  private audioContext?: AudioContext;
   private reconnectingRealtime = false;
   private signalRSdkPromise?: Promise<SignalRBrowserSdk | null>;
   private hasLoadedInboxOnce = false;
@@ -148,6 +149,7 @@ export class AlertsCenterService {
   constructor(
     private readonly http: HttpClient,
     private readonly authService: VendorAuthService,
+    private readonly notificationSoundService: VendorNotificationSoundService,
     @Inject(DOCUMENT) private readonly document: Document
   ) {}
 
@@ -338,12 +340,12 @@ export class AlertsCenterService {
   } {
     const defaultContent = {
       title: {
-        ar: item.titleAr,
-        en: item.titleEn
+        ar: repairUtf8Mojibake(item.titleAr),
+        en: repairUtf8Mojibake(item.titleEn)
       },
       summary: {
-        ar: item.bodyAr,
-        en: item.bodyEn
+        ar: repairUtf8Mojibake(item.bodyAr),
+        en: repairUtf8Mojibake(item.bodyEn)
       }
     };
 
@@ -552,8 +554,9 @@ export class AlertsCenterService {
   }
 
   private handleIncomingAlerts(alerts: AlertCenterItemVm[]): void {
+    const uniqueAlerts = this.uniqueAlerts(alerts);
     const nextUnreadIds = new Set(
-      alerts
+      uniqueAlerts
         .filter((alert) => alert.state === 'unread')
         .map((alert) => alert.id)
     );
@@ -564,7 +567,7 @@ export class AlertsCenterService {
       return;
     }
 
-    const newlyArrived = alerts.filter((alert) => alert.state === 'unread' && !this.unreadIds.has(alert.id));
+    const newlyArrived = uniqueAlerts.filter((alert) => alert.state === 'unread' && !this.unreadIds.has(alert.id));
     this.unreadIds = nextUnreadIds;
 
     if (!newlyArrived.length) {
@@ -575,12 +578,28 @@ export class AlertsCenterService {
       if (!this.isDocumentVisible()) {
         this.showDesktopNotification(alert);
       }
-      this.playNotificationTone();
+      this.notificationSoundService.playCurrent();
     }
   }
 
   private isDocumentVisible(): boolean {
     return this.document.visibilityState === 'visible';
+  }
+
+  private uniqueAlerts(alerts: AlertCenterItemVm[]): AlertCenterItemVm[] {
+    const seen = new Set<string>();
+    const unique: AlertCenterItemVm[] = [];
+
+    for (const alert of alerts) {
+      if (seen.has(alert.id)) {
+        continue;
+      }
+
+      seen.add(alert.id);
+      unique.push(alert);
+    }
+
+    return unique;
   }
 
   private startPolling(): void {
@@ -643,7 +662,7 @@ export class AlertsCenterService {
   }
 
   private replaceServerAlerts(alerts: AlertCenterItemVm[]): void {
-    const sortedAlerts = [...alerts]
+    const sortedAlerts = this.uniqueAlerts(alerts)
       .sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
 
     this.serverAlertsSubject.next(sortedAlerts);
@@ -652,7 +671,7 @@ export class AlertsCenterService {
 
   private upsertRealtimeAlert(alert: AlertCenterItemVm): void {
     const existing = this.serverAlertsSubject.value.filter((item) => item.id !== alert.id);
-    const nextAlerts = [alert, ...existing]
+    const nextAlerts = this.uniqueAlerts([alert, ...existing])
       .sort((first, second) => new Date(second.createdAt).getTime() - new Date(first.createdAt).getTime());
 
     this.serverAlertsSubject.next(nextAlerts);
@@ -984,41 +1003,6 @@ export class AlertsCenterService {
 
     const params = new URLSearchParams(alert.routeQuery);
     return `${origin}${route}?${params.toString()}`;
-  }
-
-  private playNotificationTone(): void {
-    if (typeof window === 'undefined') {
-      return;
-    }
-
-    const AudioContextCtor = window.AudioContext || (window as Window & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
-    if (!AudioContextCtor) {
-      this.debugLog('warn', 'Browser audio context is not available for vendor notification tone.');
-      return;
-    }
-
-    this.audioContext ??= new AudioContextCtor();
-
-    if (this.audioContext.state === 'suspended') {
-      void this.audioContext.resume().catch((error) => {
-        this.debugLog('warn', 'Vendor notification audio context resume failed.', error);
-      });
-    }
-
-    const oscillator = this.audioContext.createOscillator();
-    const gainNode = this.audioContext.createGain();
-
-    oscillator.type = 'sine';
-    oscillator.frequency.setValueAtTime(880, this.audioContext.currentTime);
-    gainNode.gain.setValueAtTime(0.0001, this.audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.08, this.audioContext.currentTime + 0.01);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, this.audioContext.currentTime + 0.35);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(this.audioContext.destination);
-
-    oscillator.start(this.audioContext.currentTime);
-    oscillator.stop(this.audioContext.currentTime + 0.35);
   }
 
   private describeError(error: unknown): string {

@@ -109,6 +109,7 @@ type BulkReviewStage = 'review' | 'submitting' | 'done';
               <tr class="border-b border-slate-100 text-[0.68rem] uppercase tracking-[0.12em] text-slate-400">
                 <th class="pb-3 text-start"><input type="checkbox" [checked]="allRowsSelected" (change)="toggleAllRows($any($event.target).checked)"></th>
                 <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'المنتج' : 'Product' }}</th>
+                <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'الحجم' : 'Size' }}</th>
                 <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'التكلفة' : 'Cost' }}</th>
                 <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'التجاري' : 'Trade' }}</th>
                 <th class="pb-3 text-start">{{ currentLang === 'ar' ? 'البيع' : 'Selling' }}</th>
@@ -130,7 +131,7 @@ type BulkReviewStage = 'review' | 'submitting' | 'done';
                       </div>
                       <div>
                         <div class="text-sm font-black text-slate-900">{{ currentLang === 'ar' ? row.productNameAr : row.productNameEn }}</div>
-                        <div class="text-[0.72rem] font-bold text-slate-400">{{ row.masterProductId }}</div>
+                        <div class="text-[0.72rem] font-bold text-slate-400">{{ row.masterProductId.substring(0, 8) }}</div>
                         @if (stage === 'done' && resultMap[row.masterProductId]) {
                           <div class="mt-1">
                             <span class="rounded-full px-3 py-1 text-[0.68rem] font-black"
@@ -148,6 +149,11 @@ type BulkReviewStage = 'review' | 'submitting' | 'done';
                         }
                       </div>
                     </div>
+                  </td>
+                  <td class="py-3 pe-3">
+                    <span class="inline-flex items-center rounded-lg bg-cyan-50 px-2.5 py-1 text-[0.7rem] font-black text-cyan-800 ring-1 ring-cyan-200/40">
+                      {{ getRowDisplaySize(row) || (currentLang === 'ar' ? 'قياسي' : 'Standard') }}
+                    </span>
                   </td>
                   <td class="py-3"><input type="number" [(ngModel)]="row.costPrice" [disabled]="stage !== 'review'" class="h-10 w-24 rounded-xl border border-slate-200 px-3 text-sm font-bold"></td>
                   <td class="py-3"><input type="number" [(ngModel)]="row.tradePrice" [disabled]="stage !== 'review'" class="h-10 w-24 rounded-xl border border-slate-200 px-3 text-sm font-bold"></td>
@@ -229,6 +235,8 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
       productNameAr: product.nameAr,
       productNameEn: product.nameEn,
       imageUrl: product.imageUrl,
+      displaySizeAr: product.displaySizeAr,
+      displaySizeEn: product.displaySizeEn,
       costPrice: 0,
       tradePrice: null,
       sellingPrice: null,
@@ -397,6 +405,13 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
     if (errorText) {
       navigator.clipboard?.writeText(errorText);
     }
+  }
+
+  getRowDisplaySize(row: BulkVendorProductDraft): string {
+    const size = this.currentLang === 'ar'
+      ? (row.displaySizeAr || row.displaySizeEn || '')
+      : (row.displaySizeEn || row.displaySizeAr || '');
+    return size.trim();
   }
 
   nextPage(): void {

@@ -72,10 +72,10 @@ import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor
             <div class="rounded-[8px] border border-slate-200 bg-white p-3.5 shadow-sm transition-all hover:shadow">
               <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm font-bold text-slate-900">{{ entry.authorName }}</span>
-                <span class="rounded-[4px] bg-slate-100 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-slate-600">{{ entry.roleLabel }}</span>
+                <span class="rounded-[4px] bg-slate-100 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-slate-600">{{ localizeRoleLabel(entry.roleLabel) }}</span>
                 <span class="ms-auto text-xs font-bold text-slate-400">{{ formatReviewDate(entry.createdAtUtc) }}</span>
               </div>
-              <p class="mt-1.5 text-xs text-slate-600">{{ entry.message }}</p>
+              <p class="mt-1.5 text-xs text-slate-600">{{ localizeMessage(entry.message) }}</p>
             </div>
           </article>
 
@@ -102,4 +102,105 @@ export class ProfileTimelineWindowComponent {
   @Input() reviewItemStatusBadgeClasses!: (item: VendorReviewItem) => string;
   @Input() timelineToneDotClasses!: (entry: VendorReviewAuditEntry) => string;
   @Input() formatReviewDate!: (value?: string | null) => string;
+
+  private readonly roleLabelMap: Record<string, string> = {
+    'Compliance Review': 'مراجعة الامتثال',
+    'Document Review': 'مراجعة المستندات',
+    'Risk & Compliance': 'المخاطر والامتثال',
+    'Security Review': 'مراجعة أمنية',
+    'Security Control': 'التحكم الأمني',
+    'Admin Action': 'إجراء إداري',
+    'Admin': 'المسؤول',
+    'Vendor Portal': 'بوابة التاجر',
+    'Vendor Review': 'مراجعة التاجر',
+    'Operations Console': 'لوحة التشغيل',
+    'Vendor Compliance Desk': 'مكتب امتثال التاجر',
+    'Risk & Compliance Desk': 'مكتب المخاطر والامتثال',
+    'Security Desk': 'مكتب الأمان',
+    'Operations Reviewer': 'مراجع العمليات'
+  };
+
+  private readonly messageMap: Record<string, string> = {
+    'Vendor review started.': 'بدأت مراجعة التاجر.',
+    'Vendor account reactivated and returned to active status.': 'تم إعادة تفعيل حساب التاجر وإرجاعه للحالة النشطة.',
+    'Vendor login was unlocked and account access was restored.': 'تم فتح دخول التاجر واستعادة الوصول للحساب.',
+    'Vendor password was reset by an administrator and all active sessions were revoked.': 'تمت إعادة تعيين كلمة مرور التاجر بواسطة المسؤول وتم إلغاء جميع الجلسات النشطة.',
+    'Please re-upload the required legal documents and confirm the latest vendor information.': 'يرجى إعادة رفع المستندات القانونية المطلوبة وتأكيد أحدث بيانات التاجر.',
+    'Vendor updated banking and payout setup from Vendor Portal.': 'قام التاجر بتحديث بيانات الحساب البنكي والتسويات من بوابة التاجر.',
+    'Vendor updated store profile details from Vendor Portal.': 'قام التاجر بتحديث بيانات المتجر من بوابة التاجر.',
+    'Vendor updated address and contact location details from Vendor Portal.': 'قام التاجر بتحديث بيانات العنوان والموقع من بوابة التاجر.',
+    'Vendor updated operating hours from Vendor Portal.': 'قام التاجر بتحديث ساعات العمل من بوابة التاجر.',
+    'Vendor updated owner information from Vendor Portal.': 'قام التاجر بتحديث بيانات المالك من بوابة التاجر.',
+    'Vendor updated notification preferences from Vendor Portal.': 'قام التاجر بتحديث تفضيلات الإشعارات من بوابة التاجر.',
+    'Vendor updated operational settings from Vendor Portal.': 'قام التاجر بتحديث إعدادات التشغيل من بوابة التاجر.',
+    'Vendor updated legal and compliance information from Vendor Portal.': 'قام التاجر بتحديث البيانات القانونية والامتثال من بوابة التاجر.',
+    'Vendor submitted the profile and required documents for compliance review.': 'قام التاجر بإرسال الملف الشخصي والمستندات المطلوبة لمراجعة الامتثال.',
+    'No review activity yet.': 'لا يوجد نشاط مراجعة بعد.'
+  };
+
+  localizeRoleLabel(roleLabel: string): string {
+    if (this.currentLang !== 'ar') {
+      return roleLabel;
+    }
+    return this.roleLabelMap[roleLabel] || roleLabel;
+  }
+
+  localizeMessage(message: string): string {
+    if (this.currentLang !== 'ar') {
+      return message;
+    }
+
+    // Exact match
+    if (this.messageMap[message]) {
+      return this.messageMap[message];
+    }
+
+    // Pattern-based translations for dynamic messages
+    const patterns: { regex: RegExp; replace: string | ((match: RegExpMatchArray) => string) }[] = [
+      {
+        regex: /^Vendor approved with commission rate ([\d.]+)%\.$/,
+        replace: (m) => `تمت الموافقة على التاجر بنسبة عمولة ${m[1]}%.`
+      },
+      {
+        regex: /^(Commercial|Tax|License|Identity|Bank) document approved\.$/,
+        replace: (m) => `تم قبول مستند ${this.docTypeAr(m[1])}.`
+      },
+      {
+        regex: /^(Commercial|Tax|License|Identity|Bank) document rejected\. (.+)$/,
+        replace: (m) => `تم رفض مستند ${this.docTypeAr(m[1])}. ${m[2]}`
+      },
+      {
+        regex: /^Vendor re-uploaded document\(s\): (.+)\. They are back in the review queue\.$/,
+        replace: (m) => `قام التاجر بإعادة رفع مستند(ات): ${m[1]}. تم إرجاعها لقائمة المراجعة.`
+      },
+      {
+        regex: /^Operations settings updated\. Accept orders: (enabled|disabled), minimum order: (.+), preparation time: (.+) minutes\.$/,
+        replace: (m) => `تم تحديث إعدادات التشغيل. قبول الطلبات: ${m[1] === 'enabled' ? 'مفعّل' : 'معطّل'}، الحد الأدنى للطلب: ${m[2] === 'not set' ? 'غير محدد' : m[2]}، وقت التحضير: ${m[3] === 'not set' ? 'غير محدد' : m[3]} دقيقة.`
+      },
+      {
+        regex: /^Notification settings updated\. Email: (enabled|disabled), SMS: (enabled|disabled), new orders: (enabled|disabled), sound: (.+)\.$/,
+        replace: (m) => `تم تحديث إعدادات الإشعارات. البريد: ${m[1] === 'enabled' ? 'مفعّل' : 'معطّل'}، الرسائل: ${m[2] === 'enabled' ? 'مفعّل' : 'معطّل'}، طلبات جديدة: ${m[3] === 'enabled' ? 'مفعّل' : 'معطّل'}، الصوت: ${m[4]}.`
+      }
+    ];
+
+    for (const pattern of patterns) {
+      const match = message.match(pattern.regex);
+      if (match) {
+        return typeof pattern.replace === 'function' ? pattern.replace(match) : pattern.replace;
+      }
+    }
+
+    return message;
+  }
+
+  private docTypeAr(type: string): string {
+    const map: Record<string, string> = {
+      'Commercial': 'السجل التجاري',
+      'Tax': 'الضريبة',
+      'License': 'الرخصة',
+      'Identity': 'الهوية',
+      'Bank': 'البنك'
+    };
+    return map[type] || type;
+  }
 }

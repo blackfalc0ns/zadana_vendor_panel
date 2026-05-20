@@ -1,11 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { TranslateService } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { finalize, forkJoin, Subscription } from 'rxjs';
 import { BANKS, BUSINESS_TYPES, NATIONALITIES, PAYMENT_CYCLES, SelectOption, CityOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
+import { VENDOR_NOTIFICATION_SOUND_OPTIONS } from '../../../../core/notifications/services/vendor-notification-sound.service';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
 import { VendorLegalDocumentType, VendorProfileService } from '../../services/vendor-profile.service';
 import { ProfileSectionNavItem, ProfileWorkspaceWindow, ProfileWorkspaceWindowId } from './vendor-profile.view-models';
@@ -129,10 +131,13 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
             [lastDecisionText]="lastDecisionText"
             [isSaving]="isSaving"
             [isSubmittingReview]="isSubmittingReview"
+            [isStoreOffline]="currentProfile.storeManualMode === 'offline'"
+            [isStoreAvailabilitySaving]="isSavingStoreAvailability"
             [saveDisabled]="profileForm.invalid || isSaving"
             [submitDisabled]="submitReviewDisabled"
             [submitReviewLabel]="submitReviewLabel"
             (save)="saveProfile()"
+            (storeAvailabilityToggle)="toggleStoreAvailabilityFromHeader()"
             (submit)="submitForReview()" />
 
           <div class="border-t border-slate-100 mx-4"></div>
@@ -178,8 +183,10 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
           <app-profile-operations-window
             *ngIf="isWindowActive('operations')"
             [form]="profileForm"
+            [currentLang]="currentLang"
             [bankOptions]="bankOptions"
             [paymentCycleOptions]="paymentCycleOptions"
+            [notificationSoundOptions]="notificationSoundOptions"
             [openDaysCount]="openDaysCount"
             [fieldClass]="fieldClassFn"
             [timeFieldClass]="timeFieldClassFn" />
@@ -242,6 +249,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
 export class VendorProfileComponent implements OnInit, OnDestroy {
   currentLang = 'ar';
   isSaving = false;
+  isSavingStoreAvailability = false;
   isSubmittingReview = false;
   uploadingDocumentType: VendorLegalDocumentType | null = null;
   pageNotice = '';
@@ -310,6 +318,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   readonly nationalities = NATIONALITIES;
   readonly banks = BANKS;
   readonly paymentCycles = PAYMENT_CYCLES;
+  readonly notificationSoundOptions: SearchableSelectOption[] = [...VENDOR_NOTIFICATION_SOUND_OPTIONS];
 
   readonly sectionNavItems: ProfileSectionNavItem[] = [
     {
@@ -450,9 +459,11 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
   constructor(
     private readonly fb: FormBuilder,
-  private readonly profileService: VendorProfileService,
+    private readonly profileService: VendorProfileService,
     private readonly translate: TranslateService,
-    private readonly geographyService: GeographyService
+    private readonly geographyService: GeographyService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
@@ -464,6 +475,20 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.route.queryParamMap.subscribe(params => {
+      const tab = params.get('tab');
+      if (tab && this.sectionWindowMap[tab]) {
+        if (this.activeTab !== tab) {
+          this.activeTab = tab;
+          if (tab !== 'timeline-window') {
+            queueMicrotask(() => {
+              document.getElementById(tab)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            });
+          }
+        }
+      }
+    });
+
     this.loadGeographyOptions();
 
     this.profileSub = this.profileService.getProfile().subscribe((profile) => {
@@ -800,16 +825,27 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
   setActiveTab(tabId: string): void {
     this.scrollToSection(tabId);
+    this.updateUrlParam(tabId);
   }
 
   setActiveWindow(windowId: ProfileWorkspaceWindowId): void {
     if (windowId === 'timeline') {
       this.activeTab = 'timeline-window';
+      this.updateUrlParam('timeline-window');
       return;
     }
 
     const firstSection = this.sectionNavItems.find((item) => this.sectionWindowMap[item.id] === windowId);
     this.activeTab = firstSection?.id ?? 'store-section';
+    this.updateUrlParam(this.activeTab);
+  }
+
+  private updateUrlParam(tabId: string): void {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab: tabId },
+      queryParamsHandling: 'merge'
+    });
   }
 
   isWindowActive(windowId: ProfileWorkspaceWindowId): boolean {
@@ -940,13 +976,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
   fieldClass(controlName: string, mode: 'context' | 'ltr' | 'rtl' = 'context'): string {
     const invalid = this.isControlInvalid(controlName);
-    const alignment = mode === 'ltr'
-      ? 'text-left'
-      : mode === 'rtl'
-        ? 'text-right'
-        : this.currentLang === 'ar'
-          ? 'text-right'
-          : 'text-left';
+    const alignment = this.currentLang === 'ar' ? 'text-right' : 'text-left';
 
     return [
       'h-10 w-full rounded-[12px] border px-3 text-[0.75rem] font-semibold text-slate-900 outline-none transition-all',
@@ -958,13 +988,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   }
 
   selectClass(controlName: string, mode: 'context' | 'ltr' | 'rtl' = 'context'): string {
-    const alignment = mode === 'ltr'
-      ? 'text-left'
-      : mode === 'rtl'
-        ? 'text-right'
-        : this.currentLang === 'ar'
-          ? 'text-right'
-          : 'text-left';
+    const alignment = this.currentLang === 'ar' ? 'text-right' : 'text-left';
 
     return [
       this.fieldClass(controlName, mode),
@@ -976,13 +1000,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
   textareaClass(controlName: string, mode: 'context' | 'ltr' | 'rtl' = 'context'): string {
     const invalid = this.isControlInvalid(controlName);
-    const alignment = mode === 'ltr'
-      ? 'text-left'
-      : mode === 'rtl'
-        ? 'text-right'
-        : this.currentLang === 'ar'
-          ? 'text-right'
-          : 'text-left';
+    const alignment = this.currentLang === 'ar' ? 'text-right' : 'text-left';
 
     return [
       'w-full rounded-[12px] border px-3 py-2.5 text-[0.75rem] font-semibold text-slate-900 outline-none transition-all resize-none',
@@ -1117,6 +1135,42 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
             this.currentLang === 'ar'
               ? 'تعذر حفظ تعديلات الملف الآن.'
               : 'Unable to save profile changes right now.'
+          );
+        }
+      });
+  }
+
+  toggleStoreAvailabilityFromHeader(): void {
+    if (this.isSavingStoreAvailability) {
+      return;
+    }
+
+    const nextMode: 'online' | 'offline' = this.currentProfile.storeManualMode === 'offline' ? 'online' : 'offline';
+    this.isSavingStoreAvailability = true;
+    this.pageNotice = '';
+    this.pageError = '';
+
+    this.profileService.saveStoreAvailability(nextMode)
+      .pipe(finalize(() => {
+        this.isSavingStoreAvailability = false;
+      }))
+      .subscribe({
+        next: (profile) => {
+          this.currentProfile = profile;
+          this.profileForm.patchValue({
+            storeManualMode: profile.storeManualMode ?? 'online',
+            storeManualReason: profile.storeManualReason ?? ''
+          }, { emitEvent: false });
+          this.pageNotice = nextMode === 'offline'
+            ? (this.currentLang === 'ar' ? 'تم تحويل المتجر إلى أوفلاين وإخفاؤه من التطبيق.' : 'The store was switched offline and hidden from the app.')
+            : (this.currentLang === 'ar' ? 'تم تحويل المتجر إلى أونلاين وإظهاره في التطبيق.' : 'The store was switched online and is visible in the app.');
+        },
+        error: (error) => {
+          this.pageError = this.resolveErrorMessage(
+            error,
+            this.currentLang === 'ar'
+              ? 'تعذر تحديث حالة ظهور المتجر الآن.'
+              : 'Unable to update the store visibility right now.'
           );
         }
       });
@@ -1324,11 +1378,14 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       swiftCode: [''],
       payoutCycle: ['', Validators.required],
       acceptOrders: [true],
+      storeManualMode: ['online'],
+      storeManualReason: [''],
       minimumOrderAmount: [null],
       preparationTimeMinutes: [null],
       emailNotificationsEnabled: [true],
       smsNotificationsEnabled: [false],
       newOrdersNotificationsEnabled: [true],
+      notificationSound: ['classic'],
       hasLogo: [false],
       hasCRDoc: [false],
       hasTaxDoc: [false],

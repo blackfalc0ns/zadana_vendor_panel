@@ -94,6 +94,7 @@
       "90d": "Last 90 days"
     },
     "SECTION_NAV": {
+      "OVERVIEW": "Overview",
       "OPERATIONS": "Operations",
       "SALES": "Sales",
       "INVENTORY": "Inventory",
@@ -119,6 +120,8 @@
       "LOW_STOCK": "Critical stock"
     },
     "SECTIONS": {
+      "OVERVIEW": "Overview",
+      "OVERVIEW_HINT": "Comprehensive summary of operational and financial performance.",
       "OPERATIONS": "Operational command center",
       "OPERATIONS_HINT": "What needs action right now across orders and fulfillment.",
       "SALES": "Sales and commercial performance",
@@ -154,6 +157,7 @@
       "COUNT": "Count",
       "SALES": "Sales",
       "ORDERS": "Orders",
+      "SALES_TREND": "Sales trend",
       "PAYOUTS": "Payouts",
       "PRODUCTS": "Products",
       "REVIEWS": "Reviews",
@@ -288,12 +292,17 @@
     "EMPTY": {
       "NO_ALERTS": "No active alerts right now.",
       "NO_URGENT_ORDERS": "No urgent orders at the moment.",
+      "NO_CRITICAL_STOCK": "No products with critical stock right now.",
+      "NO_PENDING_REVIEWS": "No low-rating reviews waiting for a reply.",
       "NO_STAFF_DISTRIBUTION": "No staff distribution data is available yet."
     },
     "OPERATIONS": {
       "PREP_EFFICIENCY": "Prep Efficiency (SLA)",
       "AVG_PREP_TIME": "Avg Prep Time",
       "MINUTES": "minutes"
+    },
+    "TABLES": {
+      "SALES": "sales"
     }
   },
   "AUTH": {
@@ -586,7 +595,13 @@
       "OFFERS": "Offers",
       "ALL_OFFERS": "All offers",
       "WITH_OFFERS": "With offers",
-      "WITHOUT_OFFERS": "Without offers"
+      "WITHOUT_OFFERS": "Without offers",
+      "PACKAGE_TYPE": "Package type",
+      "ALL_PACKAGE_TYPES": "All package types",
+      "MEASUREMENT_UNIT": "Measurement unit",
+      "ALL_MEASUREMENT_UNITS": "All measurement units",
+      "SIZE_VALUE": "Size value",
+      "ALL_SIZES": "All sizes"
     },
     "HEADER_PRODUCT": "Product",
     "HEADER_CATEGORY": "Category",
@@ -1102,7 +1117,17 @@
       "SMS": "SMS notifications",
       "SMS_HINT": "Receive important alerts by text message.",
       "NEW_ORDERS": "New order notifications",
-      "NEW_ORDERS_HINT": "Instant alert whenever a new order arrives."
+      "NEW_ORDERS_HINT": "Instant alert whenever a new order arrives.",
+      "SOUND": "Notification sound",
+      "SOUND_HINT": "Choose the tone that plays when a real-time vendor alert arrives.",
+      "PREVIEW_SOUND": "Preview sound",
+      "SOUND_OPTIONS": {
+        "CLASSIC": "Classic",
+        "CHIME": "Chime",
+        "SOFT": "Soft",
+        "URGENT": "Urgent",
+        "OFF": "Muted"
+      }
     },
     "REVIEW_PANEL": {
       "TITLE": "Documents and review",

@@ -1,4 +1,4 @@
-<div class="space-y-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+<div class="flex flex-col gap-6 pb-12" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
   <app-page-header
     [title]="'REVIEWS.TITLE' | translate"
     [description]="'REVIEWS.SUBTITLE' | translate"
@@ -7,7 +7,7 @@
       <button
         type="button"
         (click)="resetDemoState()"
-        class="inline-flex min-h-11 items-center gap-2 rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-[0.76rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary">
+        class="inline-flex min-h-[44px] items-center gap-2.5 rounded-[16px] bg-white px-5 text-[0.78rem] font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition-all hover:-translate-y-0.5 hover:shadow-md hover:ring-zadna-primary/30 hover:text-zadna-primary focus:outline-none focus:ring-4 focus:ring-zadna-primary/10">
         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 4.5v6h6M19.5 19.5v-6h-6M19.364 10.636A7.5 7.5 0 0 0 6.75 6.75L4.5 10.5m15-1.5-2.25 3.75A7.5 7.5 0 0 1 4.636 13.364"></path>
         </svg>
@@ -23,44 +23,44 @@
 
   <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
     <app-metric-card [label]="'REVIEWS.SUMMARY.AVERAGE_RATING'" [value]="averageLabel(summary.averageRating)">
-      <div meta class="mt-2 flex items-center gap-1">
+      <div meta class="mt-2 flex items-center gap-1.5">
         @for (star of stars; track star) {
           <svg
-            class="h-4 w-4"
+            class="h-4.5 w-4.5 transition-transform duration-300 hover:scale-110"
             viewBox="0 0 24 24"
-            [ngClass]="star <= roundedAverageRating() ? 'text-amber-400' : 'text-slate-200'"
+            [ngClass]="star <= roundedAverageRating() ? 'text-amber-400 drop-shadow-sm' : 'text-slate-200'"
             fill="currentColor">
             <path d="M11.48 3.499a.563.563 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321 1.01l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61L12 17.771l-4.777 2.79a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557L3.282 10.406a.562.562 0 0 1 .321-1.01l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"></path>
           </svg>
         }
       </div>
-      <span icon class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-amber-50 text-amber-500">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m11.48 3.499 2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321 1.01l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61L12 17.771l-4.777 2.79a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.601a.562.562 0 0 1 .321-1.01l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"></path>
+      <span icon class="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-amber-50 to-amber-100 text-amber-600 shadow-sm ring-1 ring-amber-200/60">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="m11.48 3.499 2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321 1.01l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61L12 17.771l-4.777 2.79a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.601a.562.562 0 0 1 .321-1.01l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"></path>
         </svg>
       </span>
     </app-metric-card>
 
     <app-metric-card [label]="'REVIEWS.SUMMARY.TOTAL_REVIEWS'" [value]="summary.totalReviews" [hint]="'REVIEWS.SUMMARY.TOTAL_HINT'">
-      <span icon class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-sky-50 text-sky-500">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7.5 8.25h9m-9 3h6m-8.25 9h13.5a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18.75 3.75H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z"></path>
+      <span icon class="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-sky-50 to-sky-100 text-sky-600 shadow-sm ring-1 ring-sky-200/60">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M7.5 8.25h9m-9 3h6m-8.25 9h13.5a2.25 2.25 0 0 0 2.25-2.25V6A2.25 2.25 0 0 0 18.75 3.75H5.25A2.25 2.25 0 0 0 3 6v12a2.25 2.25 0 0 0 2.25 2.25Z"></path>
         </svg>
       </span>
     </app-metric-card>
 
     <app-metric-card [label]="'REVIEWS.SUMMARY.PENDING_REPLY'" [value]="summary.pendingReplyCount" [hint]="'REVIEWS.SUMMARY.PENDING_HINT'">
-      <span icon class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-rose-50 text-rose-500">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.625 9.75h6.75m-6.75 3h4.5m5.25 8.25-4.031-2.016a2.25 2.25 0 0 0-1.006-.234H6.75A2.25 2.25 0 0 1 4.5 16.5V6.75A2.25 2.25 0 0 1 6.75 4.5h10.5a2.25 2.25 0 0 1 2.25 2.25v12.234a.516.516 0 0 1-.75.461Z"></path>
+      <span icon class="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-rose-50 to-rose-100 text-rose-600 shadow-sm ring-1 ring-rose-200/60">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M8.625 9.75h6.75m-6.75 3h4.5m5.25 8.25-4.031-2.016a2.25 2.25 0 0 0-1.006-.234H6.75A2.25 2.25 0 0 1 4.5 16.5V6.75A2.25 2.25 0 0 1 6.75 4.5h10.5a2.25 2.25 0 0 1 2.25 2.25v12.234a.516.516 0 0 1-.75.461Z"></path>
         </svg>
       </span>
     </app-metric-card>
 
     <app-metric-card [label]="'REVIEWS.SUMMARY.HIDDEN'" [value]="summary.hiddenCount" [hint]="'REVIEWS.SUMMARY.HIDDEN_HINT'">
-      <span icon class="inline-flex h-11 w-11 items-center justify-center rounded-[16px] bg-amber-50 text-amber-600">
-        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3l18 18M10.73 5.08A10.744 10.744 0 0 1 12 5.001c5.105 0 9.455 3.283 11.076 7.875a11.826 11.826 0 0 1-2.424 3.992M6.61 6.61A12.224 12.224 0 0 0 .924 12.876 11.948 11.948 0 0 0 12 20.75a10.89 10.89 0 0 0 5.227-1.273M9.88 9.88A3 3 0 1 0 14.12 14.12"></path>
+      <span icon class="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-gradient-to-br from-slate-50 to-slate-200 text-slate-600 shadow-sm ring-1 ring-slate-300/60">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 3l18 18M10.73 5.08A10.744 10.744 0 0 1 12 5.001c5.105 0 9.455 3.283 11.076 7.875a11.826 11.826 0 0 1-2.424 3.992M6.61 6.61A12.224 12.224 0 0 0 .924 12.876 11.948 11.948 0 0 0 12 20.75a10.89 10.89 0 0 0 5.227-1.273M9.88 9.88A3 3 0 1 0 14.12 14.12"></path>
         </svg>
       </span>
     </app-metric-card>
@@ -146,8 +146,8 @@
       <button
         type="button"
         (click)="isFiltersExpanded = !isFiltersExpanded"
-        class="inline-flex shrink-0 items-center gap-3 rounded-full border border-slate-200/70 bg-white px-5 py-2.5 text-[0.74rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary"
-        [ngClass]="isFiltersExpanded ? 'border-zadna-primary/20 bg-teal-50 text-zadna-primary' : ''">
+        class="inline-flex min-h-[44px] shrink-0 items-center gap-3 rounded-[16px] bg-white px-5 text-[0.78rem] font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition-all hover:-translate-y-0.5 hover:shadow-md hover:ring-zadna-primary/30 hover:text-zadna-primary focus:outline-none focus:ring-4 focus:ring-zadna-primary/10"
+        [ngClass]="isFiltersExpanded ? 'bg-zadna-primary/5 text-zadna-primary ring-zadna-primary/30' : ''">
         <svg class="h-4.5 w-4.5 transition-transform" [ngClass]="isFiltersExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 5h18M6 12h12M10 19h4"></path>
         </svg>
@@ -161,7 +161,7 @@
     <div class="overflow-x-auto">
       @if (filteredReviews.length > 0) {
         <table class="w-full min-w-[1200px] text-start">
-          <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
+          <thead class="border-b border-slate-200 bg-slate-50 text-[0.7rem] font-black uppercase tracking-[0.15em] text-slate-500">
             <tr>
               <th class="px-6 py-4 text-start">{{ 'REVIEWS.TABLE.CUSTOMER' | translate }}</th>
               <th class="px-4 py-4 text-start">{{ 'REVIEWS.TABLE.TYPE' | translate }}</th>
@@ -177,7 +177,7 @@
 
           <tbody class="divide-y divide-slate-100">
             @for (review of pagedReviews; track trackByReviewId($index, review)) {
-              <tr class="hover:bg-slate-50/40">
+              <tr class="group transition-colors duration-200 hover:bg-slate-50/80">
                 <td class="px-6 py-4">
                   <div class="min-w-0">
                     <button
@@ -188,7 +188,7 @@
                     </button>
                     <div class="mt-1 flex flex-wrap items-center gap-2 text-[0.72rem] font-bold text-slate-400">
                       @if (review.isVerifiedPurchase) {
-                        <span class="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[0.66rem] font-black text-emerald-700">
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 px-2.5 py-1 text-[0.66rem] font-black text-emerald-700 shadow-sm ring-1 ring-emerald-200/60">
                           <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M9 12.75 11.25 15 15 9.75M12 3l7.5 3v6c0 4.142-3.358 7.5-7.5 9-4.142-1.5-7.5-4.858-7.5-9V6L12 3Z"></path>
                           </svg>
@@ -196,7 +196,7 @@
                         </span>
                       }
                       @if (review.attentionState === 'needs_attention') {
-                        <span class="inline-flex items-center gap-1 rounded-full border border-rose-200 bg-rose-50 px-2.5 py-1 text-[0.66rem] font-black text-rose-700">
+                        <span class="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-br from-rose-50 to-rose-100 px-2.5 py-1 text-[0.66rem] font-black text-rose-700 shadow-sm ring-1 ring-rose-200/60">
                           {{ 'REVIEWS.BADGES.NEEDS_ATTENTION' | translate }}
                         </span>
                       }
@@ -225,12 +225,12 @@
                 <td class="px-4 py-4">
                   <div class="flex items-center gap-2">
                     <span class="text-[0.82rem] font-black text-slate-900">{{ review.rating }}/5</span>
-                    <div class="flex items-center gap-0.5">
+                    <div class="flex items-center gap-0.5 transition-transform duration-300 group-hover:scale-105">
                       @for (star of stars; track star) {
                         <svg
-                          class="h-4 w-4"
+                          class="h-4.5 w-4.5"
                           viewBox="0 0 24 24"
-                          [ngClass]="star <= review.rating ? ratingToneClass(review.rating) : 'text-slate-200'"
+                          [ngClass]="star <= review.rating ? ratingToneClass(review.rating) + ' drop-shadow-sm' : 'text-slate-200'"
                           fill="currentColor">
                           <path d="M11.48 3.499a.563.563 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321 1.01l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61L12 17.771l-4.777 2.79a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557L3.282 10.406a.562.562 0 0 1 .321-1.01l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"></path>
                         </svg>
@@ -265,24 +265,24 @@
                     <button
                       type="button"
                       (click)="openReview(review)"
-                      class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                      class="inline-flex items-center justify-center rounded-[14px] bg-white px-4 py-2 text-[0.74rem] font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition-all hover:-translate-y-0.5 hover:shadow-md hover:ring-zadna-primary/40 hover:text-zadna-primary">
                       {{ 'REVIEWS.ACTIONS.VIEW' | translate }}
                     </button>
 
                     <button
                       type="button"
                       (click)="openReply(review)"
-                      class="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-[0.72rem] font-black text-sky-700 transition hover:bg-sky-100">
+                      class="inline-flex items-center justify-center rounded-[14px] bg-gradient-to-br from-sky-50 to-sky-100 px-4 py-2 text-[0.74rem] font-black text-sky-700 shadow-sm ring-1 ring-sky-200/60 transition-all hover:-translate-y-0.5 hover:shadow-md hover:ring-sky-300">
                       {{ (review.replyStatus === 'replied' ? 'REVIEWS.ACTIONS.EDIT_REPLY' : 'REVIEWS.ACTIONS.REPLY') | translate }}
                     </button>
 
                     <button
                       type="button"
                       (click)="toggleReviewVisibility(review)"
-                      class="rounded-xl border px-3 py-2 text-[0.72rem] font-black transition"
+                      class="inline-flex items-center justify-center rounded-[14px] bg-white px-4 py-2 text-[0.74rem] font-black shadow-sm ring-1 ring-slate-200 transition-all hover:-translate-y-0.5 hover:shadow-md"
                       [ngClass]="review.visibility === 'hidden'
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                        : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'">
+                        ? 'text-emerald-700 hover:ring-emerald-300 hover:text-emerald-800'
+                        : 'text-amber-700 hover:ring-amber-300 hover:text-amber-800'">
                       {{ (review.visibility === 'hidden' ? 'REVIEWS.ACTIONS.SHOW' : 'REVIEWS.ACTIONS.HIDE') | translate }}
                     </button>
                   </div>
@@ -325,7 +325,7 @@
       closeAriaLabel="Close review drawer"
       (close)="closeDrawer()">
       <div class="space-y-6">
-        <div class="rounded-[24px] border border-slate-200 bg-white px-5 py-5">
+        <div class="rounded-[28px] bg-white p-6 shadow-sm ring-1 ring-slate-200/80">
           <div class="flex flex-wrap items-start justify-between gap-4">
             <div class="space-y-3">
               <div class="flex flex-wrap items-center gap-2">
@@ -339,7 +339,7 @@
                   {{ replyStatusKey(review.replyStatus) | translate }}
                 </span>
                 @if (review.isVerifiedPurchase) {
-                  <span class="inline-flex rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[0.68rem] font-black text-emerald-700">
+                  <span class="inline-flex rounded-full bg-gradient-to-br from-emerald-50 to-emerald-100 px-2.5 py-1 text-[0.68rem] font-black text-emerald-700 shadow-sm ring-1 ring-emerald-200/60">
                     {{ 'REVIEWS.BADGES.VERIFIED' | translate }}
                   </span>
                 }
@@ -348,9 +348,9 @@
               <div class="flex items-center gap-0.5">
                 @for (star of stars; track star) {
                   <svg
-                    class="h-5 w-5"
+                    class="h-5.5 w-5.5"
                     viewBox="0 0 24 24"
-                    [ngClass]="star <= review.rating ? ratingToneClass(review.rating) : 'text-slate-200'"
+                    [ngClass]="star <= review.rating ? ratingToneClass(review.rating) + ' drop-shadow-sm' : 'text-slate-200'"
                     fill="currentColor">
                     <path d="M11.48 3.499a.563.563 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321 1.01l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61L12 17.771l-4.777 2.79a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557L3.282 10.406a.562.562 0 0 1 .321-1.01l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z"></path>
                   </svg>
@@ -373,109 +373,118 @@
               @if (referenceRouterLink(review); as link) {
                 <a
                   [routerLink]="link"
-                  class="rounded-xl border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:text-zadna-primary">
+                  class="rounded-[14px] bg-white px-4 py-2 text-[0.72rem] font-black text-slate-700 shadow-sm ring-1 ring-slate-200 transition-all hover:-translate-y-0.5 hover:shadow-md hover:ring-zadna-primary/30 hover:text-zadna-primary">
                   {{ 'REVIEWS.ACTIONS.OPEN_REFERENCE' | translate }}
                 </a>
               }
             </div>
           </div>
 
-          <div class="mt-5 grid gap-4 md:grid-cols-2">
-            <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
-              <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.DRAWER.REFERENCE' | translate }}</p>
-              <p class="mt-2 text-[0.86rem] font-black text-slate-900">{{ referenceLabel(review) }}</p>
+          <div class="mt-6 grid gap-4 md:grid-cols-2">
+            <div class="rounded-[20px] bg-gradient-to-br from-slate-50 to-slate-100/60 p-5 shadow-inner ring-1 ring-slate-200/50">
+              <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">{{ 'REVIEWS.DRAWER.REFERENCE' | translate }}</p>
+              <p class="mt-2.5 text-[0.95rem] font-black text-slate-900">{{ referenceLabel(review) }}</p>
             </div>
-            <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
-              <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.DRAWER.CUSTOMER' | translate }}</p>
-              <p class="mt-2 text-[0.86rem] font-black text-slate-900">{{ review.customerName }}</p>
+            <div class="rounded-[20px] bg-gradient-to-br from-slate-50 to-slate-100/60 p-5 shadow-inner ring-1 ring-slate-200/50">
+              <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">{{ 'REVIEWS.DRAWER.CUSTOMER' | translate }}</p>
+              <p class="mt-2.5 text-[0.95rem] font-black text-slate-900">{{ review.customerName }}</p>
             </div>
           </div>
 
-          <div class="mt-5 rounded-[20px] border border-slate-200 bg-slate-50 px-4 py-4">
-            <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.DRAWER.COMMENT' | translate }}</p>
-            <p class="mt-2 text-[0.82rem] font-bold leading-7 text-slate-700">{{ review.comment }}</p>
+          <div class="mt-5 rounded-[20px] bg-gradient-to-br from-slate-50 to-slate-100/60 p-6 shadow-inner ring-1 ring-slate-200/50">
+            <p class="text-[0.66rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">{{ 'REVIEWS.DRAWER.COMMENT' | translate }}</p>
+            <p class="mt-3 text-[0.88rem] font-bold leading-relaxed text-slate-700">{{ review.comment }}</p>
           </div>
         </div>
 
         @if (review.type === 'order') {
-          <div class="rounded-[24px] border border-slate-200 bg-white">
-            <div class="border-b border-slate-100 px-5 py-4">
-              <h4 class="text-[0.9rem] font-black text-slate-900">{{ 'REVIEWS.DRAWER.ORDER_BREAKDOWN_TITLE' | translate }}</h4>
-              <p class="mt-1 text-[0.72rem] font-bold text-slate-500">{{ 'REVIEWS.DRAWER.ORDER_BREAKDOWN_SUBTITLE' | translate }}</p>
+          <div class="rounded-[28px] bg-white shadow-sm ring-1 ring-slate-200/80">
+            <div class="border-b border-slate-100 px-6 py-5">
+              <h4 class="text-[0.95rem] font-black text-slate-900">{{ 'REVIEWS.DRAWER.ORDER_BREAKDOWN_TITLE' | translate }}</h4>
+              <p class="mt-1 text-[0.74rem] font-bold text-slate-500">{{ 'REVIEWS.DRAWER.ORDER_BREAKDOWN_SUBTITLE' | translate }}</p>
             </div>
 
-            <div class="grid gap-4 px-5 py-5 md:grid-cols-3">
-              <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.BREAKDOWN.DELIVERY' | translate }}</p>
-                <p class="mt-2 text-[1.1rem] font-black text-slate-900">{{ review.deliveryRating || '-' }}/5</p>
+            <div class="grid gap-4 px-6 py-6 md:grid-cols-3">
+              <div class="flex flex-col items-center justify-center rounded-[20px] bg-white p-5 text-center shadow-sm ring-1 ring-slate-200 transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">{{ 'REVIEWS.BREAKDOWN.DELIVERY' | translate }}</p>
+                <div class="mt-3 flex items-end gap-1">
+                  <span class="text-2xl font-black text-slate-900">{{ review.deliveryRating || '-' }}</span>
+                  <span class="mb-1 text-sm font-bold text-slate-400">/5</span>
+                </div>
               </div>
 
-              <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.BREAKDOWN.PACKAGING' | translate }}</p>
-                <p class="mt-2 text-[1.1rem] font-black text-slate-900">{{ review.packagingRating || '-' }}/5</p>
+              <div class="flex flex-col items-center justify-center rounded-[20px] bg-white p-5 text-center shadow-sm ring-1 ring-slate-200 transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">{{ 'REVIEWS.BREAKDOWN.PACKAGING' | translate }}</p>
+                <div class="mt-3 flex items-end gap-1">
+                  <span class="text-2xl font-black text-slate-900">{{ review.packagingRating || '-' }}</span>
+                  <span class="mb-1 text-sm font-bold text-slate-400">/5</span>
+                </div>
               </div>
 
-              <div class="rounded-[18px] border border-slate-200 bg-slate-50 px-4 py-4">
-                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.14em] text-slate-400">{{ 'REVIEWS.BREAKDOWN.ACCURACY' | translate }}</p>
-                <p class="mt-2 text-[1.1rem] font-black text-slate-900">{{ review.accuracyRating || '-' }}/5</p>
+              <div class="flex flex-col items-center justify-center rounded-[20px] bg-white p-5 text-center shadow-sm ring-1 ring-slate-200 transition-transform duration-300 hover:-translate-y-1 hover:shadow-md">
+                <p class="text-[0.68rem] font-extrabold uppercase tracking-[0.16em] text-slate-400">{{ 'REVIEWS.BREAKDOWN.ACCURACY' | translate }}</p>
+                <div class="mt-3 flex items-end gap-1">
+                  <span class="text-2xl font-black text-slate-900">{{ review.accuracyRating || '-' }}</span>
+                  <span class="mb-1 text-sm font-bold text-slate-400">/5</span>
+                </div>
               </div>
             </div>
           </div>
         }
 
         @if (review.media?.length) {
-          <div class="rounded-[24px] border border-slate-200 bg-white">
-            <div class="border-b border-slate-100 px-5 py-4">
-              <h4 class="text-[0.9rem] font-black text-slate-900">{{ 'REVIEWS.DRAWER.MEDIA_TITLE' | translate }}</h4>
-              <p class="mt-1 text-[0.72rem] font-bold text-slate-500">{{ 'REVIEWS.DRAWER.MEDIA_SUBTITLE' | translate }}</p>
+          <div class="rounded-[28px] bg-white shadow-sm ring-1 ring-slate-200/80">
+            <div class="border-b border-slate-100 px-6 py-5">
+              <h4 class="text-[0.95rem] font-black text-slate-900">{{ 'REVIEWS.DRAWER.MEDIA_TITLE' | translate }}</h4>
+              <p class="mt-1 text-[0.74rem] font-bold text-slate-500">{{ 'REVIEWS.DRAWER.MEDIA_SUBTITLE' | translate }}</p>
             </div>
 
-            <div class="grid gap-4 px-5 py-5 md:grid-cols-2">
+            <div class="grid gap-4 px-6 py-6 md:grid-cols-2">
               @for (mediaItem of review.media; track mediaItem) {
-                <div class="overflow-hidden rounded-[18px] border border-slate-200 bg-slate-50">
-                  <img [src]="mediaItem" alt="Review media" class="h-44 w-full object-cover">
+                <div class="overflow-hidden rounded-[20px] shadow-sm ring-1 ring-slate-200 transition-transform hover:scale-[1.02]">
+                  <img [src]="mediaItem" alt="Review media" class="h-48 w-full object-cover">
                 </div>
               }
             </div>
           </div>
         }
 
-        <div class="rounded-[24px] border border-slate-200 bg-white">
-          <div class="border-b border-slate-100 px-5 py-4">
-            <h4 class="text-[0.9rem] font-black text-slate-900">{{ 'REVIEWS.DRAWER.REPLY_TITLE' | translate }}</h4>
-            <p class="mt-1 text-[0.72rem] font-bold text-slate-500">{{ 'REVIEWS.DRAWER.REPLY_SUBTITLE' | translate }}</p>
+        <div class="rounded-[28px] bg-white shadow-sm ring-1 ring-slate-200/80">
+          <div class="border-b border-slate-100 px-6 py-5">
+            <h4 class="text-[0.95rem] font-black text-slate-900">{{ 'REVIEWS.DRAWER.REPLY_TITLE' | translate }}</h4>
+            <p class="mt-1 text-[0.74rem] font-bold text-slate-500">{{ 'REVIEWS.DRAWER.REPLY_SUBTITLE' | translate }}</p>
           </div>
 
-          <div class="space-y-4 px-5 py-5">
+          <div class="space-y-5 px-6 py-6">
             @if (review.vendorReply) {
-              <div class="rounded-[18px] border border-sky-200 bg-sky-50 px-4 py-4">
+              <div class="rounded-[20px] bg-gradient-to-br from-sky-50 to-sky-100/50 p-5 shadow-inner ring-1 ring-sky-200/60">
                 <div class="flex flex-wrap items-center justify-between gap-3">
-                  <p class="text-[0.72rem] font-extrabold uppercase tracking-[0.14em] text-sky-700">
+                  <p class="text-[0.7rem] font-extrabold uppercase tracking-[0.16em] text-sky-700">
                     {{ 'REVIEWS.DRAWER.CURRENT_REPLY' | translate }}
                   </p>
-                  <p class="text-[0.68rem] font-black text-sky-700">
+                  <p class="text-[0.7rem] font-black text-sky-700">
                     {{ review.vendorReply.updatedAt ? ('REVIEWS.DRAWER.REPLY_UPDATED_AT' | translate:{ date: formatDateTime(review.vendorReply.updatedAt) }) : ('REVIEWS.DRAWER.REPLY_SENT_AT' | translate:{ date: formatDateTime(review.vendorReply.createdAt) }) }}
                   </p>
                 </div>
-                <p class="mt-2 text-[0.82rem] font-bold leading-7 text-slate-700">{{ review.vendorReply.message }}</p>
+                <p class="mt-3 text-[0.88rem] font-bold leading-relaxed text-slate-700">{{ review.vendorReply.message }}</p>
               </div>
             }
 
-            <label class="space-y-2">
-              <span class="text-[0.75rem] font-black text-slate-500">{{ 'REVIEWS.DRAWER.REPLY_FIELD' | translate }}</span>
+            <label class="block space-y-2.5">
+              <span class="text-[0.75rem] font-black text-slate-600">{{ 'REVIEWS.DRAWER.REPLY_FIELD' | translate }}</span>
               <textarea
                 rows="5"
                 [(ngModel)]="replyDraft"
                 [placeholder]="'REVIEWS.DRAWER.REPLY_PLACEHOLDER' | translate"
-                class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-[0.8rem] font-bold text-slate-900 outline-none transition-all resize-none focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5"></textarea>
+                class="w-full resize-none rounded-[20px] border border-slate-200 bg-slate-50 px-5 py-4 text-[0.85rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/30 focus:bg-white focus:shadow-inner focus:ring-4 focus:ring-zadna-primary/5"></textarea>
             </label>
 
-            <div class="flex flex-wrap items-center justify-end gap-3">
+            <div class="flex flex-wrap items-center justify-end gap-3 pt-2">
               <button
                 type="button"
                 (click)="submitReply()"
                 [disabled]="!replyDraft.trim()"
-                class="inline-flex items-center justify-center rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
+                class="inline-flex min-h-[48px] items-center justify-center rounded-[16px] bg-zadna-primary px-8 text-[0.85rem] font-black text-white shadow-md shadow-zadna-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-lg hover:shadow-zadna-primary/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none">
                 {{ (review.vendorReply ? 'REVIEWS.ACTIONS.UPDATE_REPLY' : 'REVIEWS.ACTIONS.SEND_REPLY') | translate }}
               </button>
             </div>

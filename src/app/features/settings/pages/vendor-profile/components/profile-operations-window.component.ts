@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { VendorNotificationSoundService } from '../../../../../core/notifications/services/vendor-notification-sound.service';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { AppPageSectionShellComponent } from '../../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
 
@@ -15,6 +16,7 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.BANKING'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.BANKING_HINT'"
+          wrapperClass="overflow-visible"
           bodyClass="grid gap-6 px-5 py-5">
         <div class="rounded-[12px] border border-slate-200 bg-white shadow-sm">
           <div class="border-b border-slate-100 bg-slate-50 px-5 py-3">
@@ -51,6 +53,53 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.OPERATIONS_SETTINGS_HINT'"
           bodyClass="grid gap-6 px-5 py-5">
           <div class="grid gap-4 lg:grid-cols-2">
+            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
+              <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                <div class="max-w-2xl">
+                  <p class="text-sm font-bold text-slate-900">{{ currentLang === 'ar' ? 'ظهور المتجر في تطبيق العميل' : 'Store visibility in customer app' }}</p>
+                  <p class="mt-1 text-[0.72rem] font-semibold text-slate-500">
+                    {{ currentLang === 'ar'
+                      ? 'إذا تم تحويل المتجر إلى أوفلاين ستختفي منتجاته من التطبيق حتى تعيده أونلاين.'
+                      : 'When switched offline, the store products are hidden from the customer app until it is turned online again.' }}
+                  </p>
+                </div>
+
+                <span
+                  class="inline-flex items-center gap-2 rounded-full px-3 py-1 text-[0.72rem] font-bold"
+                  [ngClass]="isStoreOffline() ? 'border border-rose-200 bg-rose-50 text-rose-700' : 'border border-emerald-200 bg-emerald-50 text-emerald-700'">
+                  <span class="h-2 w-2 rounded-full" [ngClass]="isStoreOffline() ? 'bg-rose-500' : 'bg-emerald-500'"></span>
+                  {{ isStoreOffline()
+                    ? (currentLang === 'ar' ? 'المتجر أوفلاين' : 'Store is offline')
+                    : (currentLang === 'ar' ? 'المتجر أونلاين' : 'Store is online') }}
+                </span>
+              </div>
+
+              <div class="mt-4 grid gap-3 md:grid-cols-2">
+                <button
+                  type="button"
+                  (click)="setStoreManualMode('online')"
+                  class="rounded-[12px] border px-4 py-3 text-start transition-all"
+                  [ngClass]="!isStoreOffline() ? 'border-emerald-300 bg-emerald-50 text-emerald-800 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-emerald-200 hover:bg-emerald-50/40'">
+                  <span class="block text-[0.8rem] font-bold">{{ currentLang === 'ar' ? 'أونلاين' : 'Online' }}</span>
+                  <span class="mt-1 block text-[0.72rem] font-semibold">{{ currentLang === 'ar' ? 'المنتجات تظهر في التطبيق ويمكن استقبال الطلبات.' : 'Products stay visible in the app and can receive new orders.' }}</span>
+                </button>
+
+                <button
+                  type="button"
+                  (click)="setStoreManualMode('offline')"
+                  class="rounded-[12px] border px-4 py-3 text-start transition-all"
+                  [ngClass]="isStoreOffline() ? 'border-rose-300 bg-rose-50 text-rose-800 shadow-sm' : 'border-slate-200 bg-slate-50 text-slate-600 hover:border-rose-200 hover:bg-rose-50/40'">
+                  <span class="block text-[0.8rem] font-bold">{{ currentLang === 'ar' ? 'أوفلاين' : 'Offline' }}</span>
+                  <span class="mt-1 block text-[0.72rem] font-semibold">{{ currentLang === 'ar' ? 'إخفاء كل المنتجات من تطبيق العميل مؤقتًا.' : 'Temporarily hide all products from the customer app.' }}</span>
+                </button>
+              </div>
+
+              <label *ngIf="isStoreOffline()" class="mt-4 block space-y-2">
+                <span class="text-xs font-bold text-slate-700">{{ currentLang === 'ar' ? 'سبب الإخفاء الاختياري' : 'Optional offline reason' }}</span>
+                <input formControlName="storeManualReason" type="text" [class]="fieldClass('storeManualReason')">
+              </label>
+            </div>
+
             <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-center justify-between gap-3">
                 <div>
@@ -86,7 +135,42 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.NOTIFICATION_SETTINGS'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.NOTIFICATION_SETTINGS_HINT'"
+          wrapperClass="overflow-visible"
           bodyClass="grid gap-4 px-5 py-5">
+          <div class="rounded-[16px] border border-violet-100 bg-gradient-to-r from-violet-50/50 via-white to-sky-50/50 p-6 shadow-sm transition-all hover:shadow-md">
+            <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+              
+              <div class="flex items-start gap-4">
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-600 shadow-sm border border-violet-200/50">
+                  <span class="material-symbols-outlined text-[24px]">notifications_active</span>
+                </div>
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.SOUND' | translate }}</h3>
+                  <p class="mt-1 text-[0.75rem] font-semibold text-slate-500 max-w-sm">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.SOUND_HINT' | translate }}</p>
+                </div>
+              </div>
+
+              <div class="flex w-full flex-col gap-3 sm:flex-row sm:items-center md:w-auto">
+                <div class="w-full sm:w-[240px]">
+                  <app-searchable-select
+                    formControlName="notificationSound"
+                    [options]="notificationSoundOptions"
+                    [placeholder]="'SETTINGS_PROFILE.NOTIFICATIONS.SOUND'">
+                  </app-searchable-select>
+                </div>
+                
+                <button
+                  type="button"
+                  (click)="previewNotificationSound()"
+                  class="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-xl bg-white px-5 text-[0.8rem] font-bold text-violet-700 shadow-sm border border-violet-200 transition-all hover:bg-violet-50 hover:border-violet-300 focus:ring-2 focus:ring-violet-500/20 active:scale-95">
+                  <span class="material-symbols-outlined text-[20px]">play_circle</span>
+                  {{ 'SETTINGS_PROFILE.NOTIFICATIONS.PREVIEW_SOUND' | translate }}
+                </button>
+              </div>
+
+            </div>
+          </div>
+
           <div class="grid gap-4 lg:grid-cols-3">
             <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
               <div class="flex items-start justify-between gap-3">
@@ -200,11 +284,31 @@ export class ProfileOperationsWindowComponent {
   @Input({ required: true }) form!: FormGroup;
   @Input() bankOptions: SearchableSelectOption[] = [];
   @Input() paymentCycleOptions: SearchableSelectOption[] = [];
+  @Input() notificationSoundOptions: SearchableSelectOption[] = [];
   @Input() openDaysCount = 0;
   @Input() fieldClass!: (controlName: string, mode?: 'context' | 'ltr' | 'rtl') => string;
   @Input() timeFieldClass!: (isOpen: boolean) => string;
 
+  constructor(
+    private readonly notificationSoundService: VendorNotificationSoundService
+  ) {}
+
   get operatingHours(): FormArray {
     return this.form.get('operatingHours') as FormArray;
+  }
+
+  isStoreOffline(): boolean {
+    return this.form.get('storeManualMode')?.value === 'offline';
+  }
+
+  setStoreManualMode(mode: 'online' | 'offline'): void {
+    this.form.patchValue({
+      storeManualMode: mode,
+      storeManualReason: mode === 'offline' ? this.form.get('storeManualReason')?.value : ''
+    });
+  }
+
+  previewNotificationSound(): void {
+    this.notificationSoundService.preview(this.form.get('notificationSound')?.value);
   }
 }

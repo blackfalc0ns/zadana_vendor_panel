@@ -39,6 +39,16 @@ interface MasterProductApi {
   unitOfMeasureId?: string | null;
   unitNameAr?: string | null;
   unitNameEn?: string | null;
+  packageTypeId?: string | null;
+  packageTypeNameAr?: string | null;
+  packageTypeNameEn?: string | null;
+  measurementValue?: number | null;
+  measurementUnitId?: string | null;
+  measurementUnitNameAr?: string | null;
+  measurementUnitNameEn?: string | null;
+  variantGroupId?: string | null;
+  displaySizeAr?: string | null;
+  displaySizeEn?: string | null;
   status?: string;
   isInVendorStore?: boolean;
   images?: MasterProductImageApi[];
@@ -123,6 +133,10 @@ export class CatalogService {
 
   getUnits(): Observable<UnitOption[]> {
     return this.http.get<UnitOption[]>(`${this.baseUrl}/catalog/units`).pipe(
+      map((units) => (units || []).map((unit) => ({
+        ...unit,
+        kind: unit.kind === 'Packaging' ? ('Packaging' as const) : ('Measurement' as const)
+      }))),
       catchError(() => of([]))
     );
   }
@@ -240,6 +254,10 @@ export class CatalogService {
     return this.http.patch<void>(`${this.baseUrl}/products/${id}/status`, { isActive });
   }
 
+  deleteVendorProduct(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/products/${id}`);
+  }
+
   calculateDiscountPercentage(sellingPrice: number, compareAtPrice?: number | null): number {
     if (!compareAtPrice || compareAtPrice <= sellingPrice || compareAtPrice <= 0) {
       return 0;
@@ -276,9 +294,17 @@ export class CatalogService {
       categoryNameEn: undefined,
       brandNameAr: item.brandNameAr || undefined,
       brandNameEn: item.brandNameEn || undefined,
-      unitNameAr: item.unitNameAr || undefined,
-      unitNameEn: item.unitNameEn || undefined,
-      isInVendorStore: item.isInVendorStore ?? false
+      unitNameAr: item.displaySizeAr || item.unitNameAr || item.measurementUnitNameAr || undefined,
+      unitNameEn: item.displaySizeEn || item.unitNameEn || item.measurementUnitNameEn || undefined,
+      displaySizeAr: item.displaySizeAr || undefined,
+      displaySizeEn: item.displaySizeEn || undefined,
+      packageTypeId: item.packageTypeId || null,
+      measurementValue: item.measurementValue ?? null,
+      measurementUnitId: item.measurementUnitId || null,
+      variantGroupId: item.variantGroupId || undefined,
+      isInVendorStore: item.isInVendorStore ?? false,
+      barcode: item.barcode || undefined,
+      slug: item.slug || undefined
     };
   }
 
@@ -298,6 +324,12 @@ export class CatalogService {
       brandNameEn: product.brandNameEn,
       unitNameAr: product.unitNameAr,
       unitNameEn: product.unitNameEn,
+      packageTypeId: product.packageTypeId || null,
+      measurementUnitId: product.measurementUnitId || null,
+      measurementValue: product.measurementValue ?? null,
+      displaySizeAr: product.displaySizeAr,
+      displaySizeEn: product.displaySizeEn,
+      variantGroupId: product.variantGroupId,
       costPrice: item.costPrice ?? null,
       tradePrice: item.tradePrice ?? null,
       sellingPrice: item.sellingPrice,

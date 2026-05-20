@@ -63,8 +63,8 @@ type CategoryRequestKind = 'category' | 'sub_category';
             <div class="grid grid-cols-1 gap-6">
               <app-searchable-select
                 formControlName="unitId"
-                [options]="unitOptions"
-                [placeholder]="'COMMON.SELECT_UNIT'"
+                [options]="measurementUnitOptions"
+                [placeholder]="currentLang === 'ar' ? 'اختر وحدة المقاس' : 'Select measurement unit'"
                 [searchPlaceholder]="'COMMON.SEARCH'"
                 [noResultsText]="'COMMON.NO_RESULTS'">
               </app-searchable-select>
@@ -480,6 +480,13 @@ export class ProductRequestModalComponent implements OnInit {
 
   get brandRequestCategoryDropdownOptions(): SearchableSelectOption[] {
     return this.toCategoryDropdownOptions(this.brandRequestCategoryOptions);
+  }
+
+  get measurementUnitOptions(): SearchableSelectOption[] {
+    return this.unitOptions.filter((option) => {
+      const unit = this.units.find((item) => item.id === option.value);
+      return unit?.kind === 'Measurement';
+    });
   }
 
   get requiresActivitySelection(): boolean {

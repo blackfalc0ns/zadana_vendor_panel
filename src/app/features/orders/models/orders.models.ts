@@ -43,6 +43,10 @@ export interface OrderItem {
   price: number;
   total: number;
   imageUrl?: string;
+  variantDisplaySize?: string;
+  packageTypeName?: string;
+  measurementValue?: number | null;
+  measurementUnitName?: string;
   sku: string;
   unitAr?: string;
   unitEn?: string;

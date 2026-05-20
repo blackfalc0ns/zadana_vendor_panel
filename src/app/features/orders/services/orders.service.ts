@@ -82,6 +82,11 @@ interface VendorOrderItemApiModel {
   quantity: number;
   unitPrice: number;
   lineTotal: number;
+  imageUrl?: string | null;
+  variantDisplaySize?: string | null;
+  packageTypeName?: string | null;
+  measurementValue?: number | null;
+  measurementUnitName?: string | null;
 }
 
 interface VendorOrderTimelineApiModel {
@@ -329,6 +334,11 @@ export class OrdersService {
       quantity: item.quantity,
       price: item.unitPrice,
       total: item.lineTotal,
+      imageUrl: item.imageUrl ?? undefined,
+      variantDisplaySize: item.variantDisplaySize ?? undefined,
+      packageTypeName: item.packageTypeName ?? undefined,
+      measurementValue: item.measurementValue ?? null,
+      measurementUnitName: item.measurementUnitName ?? undefined,
       sku: item.id.slice(0, 8)
     };
   }

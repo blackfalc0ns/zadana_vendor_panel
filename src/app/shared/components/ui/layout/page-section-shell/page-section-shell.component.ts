@@ -51,7 +51,8 @@ export class AppPageSectionShellComponent {
   @Input() subtitleClass = '';
 
   get resolvedWrapperClass(): string {
-    return `overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50 ${this.wrapperClass}`.trim();
+    const overflowClass = this.wrapperClass.includes('overflow-') ? '' : 'overflow-hidden';
+    return `${overflowClass} rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50 ${this.wrapperClass}`.trim();
   }
 
   get resolvedBodyClass(): string {

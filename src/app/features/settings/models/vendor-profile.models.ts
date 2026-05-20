@@ -17,6 +17,8 @@ export interface VendorReviewSummary {
 export interface VendorReviewItem {
   code: string;
   status: string;
+  targetType?: 'field' | 'document' | null;
+  step?: number | null;
   reviewerId?: string | null;
   reviewerName?: string | null;
   decisionNote?: string | null;
@@ -53,6 +55,8 @@ export interface VendorProfile {
   region: string;
   city: string;
   nationalAddress: string;
+  branchLatitude?: number | null;
+  branchLongitude?: number | null;
   ownerName: string;
   ownerEmail: string;
   ownerPhone: string;
@@ -96,9 +100,12 @@ export interface VendorProfile {
   joinedAt: string;
   operatingHours: VendorOperatingHour[];
   acceptOrders?: boolean;
+  storeManualMode?: 'online' | 'offline';
+  storeManualReason?: string | null;
   minimumOrderAmount?: number | null;
   preparationTimeMinutes?: number | null;
   emailNotificationsEnabled?: boolean;
   smsNotificationsEnabled?: boolean;
   newOrdersNotificationsEnabled?: boolean;
+  notificationSound?: string;
 }

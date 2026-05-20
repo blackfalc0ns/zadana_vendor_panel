@@ -32,6 +32,18 @@ import { ProductPriceStockFormComponent } from '../product-price-stock-form/prod
             <div>
               <h2 class="text-base font-black text-slate-900 truncate max-w-sm">{{ currentLang === 'ar' ? product?.nameAr : product?.nameEn }}</h2>
               <p class="text-[0.7rem] font-bold text-slate-500 uppercase tracking-wider">{{ currentLang === 'ar' ? product?.categoryNameAr : product?.categoryNameEn }}</p>
+              <div class="mt-1.5 flex flex-wrap items-center gap-1.5">
+                @if (getDisplaySize()) {
+                  <span class="inline-flex items-center rounded-lg bg-cyan-50 px-2 py-0.5 text-[0.65rem] font-black text-cyan-700 ring-1 ring-cyan-200/40">
+                    {{ getDisplaySize() }}
+                  </span>
+                }
+                @if (product?.variantGroupId) {
+                  <span class="inline-flex items-center rounded bg-slate-100 px-1.5 py-0.5 text-[0.6rem] font-bold text-slate-500">
+                    {{ currentLang === 'ar' ? 'حجم ضمن مجموعة' : 'Size in group' }}
+                  </span>
+                }
+              </div>
             </div>
           </div>
         </div>
@@ -96,6 +108,30 @@ export class AddProductModalComponent {
 
   onClose() {
     this.close.emit();
+  }
+
+  getDisplaySize(): string {
+    if (!this.product) {
+      return '';
+    }
+
+    const displaySize = this.currentLang === 'ar'
+      ? (this.product.displaySizeAr || this.product.displaySizeEn || '')
+      : (this.product.displaySizeEn || this.product.displaySizeAr || '');
+
+    if (displaySize?.trim()) {
+      return displaySize;
+    }
+
+    const unit = this.currentLang === 'ar'
+      ? (this.product.unitNameAr || this.product.unitNameEn || '')
+      : (this.product.unitNameEn || this.product.unitNameAr || '');
+
+    if (this.product.measurementValue) {
+      return `${this.product.measurementValue} ${unit}`.trim();
+    }
+
+    return unit;
   }
 
   onSubmit(event: Event) {

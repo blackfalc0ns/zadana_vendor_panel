@@ -33,4 +33,3 @@ export function repairUtf8Mojibake(value: string | null | undefined): string {
     return normalizedPunctuation;
   }
 }
-

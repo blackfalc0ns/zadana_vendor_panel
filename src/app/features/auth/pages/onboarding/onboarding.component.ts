@@ -29,6 +29,7 @@ import { RegisterVendorPayload } from '../../../../core/auth/models/vendor-auth.
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 import { VendorProfile } from '../../../settings/models/vendor-profile.models';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
+import { VendorReviewItem } from '../../../settings/models/vendor-profile.models';
 
 @Component({
   selector: 'app-onboarding',
@@ -131,6 +132,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   submissionError = '';
   isEditMode = false;
   private currentProfile: VendorProfile | null = null;
+  private rejectedReviewItems = new Map<string, VendorReviewItem>();
   storeLogo: File | null = null;
   crDocument: File | null = null;
   taxDocument: File | null = null;
@@ -231,6 +233,22 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   get hasBranchCoordinates(): boolean {
     const step2 = this.getStepGroup(2);
     return !!step2.get('branchLatitude')?.value && !!step2.get('branchLongitude')?.value;
+  }
+
+  get existingLogoUrl(): string | null {
+    return this.currentProfile?.logoUrl || null;
+  }
+
+  get existingCommercialUrl(): string | null {
+    return this.currentProfile?.commercialRegisterDocumentUrl || null;
+  }
+
+  get existingTaxUrl(): string | null {
+    return this.currentProfile?.taxDocumentUrl || null;
+  }
+
+  get existingLicenseUrl(): string | null {
+    return this.currentProfile?.licenseDocumentUrl || null;
   }
 
   get reviewStatusLabelKey(): string {
@@ -728,9 +746,17 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   getUploadCardClasses(step: string, field: string): string {
+    if (this.isRejectedCode(this.mapUploadFieldToReviewCode(field))) {
+      return 'rounded-3xl border border-dashed border-red-300 bg-red-50/80 p-5';
+    }
+
     return this.isInvalid(step, field)
       ? 'rounded-3xl border border-dashed border-red-300 bg-red-50/60 p-5'
       : 'rounded-3xl border border-dashed border-slate-300 bg-slate-50/70 p-5';
+  }
+
+  getReviewFieldClass(code: string): string {
+    return this.isRejectedCode(code) ? 'rounded-2xl border border-red-200 bg-red-50/40 p-2' : '';
   }
 
   getCompletionLabel(stepId: number): string {
@@ -769,6 +795,43 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   isInvalid(step: string, field: string): boolean {
     const control = this.onboardingForm.get(`step${step}.${field}`);
     return !!(control && control.invalid && (control.dirty || control.touched));
+  }
+
+  isRejectedField(code: string): boolean {
+    return this.isRejectedCode(code);
+  }
+
+  getRejectedFieldNote(code: string): string {
+    return this.rejectedReviewItems.get(code)?.decisionNote || '';
+  }
+
+  shouldShowExistingFile(type: 'logo' | 'cr' | 'tax' | 'license'): boolean {
+    if (type === 'logo') {
+      return !this.storeLogo && !!this.existingLogoUrl;
+    }
+
+    if (type === 'cr') {
+      return !this.crDocument && !!this.existingCommercialUrl;
+    }
+
+    if (type === 'tax') {
+      return !this.taxDocument && !!this.existingTaxUrl;
+    }
+
+    return !this.licenseDocument && !!this.existingLicenseUrl;
+  }
+
+  getExistingFileName(url: string | null | undefined): string {
+    if (!url) {
+      return '';
+    }
+
+    try {
+      const normalized = url.split('?')[0].split('#')[0];
+      return decodeURIComponent(normalized.substring(normalized.lastIndexOf('/') + 1));
+    } catch {
+      return url;
+    }
   }
 
   isPreviewActive(section: 'store' | 'legal' | 'bank' | 'docs'): boolean {
@@ -914,7 +977,9 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
     this.profileService.loadProfileForGuard(true).subscribe({
       next: (profile) => {
         this.currentProfile = profile;
+        this.syncRejectedReviewItems(profile);
         this.patchProfileData(profile);
+        this.openFirstRejectedStep(profile);
       },
       error: (error) => {
         this.submissionError = error?.error?.detail
@@ -941,8 +1006,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
         region: profile.region,
         city: profile.city,
         nationalAddress: profile.nationalAddress,
-        branchLatitude: '',
-        branchLongitude: ''
+        branchLatitude: profile.branchLatitude != null ? String(profile.branchLatitude) : '',
+        branchLongitude: profile.branchLongitude != null ? String(profile.branchLongitude) : ''
       },
       step3: {
         idNumber: profile.idNumber,
@@ -1111,6 +1176,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
         region: step2.region,
         city: step2.city,
         nationalAddress: step2.nationalAddress,
+        branchLatitude: step2.branchLatitude ? Number(step2.branchLatitude) : null,
+        branchLongitude: step2.branchLongitude ? Number(step2.branchLongitude) : null,
         idNumber: step3.idNumber,
         nationality: step3.nationality,
         commercialRegistrationNumber: step3.commercialRegistrationNumber,
@@ -1157,6 +1224,44 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
     return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData).pipe(
       map((response) => response.url)
     );
+  }
+
+  private syncRejectedReviewItems(profile: VendorProfile): void {
+    this.rejectedReviewItems = new Map(
+      (profile.reviewItems || [])
+        .filter((item) => item.status === 'changes_requested')
+        .map((item) => [item.code, item])
+    );
+  }
+
+  private openFirstRejectedStep(profile: VendorProfile): void {
+    const rejectedSteps = (profile.reviewItems || [])
+      .filter((item) => item.status === 'changes_requested' && typeof item.step === 'number')
+      .map((item) => item.step as number)
+      .sort((left, right) => left - right);
+
+    if (rejectedSteps.length > 0) {
+      this.currentStep = rejectedSteps[0];
+    }
+  }
+
+  private isRejectedCode(code: string): boolean {
+    return this.rejectedReviewItems.has(code);
+  }
+
+  private mapUploadFieldToReviewCode(field: string): string {
+    switch (field) {
+      case 'hasLogo':
+        return 'step5.logo';
+      case 'hasCRDoc':
+        return 'step5.commercial';
+      case 'hasTaxDoc':
+        return 'step5.tax';
+      case 'hasLicenseDoc':
+        return 'step5.license';
+      default:
+        return field;
+    }
   }
 }
 

@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, catchError, map, of, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, forkJoin, map, of, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import { VendorAuthService } from '../../../core/auth/services/vendor-auth.service';
+import { VendorNotificationSoundService, normalizeVendorNotificationSound } from '../../../core/notifications/services/vendor-notification-sound.service';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem, VendorReviewSummary } from '../models/vendor-profile.models';
 
 export type VendorLegalDocumentType = 'commercial' | 'tax' | 'license';
@@ -30,6 +31,8 @@ interface VendorWorkspaceApi {
   region?: string | null;
   city?: string | null;
   nationalAddress?: string | null;
+  primaryBranchLatitude?: number | null;
+  primaryBranchLongitude?: number | null;
   ownerName?: string | null;
   ownerEmail?: string | null;
   ownerPhone?: string | null;
@@ -66,6 +69,8 @@ interface VendorWorkspaceApi {
   reviewItems?: Array<{
     code: string;
     status: string;
+    targetType?: 'field' | 'document' | null;
+    step?: number | null;
     reviewerId?: string | null;
     reviewerName?: string | null;
     decisionNote?: string | null;
@@ -98,6 +103,7 @@ interface VendorWorkspaceApi {
     emailNotificationsEnabled: boolean;
     smsNotificationsEnabled: boolean;
     newOrdersNotificationsEnabled: boolean;
+    notificationSound?: string | null;
   } | null;
   primaryBankAccount?: {
     bankName?: string | null;
@@ -113,11 +119,21 @@ interface VendorWorkspaceApi {
   }>;
 }
 
+interface VendorStoreAvailabilityStateApi {
+  manual_mode?: 'online' | 'offline' | string | null;
+  manualMode?: 'online' | 'offline' | string | null;
+  manual_reason?: string | null;
+  manualReason?: string | null;
+  updated_at_utc?: string | null;
+  updatedAtUtc?: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class VendorProfileService {
   private readonly apiUrl = `${environment.apiUrl}/vendors/profile`;
+  private readonly storeAvailabilityUrl = `${environment.apiUrl}/vendor/workspace-state/store-availability`;
   private readonly profileSubject = new BehaviorSubject<VendorProfile>(this.getDefaultProfile());
   private hasLoaded = false;
 
@@ -125,7 +141,8 @@ export class VendorProfileService {
 
   constructor(
     private readonly http: HttpClient,
-    private readonly authService: VendorAuthService
+    private readonly authService: VendorAuthService,
+    private readonly notificationSoundService: VendorNotificationSoundService
   ) {}
 
   getProfile(): Observable<VendorProfile> {
@@ -165,8 +182,22 @@ export class VendorProfileService {
     return this.fetchProfile();
   }
 
+  saveStoreAvailability(manualMode: 'online' | 'offline', manualReason?: string | null): Observable<VendorProfile> {
+    const currentProfile = this.profileSubject.value;
+    const nextProfile: VendorProfile = {
+      ...currentProfile,
+      storeManualMode: manualMode,
+      storeManualReason: manualMode === 'offline' ? (manualReason?.trim() || null) : null
+    };
+
+    return this.updateStoreAvailabilityState(nextProfile).pipe(
+      map(() => nextProfile),
+      tap((profile) => this.persistProfile(profile))
+    );
+  }
+
   saveProfile(profile: VendorProfile): Observable<VendorProfile> {
-    return this.updateStore(profile).pipe(
+    const request$ = this.updateStore(profile).pipe(
       switchMap(() => this.updateOwner(profile)),
       switchMap(() => this.updateContact(profile)),
       switchMap(() => this.updateLegal(profile)),
@@ -174,9 +205,12 @@ export class VendorProfileService {
       switchMap(() => this.updateHours(profile)),
       switchMap(() => this.updateOperationsSettings(profile)),
       switchMap(() => this.updateNotificationSettings(profile)),
-      map((workspace) => this.mapWorkspaceToProfile(workspace)),
+      switchMap(() => this.updateStoreAvailabilityState(profile)),
+      switchMap((): Observable<VendorProfile> => this.fetchProfile()),
       tap((nextProfile) => this.persistProfile(nextProfile))
     );
+
+    return request$ as Observable<VendorProfile>;
   }
 
   updateOnboardingProfile(profile: VendorProfile): Observable<VendorProfile> {
@@ -264,7 +298,9 @@ export class VendorProfileService {
     return this.http.put<ApiEnvelope<VendorWorkspaceApi>>(`${this.apiUrl}/contact`, {
       region: profile.region,
       city: profile.city,
-      nationalAddress: profile.nationalAddress
+      nationalAddress: profile.nationalAddress,
+      branchLatitude: profile.branchLatitude ?? null,
+      branchLongitude: profile.branchLongitude ?? null
     }).pipe(map((response) => this.unwrap(response)));
   }
 
@@ -313,8 +349,21 @@ export class VendorProfileService {
     return this.http.put<ApiEnvelope<VendorWorkspaceApi>>(`${this.apiUrl}/notification-settings`, {
       emailNotificationsEnabled: profile.emailNotificationsEnabled ?? true,
       smsNotificationsEnabled: profile.smsNotificationsEnabled ?? false,
-      newOrdersNotificationsEnabled: profile.newOrdersNotificationsEnabled ?? true
+      newOrdersNotificationsEnabled: profile.newOrdersNotificationsEnabled ?? true,
+      notificationSound: normalizeVendorNotificationSound(profile.notificationSound)
     }).pipe(map((response) => this.unwrap(response)));
+  }
+
+  private updateStoreAvailabilityState(profile: VendorProfile): Observable<VendorStoreAvailabilityStateApi> {
+    const manualMode = profile.storeManualMode === 'offline' ? 'offline' : 'online';
+    const manualReason = manualMode === 'offline'
+      ? (profile.storeManualReason?.trim() || null)
+      : null;
+
+    return this.http.put<VendorStoreAvailabilityStateApi>(this.storeAvailabilityUrl, {
+      manual_mode: manualMode,
+      manual_reason: manualReason
+    });
   }
 
   private unwrap<T>(response: ApiEnvelope<T> | T): T {
@@ -327,8 +376,13 @@ export class VendorProfileService {
   }
 
   private fetchProfile(): Observable<VendorProfile> {
-    return this.http.get<VendorWorkspaceApi>(this.apiUrl).pipe(
-      map((workspace) => this.mapWorkspaceToProfile(workspace)),
+    return forkJoin({
+      workspace: this.http.get<VendorWorkspaceApi>(this.apiUrl),
+      storeAvailability: this.http.get<VendorStoreAvailabilityStateApi>(this.storeAvailabilityUrl).pipe(
+        catchError(() => of<VendorStoreAvailabilityStateApi>({ manual_mode: 'online', manual_reason: null }))
+      )
+    }).pipe(
+      map(({ workspace, storeAvailability }) => this.mapWorkspaceToProfile(workspace, storeAvailability)),
       tap((profile) => this.persistProfile(profile))
     );
   }
@@ -336,13 +390,19 @@ export class VendorProfileService {
   private persistProfile(profile: VendorProfile): void {
     this.hasLoaded = true;
     this.profileSubject.next(profile);
+    this.notificationSoundService.setSound(profile.notificationSound);
     localStorage.setItem('onboarding_biz_name', profile.storeNameAr || profile.storeNameEn || 'Vendor');
   }
 
-  private mapWorkspaceToProfile(workspace: VendorWorkspaceApi): VendorProfile {
+  private mapWorkspaceToProfile(
+    workspace: VendorWorkspaceApi,
+    storeAvailability?: VendorStoreAvailabilityStateApi | null
+  ): VendorProfile {
     const operatingHours = [...(workspace.operatingHours || [])]
       .sort((left, right) => this.daySortIndex(left.dayOfWeek) - this.daySortIndex(right.dayOfWeek))
       .map((item) => this.mapHour(item.dayOfWeek, item.openTime, item.closeTime, item.isOpen));
+    const manualMode = this.normalizeStoreManualMode(storeAvailability);
+    const manualReason = this.normalizeStoreManualReason(storeAvailability);
     const reviewSummary: VendorReviewSummary = workspace.reviewSummary ?? {
       totalItems: 0,
       approvedItems: 0,
@@ -372,6 +432,8 @@ export class VendorProfileService {
       region: workspace.region || '',
       city: workspace.city || '',
       nationalAddress: workspace.nationalAddress || '',
+      branchLatitude: workspace.primaryBranchLatitude ?? null,
+      branchLongitude: workspace.primaryBranchLongitude ?? null,
       ownerName: workspace.ownerName || '',
       ownerEmail: workspace.ownerEmail || '',
       ownerPhone: workspace.ownerPhone || '',
@@ -415,11 +477,14 @@ export class VendorProfileService {
       joinedAt: this.formatDate(workspace.createdAtUtc),
       operatingHours: operatingHours.length ? operatingHours : this.getDefaultProfile().operatingHours,
       acceptOrders: workspace.operationsSettings?.acceptOrders ?? true,
+      storeManualMode: manualMode,
+      storeManualReason: manualReason,
       minimumOrderAmount: workspace.operationsSettings?.minimumOrderAmount ?? null,
       preparationTimeMinutes: workspace.operationsSettings?.preparationTimeMinutes ?? null,
       emailNotificationsEnabled: workspace.notificationSettings?.emailNotificationsEnabled ?? true,
       smsNotificationsEnabled: workspace.notificationSettings?.smsNotificationsEnabled ?? false,
-      newOrdersNotificationsEnabled: workspace.notificationSettings?.newOrdersNotificationsEnabled ?? true
+      newOrdersNotificationsEnabled: workspace.notificationSettings?.newOrdersNotificationsEnabled ?? true,
+      notificationSound: normalizeVendorNotificationSound(workspace.notificationSettings?.notificationSound)
     };
   }
 
@@ -489,6 +554,22 @@ export class VendorProfileService {
     }
   }
 
+  private normalizeStoreManualMode(
+    storeAvailability?: VendorStoreAvailabilityStateApi | null
+  ): 'online' | 'offline' {
+    const value = (storeAvailability?.manual_mode ?? storeAvailability?.manualMode ?? 'online')
+      .toString()
+      .trim()
+      .toLowerCase();
+
+    return value === 'offline' ? 'offline' : 'online';
+  }
+
+  private normalizeStoreManualReason(storeAvailability?: VendorStoreAvailabilityStateApi | null): string | null {
+    const value = storeAvailability?.manual_reason ?? storeAvailability?.manualReason ?? null;
+    return typeof value === 'string' && value.trim() ? value.trim() : null;
+  }
+
   private getDefaultProfile(): VendorProfile {
     return {
       status: '',
@@ -502,6 +583,8 @@ export class VendorProfileService {
       region: '',
       city: '',
       nationalAddress: '',
+      branchLatitude: null,
+      branchLongitude: null,
       ownerName: '',
       ownerEmail: '',
       ownerPhone: '',
@@ -551,11 +634,14 @@ export class VendorProfileService {
       canSubmitForReview: false,
       joinedAt: '',
       acceptOrders: true,
+      storeManualMode: 'online',
+      storeManualReason: null,
       minimumOrderAmount: null,
       preparationTimeMinutes: null,
       emailNotificationsEnabled: true,
       smsNotificationsEnabled: false,
       newOrdersNotificationsEnabled: true,
+      notificationSound: normalizeVendorNotificationSound(undefined),
       operatingHours: [
         { dayKey: 'SETTINGS_PROFILE.DAYS.SATURDAY', from: '09:00', to: '22:00', isOpen: true },
         { dayKey: 'SETTINGS_PROFILE.DAYS.SUNDAY', from: '09:00', to: '22:00', isOpen: true },

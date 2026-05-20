@@ -94,6 +94,7 @@
       "90d": "آخر 90 يوماً"
     },
     "SECTION_NAV": {
+      "OVERVIEW": "نظرة عامة",
       "OPERATIONS": "التشغيل",
       "SALES": "المبيعات",
       "INVENTORY": "المخزون",
@@ -119,6 +120,8 @@
       "LOW_STOCK": "مخزون حرج"
     },
     "SECTIONS": {
+      "OVERVIEW": "نظرة عامة",
+      "OVERVIEW_HINT": "ملخص شامل للأداء التشغيلي والمالي.",
       "OPERATIONS": "مركز القيادة التشغيلية",
       "OPERATIONS_HINT": "ما الذي يحتاج إلى تدخل الآن عبر الطلبات والتنفيذ.",
       "SALES": "المبيعات والأداء التجاري",
@@ -154,6 +157,7 @@
       "COUNT": "العدد",
       "SALES": "المبيعات",
       "ORDERS": "الطلبات",
+      "SALES_TREND": "اتجاه المبيعات",
       "PAYOUTS": "التحويلات",
       "PRODUCTS": "المنتجات",
       "REVIEWS": "التقييمات",
@@ -288,12 +292,17 @@
     "EMPTY": {
       "NO_ALERTS": "لا توجد تنبيهات نشطة حالياً.",
       "NO_URGENT_ORDERS": "لا توجد طلبات عاجلة حالياً.",
+      "NO_CRITICAL_STOCK": "لا توجد منتجات ذات مخزون حرج حالياً.",
+      "NO_PENDING_REVIEWS": "لا توجد تقييمات منخفضة بانتظار الرد.",
       "NO_STAFF_DISTRIBUTION": "لا توجد بيانات كافية عن توزيع الفريق حتى الآن."
     },
     "OPERATIONS": {
       "PREP_EFFICIENCY": "كفاءة التجهيز (SLA)",
       "AVG_PREP_TIME": "متوسط وقت التجهيز",
       "MINUTES": "دقيقة"
+    },
+    "TABLES": {
+      "SALES": "مبيعات"
     }
   },
   "AUTH": {
@@ -586,7 +595,13 @@
       "OFFERS": "العروض",
       "ALL_OFFERS": "كل العروض",
       "WITH_OFFERS": "عليها عروض",
-      "WITHOUT_OFFERS": "بدون عروض"
+      "WITHOUT_OFFERS": "بدون عروض",
+      "PACKAGE_TYPE": "نوع العبوة",
+      "ALL_PACKAGE_TYPES": "كل أنواع العبوات",
+      "MEASUREMENT_UNIT": "وحدة القياس",
+      "ALL_MEASUREMENT_UNITS": "كل وحدات القياس",
+      "SIZE_VALUE": "قيمة الحجم",
+      "ALL_SIZES": "كل الأحجام"
     },
     "HEADER_PRODUCT": "المنتج",
     "HEADER_CATEGORY": "التصنيف",
@@ -1084,7 +1099,17 @@
       "SMS": "إشعارات الرسائل النصية",
       "SMS_HINT": "استلام التنبيهات المهمة عبر الرسائل النصية.",
       "NEW_ORDERS": "إشعارات الطلبات الجديدة",
-      "NEW_ORDERS_HINT": "تنبيه فوري عند وصول طلب جديد."
+      "NEW_ORDERS_HINT": "تنبيه فوري عند وصول طلب جديد.",
+      "SOUND": "نغمة الإشعارات",
+      "SOUND_HINT": "اختر النغمة التي تعمل عند وصول تنبيه فوري داخل لوحة التاجر.",
+      "PREVIEW_SOUND": "تجربة النغمة",
+      "SOUND_OPTIONS": {
+        "CLASSIC": "كلاسيكية",
+        "CHIME": "جرس خفيف",
+        "SOFT": "هادئة",
+        "URGENT": "عاجلة",
+        "OFF": "بدون صوت"
+      }
     },
     "COMMAND": {
       "EYEBROW": "مساحة عمل المورد",

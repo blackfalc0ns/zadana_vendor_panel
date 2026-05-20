@@ -80,6 +80,17 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
               {{ 'PRODUCTS.SAVE_CHANGES' | translate }}
             </span>
           </button>
+
+          <button
+            type="button"
+            (click)="deleteProduct()"
+            [disabled]="isSaving || isLoading"
+            class="group relative flex items-center justify-center gap-2 overflow-hidden rounded-[14px] border border-rose-200 bg-white px-5 py-2.5 text-[0.78rem] font-black text-rose-600 shadow-sm transition-all duration-300 hover:-translate-y-0.5 hover:bg-rose-50 hover:shadow-md disabled:opacity-50">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+            {{ currentLang === 'ar' ? 'حذف المنتج' : 'Delete product' }}
+          </button>
         </div>
       </app-page-header>
 
@@ -494,6 +505,43 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.translate.get('PRODUCTS.UPDATE_ERROR').subscribe(msg => {
           this.alertModalService.error(msg);
         });
+      }
+    });
+  }
+
+  deleteProduct(): void {
+    if (!this.product) return;
+
+    const productName = this.currentLang === 'ar'
+      ? (this.product.nameAr || this.product.nameEn || '')
+      : (this.product.nameEn || this.product.nameAr || '');
+    const confirmed = window.confirm(
+      this.currentLang === 'ar'
+        ? `هل تريد حذف المنتج "${productName}"؟`
+        : `Do you want to delete "${productName}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.isSaving = true;
+    this.catalogService.deleteVendorProduct(this.product.id).subscribe({
+      next: () => {
+        this.isSaving = false;
+        this.alertModalService.success(
+          this.currentLang === 'ar' ? 'تم حذف المنتج بنجاح.' : 'Product deleted successfully.'
+        );
+        this.router.navigate(['/products']);
+      },
+      error: (error) => {
+        this.isSaving = false;
+        this.alertModalService.error(
+          error?.error?.message
+            || (this.currentLang === 'ar'
+              ? 'تعذر حذف المنتج الآن. تأكد أنه غير مرتبط بطلبات أو حملات.'
+              : 'Unable to delete this product right now. Make sure it is not linked to orders or campaigns.')
+        );
       }
     });
   }

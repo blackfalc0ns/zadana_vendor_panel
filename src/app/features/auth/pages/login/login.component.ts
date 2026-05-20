@@ -100,16 +100,34 @@ export class LoginComponent implements OnInit {
     return this.translate.currentLang === 'ar';
   }
 
+  /**
+   * Map of known server error strings → i18n translation keys.
+   * This ensures raw English messages from the API are never shown
+   * on an Arabic (or any translated) UI.
+   */
+  private static readonly SERVER_MESSAGE_MAP: Record<string, string> = {
+    'invalid credentials': 'LOGIN.ERR_INVALID_CREDENTIALS',
+    'invalid credentials.': 'LOGIN.ERR_INVALID_CREDENTIALS',
+    'invalid email or password': 'LOGIN.ERR_INVALID_CREDENTIALS',
+    'account is locked': 'LOGIN.ERR_ACCOUNT_LOCKED',
+    'account locked': 'LOGIN.ERR_ACCOUNT_LOCKED',
+    'account is not allowed': 'LOGIN.ERR_ACCOUNT_NOT_ALLOWED',
+    'access denied': 'LOGIN.ERR_ACCOUNT_NOT_ALLOWED',
+    'user not found': 'LOGIN.ERR_INVALID_CREDENTIALS'
+  };
+
   private resolveLoginErrorMessage(error: unknown): string {
     if (!(error instanceof HttpErrorResponse)) {
       return this.translate.instant('LOGIN.ERR_LOGIN_FAILED');
     }
 
-    const serverMessage = this.extractServerMessage(error);
-    if (serverMessage) {
-      return serverMessage;
+    // 1 — Try to match the raw server message to a known translation key
+    const translationKey = this.resolveServerMessageKey(error);
+    if (translationKey) {
+      return this.translate.instant(translationKey);
     }
 
+    // 2 — Fall back to status-code-based translated messages
     if (error.status === 0) {
       return this.translate.instant('LOGIN.ERR_SERVER_UNREACHABLE');
     }
@@ -133,34 +151,40 @@ export class LoginComponent implements OnInit {
     return this.translate.instant('LOGIN.ERR_LOGIN_FAILED');
   }
 
-  private extractServerMessage(error: HttpErrorResponse): string | null {
+  /**
+   * Extracts the server-provided error string and maps it to a
+   * known i18n key. Returns null when no match is found.
+   */
+  private resolveServerMessageKey(error: HttpErrorResponse): string | null {
     const candidates = [
       error.error?.detail,
       error.error?.message,
       error.error?.title
     ];
 
-    const meaningfulMessage = candidates.find((candidate): candidate is string =>
-      typeof candidate === 'string' && this.isMeaningfulServerMessage(candidate)
-    );
+    for (const candidate of candidates) {
+      if (typeof candidate !== 'string') continue;
 
-    return meaningfulMessage?.trim() || null;
-  }
+      const normalized = candidate.trim().toLowerCase();
+      if (!normalized) continue;
 
-  private isMeaningfulServerMessage(message: string): boolean {
-    const normalizedMessage = message.trim();
+      // Skip generic HTTP framework noise
+      if (this.isGenericFrameworkMessage(normalized)) continue;
 
-    if (!normalizedMessage) {
-      return false;
+      const key = LoginComponent.SERVER_MESSAGE_MAP[normalized];
+      if (key) return key;
     }
 
+    return null;
+  }
+
+  private isGenericFrameworkMessage(lowerMessage: string): boolean {
     const blockedFragments = [
       'http failure response for',
       'unknown error',
       'http error response for'
     ];
 
-    const lowerMessage = normalizedMessage.toLowerCase();
-    return !blockedFragments.some((fragment) => lowerMessage.includes(fragment));
+    return blockedFragments.some((fragment) => lowerMessage.includes(fragment));
   }
 }

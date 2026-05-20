@@ -129,7 +129,7 @@ import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor
                   <span class="text-xs font-bold text-slate-900">{{ entry.authorName }}</span>
                   <span class="text-[0.6rem] font-bold text-slate-400 ms-auto">{{ formatReviewDate(entry.createdAtUtc) }}</span>
                 </div>
-                <p class="text-xs text-slate-600">{{ entry.message }}</p>
+                <p class="text-xs text-slate-600">{{ localizeMessage(entry.message) }}</p>
               </div>
             </article>
           </div>
@@ -171,4 +171,48 @@ export class ProfileSideRailComponent {
   @Output() sectionSelect = new EventEmitter<string>();
   @Output() save = new EventEmitter<void>();
   @Output() submit = new EventEmitter<void>();
+
+  private readonly messageMap: Record<string, string> = {
+    'Vendor review started.': 'بدأت مراجعة التاجر.',
+    'Vendor account reactivated and returned to active status.': 'تم إعادة تفعيل حساب التاجر وإرجاعه للحالة النشطة.',
+    'Vendor login was unlocked and account access was restored.': 'تم فتح دخول التاجر واستعادة الوصول للحساب.',
+    'Vendor password was reset by an administrator and all active sessions were revoked.': 'تمت إعادة تعيين كلمة مرور التاجر بواسطة المسؤول وتم إلغاء جميع الجلسات النشطة.',
+    'Please re-upload the required legal documents and confirm the latest vendor information.': 'يرجى إعادة رفع المستندات القانونية المطلوبة وتأكيد أحدث بيانات التاجر.',
+    'Vendor updated banking and payout setup from Vendor Portal.': 'قام التاجر بتحديث بيانات الحساب البنكي والتسويات من بوابة التاجر.',
+    'Vendor updated store profile details from Vendor Portal.': 'قام التاجر بتحديث بيانات المتجر من بوابة التاجر.',
+    'Vendor updated address and contact location details from Vendor Portal.': 'قام التاجر بتحديث بيانات العنوان والموقع من بوابة التاجر.',
+    'Vendor updated operating hours from Vendor Portal.': 'قام التاجر بتحديث ساعات العمل من بوابة التاجر.',
+    'Vendor updated owner information from Vendor Portal.': 'قام التاجر بتحديث بيانات المالك من بوابة التاجر.',
+    'Vendor updated notification preferences from Vendor Portal.': 'قام التاجر بتحديث تفضيلات الإشعارات من بوابة التاجر.',
+    'Vendor updated operational settings from Vendor Portal.': 'قام التاجر بتحديث إعدادات التشغيل من بوابة التاجر.',
+    'Vendor updated legal and compliance information from Vendor Portal.': 'قام التاجر بتحديث البيانات القانونية والامتثال من بوابة التاجر.',
+    'Vendor submitted the profile and required documents for compliance review.': 'قام التاجر بإرسال الملف الشخصي والمستندات المطلوبة لمراجعة الامتثال.'
+  };
+
+  localizeMessage(message: string): string {
+    if (this.currentLang !== 'ar') {
+      return message;
+    }
+
+    if (this.messageMap[message]) {
+      return this.messageMap[message];
+    }
+
+    // Pattern-based translations
+    const docTypeAr = (type: string): string => {
+      const map: Record<string, string> = { 'Commercial': 'السجل التجاري', 'Tax': 'الضريبة', 'License': 'الرخصة', 'Identity': 'الهوية', 'Bank': 'البنك' };
+      return map[type] || type;
+    };
+
+    let match = message.match(/^Vendor approved with commission rate ([\d.]+)%\.$/);
+    if (match) return `تمت الموافقة على التاجر بنسبة عمولة ${match[1]}%.`;
+
+    match = message.match(/^(Commercial|Tax|License|Identity|Bank) document approved\.$/);
+    if (match) return `تم قبول مستند ${docTypeAr(match[1])}.`;
+
+    match = message.match(/^(Commercial|Tax|License|Identity|Bank) document rejected\. (.+)$/);
+    if (match) return `تم رفض مستند ${docTypeAr(match[1])}. ${match[2]}`;
+
+    return message;
+  }
 }

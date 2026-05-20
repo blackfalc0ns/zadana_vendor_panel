@@ -174,22 +174,24 @@ import { OrdersService } from '../../services/orders.service';
                       {{ hasTrackableMapData()
                         ? (isTrackingActive()
                           ? (currentLang === 'ar' ? 'المندوب يتحرك الآن على المسار المباشر.' : 'The courier is moving on the live route now.')
-                          : (currentLang === 'ar' ? 'الخريطة تعرض مواقع المتجر والعميل حاليًا، وسيظهر موقع المندوب فور توفره.' : 'The map is showing store and customer locations now, and the courier will appear as soon as live coordinates arrive.'))
+                          : isOrderCompleted()
+                            ? (currentLang === 'ar' ? 'الخريطة تعرض آخر المواقع المسجلة لهذا الطلب.' : 'The map shows the last recorded locations for this order.')
+                            : (currentLang === 'ar' ? 'الخريطة تعرض مواقع المتجر والعميل حاليًا، وسيظهر موقع المندوب فور توفره.' : 'The map is showing store and customer locations now, and the courier will appear as soon as live coordinates arrive.'))
                         : (currentLang === 'ar' ? 'لا توجد بيانات موقع حقيقية متاحة لهذا الطلب حتى الآن.' : 'No real location data is available for this order yet.') }}
                     </p>
                   </div>
 
-                  <div class="live-pill" *ngIf="isTrackingActive(); else waitingPill">
+                  <div class="live-pill" *ngIf="isTrackingActive(); else completedOrWaitingPill">
                     <span class="relative flex h-2.5 w-2.5">
                       <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                       <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
                     </span>
                     <span>{{ currentLang === 'ar' ? 'مباشر' : 'Live' }}</span>
                   </div>
-                  <ng-template #waitingPill>
-                    <div class="live-pill bg-slate-100 text-slate-500">
-                      <span class="material-symbols-outlined text-[18px]">{{ hasTrackableMapData() ? 'map' : 'location_off' }}</span>
-                      <span>{{ hasTrackableMapData() ? (currentLang === 'ar' ? 'خريطة الطلب متاحة' : 'Order map available') : (currentLang === 'ar' ? 'لا توجد بيانات تتبع' : 'No tracking data') }}</span>
+                  <ng-template #completedOrWaitingPill>
+                    <div class="live-pill" [ngClass]="isOrderCompleted() ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'">
+                      <span class="material-symbols-outlined text-[18px]">{{ isOrderCompleted() ? 'check_circle' : (hasTrackableMapData() ? 'map' : 'location_off') }}</span>
+                      <span>{{ isOrderCompleted() ? (currentLang === 'ar' ? 'مكتمل' : 'Completed') : (hasTrackableMapData() ? (currentLang === 'ar' ? 'خريطة الطلب متاحة' : 'Order map available') : (currentLang === 'ar' ? 'لا توجد بيانات تتبع' : 'No tracking data')) }}</span>
                     </div>
                   </ng-template>
                 </div>
@@ -475,6 +477,11 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   isTrackingActive(): boolean {
     const status = this.order?.backendStatus;
     return status === 'DriverAssigned' || status === 'PickedUp' || status === 'OnTheWay';
+  }
+
+  isOrderCompleted(): boolean {
+    const status = this.order?.status;
+    return status === 'DELIVERED' || status === 'COMPLETED' || status === 'CANCELLED' || status === 'RETURNED' || status === 'DELIVERY_FAILED' || status === 'REFUNDED';
   }
 
   hasTrackableMapData(): boolean {

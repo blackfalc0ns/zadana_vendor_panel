@@ -20,6 +20,18 @@ import { TranslateModule } from '@ngx-translate/core';
               <span class="h-1.5 w-1.5 rounded-full" [ngClass]="reviewStateDotClass"></span>
               {{ reviewStateLabel }}
             </span>
+            <button
+              type="button"
+              (click)="storeAvailabilityToggle.emit()"
+              [disabled]="isStoreAvailabilitySaving"
+              class="inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.65rem] font-bold transition-colors disabled:opacity-50"
+              [ngClass]="isStoreOffline ? 'border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100' : 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'">
+              <span *ngIf="isStoreAvailabilitySaving" class="h-3 w-3 animate-spin rounded-full border-2 border-current/25 border-t-current"></span>
+              <span *ngIf="!isStoreAvailabilitySaving" class="h-1.5 w-1.5 rounded-full" [ngClass]="isStoreOffline ? 'bg-rose-500' : 'bg-emerald-500'"></span>
+              {{ isStoreOffline
+                ? (currentLang === 'ar' ? 'المتجر أوفلاين' : 'Store offline')
+                : (currentLang === 'ar' ? 'المتجر أونلاين' : 'Store online') }}
+            </button>
           </div>
           <p class="mt-1 truncate text-xs font-semibold text-slate-500">
             {{ 'SETTINGS_PROFILE.COMMAND_CENTER.ACCOUNT_STATUS' | translate }} <span class="font-bold text-slate-700">{{ accountWorkspaceLabel }}</span>
@@ -93,7 +105,10 @@ export class ProfileCommandCenterComponent {
   @Input({ required: true }) submitReviewLabel!: string;
   @Input({ required: true }) isSaving = false;
   @Input({ required: true }) isSubmittingReview = false;
+  @Input() isStoreOffline = false;
+  @Input() isStoreAvailabilitySaving = false;
 
   @Output() save = new EventEmitter<void>();
   @Output() submit = new EventEmitter<void>();
+  @Output() storeAvailabilityToggle = new EventEmitter<void>();
 }

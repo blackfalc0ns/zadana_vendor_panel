@@ -106,51 +106,60 @@
                   formControlName="businessNameAr" 
                   [label]="'ONBOARDING.FIELDS.STORE_AR'" 
                   [placeholder]="'ONBOARDING.FIELDS.STORE_AR'"
+                  [customClass]="getReviewFieldClass('step1.businessNameAr')"
                   [isRequired]="true"
                   [error]="isInvalid('1', 'businessNameAr') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step1.businessNameAr')?.touched || false"
                   dir="rtl"
                 ></app-input>
+                <p *ngIf="isRejectedField('step1.businessNameAr')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessNameAr') }}</p>
 
                 <app-input 
                   formControlName="businessNameEn" 
                   [label]="'ONBOARDING.FIELDS.STORE_EN'" 
                   [placeholder]="'ONBOARDING.FIELDS.STORE_EN'"
+                  [customClass]="getReviewFieldClass('step1.businessNameEn')"
                   [isRequired]="true"
                   [error]="isInvalid('1', 'businessNameEn') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step1.businessNameEn')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step1.businessNameEn')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessNameEn') }}</p>
 
                 <app-select 
                   formControlName="businessType" 
                   [label]="'ONBOARDING.FIELDS.BIZ_TYPE'" 
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_BIZ'"
+                  [customClass]="getReviewFieldClass('step1.businessType')"
                   [options]="businessTypes"
                   [isRequired]="true"
                   [error]="isInvalid('1', 'businessType') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step1.businessType')?.touched || false"
                 ></app-select>
+                <p *ngIf="isRejectedField('step1.businessType')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessType') }}</p>
 
                 <app-input 
                   formControlName="contactPhone" 
                   [label]="'ONBOARDING.FIELDS.PHONE'" 
                   [placeholder]="'ONBOARDING.FIELDS.PHONE'"
+                  [customClass]="getReviewFieldClass('step1.contactPhone')"
                   [isRequired]="true"
                   [error]="isInvalid('1', 'contactPhone') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step1.contactPhone')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step1.contactPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.contactPhone') }}</p>
 
                 <app-input 
                   formControlName="description" 
                   type="textarea"
                   [rows]="3"
                   [label]="'ONBOARDING.FIELDS.DESC'"
-                  customClass="md:col-span-2"
+                  [customClass]="(getReviewFieldClass('step1.description') + ' md:col-span-2').trim()"
                   [error]="isInvalid('1', 'description') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step1.description')?.touched || false"
                 ></app-input>
+                <p *ngIf="isRejectedField('step1.description')" class="md:col-span-2 -mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.description') }}</p>
               </div>
             </app-card>
 
@@ -174,30 +183,36 @@
                   formControlName="ownerName" 
                   [label]="'ONBOARDING.FIELDS.OWNER_NAME'" 
                   [placeholder]="'ONBOARDING.FIELDS.OWNER_NAME'"
+                  [customClass]="getReviewFieldClass('step1.ownerName')"
                   [isRequired]="true"
                   [error]="isInvalid('1', 'ownerName') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step1.ownerName')?.touched || false"
                 ></app-input>
+                <p *ngIf="isRejectedField('step1.ownerName')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerName') }}</p>
 
                 <app-input 
                   formControlName="ownerEmail" 
                   [label]="'ONBOARDING.FIELDS.OWNER_EMAIL'" 
                   [placeholder]="'ONBOARDING.FIELDS.OWNER_EMAIL'"
+                  [customClass]="getReviewFieldClass('step1.ownerEmail')"
                   [isRequired]="true"
                   [error]="isInvalid('1', 'ownerEmail') ? 'LOGIN.ERR_EMAIL_INVALID' : ''"
                   [isTouched]="onboardingForm.get('step1.ownerEmail')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step1.ownerEmail')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerEmail') }}</p>
 
                 <app-input 
                   formControlName="ownerPhone" 
                   [label]="'ONBOARDING.FIELDS.OWNER_PHONE'" 
                   [placeholder]="'ONBOARDING.FIELDS.OWNER_PHONE'"
+                  [customClass]="getReviewFieldClass('step1.ownerPhone')"
                   [isRequired]="true"
                   [error]="isInvalid('1', 'ownerPhone') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step1.ownerPhone')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step1.ownerPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerPhone') }}</p>
               </div>
             </app-card>
           </div>
@@ -224,21 +239,25 @@
                   formControlName="region" 
                   [label]="'ONBOARDING.FIELDS.REGION'" 
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_REGION'"
+                  [customClass]="getReviewFieldClass('step2.region')"
                   [options]="regions"
                   [isRequired]="true"
                   [error]="isInvalid('2', 'region') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step2.region')?.touched || false"
                 ></app-select>
+                <p *ngIf="isRejectedField('step2.region')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.region') }}</p>
 
                 <app-select 
                   formControlName="city" 
                   [label]="'ONBOARDING.FIELDS.CITY'" 
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_CITY'"
+                  [customClass]="getReviewFieldClass('step2.city')"
                   [options]="filteredCities"
                   [isRequired]="true"
                   [error]="isInvalid('2', 'city') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step2.city')?.touched || false"
                 ></app-select>
+                <p *ngIf="isRejectedField('step2.city')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.city') }}</p>
 
                 <app-input 
                   formControlName="nationalAddress" 
@@ -246,10 +265,11 @@
                   [rows]="3"
                   [label]="'ONBOARDING.FIELDS.NATIONAL_ADDRESS'"
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.NAT_ADDRESS'"
-                  customClass="md:col-span-2"
+                  [customClass]="(getReviewFieldClass('step2.nationalAddress') + ' md:col-span-2').trim()"
                   [error]="isInvalid('2', 'nationalAddress') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step2.nationalAddress')?.touched || false"
                 ></app-input>
+                <p *ngIf="isRejectedField('step2.nationalAddress')" class="md:col-span-2 -mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.nationalAddress') }}</p>
 
                 <div class="md:col-span-2 overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-sm">
                   <div class="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
@@ -285,21 +305,25 @@
                       formControlName="branchLatitude"
                       [label]="'ONBOARDING.FIELDS.LATITUDE'"
                       [placeholder]="'ONBOARDING.PLACEHOLDERS.LATITUDE'"
+                      [customClass]="getReviewFieldClass('step2.branchLatitude')"
                       [isRequired]="true"
                       [error]="isInvalid('2', 'branchLatitude') ? 'REGISTER.ERR_GENERAL' : ''"
                       [isTouched]="onboardingForm.get('step2.branchLatitude')?.touched || false"
                       dir="ltr"
                     ></app-input>
+                    <p *ngIf="isRejectedField('step2.branchLatitude')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.branchLatitude') }}</p>
 
                     <app-input
                       formControlName="branchLongitude"
                       [label]="'ONBOARDING.FIELDS.LONGITUDE'"
                       [placeholder]="'ONBOARDING.PLACEHOLDERS.LONGITUDE'"
+                      [customClass]="getReviewFieldClass('step2.branchLongitude')"
                       [isRequired]="true"
                       [error]="isInvalid('2', 'branchLongitude') ? 'REGISTER.ERR_GENERAL' : ''"
                       [isTouched]="onboardingForm.get('step2.branchLongitude')?.touched || false"
                       dir="ltr"
                     ></app-input>
+                    <p *ngIf="isRejectedField('step2.branchLongitude')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.branchLongitude') }}</p>
 
                     <p *ngIf="locationError" class="md:col-span-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-700">
                       {{ locationError }}
@@ -332,61 +356,73 @@
                   formControlName="idNumber" 
                   [label]="'ONBOARDING.FIELDS.ID_NUMBER'" 
                   [placeholder]="'ONBOARDING.FIELDS.ID_NUMBER'"
+                  [customClass]="getReviewFieldClass('step3.idNumber')"
                   [isRequired]="true"
                   [error]="isInvalid('3', 'idNumber') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step3.idNumber')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step3.idNumber')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.idNumber') }}</p>
 
                 <app-select 
                   formControlName="nationality" 
                   [label]="'ONBOARDING.FIELDS.NATIONALITY'" 
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_NAT'"
+                  [customClass]="getReviewFieldClass('step3.nationality')"
                   [options]="nationalities"
                   [isRequired]="true"
                   [error]="isInvalid('3', 'nationality') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step3.nationality')?.touched || false"
                 ></app-select>
+                <p *ngIf="isRejectedField('step3.nationality')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.nationality') }}</p>
 
                 <app-input 
                   formControlName="commercialRegistrationNumber" 
                   [label]="'ONBOARDING.FIELDS.CR_NUMBER'" 
                   [placeholder]="'ONBOARDING.FIELDS.CR_NUMBER'"
+                  [customClass]="getReviewFieldClass('step3.commercialRegistrationNumber')"
                   [isRequired]="true"
                   [error]="isInvalid('3', 'commercialRegistrationNumber') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step3.commercialRegistrationNumber')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step3.commercialRegistrationNumber')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.commercialRegistrationNumber') }}</p>
 
                 <app-input 
                   formControlName="expiryDate" 
                   type="date"
                   [label]="'ONBOARDING.FIELDS.CR_EXPIRY'" 
                   [placeholder]="'ONBOARDING.FIELDS.CR_EXPIRY'"
+                  [customClass]="getReviewFieldClass('step3.expiryDate')"
                   [isRequired]="true"
                   [error]="isInvalid('3', 'expiryDate') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step3.expiryDate')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step3.expiryDate')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.expiryDate') }}</p>
 
                 <app-input 
                   formControlName="taxId" 
                   [label]="'ONBOARDING.FIELDS.TAX_ID'" 
                   [placeholder]="'ONBOARDING.FIELDS.TAX_ID'"
+                  [customClass]="getReviewFieldClass('step3.taxId')"
                   [isRequired]="true"
                   [error]="isInvalid('3', 'taxId') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step3.taxId')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step3.taxId')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.taxId') }}</p>
 
                 <app-input 
                   formControlName="licenseNumber" 
                   [label]="'ONBOARDING.FIELDS.LICENSE'" 
                   [placeholder]="'ONBOARDING.FIELDS.LICENSE'"
+                  [customClass]="getReviewFieldClass('step3.licenseNumber')"
                   [error]="isInvalid('3', 'licenseNumber') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step3.licenseNumber')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step3.licenseNumber')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.licenseNumber') }}</p>
               </div>
             </app-card>
           </div>
@@ -413,41 +449,49 @@
                   formControlName="bankName" 
                   [label]="'ONBOARDING.FIELDS.BANK_NAME'" 
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_BANK'"
+                  [customClass]="getReviewFieldClass('step4.bankName')"
                   [options]="banks"
                   [isRequired]="true"
                   [error]="isInvalid('4', 'bankName') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step4.bankName')?.touched || false"
                 ></app-select>
+                <p *ngIf="isRejectedField('step4.bankName')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.bankName') }}</p>
 
                 <app-select 
                   formControlName="paymentCycle" 
                   [label]="'ONBOARDING.FIELDS.PAYMENT_CYCLE'" 
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_PAYMENT'"
+                  [customClass]="getReviewFieldClass('step4.paymentCycle')"
                   [options]="paymentCycles"
                   [isRequired]="true"
                   [error]="isInvalid('4', 'paymentCycle') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step4.paymentCycle')?.touched || false"
                 ></app-select>
+                <p *ngIf="isRejectedField('step4.paymentCycle')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.paymentCycle') }}</p>
 
                 <app-input 
                   formControlName="iban" 
                   [label]="'ONBOARDING.FIELDS.IBAN'" 
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.IBAN'"
+                  [customClass]="getReviewFieldClass('step4.iban')"
                   [isRequired]="true"
                   [error]="isInvalid('4', 'iban') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step4.iban')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step4.iban')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.iban') }}</p>
 
                 <app-input 
                   formControlName="swiftCode" 
                   [label]="'ONBOARDING.FIELDS.SWIFT'" 
                   [placeholder]="'ONBOARDING.PLACEHOLDERS.SWIFT'"
+                  [customClass]="getReviewFieldClass('step4.swiftCode')"
                   [isRequired]="true"
                   [error]="isInvalid('4', 'swiftCode') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step4.swiftCode')?.touched || false"
                   dir="ltr"
                 ></app-input>
+                <p *ngIf="isRejectedField('step4.swiftCode')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.swiftCode') }}</p>
               </div>
             </app-card>
           </div>
@@ -486,6 +530,15 @@
                   </div>
 
                   <ng-template #emptyLogoState>
+                    <div *ngIf="shouldShowExistingFile('logo')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                      <div class="min-w-0">
+                        <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingLogoUrl) }}</p>
+                        <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
+                      </div>
+                      <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('logoInput')">
+                        {{ isRTL ? 'استبدال' : 'Replace' }}
+                      </button>
+                    </div>
                     <app-button 
                       variant="primary" 
                       size="sm" 
@@ -496,9 +549,10 @@
                         <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                         <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                       </svg>
-                      {{ 'ONBOARDING.UPLOAD_ACTION' | translate }}
+                      {{ shouldShowExistingFile('logo') ? (isRTL ? 'استبدال الشعار' : 'Replace logo') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
                     </app-button>
                   </ng-template>
+                  <p *ngIf="isRejectedField('step5.logo')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.logo') }}</p>
                 </div>
 
                 <div [class]="getUploadCardClasses('5', 'hasCRDoc')">
@@ -518,6 +572,15 @@
                   </div>
 
                   <ng-template #emptyCRState>
+                    <div *ngIf="shouldShowExistingFile('cr')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                      <div class="min-w-0">
+                        <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingCommercialUrl) }}</p>
+                        <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
+                      </div>
+                      <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('crInput')">
+                        {{ isRTL ? 'استبدال' : 'Replace' }}
+                      </button>
+                    </div>
                     <app-button 
                       variant="primary" 
                       size="sm" 
@@ -528,9 +591,10 @@
                         <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                         <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                       </svg>
-                      {{ 'ONBOARDING.UPLOAD_ACTION' | translate }}
+                      {{ shouldShowExistingFile('cr') ? (isRTL ? 'استبدال المستند' : 'Replace file') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
                     </app-button>
                   </ng-template>
+                  <p *ngIf="isRejectedField('step5.commercial')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.commercial') }}</p>
                 </div>
 
                 <div [class]="getUploadCardClasses('5', 'hasTaxDoc')">
@@ -552,6 +616,15 @@
                   </div>
 
                   <ng-template #emptyTaxState>
+                    <div *ngIf="shouldShowExistingFile('tax')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                      <div class="min-w-0">
+                        <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingTaxUrl) }}</p>
+                        <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
+                      </div>
+                      <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('taxInput')">
+                        {{ isRTL ? 'استبدال' : 'Replace' }}
+                      </button>
+                    </div>
                     <app-button
                       variant="primary"
                       size="sm"
@@ -562,9 +635,10 @@
                         <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                         <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                       </svg>
-                      {{ 'ONBOARDING.UPLOAD_ACTION' | translate }}
+                      {{ shouldShowExistingFile('tax') ? (isRTL ? 'استبدال المستند' : 'Replace file') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
                     </app-button>
                   </ng-template>
+                  <p *ngIf="isRejectedField('step5.tax')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.tax') }}</p>
                 </div>
 
                 <div [class]="getUploadCardClasses('5', 'hasLicenseDoc')">
@@ -586,6 +660,15 @@
                   </div>
 
                   <ng-template #emptyLicenseState>
+                    <div *ngIf="shouldShowExistingFile('license')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+                      <div class="min-w-0">
+                        <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingLicenseUrl) }}</p>
+                        <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
+                      </div>
+                      <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('licenseInput')">
+                        {{ isRTL ? 'استبدال' : 'Replace' }}
+                      </button>
+                    </div>
                     <app-button
                       variant="primary"
                       size="sm"
@@ -596,9 +679,10 @@
                         <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                         <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                       </svg>
-                      {{ 'ONBOARDING.UPLOAD_ACTION' | translate }}
+                      {{ shouldShowExistingFile('license') ? (isRTL ? 'استبدال المستند' : 'Replace file') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
                     </app-button>
                   </ng-template>
+                  <p *ngIf="isRejectedField('step5.license')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.license') }}</p>
                 </div>
               </div>
             </app-card>

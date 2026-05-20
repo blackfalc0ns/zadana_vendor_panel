@@ -13,8 +13,9 @@ import { ProductRequestModalComponent } from '../../components/product-request-m
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
-import { MasterProduct, VendorProduct } from '../../models/catalog.models';
+import { MasterProduct, UnitOption, VendorProduct } from '../../models/catalog.models';
 import { CatalogService } from '../../services/catalog.service';
+import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 
 @Component({
   selector: 'app-product-list',
@@ -65,7 +66,7 @@ import { CatalogService } from '../../services/catalog.service';
         <div class="flex items-center justify-between mb-4">
           <h2 class="text-sm font-black text-slate-800">{{ 'COMMON.FILTERS' | translate }}</h2>
         </div>
-        <div class="grid w-full items-center gap-3 md:grid-cols-3 lg:grid-cols-[minmax(200px,1.5fr)_repeat(4,minmax(120px,1fr))_auto]">
+        <div class="grid w-full items-center gap-3 md:grid-cols-3 lg:grid-cols-[minmax(200px,1.5fr)_repeat(7,minmax(120px,1fr))_auto]">
             <div class="relative group">
               <span class="absolute inset-y-0 start-4 flex items-center text-slate-400 group-focus-within:text-zadna-primary transition-colors">
                 <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -94,6 +95,18 @@ import { CatalogService } from '../../services/catalog.service';
 
             <div>
               <app-searchable-select [(ngModel)]="filters.offers" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="offerOptions" [allowClear]="false" [placeholder]="'PRODUCTS.FILTERS.OFFERS'"></app-searchable-select>
+            </div>
+
+            <div>
+              <app-searchable-select [(ngModel)]="filters.packageTypeId" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="packageTypeOptions" [allowClear]="false" [placeholder]="'PRODUCTS.FILTERS.PACKAGE_TYPE'"></app-searchable-select>
+            </div>
+
+            <div>
+              <app-searchable-select [(ngModel)]="filters.measurementUnitId" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="measurementUnitOptions" [allowClear]="false" [placeholder]="'PRODUCTS.FILTERS.MEASUREMENT_UNIT'"></app-searchable-select>
+            </div>
+
+            <div>
+              <app-searchable-select [(ngModel)]="filters.measurementValue" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="measurementValueOptions" [allowClear]="false" [placeholder]="'PRODUCTS.FILTERS.SIZE_VALUE'"></app-searchable-select>
             </div>
 
             <div>
@@ -146,7 +159,23 @@ import { CatalogService } from '../../services/catalog.service';
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-50/70">
-                @for (product of filteredProducts; track product.id) {
+                @for (group of groupedVendorProducts; track group.groupId) {
+                  @if (group.sizesCount > 1) {
+                    <tr class="bg-slate-50/40">
+                      <td class="px-6 py-2.5" colspan="6">
+                        <div class="flex items-center gap-3">
+                          <div class="h-8 w-8 flex-shrink-0 overflow-hidden rounded-lg bg-white ring-1 ring-slate-200/60 p-0.5">
+                            <img [src]="group.imageUrl || 'assets/images/placeholder.png'" class="h-full w-full object-contain">
+                          </div>
+                          <span class="text-[0.75rem] font-black text-slate-700">{{ group.name }}</span>
+                          <span class="inline-flex items-center rounded-md bg-violet-50 px-2 py-0.5 text-[0.58rem] font-black text-violet-600 ring-1 ring-violet-200/50">
+                            {{ group.sizesCount }} {{ currentLang === 'ar' ? 'أحجام' : 'sizes' }}
+                          </span>
+                        </div>
+                      </td>
+                    </tr>
+                  }
+                  @for (product of group.variants; track product.id) {
                   <tr class="group transition-all hover:bg-slate-50/30">
                     <td class="px-6 py-4">
                       <div class="flex items-center gap-4">
@@ -154,12 +183,16 @@ import { CatalogService } from '../../services/catalog.service';
                           <img [src]="product.imageUrl || 'assets/images/placeholder.png'" [alt]="currentLang === 'ar' ? product.nameAr : product.nameEn" class="h-full w-full object-contain p-1">
                         </div>
                         <div class="min-w-0">
-                          <span class="block truncate text-[0.8rem] font-black text-slate-800 transition-colors group-hover:text-zadna-primary">
-                            {{ currentLang === 'ar' ? product.nameAr : product.nameEn }}
+                          @if (group.sizesCount === 1) {
+                            <span class="block truncate text-[0.8rem] font-black text-slate-800 transition-colors group-hover:text-zadna-primary">
+                              {{ currentLang === 'ar' ? product.nameAr : product.nameEn }}
+                            </span>
+                          }
+                          <span class="inline-flex items-center rounded-lg bg-cyan-50 px-2 py-0.5 text-[0.65rem] font-black text-cyan-800 ring-1 ring-cyan-200/40">
+                            {{ getProductSizeSummary(product) || (currentLang === 'ar' ? 'قياسي' : 'Standard') }}
                           </span>
-                          <span class="text-[0.65rem] font-bold text-slate-400">ID: {{ product.id.substring(0, 8) }}</span>
                           @if (product.tradePrice === null || product.tradePrice === undefined) {
-                            <span class="mt-1 inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[0.58rem] font-black text-rose-700">
+                            <span class="ms-1 inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[0.58rem] font-black text-rose-700">
                               {{ currentLang === 'ar' ? 'تسعير غير مكتمل' : 'Pricing incomplete' }}
                             </span>
                           }
@@ -170,6 +203,13 @@ import { CatalogService } from '../../services/catalog.service';
                       <span class="inline-flex items-center rounded-lg bg-slate-100 px-2.5 py-1 text-[0.68rem] font-black text-slate-600">
                         {{ (currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn) || ('COMMON.NO_DATA' | translate) }}
                       </span>
+                      @if (getProductSizeSummary(product)) {
+                        <div class="mt-2">
+                          <span class="inline-flex items-center rounded-lg border border-zadna-primary/10 bg-zadna-primary/5 px-2 py-0.5 text-[0.58rem] font-black text-zadna-primary">
+                            {{ getProductSizeSummary(product) }}
+                          </span>
+                        </div>
+                      }
                     </td>
                     <td class="px-6 py-4">
                       <div class="flex flex-col items-start leading-tight">
@@ -204,9 +244,18 @@ import { CatalogService } from '../../services/catalog.service';
                             <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                           </svg>
                         </button>
+                        <button
+                          type="button"
+                          (click)="deleteProduct(product)"
+                          class="flex h-8 w-8 items-center justify-center rounded-xl border border-rose-100 bg-white text-rose-500 shadow-sm transition-all hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700">
+                          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
                       </div>
                     </td>
                   </tr>
+                  }
                 }
               </tbody>
             </table>
@@ -231,10 +280,35 @@ import { CatalogService } from '../../services/catalog.service';
                             <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
                           </svg>
                         </button>
+                        <button
+                          type="button"
+                          (click)="deleteProduct(product)"
+                          class="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-50 text-rose-500 transition hover:bg-rose-100 hover:text-rose-700">
+                          <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                          </svg>
+                        </button>
                       </div>
                       <span class="inline-flex mt-1 items-center rounded-lg bg-indigo-50 px-2 py-0.5 text-[0.65rem] font-black text-indigo-600 border border-indigo-100/50">
                         {{ (currentLang === 'ar' ? product.categoryNameAr : product.categoryNameEn) || ('COMMON.NO_DATA' | translate) }}
                       </span>
+                      <div class="mt-2 flex flex-wrap items-center gap-1.5">
+                        @if (getPackageTypeLabel(product)) {
+                          <span class="inline-flex items-center rounded-lg bg-emerald-50 px-2 py-0.5 text-[0.58rem] font-black text-emerald-700">
+                            {{ getPackageTypeLabel(product) }}
+                          </span>
+                        }
+                        @if (product.measurementValue !== null && product.measurementValue !== undefined) {
+                          <span class="inline-flex items-center rounded-lg bg-cyan-50 px-2 py-0.5 text-[0.58rem] font-black text-cyan-700">
+                            {{ product.measurementValue }}
+                          </span>
+                        }
+                        @if (getMeasurementUnitLabel(product)) {
+                          <span class="inline-flex items-center rounded-lg bg-sky-50 px-2 py-0.5 text-[0.58rem] font-black text-sky-700">
+                            {{ getMeasurementUnitLabel(product) }}
+                          </span>
+                        }
+                      </div>
                       <div class="mt-2 text-[0.65rem] font-bold text-slate-400">ID: {{ product.id.substring(0, 8) }}</div>
                       @if (product.tradePrice === null || product.tradePrice === undefined) {
                         <span class="mt-2 inline-flex items-center rounded-full border border-rose-200 bg-rose-50 px-2 py-0.5 text-[0.58rem] font-black text-rose-700">
@@ -267,6 +341,15 @@ import { CatalogService } from '../../services/catalog.service';
                           <span class="text-[0.55rem] font-black text-rose-400">{{ 'PRODUCTS.FILTERS.LOW_STOCK' | translate }}</span>
                         }
                       </div>
+                    </div>
+                  </div>
+
+                  <div class="mt-3 rounded-xl border border-slate-100 bg-white p-3">
+                    <div class="flex items-center justify-between gap-3">
+                      <span class="text-[0.65rem] font-bold text-slate-400">{{ 'PRODUCTS.FILTERS.SIZE_VALUE' | translate }}</span>
+                      <span class="text-[0.72rem] font-black text-slate-700 text-end">
+                        {{ getProductSizeSummary(product) || ('COMMON.NO_DATA' | translate) }}
+                      </span>
                     </div>
                   </div>
                   
@@ -338,6 +421,7 @@ import { CatalogService } from '../../services/catalog.service';
 export class ProductListComponent implements OnInit, OnDestroy {
   products: VendorProduct[] = [];
   categories: any[] = [];
+  units: UnitOption[] = [];
   isLoading = true;
   searchTerm = '';
   currentLang = 'ar';
@@ -345,7 +429,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
     category: '',
     status: 'all',
     stock: 'all',
-    offers: 'all'
+    offers: 'all',
+    packageTypeId: '',
+    measurementUnitId: '',
+    measurementValue: ''
   };
 
   private langSub: Subscription;
@@ -366,7 +453,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
   constructor(
     private catalogService: CatalogService,
     private translate: TranslateService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private alertModalService: AlertModalService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => this.currentLang = event.lang);
@@ -378,12 +466,61 @@ export class ProductListComponent implements OnInit, OnDestroy {
       this.categories = this.flattenCategories(cats || []);
       this.loadProducts();
     });
+    this.catalogService.getUnits().subscribe(units => {
+      this.units = units || [];
+    });
   }
 
   ngOnDestroy(): void {
     if (this.langSub) {
       this.langSub.unsubscribe();
     }
+  }
+
+  getPackageTypeLabel(product: VendorProduct): string {
+    if (!product.packageTypeId) {
+      return '';
+    }
+
+    const packageType = this.units.find((unit) => unit.id === product.packageTypeId);
+    return this.currentLang === 'ar'
+      ? (packageType?.nameAr || packageType?.nameEn || '')
+      : (packageType?.nameEn || packageType?.nameAr || '');
+  }
+
+  getMeasurementUnitLabel(product: VendorProduct): string {
+    if (product.measurementUnitId) {
+      const measurementUnit = this.units.find((unit) => unit.id === product.measurementUnitId);
+      const measurementLabel = this.currentLang === 'ar'
+        ? (measurementUnit?.nameAr || measurementUnit?.nameEn || '')
+        : (measurementUnit?.nameEn || measurementUnit?.nameAr || '');
+
+      if (measurementLabel) {
+        return measurementLabel;
+      }
+    }
+
+    return this.currentLang === 'ar'
+      ? (product.unitNameAr || product.unitNameEn || '')
+      : (product.unitNameEn || product.unitNameAr || '');
+  }
+
+  getProductSizeSummary(product: VendorProduct): string {
+    const displaySize = this.currentLang === 'ar'
+      ? (product.displaySizeAr || product.displaySizeEn || '')
+      : (product.displaySizeEn || product.displaySizeAr || '');
+
+    if (displaySize.trim()) {
+      return displaySize;
+    }
+
+    const packageType = this.getPackageTypeLabel(product);
+    const measurementValue = product.measurementValue !== null && product.measurementValue !== undefined
+      ? `${product.measurementValue}`
+      : '';
+    const measurementUnit = this.getMeasurementUnitLabel(product);
+
+    return [packageType, measurementValue, measurementUnit].filter(Boolean).join(' ').trim();
   }
 
   get filteredProducts(): VendorProduct[] {
@@ -393,6 +530,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
       // Category filter
       if (this.filters.category && p.categoryId !== this.filters.category) return false;
+
+      if (this.filters.packageTypeId && p.packageTypeId !== this.filters.packageTypeId) return false;
+
+      if (this.filters.measurementUnitId && p.measurementUnitId !== this.filters.measurementUnitId) return false;
+
+      if (this.filters.measurementValue) {
+        const selectedValue = Number(this.filters.measurementValue);
+        if (!Number.isFinite(selectedValue) || p.measurementValue !== selectedValue) return false;
+      }
 
       // Status filter
       if (this.filters.status !== 'all') {
@@ -416,6 +562,36 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
       return true;
     });
+  }
+
+  /** Groups filtered products by variantGroupId for display */
+  get groupedVendorProducts(): Array<{ groupId: string; name: string; imageUrl: string; sizesCount: number; variants: VendorProduct[] }> {
+    const groupMap = new Map<string, VendorProduct[]>();
+
+    for (const product of this.filteredProducts) {
+      const key = product.variantGroupId || product.masterProductId || product.id;
+      if (!groupMap.has(key)) {
+        groupMap.set(key, []);
+      }
+      groupMap.get(key)!.push(product);
+    }
+
+    const groups: Array<{ groupId: string; name: string; imageUrl: string; sizesCount: number; variants: VendorProduct[] }> = [];
+
+    for (const [groupId, variants] of groupMap) {
+      const representative = variants[0];
+      groups.push({
+        groupId,
+        name: this.currentLang === 'ar'
+          ? (representative.nameAr || representative.nameEn || '')
+          : (representative.nameEn || representative.nameAr || ''),
+        imageUrl: representative.imageUrl || '',
+        sizesCount: variants.length,
+        variants
+      });
+    }
+
+    return groups;
   }
 
   get activeProductsCount(): number {
@@ -472,6 +648,46 @@ export class ProductListComponent implements OnInit, OnDestroy {
     ];
   }
 
+  get packageTypeOptions(): SearchableSelectOption[] {
+    return [
+      { value: '', labelKey: 'PRODUCTS.FILTERS.ALL_PACKAGE_TYPES' },
+      ...this.units
+        .filter((unit) => unit.kind === 'Packaging')
+        .map((unit) => ({
+          value: unit.id,
+          label: this.currentLang === 'ar' ? (unit.nameAr || unit.nameEn) : (unit.nameEn || unit.nameAr)
+        }))
+    ];
+  }
+
+  get measurementUnitOptions(): SearchableSelectOption[] {
+    return [
+      { value: '', labelKey: 'PRODUCTS.FILTERS.ALL_MEASUREMENT_UNITS' },
+      ...this.units
+        .filter((unit) => unit.kind === 'Measurement')
+        .map((unit) => ({
+          value: unit.id,
+          label: this.currentLang === 'ar' ? (unit.nameAr || unit.nameEn) : (unit.nameEn || unit.nameAr)
+        }))
+    ];
+  }
+
+  get measurementValueOptions(): SearchableSelectOption[] {
+    const values = Array.from(new Set(
+      this.products
+        .map((product) => product.measurementValue)
+        .filter((value): value is number => typeof value === 'number')
+    )).sort((left, right) => left - right);
+
+    return [
+      { value: '', labelKey: 'PRODUCTS.FILTERS.ALL_SIZES' },
+      ...values.map((value) => ({
+        value: String(value),
+        label: String(value)
+      }))
+    ];
+  }
+
   loadProducts(): void {
     this.isLoading = true;
     this.catalogService.getVendorProducts({
@@ -525,7 +741,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
       category: '',
       status: 'all',
       stock: 'all',
-      offers: 'all'
+      offers: 'all',
+      packageTypeId: '',
+      measurementUnitId: '',
+      measurementValue: ''
     };
     this.currentPage = 1;
     this.loadProducts();
@@ -590,10 +809,45 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.isRequestModalOpen = false;
   }
 
+  deleteProduct(product: VendorProduct): void {
+    const productName = this.currentLang === 'ar'
+      ? (product.nameAr || product.nameEn || '')
+      : (product.nameEn || product.nameAr || '');
+    const confirmed = window.confirm(
+      this.currentLang === 'ar'
+        ? `هل تريد حذف المنتج "${productName}"؟`
+        : `Do you want to delete "${productName}"?`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.catalogService.deleteVendorProduct(product.id).subscribe({
+      next: () => {
+        this.alertModalService.success(
+          this.currentLang === 'ar' ? 'تم حذف المنتج بنجاح.' : 'Product deleted successfully.'
+        );
+        this.loadProducts();
+      },
+      error: (error) => {
+        this.alertModalService.error(
+          error?.error?.message
+            || (this.currentLang === 'ar'
+              ? 'تعذر حذف المنتج الآن. تأكد أنه غير مرتبط بطلبات أو حملات.'
+              : 'Unable to delete this product right now. Make sure it is not linked to orders or campaigns.')
+        );
+      }
+    });
+  }
+
   private applyQueryParams(): void {
     const params = this.route.snapshot.queryParamMap;
     const stockState = params.get('stockState');
     const offerState = params.get('offerState');
+    const packageTypeId = params.get('packageTypeId');
+    const measurementUnitId = params.get('measurementUnitId');
+    const measurementValue = params.get('measurementValue');
 
     if (stockState === 'low' || stockState === 'out' || stockState === 'healthy') {
       this.filters.stock = stockState;
@@ -601,6 +855,18 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
     if (offerState === 'with' || offerState === 'without') {
       this.filters.offers = offerState;
+    }
+
+    if (packageTypeId) {
+      this.filters.packageTypeId = packageTypeId;
+    }
+
+    if (measurementUnitId) {
+      this.filters.measurementUnitId = measurementUnitId;
+    }
+
+    if (measurementValue) {
+      this.filters.measurementValue = measurementValue;
     }
   }
 }
