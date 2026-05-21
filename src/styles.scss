@@ -1178,3 +1178,174 @@ html, body {
 [dir='rtl'] .vendor-sidebar__setup-arrow {
   transform: rotate(180deg);
 }
+
+/* ============================================================
+   SKELETON LOADING SYSTEM
+   Premium shimmer-based skeleton placeholders (same as admin)
+   ============================================================ */
+
+.vendor-skeleton {
+  position: relative;
+  overflow: hidden;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #edf4f5 0%, #f8fbfc 42%, #e3edf0 100%);
+  background-size: 220% 100%;
+  color: transparent !important;
+  pointer-events: none;
+}
+
+.vendor-skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.78), transparent);
+  animation: vendorSkeletonSweep 1.45s ease-in-out infinite;
+}
+
+.vendor-skeleton-line {
+  display: block;
+  height: 0.75rem;
+  min-width: 2rem;
+  border-radius: 999px;
+}
+
+.vendor-skeleton-line.sm {
+  height: 0.5rem;
+}
+
+.vendor-skeleton-line.lg {
+  height: 1rem;
+}
+
+.vendor-skeleton-line.xl {
+  height: 1.5rem;
+}
+
+.vendor-skeleton-circle {
+  display: block;
+  flex: 0 0 auto;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+}
+
+.vendor-skeleton-avatar {
+  display: block;
+  flex: 0 0 auto;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
+}
+
+.vendor-skeleton-chip {
+  display: inline-flex;
+  width: 5.25rem;
+  height: 1.7rem;
+  border-radius: 999px;
+}
+
+.vendor-skeleton-media {
+  display: block;
+  width: 100%;
+  height: 100%;
+  min-height: 4rem;
+  border-radius: inherit;
+}
+
+.vendor-skeleton-card {
+  border: 1px solid rgb(226 232 240 / 0.7);
+  border-radius: 1.5rem;
+  background: rgb(255 255 255 / 0.82);
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgb(15 23 42 / 0.035);
+}
+
+.vendor-skeleton-table {
+  overflow: hidden;
+  padding: 0.85rem;
+  border: 1px solid rgb(226 232 240 / 0.75);
+  border-radius: 2rem;
+  background: rgb(255 255 255 / 0.76);
+  box-shadow: 0 18px 44px rgb(15 23 42 / 0.045);
+}
+
+.vendor-skeleton-table-header,
+.vendor-skeleton-table-row {
+  display: grid;
+  grid-template-columns: repeat(var(--skeleton-columns, 5), minmax(4rem, 1fr));
+  gap: 1rem;
+  align-items: center;
+  min-width: 42rem;
+}
+
+.vendor-skeleton-table-header {
+  border-bottom: 1px solid rgb(241 245 249 / 0.9);
+  padding: 0.9rem 1rem 1.1rem;
+}
+
+.vendor-skeleton-table-row {
+  border-bottom: 1px solid rgb(241 245 249 / 0.72);
+  padding: 1.05rem 1rem;
+}
+
+.vendor-skeleton-table-row:last-child {
+  border-bottom: 0;
+}
+
+.vendor-skeleton-detail {
+  border: 1px solid rgb(226 232 240 / 0.75);
+  border-radius: 2rem;
+  background: rgb(255 255 255 / 0.76);
+  box-shadow: 0 18px 44px rgb(15 23 42 / 0.045);
+  padding: 1.25rem;
+}
+
+.vendor-skeleton-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  gap: 1rem;
+  border: 1px solid rgb(226 232 240 / 0.75);
+  border-radius: 2rem;
+  background: rgb(255 255 255 / 0.76);
+  box-shadow: 0 18px 44px rgb(15 23 42 / 0.045);
+  padding: 1.25rem;
+}
+
+.vendor-skeleton-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+@keyframes vendorSkeletonSweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (max-width: 768px) {
+  .vendor-skeleton-table {
+    border-radius: 1.35rem;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .vendor-skeleton-table-header {
+    display: none;
+  }
+
+  .vendor-skeleton-table-row {
+    min-width: 0;
+    grid-template-columns: 3rem minmax(0, 1fr) 4.5rem;
+    margin-bottom: 0.85rem;
+    border: 1px solid rgb(226 232 240 / 0.72);
+    border-radius: 1.35rem;
+    background: rgb(255 255 255 / 0.82);
+  }
+
+  .vendor-skeleton-table-row .vendor-skeleton-line:nth-child(n + 4) {
+    display: none;
+  }
+}

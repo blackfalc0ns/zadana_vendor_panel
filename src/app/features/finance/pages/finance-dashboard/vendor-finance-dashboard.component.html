@@ -17,7 +17,52 @@
   </app-page-header>
 
   <div class="space-y-4 sm:space-y-5 animate-in slide-in-from-bottom-8 duration-700 fill-mode-both">
-    
+
+    <!-- Skeleton Loading State -->
+    @if (isLoading && !snapshot) {
+      <!-- KPI Cards Skeleton -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+        @for (item of [1,2,3,4]; track item) {
+          <div class="vendor-skeleton-card min-h-[8rem] space-y-4 p-5">
+            <div class="flex items-center justify-between">
+              <span class="vendor-skeleton vendor-skeleton-line sm w-24"></span>
+              <span class="vendor-skeleton vendor-skeleton-circle" style="width:2rem;height:2rem"></span>
+            </div>
+            <span class="vendor-skeleton vendor-skeleton-line xl w-28"></span>
+            <span class="vendor-skeleton vendor-skeleton-line sm w-20"></span>
+          </div>
+        }
+      </div>
+      <!-- Chart Skeleton -->
+      <div class="vendor-skeleton-card min-h-[18rem] p-5">
+        <div class="mb-4 flex items-center justify-between">
+          <span class="vendor-skeleton vendor-skeleton-line lg w-36"></span>
+          <div class="flex gap-2">
+            @for (item of [1,2,3,4]; track item) {
+              <span class="vendor-skeleton vendor-skeleton-line h-8 w-16 rounded-lg"></span>
+            }
+          </div>
+        </div>
+        <span class="vendor-skeleton vendor-skeleton-line w-full" style="height: 12rem"></span>
+      </div>
+      <!-- Ledger Table Skeleton -->
+      <div class="vendor-skeleton-table" style="--skeleton-columns: 5">
+        <div class="vendor-skeleton-table-header">
+          @for (col of [1,2,3,4,5]; track col) {
+            <span class="vendor-skeleton vendor-skeleton-line sm"></span>
+          }
+        </div>
+        @for (row of [1,2,3,4,5,6]; track row) {
+          <div class="vendor-skeleton-table-row">
+            @for (col of [1,2,3,4,5]; track col) {
+              <span class="vendor-skeleton vendor-skeleton-line"></span>
+            }
+          </div>
+        }
+      </div>
+    }
+
+    @if (snapshot) {
     <!-- Bento Grid Top Row (Metrics) -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
       <!-- Available Balance (Primary Card) -->
@@ -325,5 +370,6 @@
       </div>
 
     </div>
+    }
   </div>
 </div>

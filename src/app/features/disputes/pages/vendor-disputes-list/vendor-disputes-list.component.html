@@ -97,9 +97,18 @@
     </app-panel-header>
 
     @if (isLoading) {
-      <div class="flex h-64 flex-col items-center justify-center gap-3">
-        <div class="h-10 w-10 animate-spin rounded-full border-4 border-zadna-primary/20 border-t-zadna-primary"></div>
-        <span class="text-sm font-bold text-slate-400">{{ 'COMMON.LOADING' | translate }}</span>
+      <div class="p-4 space-y-3">
+        @for (row of [1,2,3,4,5]; track row) {
+          <div class="flex items-center gap-4 rounded-2xl border border-slate-50 p-4">
+            <span class="vendor-skeleton vendor-skeleton-avatar"></span>
+            <div class="flex-1 space-y-2">
+              <span class="vendor-skeleton vendor-skeleton-line w-2/3"></span>
+              <span class="vendor-skeleton vendor-skeleton-line sm w-2/5"></span>
+            </div>
+            <span class="vendor-skeleton vendor-skeleton-chip"></span>
+            <span class="vendor-skeleton vendor-skeleton-line w-20"></span>
+          </div>
+        }
       </div>
     } @else if (disputes.length === 0) {
       <app-empty-state

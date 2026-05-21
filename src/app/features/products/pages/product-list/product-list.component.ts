@@ -127,9 +127,23 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
 
         <div class="overflow-x-auto no-scrollbar">
           @if (isLoading) {
-            <div class="flex h-64 flex-col items-center justify-center gap-3">
-              <div class="h-10 w-10 animate-spin rounded-full border-4 border-zadna-primary/20 border-t-zadna-primary"></div>
-              <span class="text-sm font-bold text-slate-400">{{ 'COMMON.LOADING' | translate }}</span>
+            <div class="p-4 space-y-4">
+              <!-- Skeleton Product Cards -->
+              <div class="flex items-center justify-between gap-4 px-2">
+                <span class="vendor-skeleton vendor-skeleton-line lg w-36"></span>
+                <span class="vendor-skeleton vendor-skeleton-line sm w-20"></span>
+              </div>
+              @for (row of [1,2,3,4,5,6]; track row) {
+                <div class="flex items-center gap-4 rounded-2xl border border-slate-100 bg-white p-4">
+                  <span class="vendor-skeleton vendor-skeleton-avatar"></span>
+                  <div class="flex-1 space-y-2">
+                    <span class="vendor-skeleton vendor-skeleton-line w-2/3"></span>
+                    <span class="vendor-skeleton vendor-skeleton-line sm w-1/3"></span>
+                  </div>
+                  <span class="vendor-skeleton vendor-skeleton-chip"></span>
+                  <span class="vendor-skeleton vendor-skeleton-line w-16"></span>
+                </div>
+              }
             </div>
           } @else if (products.length === 0) {
             <div class="p-4 animate-in zoom-in duration-500">

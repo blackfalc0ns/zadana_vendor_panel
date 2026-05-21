@@ -47,11 +47,69 @@
 
   <!-- Loading Skeletons -->
   @if (isLoading && !overview) {
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+    <!-- Header Skeleton -->
+    <section class="rounded-[1.35rem] border border-slate-200/80 bg-white/90 p-4 shadow-sm">
+      <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+        <div class="space-y-3">
+          <span class="vendor-skeleton vendor-skeleton-line lg w-52"></span>
+          <span class="vendor-skeleton vendor-skeleton-line w-72 max-w-full"></span>
+        </div>
+        <div class="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:grid-cols-4">
+          @for (item of [1,2,3,4]; track item) {
+            <span class="vendor-skeleton vendor-skeleton-line h-10 min-w-32 rounded-2xl"></span>
+          }
+        </div>
+      </div>
+    </section>
+
+    <!-- KPI Cards Skeleton -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
       @for (item of [1,2,3,4,5,6]; track item) {
-        <div class="h-32 bg-slate-100 rounded-2xl animate-pulse"></div>
+        <article class="vendor-skeleton-card min-h-[9rem] space-y-4 p-4">
+          <div class="flex justify-end">
+            <span class="vendor-skeleton vendor-skeleton-line sm w-20"></span>
+          </div>
+          <span class="vendor-skeleton vendor-skeleton-line lg w-14"></span>
+          <span class="vendor-skeleton vendor-skeleton-chip"></span>
+          <span class="vendor-skeleton vendor-skeleton-line sm w-full"></span>
+        </article>
       }
-    </div>
+    </section>
+
+    <!-- Charts Skeleton -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+      <article class="vendor-skeleton-card min-h-[20rem] p-5 lg:col-span-2">
+        <div class="mb-5 space-y-3">
+          <span class="vendor-skeleton vendor-skeleton-line lg w-40"></span>
+          <span class="vendor-skeleton vendor-skeleton-line w-64 max-w-full"></span>
+        </div>
+        <span class="vendor-skeleton vendor-skeleton-line w-full" style="height: 13rem"></span>
+      </article>
+      <div class="grid min-h-[20rem] gap-5">
+        @for (item of [1,2]; track item) {
+          <article class="vendor-skeleton-card p-5">
+            <span class="vendor-skeleton vendor-skeleton-line lg w-36"></span>
+            <span class="vendor-skeleton vendor-skeleton-line mt-4 w-full" style="height: 5.5rem"></span>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- Table Skeleton -->
+    <section class="vendor-skeleton-table" style="--skeleton-columns: 4">
+      <div class="vendor-skeleton-table-header">
+        @for (col of [1,2,3,4]; track col) {
+          <span class="vendor-skeleton vendor-skeleton-line sm"></span>
+        }
+      </div>
+      @for (row of [1,2,3,4,5]; track row) {
+        <div class="vendor-skeleton-table-row">
+          @for (col of [1,2,3,4]; track col) {
+            <span class="vendor-skeleton vendor-skeleton-line"></span>
+          }
+        </div>
+      }
+    </section>
   }
 
   <!-- Main Dashboard Content -->

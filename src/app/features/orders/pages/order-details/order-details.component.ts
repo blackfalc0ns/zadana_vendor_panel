@@ -38,15 +38,59 @@ import { OrdersService } from '../../services/orders.service';
           </div>
 
           <div class="flex items-center gap-2">
+            <a
+              *ngIf="orderId"
+              class="icon-shell"
+              [routerLink]="['/orders', orderId]"
+              fragment="tracking"
+              (click)="scrollToTracking()"
+              [attr.aria-label]="currentLang === 'ar' ? 'رابط تتبع المندوب' : 'Courier tracking link'">
+              <span class="material-symbols-outlined text-[20px]">share_location</span>
+            </a>
             <button class="icon-shell" type="button" (click)="retryLoad()" [disabled]="isLoading" [attr.aria-label]="currentLang === 'ar' ? 'تحديث الصفحة' : 'Refresh page'">
               <span class="material-symbols-outlined text-[20px]" [class.animate-spin]="isLoading">sync</span>
             </button>
           </div>
         </header>
 
-        <section *ngIf="isLoading" class="surface-card flex min-h-[50vh] flex-col items-center justify-center gap-3 text-center">
-          <div class="h-12 w-12 animate-spin rounded-full border-[3px] border-[#00626f]/15 border-t-[#00626f]"></div>
-          <p class="text-xs font-bold text-[#004953]/70">{{ 'COMMON.LOADING' | translate }}</p>
+        <section *ngIf="isLoading" class="surface-card min-h-[50vh] p-5 space-y-6">
+          <!-- Order Header Skeleton -->
+          <div class="flex items-center justify-between gap-4">
+            <div class="space-y-3 flex-1">
+              <span class="vendor-skeleton vendor-skeleton-line lg w-48"></span>
+              <span class="vendor-skeleton vendor-skeleton-line w-32"></span>
+            </div>
+            <span class="vendor-skeleton vendor-skeleton-chip"></span>
+          </div>
+          <!-- Order Items Skeleton -->
+          <div class="space-y-4">
+            <span class="vendor-skeleton vendor-skeleton-line lg w-28"></span>
+            <div class="space-y-3">
+              <div *ngFor="let row of [1,2,3]" class="flex items-center gap-4 rounded-2xl border border-slate-50 p-4">
+                <span class="vendor-skeleton vendor-skeleton-avatar"></span>
+                <div class="flex-1 space-y-2">
+                  <span class="vendor-skeleton vendor-skeleton-line w-3/5"></span>
+                  <span class="vendor-skeleton vendor-skeleton-line sm w-2/5"></span>
+                </div>
+                <span class="vendor-skeleton vendor-skeleton-line w-16"></span>
+              </div>
+            </div>
+          </div>
+          <!-- Order Summary Skeleton -->
+          <div class="grid grid-cols-2 gap-4">
+            <div *ngFor="let item of [1,2,3,4]" class="space-y-2 p-3 rounded-xl border border-slate-50">
+              <span class="vendor-skeleton vendor-skeleton-line sm w-20"></span>
+              <span class="vendor-skeleton vendor-skeleton-line lg w-24"></span>
+            </div>
+          </div>
+          <!-- Timeline Skeleton -->
+          <div class="space-y-3">
+            <span class="vendor-skeleton vendor-skeleton-line lg w-32"></span>
+            <div *ngFor="let step of [1,2,3,4]" class="flex items-center gap-3">
+              <span class="vendor-skeleton vendor-skeleton-circle" style="width:1.5rem;height:1.5rem"></span>
+              <span class="vendor-skeleton vendor-skeleton-line w-40"></span>
+            </div>
+          </div>
         </section>
 
         <section *ngIf="!isLoading && loadErrorMessage" class="surface-card flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center">
@@ -163,7 +207,7 @@ import { OrdersService } from '../../services/orders.service';
                 </div>
               </section>
 
-              <section class="tracking-card">
+              <section id="tracking" class="tracking-card scroll-mt-24">
                 <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
                     <h3 class="section-title">
@@ -431,6 +475,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   private sub: Subscription | null = null;
   private langSub: Subscription | null = null;
   private pollSub: Subscription | null = null;
+  private fragmentSub: Subscription | null = null;
   private readonly POLL_INTERVAL_MS = 8000;
 
   constructor(
@@ -450,11 +495,18 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
       this.orderId = id;
       this.loadOrder(id);
     }
+
+    this.fragmentSub = this.route.fragment.subscribe((fragment) => {
+      if (fragment === 'tracking') {
+        this.scrollToTracking();
+      }
+    });
   }
 
   ngOnDestroy(): void {
     this.sub?.unsubscribe();
     this.langSub?.unsubscribe();
+    this.fragmentSub?.unsubscribe();
     this.stopPolling();
   }
 
@@ -603,6 +655,12 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     }
 
     this.loadOrder(this.orderId);
+  }
+
+  scrollToTracking(): void {
+    setTimeout(() => {
+      document.getElementById('tracking')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   paymentMethodLabel(order: OrderDetail): string {
@@ -792,6 +850,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         }
 
         this.startPollingIfNeeded();
+        this.scrollToTrackingIfRequested();
       },
       error: () => {
         this.order = null;
@@ -838,6 +897,12 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   private stopPolling(): void {
     this.pollSub?.unsubscribe();
     this.pollSub = null;
+  }
+
+  private scrollToTrackingIfRequested(): void {
+    if (this.route.snapshot.fragment === 'tracking') {
+      this.scrollToTracking();
+    }
   }
 
   private resolveUpdateErrorMessage(error: HttpErrorResponse): string {

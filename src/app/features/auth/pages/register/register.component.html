@@ -1,8 +1,8 @@
-<div class="min-h-[100dvh] relative font-sans flex flex-col lg:flex-row bg-zadna-bgLight overflow-hidden selection:bg-zadna-primary selection:text-white" [dir]="isRTL ? 'rtl' : 'ltr'">
+<div class="min-h-[100dvh] relative font-sans flex flex-col lg:flex-row-reverse bg-zadna-bgLight overflow-hidden selection:bg-zadna-primary selection:text-white">
 
     <!-- ================= TOP NAVIGATION (Language Switcher) ================= -->
-    <div class="absolute top-6 sm:top-8 rtl:left-6 rtl:right-auto ltr:right-6 ltr:left-auto xl:rtl:left-12 xl:ltr:right-12 z-50 flex items-center animate-puzzle-down stagger-1">
-        <div class="flex items-center bg-white/70 backdrop-blur-xl border border-white/80 p-1.5 rounded-full shadow-sm dir-ltr" style="direction: ltr;">
+    <div class="absolute top-6 sm:top-8 start-6 xl:start-12 z-50 flex items-center animate-puzzle-down stagger-1">
+        <div class="flex items-center bg-white/70 backdrop-blur-xl border border-white/80 p-1.5 rounded-full shadow-sm" style="direction: ltr;">
             <button (click)="switchLanguage('en')"
                 [ngClass]="{'bg-white text-zadna-primaryDark shadow-md scale-105': !isRTL, 'text-gray-500 hover:text-zadna-primary hover:bg-white/40': isRTL}"
                 class="px-5 py-2 rounded-full text-xs font-black tracking-widest uppercase transition-all duration-300">
@@ -40,7 +40,7 @@
                     <span class="relative z-10 text-white drop-shadow-md">
                         {{ 'REGISTER.HERO_SUBTITLE' | translate }}
                     </span>
-                    <svg class="absolute w-full h-3 md:h-4 -bottom-1 rtl:-right-2 ltr:-left-2 z-0 text-zadna-primary" viewBox="0 0 100 20" preserveAspectRatio="none">
+                    <svg class="absolute w-full h-3 md:h-4 -bottom-1 start-[-0.5rem] z-0 text-zadna-primary" viewBox="0 0 100 20" preserveAspectRatio="none">
                         <path d="M0 10 Q 50 20 100 10" stroke="currentColor" stroke-width="8" fill="none" stroke-linecap="round" />
                     </svg>
                 </span>
@@ -109,13 +109,10 @@
                     <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'LOGIN.PASSWORD' | translate }}</label>
                     <div class="relative group">
                         <input formControlName="password" [type]="showPassword ? 'text' : 'password'" autocomplete="new-password"
-                            [ngClass]="[
-                                isRTL ? 'pr-4 pl-11' : 'pl-4 pr-11',
-                                (registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100'
-                            ]"
-                            class="block w-full py-2.5 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
-                        <button type="button" (click)="togglePassword()" [ngClass]="isRTL ? 'left-0 pl-4' : 'right-0 pr-4'"
-                            class="absolute inset-y-0 flex items-center text-gray-400 hover:text-zadna-primary transition-colors focus:outline-none cursor-pointer"
+                            [ngClass]="(registerForm.get('password')?.touched || submitted) && registerForm.get('password')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100'"
+                            class="block w-full py-2.5 ps-4 pe-11 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
+                        <button type="button" (click)="togglePassword()"
+                            class="absolute inset-y-0 end-0 pe-4 flex items-center text-gray-400 hover:text-zadna-primary transition-colors focus:outline-none cursor-pointer"
                             [attr.aria-label]="(showPassword ? 'AUTH.ACCESSIBILITY.HIDE' : 'AUTH.ACCESSIBILITY.SHOW') | translate">
                             <svg *ngIf="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -133,13 +130,10 @@
                     <label class="text-[10px] sm:text-xs font-black text-gray-400 uppercase tracking-widest block">{{ 'REGISTER.CONFIRM_PASSWORD' | translate }}</label>
                     <div class="relative group">
                         <input formControlName="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" autocomplete="new-password"
-                            [ngClass]="[
-                                isRTL ? 'pr-4 pl-11' : 'pl-4 pr-11',
-                                (registerForm.get('confirmPassword')?.touched || submitted) && registerForm.get('confirmPassword')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100'
-                            ]"
-                            class="block w-full py-2.5 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
-                        <button type="button" (click)="toggleConfirmPassword()" [ngClass]="isRTL ? 'left-0 pl-4' : 'right-0 pr-4'"
-                            class="absolute inset-y-0 flex items-center text-gray-400 hover:text-zadna-primary transition-colors focus:outline-none cursor-pointer"
+                            [ngClass]="(registerForm.get('confirmPassword')?.touched || submitted) && registerForm.get('confirmPassword')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100'"
+                            class="block w-full py-2.5 ps-4 pe-11 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-gray-900 rounded-xl focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all font-bold text-base shadow-sm hover:shadow-md tracking-[0.2em]">
+                        <button type="button" (click)="toggleConfirmPassword()"
+                            class="absolute inset-y-0 end-0 pe-4 flex items-center text-gray-400 hover:text-zadna-primary transition-colors focus:outline-none cursor-pointer"
                             [attr.aria-label]="(showConfirmPassword ? 'AUTH.ACCESSIBILITY.HIDE' : 'AUTH.ACCESSIBILITY.SHOW') | translate">
                             <svg *ngIf="!showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -174,13 +168,13 @@
                     <!-- Google Reg -->
                     <button type="button" class="group flex items-center justify-center w-full py-3.5 px-4 rounded-xl border-2 border-gray-100 hover:border-gray-200 bg-white hover:bg-gray-50/50 transition-all font-black text-gray-700 shadow-sm hover:shadow-md active:scale-[0.98]">
                         <svg class="w-5 h-5 transition-transform group-hover:scale-110" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path></svg>
-                        <span [ngClass]="isRTL ? 'mr-3' : 'ml-3'" class="tracking-widest uppercase text-xs">{{ 'REGISTER.BTN_REGISTER_GOOGLE' | translate }}</span>
+                        <span class="ms-3 tracking-widest uppercase text-xs">{{ 'REGISTER.BTN_REGISTER_GOOGLE' | translate }}</span>
                     </button>
                 </div>
             </form>
 
             <div class="mt-6 flex flex-col items-center justify-center gap-2 text-xs font-bold text-gray-500">
-                <div class="flex flex-wrap items-center justify-center gap-1.5" [dir]="isRTL ? 'rtl' : 'ltr'">
+                <div class="flex flex-wrap items-center justify-center gap-1.5">
                     <span>{{ 'REGISTER.ALREADY_HAVE_ACCOUNT' | translate }}</span>
                     <a routerLink="/login" class="text-zadna-primary hover:text-zadna-primaryDark focus:outline-none transition hover:underline underline-offset-4 decoration-2">
                         {{ 'REGISTER.SIGN_IN' | translate }}

@@ -160,9 +160,32 @@ import {
 
       <div class="overflow-hidden rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50">
         @if (isLoading) {
-          <div class="flex h-72 flex-col items-center justify-center gap-3">
-            <div class="h-10 w-10 animate-spin rounded-full border-4 border-zadna-primary/20 border-t-zadna-primary"></div>
-            <span class="text-sm font-bold text-slate-400">{{ 'COMMON.LOADING' | translate }}</span>
+          <div class="p-5 space-y-4">
+            <!-- Skeleton Header -->
+            <div class="flex items-center justify-between gap-4">
+              <span class="vendor-skeleton vendor-skeleton-line lg w-40"></span>
+              <div class="flex gap-2">
+                <span class="vendor-skeleton vendor-skeleton-chip"></span>
+                <span class="vendor-skeleton vendor-skeleton-chip"></span>
+              </div>
+            </div>
+            <!-- Skeleton Offer Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+              @for (item of [1,2,3,4,5,6]; track item) {
+                <div class="vendor-skeleton-card min-h-[10rem] space-y-4 p-4">
+                  <div class="flex items-center justify-between">
+                    <span class="vendor-skeleton vendor-skeleton-line w-24"></span>
+                    <span class="vendor-skeleton vendor-skeleton-chip"></span>
+                  </div>
+                  <span class="vendor-skeleton vendor-skeleton-line lg w-3/4"></span>
+                  <span class="vendor-skeleton vendor-skeleton-line sm w-1/2"></span>
+                  <div class="flex gap-2 pt-2">
+                    <span class="vendor-skeleton vendor-skeleton-line h-8 w-20 rounded-xl"></span>
+                    <span class="vendor-skeleton vendor-skeleton-line h-8 w-20 rounded-xl"></span>
+                  </div>
+                </div>
+              }
+            </div>
           </div>
         } @else {
           <app-panel-header

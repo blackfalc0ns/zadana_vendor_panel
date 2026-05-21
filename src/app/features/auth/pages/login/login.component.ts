@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppInputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
@@ -26,13 +26,19 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
 })
 export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
+  verifyEmailForm!: FormGroup;
   isLoading = false;
+  isResending = false;
+  isVerifyEmailMode = false;
   showPassword = false;
   submitted = false;
+  verifySubmitted = false;
   errorMessage = '';
+  successMessage = '';
 
   constructor(
     private fb: FormBuilder,
+    private route: ActivatedRoute,
     private router: Router,
     private translate: TranslateService,
     private authService: VendorAuthService
@@ -44,6 +50,8 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.initVerifyEmailForm();
+    this.initModeFromRoute();
   }
 
   private initForm(): void {
@@ -54,13 +62,41 @@ export class LoginComponent implements OnInit {
     });
   }
 
+  private initVerifyEmailForm(): void {
+    this.verifyEmailForm = this.fb.group({
+      identifier: ['', [Validators.required, Validators.email]],
+      otpCode: ['', [Validators.required, Validators.minLength(4), Validators.maxLength(4)]]
+    });
+  }
+
+  private initModeFromRoute(): void {
+    this.route.queryParamMap.subscribe((params) => {
+      this.isVerifyEmailMode = this.router.url.startsWith('/verify-email');
+      if (!this.isVerifyEmailMode) {
+        return;
+      }
+
+      const identifier = params.get('identifier') || '';
+      if (identifier) {
+        this.verifyEmailForm.patchValue({ identifier });
+        this.loginForm.patchValue({ email: identifier });
+      }
+    });
+  }
+
   togglePassword(): void {
     this.showPassword = !this.showPassword;
   }
 
   onSubmit(): void {
+    if (this.isVerifyEmailMode) {
+      this.submitVerifyEmail();
+      return;
+    }
+
     this.submitted = true;
     this.errorMessage = '';
+    this.successMessage = '';
 
     if (this.loginForm.invalid) {
       Object.keys(this.loginForm.controls).forEach((key) => {
@@ -79,9 +115,77 @@ export class LoginComponent implements OnInit {
       },
       error: (error: unknown) => {
         this.isLoading = false;
+        if (this.isEmailVerificationRequired(error)) {
+          const identifier = `${this.loginForm.get('email')?.value || ''}`.trim();
+          void this.router.navigate(['/verify-email'], {
+            queryParams: identifier ? { identifier } : undefined
+          });
+          return;
+        }
+
         this.errorMessage = this.resolveLoginErrorMessage(error);
       }
     });
+  }
+
+  submitVerifyEmail(): void {
+    this.verifySubmitted = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    if (this.verifyEmailForm.invalid) {
+      this.verifyEmailForm.markAllAsTouched();
+      this.errorMessage = this.isRTL ? 'تأكد من البريد الإلكتروني ورمز التحقق.' : 'Check the email and OTP code.';
+      return;
+    }
+
+    this.isLoading = true;
+    const { identifier, otpCode } = this.verifyEmailForm.getRawValue();
+
+    this.authService.verifyEmailOtp(`${identifier || ''}`.trim(), `${otpCode || ''}`.trim()).subscribe({
+      next: () => {
+        this.isLoading = false;
+        this.successMessage = this.isRTL ? 'تم تفعيل البريد الإلكتروني بنجاح.' : 'Email verified successfully.';
+        void this.router.navigate(['/submission-success']);
+      },
+      error: (error) => {
+        this.isLoading = false;
+        this.errorMessage = this.resolvePlainError(error, this.isRTL ? 'تعذر تأكيد الرمز.' : 'Could not verify the code.');
+      }
+    });
+  }
+
+  resendVerifyEmailOtp(): void {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    const identifierControl = this.verifyEmailForm.get('identifier');
+    if (identifierControl?.invalid) {
+      identifierControl.markAsTouched();
+      this.errorMessage = this.isRTL ? 'اكتب البريد الإلكتروني أولا.' : 'Enter the email first.';
+      return;
+    }
+
+    this.isResending = true;
+    const identifier = `${identifierControl?.value || ''}`.trim();
+
+    this.authService.resendEmailOtp(identifier).subscribe({
+      next: (message) => {
+        this.isResending = false;
+        this.successMessage = message || (this.isRTL ? 'تم إرسال رمز جديد.' : 'A new OTP has been sent.');
+      },
+      error: (error) => {
+        this.isResending = false;
+        this.errorMessage = this.resolvePlainError(error, this.isRTL ? 'تعذر إرسال رمز جديد.' : 'Could not resend the OTP.');
+      }
+    });
+  }
+
+  showLoginForm(): void {
+    this.isVerifyEmailMode = false;
+    this.errorMessage = '';
+    this.successMessage = '';
+    void this.router.navigate(['/login']);
   }
 
   toggleLanguage(): void {
@@ -113,8 +217,38 @@ export class LoginComponent implements OnInit {
     'account locked': 'LOGIN.ERR_ACCOUNT_LOCKED',
     'account is not allowed': 'LOGIN.ERR_ACCOUNT_NOT_ALLOWED',
     'access denied': 'LOGIN.ERR_ACCOUNT_NOT_ALLOWED',
+    'account email not verified': 'LOGIN.ERR_LOGIN_FAILED',
+    'accountemailnotverified': 'LOGIN.ERR_LOGIN_FAILED',
     'user not found': 'LOGIN.ERR_INVALID_CREDENTIALS'
   };
+
+  private isEmailVerificationRequired(error: unknown): boolean {
+    if (!(error instanceof HttpErrorResponse)) {
+      return false;
+    }
+
+    const code = `${error.error?.code || ''}`.trim().toLowerCase();
+    if (code === 'accountemailnotverified' || code === 'account_email_not_verified') {
+      return true;
+    }
+
+    const candidates = [
+      error.error?.detail,
+      error.error?.message,
+      error.error?.title
+    ];
+
+    return candidates.some((candidate) => {
+      if (typeof candidate !== 'string') return false;
+
+      const normalized = candidate.trim().toLowerCase();
+      if (!normalized || this.isGenericFrameworkMessage(normalized)) return false;
+
+      return normalized.includes('accountemailnotverified')
+        || (normalized.includes('email') && (normalized.includes('not verified') || normalized.includes('unverified')))
+        || (normalized.includes('بريد') && (normalized.includes('غير') || normalized.includes('تفعيل') || normalized.includes('تحقق') || normalized.includes('موثق')));
+    });
+  }
 
   private resolveLoginErrorMessage(error: unknown): string {
     if (!(error instanceof HttpErrorResponse)) {
@@ -186,5 +320,12 @@ export class LoginComponent implements OnInit {
     ];
 
     return blockedFragments.some((fragment) => lowerMessage.includes(fragment));
+  }
+
+  private resolvePlainError(error: any, fallback: string): string {
+    return error?.error?.detail
+      || error?.error?.message
+      || error?.message
+      || fallback;
   }
 }

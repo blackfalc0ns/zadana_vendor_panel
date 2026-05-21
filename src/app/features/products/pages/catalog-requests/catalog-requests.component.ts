@@ -45,8 +45,17 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
       <!-- Main List Container -->
       <div class="overflow-hidden rounded-[32px] border border-slate-100 bg-white shadow-sm">
         @if (isLoading) {
-          <div class="flex h-64 items-center justify-center bg-slate-50/30">
-            <div class="h-12 w-12 animate-spin rounded-[16px] border-[5px] border-zadna-primary/20 border-t-zadna-primary"></div>
+          <div class="p-4 space-y-3">
+            @for (row of [1,2,3,4,5]; track row) {
+              <div class="flex items-center gap-4 rounded-2xl border border-slate-50 p-4">
+                <span class="vendor-skeleton vendor-skeleton-avatar"></span>
+                <div class="flex-1 space-y-2">
+                  <span class="vendor-skeleton vendor-skeleton-line w-1/2"></span>
+                  <span class="vendor-skeleton vendor-skeleton-line sm w-1/3"></span>
+                </div>
+                <span class="vendor-skeleton vendor-skeleton-chip"></span>
+              </div>
+            }
           </div>
         } @else if (requests.length === 0) {
           <div class="p-4 animate-in zoom-in duration-500">

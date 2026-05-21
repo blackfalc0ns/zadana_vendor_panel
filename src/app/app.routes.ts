@@ -26,6 +26,11 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/pages/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent)
   },
   {
+    path: 'verify-email',
+    canActivate: [vendorGuestGuard],
+    loadComponent: () => import('./features/auth/pages/login/login.component').then((m) => m.LoginComponent)
+  },
+  {
     path: 'onboarding',
     canActivate: [vendorOnboardingGuard],
     loadComponent: () => import('./features/auth/pages/onboarding/onboarding.component').then((m) => m.OnboardingComponent)

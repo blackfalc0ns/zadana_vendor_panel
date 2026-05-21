@@ -32,6 +32,7 @@ export class VendorFinanceDashboardComponent implements OnInit {
 
   snapshot: VendorFinanceSnapshot | null = null;
   ledgerPage: VendorFinanceLedgerPage | null = null;
+  isLoading = true;
   currentPeriod: VendorFinancePeriod = 'month';
   currentLang = this.translate.currentLang || 'ar';
   readonly ledgerPageSize = 10;
@@ -104,8 +105,10 @@ export class VendorFinanceDashboardComponent implements OnInit {
   }
 
   private loadData(): void {
+    this.isLoading = true;
     this.financeService.getSnapshot(this.currentPeriod).subscribe((snapshot) => {
       this.snapshot = snapshot;
+      this.isLoading = false;
       this.updateChartData();
     });
 

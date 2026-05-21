@@ -494,7 +494,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
       maxZoom: 19
     }).addTo(this.leafletMap);
 
-    // Click handler â†’ set marker + update form
+    // Click handler -> set marker + update form
     this.leafletMap.on('click', (e: L.LeafletMouseEvent) => {
       this.ngZone.run(() => {
         this.placeMarker(e.latlng.lat, e.latlng.lng);

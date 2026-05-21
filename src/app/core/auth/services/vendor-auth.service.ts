@@ -132,6 +132,31 @@ export class VendorAuthService {
     ).pipe(map((response) => response.message || 'Password reset successful.'));
   }
 
+  verifyEmailOtp(identifier: string, otpCode: string): Observable<VendorCurrentUser> {
+    return this.http.post<VendorAuthResponse>(
+      `${this.apiUrl}/verify-otp`,
+      { identifier, otpCode },
+      { headers: this.createSkipAuthHeaders() }
+    ).pipe(
+      tap((response) => this.persistSession(response)),
+      map((response) => {
+        if (!response.user) {
+          throw new Error('Vendor user snapshot is missing from OTP verification response.');
+        }
+
+        return response.user;
+      })
+    );
+  }
+
+  resendEmailOtp(identifier: string): Observable<string> {
+    return this.http.post<{ message?: string }>(
+      `${this.apiUrl}/resend-otp`,
+      { identifier },
+      { headers: this.createSkipAuthHeaders() }
+    ).pipe(map((response) => response.message || 'OTP resent successfully.'));
+  }
+
   bootstrapCurrentUser(): Observable<VendorCurrentUser> {
     return this.http.get<VendorCurrentUser>(`${this.apiUrl}/me`).pipe(
       tap((user) => this.persistUser(user))

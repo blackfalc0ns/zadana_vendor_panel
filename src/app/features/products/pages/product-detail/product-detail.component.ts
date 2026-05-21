@@ -95,12 +95,45 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
       </app-page-header>
 
       @if (isLoading) {
-        <div class="flex h-[60vh] flex-col items-center justify-center gap-5 animate-in fade-in duration-700">
-          <div class="relative flex h-20 w-20 items-center justify-center">
-            <div class="absolute inset-0 animate-ping rounded-full bg-zadna-primary/10"></div>
-            <div class="relative h-12 w-12 animate-spin rounded-full border-4 border-zadna-primary/20 border-t-zadna-primary"></div>
+        <div class="space-y-6 animate-in fade-in duration-500">
+          <div class="grid grid-cols-1 gap-8 lg:grid-cols-12">
+            <!-- Left Column Skeleton -->
+            <div class="space-y-6 lg:col-span-4">
+              <div class="vendor-skeleton-card min-h-[20rem] p-5">
+                <span class="vendor-skeleton vendor-skeleton-media" style="height: 14rem"></span>
+                <div class="mt-4 space-y-3">
+                  <span class="vendor-skeleton vendor-skeleton-line lg w-3/4"></span>
+                  <span class="vendor-skeleton vendor-skeleton-line sm w-1/2"></span>
+                </div>
+              </div>
+            </div>
+            <!-- Right Column Skeleton -->
+            <div class="space-y-6 lg:col-span-8">
+              <div class="vendor-skeleton-card min-h-[8rem] p-5 space-y-4">
+                <span class="vendor-skeleton vendor-skeleton-line lg w-40"></span>
+                <div class="grid grid-cols-2 gap-4">
+                  @for (item of [1,2,3,4]; track item) {
+                    <div class="space-y-2">
+                      <span class="vendor-skeleton vendor-skeleton-line sm w-20"></span>
+                      <span class="vendor-skeleton vendor-skeleton-line w-full"></span>
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="vendor-skeleton-card min-h-[12rem] p-5 space-y-4">
+                <span class="vendor-skeleton vendor-skeleton-line lg w-36"></span>
+                @for (item of [1,2,3]; track item) {
+                  <div class="flex items-center gap-3">
+                    <span class="vendor-skeleton vendor-skeleton-circle"></span>
+                    <div class="flex-1 space-y-2">
+                      <span class="vendor-skeleton vendor-skeleton-line w-2/3"></span>
+                      <span class="vendor-skeleton vendor-skeleton-line sm w-1/3"></span>
+                    </div>
+                  </div>
+                }
+              </div>
+            </div>
           </div>
-          <span class="text-[0.85rem] font-black tracking-widest text-slate-400 uppercase">{{ 'COMMON.LOADING' | translate }}...</span>
         </div>
       } @else if (product) {
         <div class="grid grid-cols-1 gap-8 lg:grid-cols-12 animate-in slide-in-from-bottom-8 duration-700 fill-mode-both">
