@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -8,7 +8,7 @@ import { AppBadgeComponent } from '../../../../shared/components/ui/feedback/bad
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 import { VendorRequiredAction } from '../../../settings/models/vendor-profile.models';
-import { repairUtf8Mojibake } from '../../../../shared/utils/text-normalization.util';
+import { repairUtf8Mojibake, resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,6 +34,10 @@ export class SubmissionSuccessComponent implements OnInit {
   status = '';
   requiredActions: VendorRequiredAction[] = [];
   rejectionReason = '';
+
+  localizeMessage(message?: string | null): string {
+    return resolveLocalizedMessage(message, this.translate.currentLang || 'ar');
+  }
 
   constructor(
     private router: Router,

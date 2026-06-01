@@ -252,6 +252,34 @@ export class VendorProfileService {
     );
   }
 
+  updateOnboardingProfileSelective(
+    profile: VendorProfile,
+    dirtySections: { store: boolean; owner: boolean; contact: boolean; legal: boolean; banking: boolean }
+  ): Observable<VendorProfile> {
+    let chain$: Observable<any> = of(null);
+
+    if (dirtySections.store) {
+      chain$ = chain$.pipe(switchMap(() => this.updateStore(profile)));
+    }
+    if (dirtySections.owner) {
+      chain$ = chain$.pipe(switchMap(() => this.updateOwner(profile)));
+    }
+    if (dirtySections.contact) {
+      chain$ = chain$.pipe(switchMap(() => this.updateContact(profile)));
+    }
+    if (dirtySections.legal) {
+      chain$ = chain$.pipe(switchMap(() => this.updateLegal(profile)));
+    }
+    if (dirtySections.banking) {
+      chain$ = chain$.pipe(switchMap(() => this.updateBanking(profile)));
+    }
+
+    return chain$.pipe(
+      switchMap(() => this.fetchProfile())
+    );
+  }
+
+
   submitForReview(): Observable<VendorProfile> {
     return this.http.post<ApiEnvelope<VendorWorkspaceApi>>(`${this.apiUrl}/submit-for-review`, {}).pipe(
       map((response) => this.unwrap(response)),

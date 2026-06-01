@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -30,6 +30,7 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
 import { VendorProfile } from '../../../settings/models/vendor-profile.models';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 import { VendorReviewItem } from '../../../settings/models/vendor-profile.models';
+import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -1002,6 +1003,13 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
+  private formatDateForInput(dateStr: string | null | undefined): string {
+    if (!dateStr) {
+      return '';
+    }
+    return dateStr.substring(0, 10);
+  }
+
   private patchProfileData(profile: VendorProfile): void {
     this.onboardingForm.reset({
       step1: {
@@ -1025,7 +1033,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
         idNumber: profile.idNumber,
         nationality: profile.nationality,
         commercialRegistrationNumber: profile.commercialRegistrationNumber,
-        expiryDate: profile.expiryDate,
+        expiryDate: this.formatDateForInput(profile.expiryDate),
         taxId: profile.taxId,
         licenseNumber: profile.licenseNumber
       },
@@ -1173,43 +1181,97 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
       taxDocumentUrl: this.taxDocument ? this.uploadFile(this.taxDocument, 'uploads/vendors/tax-certificates') : of<string | null>(null),
       licenseDocumentUrl: this.licenseDocument ? this.uploadFile(this.licenseDocument, 'uploads/vendors/licenses') : of<string | null>(null)
     }).pipe(
-      map(({ logoUrl, commercialRegisterDocumentUrl, taxDocumentUrl, licenseDocumentUrl }) => ({
-        ...profile,
-        storeNameAr: step1.businessNameAr,
-        storeNameEn: step1.businessNameEn,
-        businessType: step1.businessType,
-        supportPhone: step1.contactPhone,
-        supportEmail: step1.ownerEmail,
-        descriptionAr: step1.description,
-        descriptionEn: step1.description,
-        ownerName: step1.ownerName,
-        ownerEmail: step1.ownerEmail,
-        ownerPhone: step1.ownerPhone,
-        region: step2.region,
-        city: step2.city,
-        nationalAddress: step2.nationalAddress,
-        branchLatitude: step2.branchLatitude ? Number(step2.branchLatitude) : null,
-        branchLongitude: step2.branchLongitude ? Number(step2.branchLongitude) : null,
-        idNumber: step3.idNumber,
-        nationality: step3.nationality,
-        commercialRegistrationNumber: step3.commercialRegistrationNumber,
-        expiryDate: step3.expiryDate,
-        taxId: step3.taxId,
-        licenseNumber: step3.licenseNumber,
-        bankName: step4.bankName,
-        iban: step4.iban,
-        swiftCode: step4.swiftCode,
-        payoutCycle: step4.paymentCycle,
-        logoUrl: logoUrl || profile.logoUrl || null,
-        hasLogo: !!(logoUrl || profile.logoUrl),
-        commercialRegisterDocumentUrl: commercialRegisterDocumentUrl || profile.commercialRegisterDocumentUrl || null,
-        taxDocumentUrl: taxDocumentUrl || profile.taxDocumentUrl || null,
-        licenseDocumentUrl: licenseDocumentUrl || profile.licenseDocumentUrl || null,
-        hasCRDoc: !!(commercialRegisterDocumentUrl || profile.commercialRegisterDocumentUrl),
-        hasTaxDoc: !!(taxDocumentUrl || profile.taxDocumentUrl),
-        hasLicenseDoc: !!(licenseDocumentUrl || profile.licenseDocumentUrl)
-      } as VendorProfile)),
-      switchMap((nextProfile) => this.profileService.updateOnboardingProfile(nextProfile)),
+      map(({ logoUrl, commercialRegisterDocumentUrl, taxDocumentUrl, licenseDocumentUrl }) => {
+        const nextProfile = {
+          ...profile,
+          storeNameAr: step1.businessNameAr,
+          storeNameEn: step1.businessNameEn,
+          businessType: step1.businessType,
+          supportPhone: step1.contactPhone,
+          supportEmail: step1.ownerEmail,
+          descriptionAr: step1.description,
+          descriptionEn: step1.description,
+          ownerName: step1.ownerName,
+          ownerEmail: step1.ownerEmail,
+          ownerPhone: step1.ownerPhone,
+          region: step2.region,
+          city: step2.city,
+          nationalAddress: step2.nationalAddress,
+          branchLatitude: step2.branchLatitude ? Number(step2.branchLatitude) : null,
+          branchLongitude: step2.branchLongitude ? Number(step2.branchLongitude) : null,
+          idNumber: step3.idNumber,
+          nationality: step3.nationality,
+          commercialRegistrationNumber: step3.commercialRegistrationNumber,
+          expiryDate: step3.expiryDate,
+          taxId: step3.taxId,
+          licenseNumber: step3.licenseNumber,
+          bankName: step4.bankName,
+          iban: step4.iban,
+          swiftCode: step4.swiftCode,
+          payoutCycle: step4.paymentCycle,
+          logoUrl: logoUrl || profile.logoUrl || null,
+          hasLogo: !!(logoUrl || profile.logoUrl),
+          commercialRegisterDocumentUrl: commercialRegisterDocumentUrl || profile.commercialRegisterDocumentUrl || null,
+          taxDocumentUrl: taxDocumentUrl || profile.taxDocumentUrl || null,
+          licenseDocumentUrl: licenseDocumentUrl || profile.licenseDocumentUrl || null,
+          hasCRDoc: !!(commercialRegisterDocumentUrl || profile.commercialRegisterDocumentUrl),
+          hasTaxDoc: !!(taxDocumentUrl || profile.taxDocumentUrl),
+          hasLicenseDoc: !!(licenseDocumentUrl || profile.licenseDocumentUrl)
+        } as VendorProfile;
+
+        const storeChanged =
+          profile.storeNameAr !== nextProfile.storeNameAr ||
+          profile.storeNameEn !== nextProfile.storeNameEn ||
+          profile.businessType !== nextProfile.businessType ||
+          profile.supportPhone !== nextProfile.supportPhone ||
+          profile.supportEmail !== nextProfile.supportEmail ||
+          profile.descriptionAr !== nextProfile.descriptionAr ||
+          profile.descriptionEn !== nextProfile.descriptionEn ||
+          this.storeLogo !== null;
+
+        const ownerChanged =
+          profile.ownerName !== nextProfile.ownerName ||
+          profile.ownerEmail !== nextProfile.ownerEmail ||
+          profile.ownerPhone !== nextProfile.ownerPhone ||
+          profile.idNumber !== nextProfile.idNumber ||
+          profile.nationality !== nextProfile.nationality;
+
+        const contactChanged =
+          profile.region !== nextProfile.region ||
+          profile.city !== nextProfile.city ||
+          profile.nationalAddress !== nextProfile.nationalAddress ||
+          (nextProfile.branchLatitude != null ? Number(profile.branchLatitude) !== Number(nextProfile.branchLatitude) : profile.branchLatitude != null) ||
+          (nextProfile.branchLongitude != null ? Number(profile.branchLongitude) !== Number(nextProfile.branchLongitude) : profile.branchLongitude != null);
+
+        const legalChanged =
+          profile.commercialRegistrationNumber !== nextProfile.commercialRegistrationNumber ||
+          this.formatDateForInput(profile.expiryDate) !== this.formatDateForInput(nextProfile.expiryDate) ||
+          profile.taxId !== nextProfile.taxId ||
+          (profile.licenseNumber || '') !== (nextProfile.licenseNumber || '') ||
+          this.crDocument !== null ||
+          this.taxDocument !== null ||
+          this.licenseDocument !== null;
+
+        const bankingChanged =
+          profile.bankName !== nextProfile.bankName ||
+          profile.iban !== nextProfile.iban ||
+          profile.swiftCode !== nextProfile.swiftCode ||
+          profile.payoutCycle !== nextProfile.payoutCycle;
+
+        return {
+          nextProfile,
+          dirtySections: {
+            store: storeChanged,
+            owner: ownerChanged,
+            contact: contactChanged,
+            legal: legalChanged,
+            banking: bankingChanged
+          }
+        };
+      }),
+      switchMap(({ nextProfile, dirtySections }) =>
+        this.profileService.updateOnboardingProfileSelective(nextProfile, dirtySections)
+      ),
       switchMap(() => this.profileService.submitForReview())
     ).subscribe({
       next: () => {
@@ -1241,16 +1303,48 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private syncRejectedReviewItems(profile: VendorProfile): void {
-    this.rejectedReviewItems = new Map(
-      (profile.reviewItems || [])
-        .filter((item) => item.status === 'changes_requested')
-        .map((item) => [item.code, item])
-    );
+    // 1. Sync changes_requested review items
+    const items = (profile.reviewItems || [])
+      .filter((item) => item.status === 'changes_requested')
+      .map((item) => [item.code, item] as [string, VendorReviewItem]);
+    
+    this.rejectedReviewItems = new Map(items);
+
+    // 2. Map requiredActions to rejected fields to highlight compliance issues
+    if (profile.requiredActions && profile.requiredActions.length > 0) {
+      for (const action of profile.requiredActions) {
+        const localizedMsg = resolveLocalizedMessage(action.message, this.translate.currentLang || 'ar');
+        
+        // Add the main required action code (e.g. step5.commercial)
+        this.rejectedReviewItems.set(action.code, {
+          code: action.code,
+          status: 'changes_requested',
+          decisionNote: localizedMsg,
+          step: action.code.startsWith('step5') ? 5 : 3
+        });
+
+        // If it's the commercial document, also highlight the commercial expiry date and CR number in Step 3!
+        if (action.code === 'step5.commercial') {
+          this.rejectedReviewItems.set('step3.expiryDate', {
+            code: 'step3.expiryDate',
+            status: 'changes_requested',
+            decisionNote: localizedMsg,
+            step: 3
+          });
+          this.rejectedReviewItems.set('step3.commercialRegistrationNumber', {
+            code: 'step3.commercialRegistrationNumber',
+            status: 'changes_requested',
+            decisionNote: localizedMsg,
+            step: 3
+          });
+        }
+      }
+    }
   }
 
   private openFirstRejectedStep(profile: VendorProfile): void {
-    const rejectedSteps = (profile.reviewItems || [])
-      .filter((item) => item.status === 'changes_requested' && typeof item.step === 'number')
+    const rejectedSteps = Array.from(this.rejectedReviewItems.values())
+      .filter((item) => typeof item.step === 'number')
       .map((item) => item.step as number)
       .sort((left, right) => left - right);
 

@@ -11,6 +11,7 @@ import { VENDOR_NOTIFICATION_SOUND_OPTIONS } from '../../../../core/notification
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
 import { VendorLegalDocumentType, VendorProfileService } from '../../services/vendor-profile.service';
 import { ProfileSectionNavItem, ProfileWorkspaceWindow, ProfileWorkspaceWindowId } from './vendor-profile.view-models';
+import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
 import { ProfileCommandCenterComponent } from './components/profile-command-center.component';
 import { ProfileWindowSwitcherComponent } from './components/profile-window-switcher.component';
@@ -89,7 +90,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
                     : 'The vendor workspace is ready for setup, but commercial activation is still blocked' }}
                 </h2>
                 <p class="mt-2.5 max-w-3xl text-[0.84rem] font-semibold leading-relaxed text-current/80">
-                  {{ currentProfile.lastReviewDecision || (currentLang === 'ar'
+                  {{ localizeMessage(currentProfile.lastReviewDecision) || (currentLang === 'ar'
                     ? 'يمكنك تجهيز الملف وساعات العمل والبيانات القانونية من هنا، ثم إرسال الملف للمراجعة أو إعادة إرساله بعد استكمال المطلوب.'
                     : 'You can complete the profile, operating setup, and legal data here, then submit or resubmit the file for compliance review.') }}
                 </p>
@@ -110,7 +111,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
             <span
               *ngFor="let action of currentProfile.requiredActions"
               class="relative z-10 inline-flex items-center rounded-[8px] border border-current/15 bg-white/80 px-3 py-1 text-[0.72rem] font-bold shadow-sm transition-colors hover:bg-white">
-              {{ action.message }}
+              {{ localizeMessage(action.message) }}
             </span>
           </div>
         </section>
@@ -637,12 +638,16 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
   get lastDecisionText(): string {
     if (this.currentProfile.lastReviewDecision?.trim()) {
-      return this.currentProfile.lastReviewDecision;
+      return this.localizeMessage(this.currentProfile.lastReviewDecision);
     }
 
     return this.currentLang === 'ar'
       ? 'لا يوجد قرار نهائي بعد'
       : 'No final decision yet';
+  }
+
+  localizeMessage(message?: string | null): string {
+    return resolveLocalizedMessage(message, this.currentLang);
   }
 
   get showLimitedEditNotice(): boolean {

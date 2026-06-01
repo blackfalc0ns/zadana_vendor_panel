@@ -33,3 +33,21 @@ export function repairUtf8Mojibake(value: string | null | undefined): string {
     return normalizedPunctuation;
   }
 }
+
+export function resolveLocalizedMessage(message: string | null | undefined, currentLang: string): string {
+  if (!message) {
+    return '';
+  }
+
+  const repaired = repairUtf8Mojibake(message);
+  if (!repaired.includes('|')) {
+    return repaired;
+  }
+
+  const parts = repaired.split('|').map((item) => item.trim()).filter(Boolean);
+  if (parts.length < 2) {
+    return repaired;
+  }
+
+  return currentLang.startsWith('ar') ? parts[0] : parts[1];
+}

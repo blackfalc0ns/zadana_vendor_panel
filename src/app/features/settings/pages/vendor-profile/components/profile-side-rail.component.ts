@@ -2,6 +2,7 @@ import { CommonModule, NgClass } from '@angular/common';
 import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ProfileSectionNavItem, ProfileWorkspaceWindow } from '../vendor-profile.view-models';
 import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor-profile.models';
+import { resolveLocalizedMessage } from '../../../../../shared/utils/text-normalization.util';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -33,7 +34,7 @@ import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor
           <ul class="space-y-2">
             <li *ngFor="let action of requiredActions" class="text-xs font-medium text-amber-900 flex items-start gap-1.5">
               <span class="material-symbols-outlined text-[14px] text-amber-600 shrink-0">error</span>
-              <span>{{ action.message }}</span>
+              <span>{{ localizeMessage(action.message) }}</span>
             </li>
           </ul>
         </div>
@@ -191,12 +192,13 @@ export class ProfileSideRailComponent {
   };
 
   localizeMessage(message: string): string {
+    const localized = resolveLocalizedMessage(message, this.currentLang);
     if (this.currentLang !== 'ar') {
-      return message;
+      return localized;
     }
 
-    if (this.messageMap[message]) {
-      return this.messageMap[message];
+    if (this.messageMap[localized]) {
+      return this.messageMap[localized];
     }
 
     // Pattern-based translations
@@ -205,15 +207,15 @@ export class ProfileSideRailComponent {
       return map[type] || type;
     };
 
-    let match = message.match(/^Vendor approved with commission rate ([\d.]+)%\.$/);
+    let match = localized.match(/^Vendor approved with commission rate ([\d.]+)%\.$/);
     if (match) return `تمت الموافقة على التاجر بنسبة عمولة ${match[1]}%.`;
 
-    match = message.match(/^(Commercial|Tax|License|Identity|Bank) document approved\.$/);
+    match = localized.match(/^(Commercial|Tax|License|Identity|Bank) document approved\.$/);
     if (match) return `تم قبول مستند ${docTypeAr(match[1])}.`;
 
-    match = message.match(/^(Commercial|Tax|License|Identity|Bank) document rejected\. (.+)$/);
+    match = localized.match(/^(Commercial|Tax|License|Identity|Bank) document rejected\. (.+)$/);
     if (match) return `تم رفض مستند ${docTypeAr(match[1])}. ${match[2]}`;
 
-    return message;
+    return localized;
   }
 }

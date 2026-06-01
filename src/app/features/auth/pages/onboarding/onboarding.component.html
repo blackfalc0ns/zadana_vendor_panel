@@ -352,77 +352,89 @@
               </app-section-header>
 
               <div class="grid gap-4 md:grid-cols-2">
-                <app-input 
-                  formControlName="idNumber" 
-                  [label]="'ONBOARDING.FIELDS.ID_NUMBER'" 
-                  [placeholder]="'ONBOARDING.FIELDS.ID_NUMBER'"
-                  [customClass]="getReviewFieldClass('step3.idNumber')"
-                  [isRequired]="true"
-                  [error]="isInvalid('3', 'idNumber') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step3.idNumber')?.touched || false"
-                  dir="ltr"
-                ></app-input>
-                <p *ngIf="isRejectedField('step3.idNumber')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.idNumber') }}</p>
+                <div>
+                  <app-input 
+                    formControlName="idNumber" 
+                    [label]="'ONBOARDING.FIELDS.ID_NUMBER'" 
+                    [placeholder]="'ONBOARDING.FIELDS.ID_NUMBER'"
+                    [customClass]="getReviewFieldClass('step3.idNumber')"
+                    [isRequired]="true"
+                    [error]="isInvalid('3', 'idNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+                    [isTouched]="onboardingForm.get('step3.idNumber')?.touched || false"
+                    dir="ltr"
+                  ></app-input>
+                  <p *ngIf="isRejectedField('step3.idNumber')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.idNumber') }}</p>
+                </div>
 
-                <app-select 
-                  formControlName="nationality" 
-                  [label]="'ONBOARDING.FIELDS.NATIONALITY'" 
-                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_NAT'"
-                  [customClass]="getReviewFieldClass('step3.nationality')"
-                  [options]="nationalities"
-                  [isRequired]="true"
-                  [error]="isInvalid('3', 'nationality') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step3.nationality')?.touched || false"
-                ></app-select>
-                <p *ngIf="isRejectedField('step3.nationality')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.nationality') }}</p>
+                <div>
+                  <app-select 
+                    formControlName="nationality" 
+                    [label]="'ONBOARDING.FIELDS.NATIONALITY'" 
+                    [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_NAT'"
+                    [customClass]="getReviewFieldClass('step3.nationality')"
+                    [options]="nationalities"
+                    [isRequired]="true"
+                    [error]="isInvalid('3', 'nationality') ? 'REGISTER.ERR_GENERAL' : ''"
+                    [isTouched]="onboardingForm.get('step3.nationality')?.touched || false"
+                  ></app-select>
+                  <p *ngIf="isRejectedField('step3.nationality')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.nationality') }}</p>
+                </div>
 
-                <app-input 
-                  formControlName="commercialRegistrationNumber" 
-                  [label]="'ONBOARDING.FIELDS.CR_NUMBER'" 
-                  [placeholder]="'ONBOARDING.FIELDS.CR_NUMBER'"
-                  [customClass]="getReviewFieldClass('step3.commercialRegistrationNumber')"
-                  [isRequired]="true"
-                  [error]="isInvalid('3', 'commercialRegistrationNumber') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step3.commercialRegistrationNumber')?.touched || false"
-                  dir="ltr"
-                ></app-input>
-                <p *ngIf="isRejectedField('step3.commercialRegistrationNumber')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.commercialRegistrationNumber') }}</p>
+                <div>
+                  <app-input 
+                    formControlName="commercialRegistrationNumber" 
+                    [label]="'ONBOARDING.FIELDS.CR_NUMBER'" 
+                    [placeholder]="'ONBOARDING.FIELDS.CR_NUMBER'"
+                    [customClass]="getReviewFieldClass('step3.commercialRegistrationNumber')"
+                    [isRequired]="true"
+                    [error]="isInvalid('3', 'commercialRegistrationNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+                    [isTouched]="onboardingForm.get('step3.commercialRegistrationNumber')?.touched || false"
+                    dir="ltr"
+                  ></app-input>
+                  <p *ngIf="isRejectedField('step3.commercialRegistrationNumber')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.commercialRegistrationNumber') }}</p>
+                </div>
 
-                <app-input 
-                  formControlName="expiryDate" 
-                  type="date"
-                  [label]="'ONBOARDING.FIELDS.CR_EXPIRY'" 
-                  [placeholder]="'ONBOARDING.FIELDS.CR_EXPIRY'"
-                  [customClass]="getReviewFieldClass('step3.expiryDate')"
-                  [isRequired]="true"
-                  [error]="isInvalid('3', 'expiryDate') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step3.expiryDate')?.touched || false"
-                  dir="ltr"
-                ></app-input>
-                <p *ngIf="isRejectedField('step3.expiryDate')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.expiryDate') }}</p>
+                <div>
+                  <app-input 
+                    formControlName="expiryDate" 
+                    type="date"
+                    [label]="'ONBOARDING.FIELDS.CR_EXPIRY'" 
+                    [placeholder]="'ONBOARDING.FIELDS.CR_EXPIRY'"
+                    [customClass]="getReviewFieldClass('step3.expiryDate')"
+                    [isRequired]="true"
+                    [error]="isInvalid('3', 'expiryDate') ? 'REGISTER.ERR_GENERAL' : ''"
+                    [isTouched]="onboardingForm.get('step3.expiryDate')?.touched || false"
+                    dir="ltr"
+                  ></app-input>
+                  <p *ngIf="isRejectedField('step3.expiryDate')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.expiryDate') }}</p>
+                </div>
 
-                <app-input 
-                  formControlName="taxId" 
-                  [label]="'ONBOARDING.FIELDS.TAX_ID'" 
-                  [placeholder]="'ONBOARDING.FIELDS.TAX_ID'"
-                  [customClass]="getReviewFieldClass('step3.taxId')"
-                  [isRequired]="true"
-                  [error]="isInvalid('3', 'taxId') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step3.taxId')?.touched || false"
-                  dir="ltr"
-                ></app-input>
-                <p *ngIf="isRejectedField('step3.taxId')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.taxId') }}</p>
+                <div>
+                  <app-input 
+                    formControlName="taxId" 
+                    [label]="'ONBOARDING.FIELDS.TAX_ID'" 
+                    [placeholder]="'ONBOARDING.FIELDS.TAX_ID'"
+                    [customClass]="getReviewFieldClass('step3.taxId')"
+                    [isRequired]="true"
+                    [error]="isInvalid('3', 'taxId') ? 'REGISTER.ERR_GENERAL' : ''"
+                    [isTouched]="onboardingForm.get('step3.taxId')?.touched || false"
+                    dir="ltr"
+                  ></app-input>
+                  <p *ngIf="isRejectedField('step3.taxId')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.taxId') }}</p>
+                </div>
 
-                <app-input 
-                  formControlName="licenseNumber" 
-                  [label]="'ONBOARDING.FIELDS.LICENSE'" 
-                  [placeholder]="'ONBOARDING.FIELDS.LICENSE'"
-                  [customClass]="getReviewFieldClass('step3.licenseNumber')"
-                  [error]="isInvalid('3', 'licenseNumber') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step3.licenseNumber')?.touched || false"
-                  dir="ltr"
-                ></app-input>
-                <p *ngIf="isRejectedField('step3.licenseNumber')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step3.licenseNumber') }}</p>
+                <div>
+                  <app-input 
+                    formControlName="licenseNumber" 
+                    [label]="'ONBOARDING.FIELDS.LICENSE'" 
+                    [placeholder]="'ONBOARDING.FIELDS.LICENSE'"
+                    [customClass]="getReviewFieldClass('step3.licenseNumber')"
+                    [error]="isInvalid('3', 'licenseNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+                    [isTouched]="onboardingForm.get('step3.licenseNumber')?.touched || false"
+                    dir="ltr"
+                  ></app-input>
+                  <p *ngIf="isRejectedField('step3.licenseNumber')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.licenseNumber') }}</p>
+                </div>
               </div>
             </app-card>
           </div>

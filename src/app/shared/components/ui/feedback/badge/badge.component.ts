@@ -9,7 +9,7 @@ import { StatusChipTone, StatusChipVm } from '../../models/ui-contracts.models';
   imports: [CommonModule],
   template: `
     <span [ngClass]="badgeClasses">
-      <span *ngIf="resolvedDot" class="w-1.5 h-1.5 rounded-full mr-2" [ngClass]="dotClasses"></span>
+      <span *ngIf="resolvedDot" class="w-1.5 h-1.5 rounded-full me-2" [ngClass]="dotClasses"></span>
       <ng-content></ng-content>
     </span>
   `,

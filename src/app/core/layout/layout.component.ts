@@ -9,7 +9,7 @@ import { VendorProfileService } from '../../features/settings/services/vendor-pr
 import { VendorAuthService } from '../auth/services/vendor-auth.service';
 import { VendorAccessService } from '../auth/services/vendor-access.service';
 import { VendorProfile } from '../../features/settings/models/vendor-profile.models';
-import { repairUtf8Mojibake } from '../../shared/utils/text-normalization.util';
+import { repairUtf8Mojibake, resolveLocalizedMessage } from '../../shared/utils/text-normalization.util';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -127,16 +127,20 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   get activationSummary(): string {
     if (this.activationProfile.requiredActions.length > 0) {
-      return repairUtf8Mojibake(this.activationProfile.requiredActions[0].message);
+      return resolveLocalizedMessage(this.activationProfile.requiredActions[0].message, this.currentLang);
     }
 
     if (this.activationProfile.lastReviewDecision) {
-      return repairUtf8Mojibake(this.activationProfile.lastReviewDecision);
+      return resolveLocalizedMessage(this.activationProfile.lastReviewDecision, this.currentLang);
     }
 
     return this.currentLang === 'ar'
       ? 'يمكنك الدخول لكل أجزاء اللوحة، لكن النشر والطلبات والتسويات ستظل محجوبة حتى الاعتماد النهائي.'
       : 'You can access the full workspace, but publishing, orders, and payouts stay blocked until final approval.';
+  }
+
+  localizeMessage(message?: string | null): string {
+    return resolveLocalizedMessage(message, this.currentLang);
   }
 
   get canAccessSupport(): boolean {
