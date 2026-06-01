@@ -1,5 +1,5 @@
 import { CommonModule, DatePipe, DecimalPipe, PercentPipe } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BaseChartDirective } from 'ng2-charts';
@@ -10,6 +10,7 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import {
   VendorDashboardAlertItem,
+  VendorDashboardBranchRevenue,
   VendorDashboardBreakdownSlice,
   VendorDashboardDualTrendPoint,
   VendorDashboardOverview,
@@ -17,6 +18,8 @@ import {
   VendorDashboardReviewListItem
 } from '../../models/vendor-dashboard.models';
 import { VendorDashboardService } from '../../services/vendor-dashboard.service';
+import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
+import { VendorAccessScope, VendorCurrentUser } from '../../../../core/auth/models/vendor-auth.models';
 
 Chart.register(...registerables);
 
@@ -36,6 +39,7 @@ interface DashboardMetricCard {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-vendor-dashboard',
   standalone: true,
   imports: [
@@ -51,6 +55,7 @@ interface DashboardMetricCard {
   styleUrl: './vendor-dashboard.component.scss'
 })
 export class VendorDashboardComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentLang = 'ar';
   overview: VendorDashboardOverview | null = null;
   isLoading = false;
@@ -76,12 +81,14 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
   constructor(
     private readonly translate: TranslateService,
     private readonly dashboardService: VendorDashboardService,
+    private readonly vendorAuthService: VendorAuthService,
     private readonly datePipe: DatePipe,
     private readonly decimalPipe: DecimalPipe,
     private readonly percentPipe: PercentPipe
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
     });
   }
@@ -122,11 +129,13 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
 
     this.dashboardService.getOverview(this.selectedPeriod).subscribe({
       next: (overview) => {
+        this.cdr.markForCheck();
         this.overview = overview;
         this.dashboardError = '';
         this.isLoading = false;
       },
       error: () => {
+        this.cdr.markForCheck();
         this.dashboardError = this.translate.instant('DASHBOARD.ERROR');
         this.isLoading = false;
       }
@@ -137,6 +146,32 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     return this.overview?.generatedAtUtc
       ? this.formatDateTime(this.overview.generatedAtUtc)
       : '-';
+  }
+
+  get currentUser(): VendorCurrentUser | null {
+    return this.vendorAuthService.currentUserSnapshot;
+  }
+
+  get activeScope(): VendorAccessScope | null {
+    return this.currentUser?.access?.activeScope ?? null;
+  }
+
+  get currentWorkspaceName(): string {
+    return this.activeScope?.scopeEntityName?.trim() || this.translate.instant('DASHBOARD.CONTEXT.UNKNOWN_BRANCH');
+  }
+
+  get currentWorkspaceTypeKey(): string {
+    return this.activeScope?.scopeClassification === 'branch'
+      ? 'STAFF_BRANCHES.BRANCH_TYPES.BRANCH'
+      : 'STAFF_BRANCHES.BRANCH_TYPES.PRIMARY';
+  }
+
+  get currentWorkspaceRoleName(): string {
+    return this.activeScope?.roleName?.trim() || '-';
+  }
+
+  get showWorkspaceRole(): boolean {
+    return !!this.activeScope?.roleName?.trim();
   }
 
   get heroCards(): DashboardMetricCard[] {
@@ -622,6 +657,17 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
 
   formatCurrency(value: number): string {
     return `${this.decimalPipe.transform(value, '1.0-0') ?? '0'} ${this.translate.instant('COMMON.CURRENCY')}`;
+  }
+
+  branchRevenueShare(branch: VendorDashboardBranchRevenue): number {
+    const items = this.overview?.financeSection.branchRevenues ?? [];
+    const totalRevenue = items.reduce((sum, item) => sum + item.revenue, 0);
+
+    if (totalRevenue <= 0) {
+      return 0;
+    }
+
+    return Math.round((branch.revenue / totalRevenue) * 100);
   }
 
   getRoundedRating(): number {

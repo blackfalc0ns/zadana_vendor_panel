@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -38,6 +38,7 @@ import {
   defaultOperatingHours
 } from '../../models/staff-branches.models';
 import { StaffBranchesService } from '../../services/staff-branches.service';
+import { VendorAccessService } from '../../../../core/auth/services/vendor-access.service';
 import {
   BranchFilters,
   BranchWizardDraft,
@@ -47,6 +48,7 @@ import {
 } from './staff-branches.page.models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-staff-branches-page',
   standalone: true,
   imports: [
@@ -65,6 +67,7 @@ import {
   templateUrl: './staff-branches.page.html'
 })
 export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
 
   get mappedActiveBranchOptions(): SearchableSelectOption[] {
     return [
@@ -119,7 +122,8 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
       { value: 'pending', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_PENDING' },
       { value: 'accepted', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_ACCEPTED' },
       { value: 'expired', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_EXPIRED' },
-      { value: 'revoked', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_REVOKED' }
+      { value: 'revoked', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_REVOKED' },
+      { value: 'delivery_failed', labelKey: 'STAFF_BRANCHES.STATUSES.INVITATION_DELIVERY_FAILED' }
     ];
   }
 
@@ -209,11 +213,13 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly staffBranchesService: StaffBranchesService,
+    private readonly vendorAccessService: VendorAccessService,
     private readonly translate: TranslateService,
     private readonly geographyService: GeographyService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.refreshGeographyLabels();
       if (this.flashMessage) {
@@ -230,12 +236,14 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
       this.staffBranchesService.getEmployees(),
       this.staffBranchesService.getInvitations()
     ]).subscribe(([branches, employees, invitations]) => {
+      this.cdr.markForCheck();
       this.branches = branches;
       this.employees = employees;
       this.invitations = invitations;
     });
 
     this.routeSub = this.route.queryParamMap.subscribe((params) => {
+      this.cdr.markForCheck();
       const action = params.get('action');
 
       if (action === 'branch') {
@@ -316,6 +324,10 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
 
   get hasPrimaryBranch(): boolean {
     return this.branches.some((branch) => branch.isPrimary && branch.status !== 'archived');
+  }
+
+  get canManageBranchLifecycle(): boolean {
+    return !this.vendorAccessService.hasScope('VendorPanel', 'VendorBranch');
   }
 
   get isEditingEmployee(): boolean {
@@ -526,6 +538,10 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   openBranchWizard(): void {
+    if (!this.canManageBranchLifecycle) {
+      return;
+    }
+
     this.branchDraft = this.createEmptyBranchDraft();
     this.branchWizardStep = 1;
     this.isBranchWizardOpen = true;
@@ -569,7 +585,7 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
         && this.branchDraft.operatingHours.some((hour) => hour.isOpen);
     }
 
-    return !!this.branchDraft.managerName.trim() && !!this.branchDraft.managerContact.trim();
+    return !!this.branchDraft.managerName.trim() && this.isValidEmail(this.branchDraft.managerContact);
   }
 
   submitBranchWizard(): void {
@@ -592,9 +608,19 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
       inviteMessage: this.branchDraft.inviteMessage
     };
 
-    this.staffBranchesService.createBranch(input);
-    this.closeBranchWizard();
-    this.showFlash('STAFF_BRANCHES.FEEDBACK.BRANCH_CREATED', 'success');
+    this.staffBranchesService.createBranch(input).subscribe({
+      next: () => {
+        this.closeBranchWizard();
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.BRANCH_CREATED', 'success');
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        this.closeBranchWizard();
+        const message = error?.error?.message as string | undefined;
+        this.showFlash(message || 'STAFF_BRANCHES.FEEDBACK.INVITATION_SEND_FAILED', 'info');
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   toggleBranchDay(hour: BranchOperatingHourVm, isOpen: boolean): void {
@@ -634,9 +660,7 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
 
   toggleEmployeeBranch(branchId: string, checked: boolean): void {
     if (checked) {
-      if (!this.employeeDraft.branchIds.includes(branchId)) {
-        this.employeeDraft.branchIds = [...this.employeeDraft.branchIds, branchId];
-      }
+      this.employeeDraft.branchIds = [branchId];
       return;
     }
 
@@ -662,9 +686,17 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
         this.editingEmployee!.id,
         this.employeeDraft.roleTemplate,
         this.employeeDraft.permissions
-      );
-      this.closeEmployeeModal();
-      this.showFlash('STAFF_BRANCHES.FEEDBACK.PERMISSIONS_UPDATED', 'success');
+      ).subscribe({
+        next: () => {
+          this.closeEmployeeModal();
+          this.showFlash('STAFF_BRANCHES.FEEDBACK.PERMISSIONS_UPDATED', 'success');
+          this.cdr.markForCheck();
+        },
+        error: () => {
+          this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_ACTION_FAILED', 'info');
+          this.cdr.markForCheck();
+        }
+      });
       return;
     }
 
@@ -678,27 +710,91 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
       roleTemplate: this.employeeDraft.roleTemplate,
       branchIds: [...this.employeeDraft.branchIds],
       permissions: clonePermissionMatrix(this.employeeDraft.permissions)
+    }).subscribe({
+      next: () => {
+        this.closeEmployeeModal();
+        this.activeView = 'invitations';
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.EMPLOYEE_INVITED', 'success');
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        this.closeEmployeeModal();
+        const code = error?.error?.code as string | undefined;
+        const message = error?.error?.message as string | undefined;
+        const feedbackKey = code === 'STAFF_ALREADY_EXISTS'
+          ? 'STAFF_BRANCHES.ACCEPT.STAFF_ALREADY_EXISTS'
+          : (message || 'STAFF_BRANCHES.FEEDBACK.INVITATION_SEND_FAILED');
+        this.showFlash(feedbackKey, 'info');
+        this.cdr.markForCheck();
+      }
     });
-
-    this.closeEmployeeModal();
-    this.activeView = 'employees';
-    this.showFlash('STAFF_BRANCHES.FEEDBACK.EMPLOYEE_INVITED', 'success');
   }
 
   toggleEmployeeStatus(employee: EmployeeVm): void {
     const nextStatus: EmployeeStatus = employee.status === 'suspended' ? 'active' : 'suspended';
-    this.staffBranchesService.updateEmployeeStatus(employee.id, nextStatus);
-    this.showFlash(
-      nextStatus === 'active'
-        ? 'STAFF_BRANCHES.FEEDBACK.EMPLOYEE_ACTIVATED'
-        : 'STAFF_BRANCHES.FEEDBACK.EMPLOYEE_SUSPENDED',
-      'info'
-    );
+    this.staffBranchesService.updateEmployeeStatus(employee.id, nextStatus).subscribe({
+      next: () => {
+        this.showFlash(
+          nextStatus === 'active'
+            ? 'STAFF_BRANCHES.FEEDBACK.EMPLOYEE_ACTIVATED'
+            : 'STAFF_BRANCHES.FEEDBACK.EMPLOYEE_SUSPENDED',
+          'info'
+        );
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_ACTION_FAILED', 'info');
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   updateBranchStatus(branch: BranchVm, status: BranchStatus): void {
-    this.staffBranchesService.updateBranchStatus(branch.id, status);
-    this.showFlash('STAFF_BRANCHES.FEEDBACK.BRANCH_STATUS_UPDATED', 'info');
+    if (!this.canManageBranchLifecycle) {
+      return;
+    }
+
+    if (status === 'archived') {
+      this.deleteBranch(branch);
+      return;
+    }
+
+    this.staffBranchesService.updateBranchStatus(branch.id, status).subscribe({
+      next: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.BRANCH_STATUS_UPDATED', 'info');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.BRANCH_DELETE_FAILED', 'info');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  deleteBranch(branch: BranchVm): void {
+    if (!this.canManageBranchLifecycle) {
+      return;
+    }
+
+    const confirmed = window.confirm(
+      this.translate.instant('STAFF_BRANCHES.CONFIRMATIONS.DELETE_BRANCH', { name: branch.name })
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.staffBranchesService.deleteBranch(branch.id).subscribe({
+      next: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.BRANCH_DELETED', 'success');
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        const code = error?.error?.code as string | undefined;
+        this.showFlash(this.branchDeleteFeedbackKey(code), 'info');
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   async copyInvitationLink(invitation: InvitationVm): Promise<void> {
@@ -711,25 +807,86 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   resendInvitation(invitation: InvitationVm): void {
-    this.staffBranchesService.resendInvitation(invitation.id);
-    this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_RESENT', 'success');
+    this.staffBranchesService.resendInvitation(invitation.id).subscribe({
+      next: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_RESENT', 'success');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_ACTION_FAILED', 'info');
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   revokeInvitation(invitation: InvitationVm): void {
-    this.staffBranchesService.revokeInvitation(invitation.id);
-    this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_REVOKED', 'info');
+    this.staffBranchesService.revokeInvitation(invitation.id).subscribe({
+      next: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_REVOKED', 'info');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_ACTION_FAILED', 'info');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  deleteInvitation(invitation: InvitationVm): void {
+    const confirmed = window.confirm(
+      this.translate.instant('STAFF_BRANCHES.CONFIRMATIONS.DELETE_INVITATION', { name: invitation.targetName })
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.staffBranchesService.deleteInvitation(invitation.id).subscribe({
+      next: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_DELETED', 'success');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_ACTION_FAILED', 'info');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  deleteEmployee(employee: EmployeeVm): void {
+    const confirmed = window.confirm(
+      this.translate.instant('STAFF_BRANCHES.CONFIRMATIONS.DELETE_EMPLOYEE', { name: employee.fullName })
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    this.staffBranchesService.deleteEmployee(employee.id).subscribe({
+      next: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.EMPLOYEE_DELETED', 'success');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_ACTION_FAILED', 'info');
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   private loadGeographyOptions(): void {
     this.geographySub = this.geographyService.getRegions().subscribe({
       next: (regions) => {
+        this.cdr.markForCheck();
         this.regions = regions.map((region) => this.toRegionOption(region));
 
         forkJoin(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
+      this.cdr.markForCheck();
           this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
         });
       },
       error: () => {
+        this.cdr.markForCheck();
         this.regions = [];
         this.cities = [];
       }
@@ -830,6 +987,23 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
     }
   }
 
+  private branchDeleteFeedbackKey(code?: string): string {
+    switch (code) {
+      case 'PRIMARY_BRANCH_DELETE_FORBIDDEN':
+        return 'STAFF_BRANCHES.FEEDBACK.BRANCH_DELETE_PRIMARY_FORBIDDEN';
+      case 'BRANCH_DELETE_BLOCKED_PRODUCTS':
+        return 'STAFF_BRANCHES.FEEDBACK.BRANCH_DELETE_BLOCKED_PRODUCTS';
+      case 'BRANCH_DELETE_BLOCKED_ORDERS':
+        return 'STAFF_BRANCHES.FEEDBACK.BRANCH_DELETE_BLOCKED_ORDERS';
+      case 'BRANCH_DELETE_BLOCKED_STAFF':
+        return 'STAFF_BRANCHES.FEEDBACK.BRANCH_DELETE_BLOCKED_STAFF';
+      case 'BRANCH_DELETE_BLOCKED_INVITATIONS':
+        return 'STAFF_BRANCHES.FEEDBACK.BRANCH_DELETE_BLOCKED_INVITATIONS';
+      default:
+        return 'STAFF_BRANCHES.FEEDBACK.BRANCH_DELETE_FAILED';
+    }
+  }
+
   employeeStatusKey(status: EmployeeStatus): string {
     switch (status) {
       case 'active':
@@ -849,6 +1023,8 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
         return 'STAFF_BRANCHES.STATUSES.INVITATION_ACCEPTED';
       case 'expired':
         return 'STAFF_BRANCHES.STATUSES.INVITATION_EXPIRED';
+      case 'delivery_failed':
+        return 'STAFF_BRANCHES.STATUSES.INVITATION_DELIVERY_FAILED';
       default:
         return 'STAFF_BRANCHES.STATUSES.INVITATION_REVOKED';
     }
@@ -870,6 +1046,7 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
         return 'border-amber-200 bg-amber-50 text-amber-700';
       case 'suspended':
       case 'expired':
+      case 'delivery_failed':
         return 'border-rose-200 bg-rose-50 text-rose-700';
       case 'archived':
       case 'revoked':

@@ -31,7 +31,9 @@
   </app-page-header>
 
   @if (flashMessage) {
-    <div class="rounded-[20px] border border-emerald-200 bg-emerald-50 px-4 py-3 text-[0.82rem] font-black text-emerald-700 shadow-sm">
+    <div
+      class="rounded-[20px] border px-4 py-3 text-[0.82rem] font-black shadow-sm"
+      [ngClass]="flashTone === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-amber-200 bg-amber-50 text-amber-700'">
       {{ flashMessage }}
     </div>
   }
@@ -157,33 +159,42 @@
           </div>
         </div>
 
-        <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
-          <app-panel-header
-            [title]="'SUPPORT_CENTER.DETAIL.COMPOSER_TITLE'"
-            [subtitle]="'SUPPORT_CENTER.DETAIL.COMPOSER_SUBTITLE'"
-          ></app-panel-header>
+        @if (ticket.status !== 'resolved') {
+          <div class="rounded-[28px] border border-slate-200/70 bg-white shadow-sm">
+            <app-panel-header
+              [title]="'SUPPORT_CENTER.DETAIL.COMPOSER_TITLE'"
+              [subtitle]="'SUPPORT_CENTER.DETAIL.COMPOSER_SUBTITLE'"
+            ></app-panel-header>
 
-          <div class="px-6 py-6">
-            <label class="block space-y-2">
-              <span class="text-[0.75rem] font-black text-slate-500">{{ 'SUPPORT_CENTER.DETAIL.MESSAGE_FIELD' | translate }}</span>
-              <textarea
-                rows="5"
-                [(ngModel)]="composerDraft"
-                [placeholder]="'SUPPORT_CENTER.DETAIL.MESSAGE_PLACEHOLDER' | translate"
-                class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-[0.8rem] font-bold text-slate-900 outline-none transition-all resize-none focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5"></textarea>
-            </label>
+            <div class="px-6 py-6">
+              <label class="block space-y-2">
+                <span class="text-[0.75rem] font-black text-slate-500">{{ 'SUPPORT_CENTER.DETAIL.MESSAGE_FIELD' | translate }}</span>
+                <textarea
+                  rows="5"
+                  [(ngModel)]="composerDraft"
+                  [placeholder]="'SUPPORT_CENTER.DETAIL.MESSAGE_PLACEHOLDER' | translate"
+                  class="w-full rounded-[16px] border border-slate-200 bg-slate-50 px-4 py-3 text-[0.8rem] font-bold text-slate-900 outline-none transition-all resize-none focus:border-zadna-primary/30 focus:bg-white focus:ring-4 focus:ring-zadna-primary/5"></textarea>
+              </label>
 
-            <div class="mt-4 flex justify-end">
-              <button
-                type="button"
-                (click)="sendMessage()"
-                [disabled]="!composerDraft.trim()"
-                class="inline-flex items-center justify-center rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
-                {{ 'SUPPORT_CENTER.ACTIONS.SEND_MESSAGE' | translate }}
-              </button>
+              <div class="mt-4 flex justify-end">
+                <button
+                  type="button"
+                  (click)="sendMessage()"
+                  [disabled]="!composerDraft.trim() || isSendingMessage"
+                  class="inline-flex items-center justify-center rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
+                  {{ 'SUPPORT_CENTER.ACTIONS.SEND_MESSAGE' | translate }}
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        } @else {
+          <div class="rounded-[28px] border border-slate-200 bg-slate-50 p-8 text-center shadow-sm">
+            <span class="material-symbols-outlined text-[36px] text-slate-400">lock</span>
+            <p class="mt-2 text-[0.82rem] font-black text-slate-600">
+              {{ 'SUPPORT_CENTER.DETAIL.CLOSED_BANNER' | translate }}
+            </p>
+          </div>
+        }
       </div>
     </div>
   }

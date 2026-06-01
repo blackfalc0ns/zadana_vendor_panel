@@ -1,4 +1,4 @@
-import { Component, Inject, PLATFORM_ID } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -6,6 +6,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-register',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
@@ -13,6 +14,7 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
   styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent {
+  private readonly cdr = inject(ChangeDetectorRef);
   registerForm: FormGroup;
   isLoading = false;
   submitted = false;
@@ -43,6 +45,7 @@ export class RegisterComponent {
       this.translate.use(savedLang);
 
       this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
         this.isRTL = event.lang === 'ar';
       });
     }

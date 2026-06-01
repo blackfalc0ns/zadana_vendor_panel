@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuickTabVm } from '../../models/ui-contracts.models';
 
@@ -10,6 +10,7 @@ export interface PillTabItem extends QuickTabVm {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-pill-tabs',
   standalone: true,
   imports: [CommonModule, NgClass, TranslateModule],

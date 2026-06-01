@@ -99,9 +99,24 @@ type CategoryRequestKind = 'category' | 'sub_category';
               </div>
             </div>
 
-            <div class="rounded-2xl border-2 border-dashed border-slate-100 bg-slate-50/30 p-6 text-center">
-              <p class="text-[0.75rem] font-black text-slate-600">{{ 'PRODUCTS.UPLOAD_PHOTO' | translate }}</p>
-              <p class="text-[0.65rem] font-bold text-slate-400">{{ 'COMMON.OPTIONAL' | translate }}</p>
+            <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/30 p-6 text-center relative hover:bg-slate-50/60 transition-all">
+              @if (productImageFile) {
+                <div class="flex items-center justify-between gap-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <img [src]="getProductImageUrlPreview()" class="h-10 w-10 rounded-lg object-cover bg-white border">
+                    <span class="text-[0.75rem] font-bold text-slate-600 truncate max-w-[200px]">{{ productImageFile.name }}</span>
+                  </div>
+                  <button type="button" (click)="removeProductImage()" class="text-[0.72rem] font-black text-rose-500">
+                    {{ 'PRODUCTS.REMOVE_IMAGE' | translate }}
+                  </button>
+                </div>
+              } @else {
+                <label class="block w-full h-full cursor-pointer">
+                  <p class="text-[0.75rem] font-black text-slate-600">{{ 'PRODUCTS.UPLOAD_PHOTO' | translate }}</p>
+                  <p class="text-[0.65rem] font-bold text-slate-400">{{ 'COMMON.OPTIONAL' | translate }}</p>
+                  <input type="file" accept="image/*" class="hidden" (change)="onProductImageSelected($event)">
+                </label>
+              }
             </div>
 
             <div class="flex items-center gap-4 pt-4">
@@ -353,6 +368,7 @@ export class ProductRequestModalComponent implements OnInit {
   selectedCategoryMeta = '';
   brandImageFile: File | null = null;
   categoryImageFile: File | null = null;
+  productImageFile: File | null = null;
   readonly categoryRequestKindOptions: CategoryRequestKind[] = ['category', 'sub_category'];
 
   constructor(
@@ -651,13 +667,16 @@ export class ProductRequestModalComponent implements OnInit {
 
     forkJoin({
       brandLogoUrl: brandDraft.isNew && this.brandImageFile
-        ? this.uploadFile(this.brandImageFile, 'uploads/catalog/brand-requests')
+        ? this.catalogService.uploadFile(this.brandImageFile, 'uploads/catalog/brand-requests')
         : of<string | null>(null),
       categoryImageUrl: categoryDraft.isNew && this.categoryImageFile
-        ? this.uploadFile(this.categoryImageFile, 'uploads/catalog/category-requests')
+        ? this.catalogService.uploadFile(this.categoryImageFile, 'uploads/catalog/category-requests')
+        : of<string | null>(null),
+      productImageUrl: this.productImageFile
+        ? this.catalogService.uploadFile(this.productImageFile, 'uploads/catalog/product-requests')
         : of<string | null>(null)
     }).pipe(
-      map(({ brandLogoUrl, categoryImageUrl }) => ({
+      map(({ brandLogoUrl, categoryImageUrl, productImageUrl }) => ({
         product: {
           nameAr: formValue.nameAr,
           nameEn: formValue.nameEn,
@@ -666,6 +685,7 @@ export class ProductRequestModalComponent implements OnInit {
           categoryId: categoryDraft.isNew ? null : formValue.categoryId || null,
           brandId: brandDraft.isNew ? null : formValue.brandId || null,
           unitId: formValue.unitId || null,
+          imageUrl: productImageUrl,
           images: []
         },
         requestedBrand: brandDraft.isNew
@@ -719,6 +739,23 @@ export class ProductRequestModalComponent implements OnInit {
 
     this.categoryImageFile = file;
     this.categoryDraftForm.patchValue({ imageUrl: URL.createObjectURL(file) });
+  }
+
+  onProductImageSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) {
+      return;
+    }
+
+    this.productImageFile = file;
+  }
+
+  getProductImageUrlPreview(): string {
+    return this.productImageFile ? URL.createObjectURL(this.productImageFile) : '';
+  }
+
+  removeProductImage(): void {
+    this.productImageFile = null;
   }
 
   onRequestKindChanged(): void {
@@ -972,15 +1009,5 @@ export class ProductRequestModalComponent implements OnInit {
       category,
       ...(category.subCategories ? this.flattenCategories(category.subCategories) : [])
     ]);
-  }
-
-  private uploadFile(file: File, directory: string) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('directory', directory);
-
-    return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData).pipe(
-      map(response => response.url)
-    );
   }
 }

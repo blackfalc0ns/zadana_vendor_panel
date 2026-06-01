@@ -1,8 +1,9 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ProfileWorkspaceWindow, ProfileWorkspaceWindowId } from '../vendor-profile.view-models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-profile-window-switcher',
   standalone: true,
   imports: [CommonModule, NgClass],

@@ -148,14 +148,18 @@
                         ? 'border-amber-200 bg-amber-50 text-amber-700'
                         : invitation.status === 'expired'
                           ? 'border-rose-200 bg-rose-50 text-rose-700'
-                          : 'border-slate-200 bg-slate-100 text-slate-600'">
+                          : invitation.status === 'delivery_failed'
+                            ? 'border-rose-200 bg-rose-50 text-rose-700'
+                            : 'border-slate-200 bg-slate-100 text-slate-600'">
                     {{ invitation.status === 'accepted'
                       ? ('STAFF_BRANCHES.STATUSES.INVITATION_ACCEPTED' | translate)
                       : invitation.status === 'pending'
                         ? ('STAFF_BRANCHES.STATUSES.INVITATION_PENDING' | translate)
                         : invitation.status === 'expired'
                           ? ('STAFF_BRANCHES.STATUSES.INVITATION_EXPIRED' | translate)
-                          : ('STAFF_BRANCHES.STATUSES.INVITATION_REVOKED' | translate) }}
+                          : invitation.status === 'delivery_failed'
+                            ? ('STAFF_BRANCHES.STATUSES.INVITATION_DELIVERY_FAILED' | translate)
+                            : ('STAFF_BRANCHES.STATUSES.INVITATION_REVOKED' | translate) }}
                   </span>
                 </a>
               }

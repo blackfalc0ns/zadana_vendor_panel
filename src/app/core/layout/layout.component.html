@@ -75,6 +75,7 @@
     </section>
 
     <button
+      *ngIf="canAccessSupport"
       type="button"
       routerLink="/support"
       [attr.title]="'SIDEBAR.SUPPORT' | translate"

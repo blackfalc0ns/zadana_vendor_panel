@@ -17,16 +17,6 @@
           <span>{{ 'SUPPORT_CENTER.ACTIONS.CREATE_TICKET' | translate }}</span>
         </button>
       }
-
-      <button
-        type="button"
-        (click)="resetDemoState()"
-        class="inline-flex min-h-11 items-center gap-2 rounded-[18px] border border-slate-200 bg-white px-4 py-2.5 text-[0.76rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary">
-        <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.5 4.5v6h6M19.5 19.5v-6h-6M19.364 10.636A7.5 7.5 0 0 0 6.75 6.75L4.5 10.5m15-1.5-2.25 3.75A7.5 7.5 0 0 1 4.636 13.364"></path>
-        </svg>
-        <span>{{ 'SUPPORT_CENTER.ACTIONS.RESET_DEMO' | translate }}</span>
-      </button>
     </div>
   </app-page-header>
 
@@ -336,6 +326,21 @@
         </label>
 
         <label class="space-y-2 md:col-span-2">
+          <span class="text-[0.75rem] font-black text-slate-500">
+            {{ 'ORDERS.HEADER_ORDER_ID' | translate }} {{ 'COMMON.OPTIONAL' | translate }}
+          </span>
+          <app-searchable-select
+            [(ngModel)]="ticketDraft.orderId"
+            [options]="orderOptions"
+            [placeholder]="isLoadingOrderOptions ? 'COMMON.LOADING' : 'SUPPORT_CENTER.CREATE.ORDER_PLACEHOLDER'"
+            [searchPlaceholder]="'ORDERS.SEARCH_PLACEHOLDER'"
+            [allowClear]="true"
+            [searchable]="true"
+            [triggerClass]="'!rounded-[16px] !border-slate-200 !bg-slate-50 !text-[0.8rem]'">
+          </app-searchable-select>
+        </label>
+
+        <label class="space-y-2 md:col-span-2">
           <span class="text-[0.75rem] font-black text-slate-500">{{ 'SUPPORT_CENTER.CREATE.FIELDS.MESSAGE' | translate }}</span>
           <textarea
             rows="6"
@@ -356,7 +361,7 @@
         <button
           type="button"
           (click)="submitCreateTicket()"
-          [disabled]="!canSubmitTicket"
+          [disabled]="!canSubmitTicket || isSubmittingTicket"
           class="inline-flex items-center justify-center rounded-[16px] bg-zadna-primary px-4 py-2.5 text-[0.78rem] font-black text-white transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50">
           {{ 'SUPPORT_CENTER.ACTIONS.SUBMIT_TICKET' | translate }}
         </button>

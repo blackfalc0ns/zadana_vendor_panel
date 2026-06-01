@@ -1,4 +1,4 @@
-﻿import { Component, OnInit } from '@angular/core';
+﻿import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -11,6 +11,7 @@ import { VendorRequiredAction } from '../../../settings/models/vendor-profile.mo
 import { repairUtf8Mojibake } from '../../../../shared/utils/text-normalization.util';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-submission-success',
   standalone: true,
   imports: [
@@ -25,6 +26,7 @@ import { repairUtf8Mojibake } from '../../../../shared/utils/text-normalization.
   styleUrl: './submission-success.component.scss'
 })
 export class SubmissionSuccessComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   today = new Date();
   applicationId = 'ZDN-' + Math.floor(Math.random() * 9000000 + 1000000);
   businessName = '';
@@ -41,6 +43,11 @@ export class SubmissionSuccessComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
+    if (this.authService.isVendorStaffSession) {
+      void this.router.navigate(['/dashboard']);
+      return;
+    }
+
     this.businessName = repairUtf8Mojibake(
       localStorage.getItem('onboarding_biz_name') || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME')
     );
@@ -51,6 +58,7 @@ export class SubmissionSuccessComponent implements OnInit {
 
     this.profileService.loadProfileForGuard(true).subscribe({
       next: (profile) => {
+        this.cdr.markForCheck();
         this.businessName = profile.storeNameAr || profile.storeNameEn || this.businessName;
         this.reviewState = profile.reviewState || (profile.status === 'Active' ? 'Verified' : 'Submitted');
         this.status = profile.status;
@@ -63,6 +71,7 @@ export class SubmissionSuccessComponent implements OnInit {
   logout(): void {
     this.authService.logout().subscribe({
       next: () => {
+        this.cdr.markForCheck();
         void this.router.navigate(['/login']);
       }
     });

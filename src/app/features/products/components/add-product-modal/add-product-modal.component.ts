@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -6,6 +6,7 @@ import { MasterProduct } from '../../models/catalog.models';
 import { ProductPriceStockFormComponent } from '../product-price-stock-form/product-price-stock-form.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-add-product-modal',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, TranslateModule, ProductPriceStockFormComponent],

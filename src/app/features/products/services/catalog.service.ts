@@ -148,7 +148,17 @@ export class CatalogService {
   }
 
   submitProductRequest(data: any): Observable<void> {
-    return this.http.post<void>(`${this.baseUrl}/catalog/product-requests`, this.normalizeProductRequestPayload(data));
+    return this.http.post<void>(`${this.baseUrl}/product-requests`, this.normalizeProductRequestPayload(data));
+  }
+
+  uploadFile(file: File, directory: string): Observable<string> {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('directory', directory);
+
+    return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData).pipe(
+      map(response => response.url)
+    );
   }
 
   submitBrandRequest(payload: { categoryId: string; nameAr: string; nameEn: string; logoUrl?: string | null }): Observable<void> {

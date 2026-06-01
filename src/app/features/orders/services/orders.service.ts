@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, map, of, switchMap } from 'rxjs';
+import { Observable, catchError, map, of, switchMap, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   OrderDetail,
@@ -74,11 +74,14 @@ interface VendorAssignedDriverApiModel {
   phoneNumber?: string | null;
   vehicleType: string;
   plateNumber: string;
+  imageUrl?: string | null;
 }
 
 interface VendorOrderItemApiModel {
   id: string;
   productName: string;
+  productNameAr?: string;
+  productNameEn?: string;
   quantity: number;
   unitPrice: number;
   lineTotal: number;
@@ -132,6 +135,7 @@ export class OrdersService {
 
   getOrderById(id: string): Observable<OrderDetail | null> {
     return this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${id}`).pipe(
+      timeout(15000),
       map((order) => this.mapDetail(order)),
       catchError(() => of(null))
     );
@@ -305,6 +309,7 @@ export class OrdersService {
       driverPhone: driver?.phoneNumber ?? undefined,
       driverVehicleType: driver?.vehicleType,
       driverVehiclePlate: driver?.plateNumber,
+      driverImage: driver?.imageUrl ?? undefined,
       items: items.map((orderItem) => this.mapOrderItem(orderItem)),
       timeline: this.normalizeTimeline(timeline.map((timelineItem) => this.mapTimelineItem(timelineItem))),
       canConfirmPickup: item.canConfirmPickup ?? false,
@@ -329,8 +334,8 @@ export class OrdersService {
   private mapOrderItem(item: VendorOrderItemApiModel): OrderItem {
     return {
       id: item.id,
-      nameAr: item.productName,
-      nameEn: item.productName,
+      nameAr: item.productNameAr || item.productName,
+      nameEn: item.productNameEn || item.productName,
       quantity: item.quantity,
       price: item.unitPrice,
       total: item.lineTotal,

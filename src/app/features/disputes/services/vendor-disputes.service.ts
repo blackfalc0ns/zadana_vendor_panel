@@ -140,6 +140,12 @@ export class VendorDisputesService {
     return this.http.post<VendorOrderCaseRespondResponseApi>(`${this.apiUrl}/${caseId}/messages`, { response });
   }
 
+  uploadAttachment(caseId: string, file: File): Observable<{ fileName: string; fileUrl: string }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ fileName: string; fileUrl: string }>(`${this.apiUrl}/${caseId}/attachments`, formData);
+  }
+
   private mapListItem(item: VendorOrderCaseListItemApi): VendorDisputeListItemVm {
     return {
       id: item.id,

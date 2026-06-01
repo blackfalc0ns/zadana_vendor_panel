@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, map } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, forkJoin, map, of, switchMap, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   BranchCreationInput,
+  BranchOperatingHourVm,
   BranchVm,
   EmployeeInviteInput,
   EmployeeStatus,
@@ -15,25 +16,99 @@ import {
   cloneOperatingHours,
   clonePermissionMatrix,
   countOpenDays,
-  createRoleTemplatePermissions,
   defaultOperatingHours
 } from '../models/staff-branches.models';
-import { FeatureWorkspaceState } from '../../../shared/models/frontend-workspace.models';
 import { repairUtf8Mojibake } from '../../../shared/utils/text-normalization.util';
 
-export interface StaffWorkspaceState extends FeatureWorkspaceState {
+interface StaffState {
   branches: BranchVm[];
   employees: EmployeeVm[];
   invitations: InvitationVm[];
+}
+
+interface InvitationApiDto {
+  id: string;
+  type: InvitationType;
+  targetName: string;
+  contact: string;
+  branchIds: string[];
+  status: InvitationStatus;
+  sentAt: string;
+  expiresAt: string;
+  link: string;
+  roleTemplate: RoleTemplate;
+  sendAttemptCount: number;
+  providerMessageId?: string | null;
+  lastSendFailureReason?: string | null;
+}
+
+interface InvitationCreatePayload {
+  type: InvitationType;
+  targetName: string;
+  contact: string;
+  roleTemplate: RoleTemplate;
+  branchIds: string[];
+  permissions: EmployeeVm['permissions'];
+  inviteMessage?: string;
+}
+
+interface BranchApiDto {
+  id: string;
+  name: string;
+  code: string;
+  isPrimary: boolean;
+  status: BranchVm['status'];
+  phone: string;
+  managerName: string;
+  managerContact: string;
+  region: string;
+  city: string;
+  addressLine: string;
+  latitude: number;
+  longitude: number;
+  deliveryRadiusKm: number;
+  workingDays: number;
+  createdAt: string;
+  operatingHours: BranchOperatingHourVm[];
+}
+
+interface EmployeeApiDto {
+  id: string;
+  fullName: string;
+  contact: string;
+  status: EmployeeStatus;
+  roleTemplate: RoleTemplate;
+  branchIds: string[];
+  lastActiveAt: string | null;
+  roleCode: string;
+  roleName: string;
+  permissions: EmployeeVm['permissions'];
+}
+
+interface BranchCreatePayload {
+  name: string;
+  code: string;
+  isPrimary: boolean;
+  addressLine: string;
+  phone: string;
+  managerName: string;
+  managerContact: string;
+  region: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  deliveryRadiusKm: number;
+  operatingHours: BranchOperatingHourVm[];
 }
 
 @Injectable({
   providedIn: 'root'
 })
 export class StaffBranchesService {
-  private readonly stateUrl = `${environment.apiUrl}/vendor/workspace-state/staff`;
-  private readonly workspaceVersion = 1;
-  private readonly stateSubject = new BehaviorSubject<StaffWorkspaceState>(this.createEmptyState());
+  private readonly branchesUrl = `${environment.apiUrl}/vendors/branches`;
+  private readonly staffUrl = `${environment.apiUrl}/vendors/staff`;
+  private readonly invitationsUrl = `${environment.apiUrl}/vendors/staff/invitations`;
+  private readonly stateSubject = new BehaviorSubject<StaffState>(this.createEmptyState());
 
   constructor(private readonly http: HttpClient) {
     this.loadState();
@@ -78,268 +153,271 @@ export class StaffBranchesService {
     );
   }
 
-  createBranch(input: BranchCreationInput): BranchVm {
-    const branch: BranchVm = {
-      id: this.generateId('branch'),
-      name: input.name.trim(),
-      code: input.code.trim() || this.generateBranchCode(input.name),
-      isPrimary: input.isPrimary,
-      status: 'pending',
-      phone: input.phone.trim(),
-      managerName: input.managerName.trim(),
-      managerContact: input.managerContact.trim(),
-      region: input.region,
-      city: input.city,
-      addressLine: input.addressLine.trim(),
-      latitude: 0,
-      longitude: 0,
-      deliveryRadiusKm: input.deliveryRadiusKm,
-      workingDays: countOpenDays(input.operatingHours),
-      createdAt: new Date().toISOString(),
-      operatingHours: cloneOperatingHours(input.operatingHours)
-    };
+  createBranch(input: BranchCreationInput): Observable<BranchVm> {
+    return this.createServerBranch(input).pipe(
+      switchMap((branch) =>
+        this.createInvitation({
+          type: 'branch_manager',
+          targetName: input.managerName.trim(),
+          contact: input.managerContact.trim(),
+          roleTemplate: 'branch_manager',
+          branchIds: [branch.id],
+          permissions: this.createBranchManagerPermissions(),
+          inviteMessage: input.inviteMessage
+        }).pipe(map((invitation) => ({ branch, invitation })))
+      ),
+      map(({ branch, invitation }) => {
+        this.setState((state) => ({
+          ...state,
+          branches: [branch, ...state.branches.filter((item) => item.id !== branch.id)],
+          invitations: [invitation, ...state.invitations.filter((item) => item.id !== invitation.id)]
+        }));
 
-    const manager = this.buildEmployee({
-      fullName: input.managerName,
-      contact: input.managerContact,
-      roleTemplate: 'branch_manager',
-      branchIds: [branch.id],
-      permissions: createRoleTemplatePermissions('branch_manager')
-    }, 'invited');
-
-    const invitation = this.buildInvitation(
-      'branch_manager',
-      input.managerName,
-      input.managerContact,
-      [branch.id]
+        return branch;
+      })
     );
-
-    this.setState((state) => ({
-      ...state,
-      branches: [branch, ...state.branches],
-      employees: [manager, ...state.employees],
-      invitations: [invitation, ...state.invitations]
-    }));
-
-    return branch;
   }
 
-  updateBranchStatus(branchId: string, status: BranchVm['status']): void {
-    this.setState((state) => ({
-      ...state,
-      branches: state.branches.map((branch) =>
-        branch.id === branchId
-          ? { ...branch, status }
-          : branch
-      )
-    }));
+  updateBranchStatus(branchId: string, status: BranchVm['status']): Observable<BranchVm> {
+    const payload = { status: status === 'active' ? 'active' : 'suspended' };
+    return this.http.put<BranchApiDto>(`${this.branchesUrl}/${branchId}/status`, payload).pipe(
+      map((response) => this.mapBranch(response)),
+      tap((branch) => {
+        this.setState((state) => ({
+          ...state,
+          branches: state.branches.map((item) => item.id === branch.id ? branch : item)
+        }));
+      })
+    );
   }
 
-  inviteEmployee(input: EmployeeInviteInput): EmployeeVm {
-    const employee = this.buildEmployee(input, 'invited');
-    const invitation = this.buildInvitation('employee', input.fullName, input.contact, input.branchIds);
-
-    this.setState((state) => ({
-      ...state,
-      branches: state.branches,
-      employees: [employee, ...state.employees],
-      invitations: [invitation, ...state.invitations]
-    }));
-
-    return employee;
+  inviteEmployee(input: EmployeeInviteInput): Observable<InvitationVm> {
+    return this.createInvitation({
+      type: 'employee',
+      targetName: input.fullName,
+      contact: input.contact,
+      roleTemplate: input.roleTemplate,
+      branchIds: input.branchIds,
+      permissions: input.permissions
+    }).pipe(
+      tap((invitation) => {
+        this.setState((state) => ({
+          ...state,
+          invitations: [invitation, ...state.invitations.filter((item) => item.id !== invitation.id)]
+        }));
+      })
+    );
   }
 
-  updateEmployeePermissions(employeeId: string, roleTemplate: RoleTemplate, permissions: EmployeeVm['permissions']): void {
-    this.setState((state) => ({
-      ...state,
-      employees: state.employees.map((employee) =>
-        employee.id === employeeId
-          ? {
-              ...employee,
-              roleTemplate,
-              jobTitle: this.getTemplateLabelKey(roleTemplate),
-              permissions: clonePermissionMatrix(permissions)
-            }
-          : employee
-      )
-    }));
+  updateEmployeePermissions(
+    employeeId: string,
+    roleTemplate: RoleTemplate,
+    permissions: EmployeeVm['permissions']
+  ): Observable<EmployeeVm> {
+    return this.http.put<EmployeeApiDto>(`${this.staffUrl}/${employeeId}/role`, { roleTemplate, permissions }).pipe(
+      map((response) => this.mapEmployee(response)),
+      tap((employee) => {
+        this.setState((state) => ({
+          ...state,
+          employees: state.employees.map((item) => item.id === employee.id ? employee : item)
+        }));
+      })
+    );
   }
 
-  updateEmployeeStatus(employeeId: string, status: EmployeeStatus): void {
-    this.setState((state) => ({
-      ...state,
-      employees: state.employees.map((employee) =>
-        employee.id === employeeId
-          ? {
-              ...employee,
-              status,
-              lastActiveAt: status === 'active' ? new Date().toISOString() : employee.lastActiveAt
-            }
-          : employee
-      )
-    }));
+  updateEmployeeStatus(employeeId: string, status: EmployeeStatus): Observable<EmployeeVm> {
+    return this.http.put<EmployeeApiDto>(`${this.staffUrl}/${employeeId}/status`, { status }).pipe(
+      map((response) => this.mapEmployee(response)),
+      tap((employee) => {
+        this.setState((state) => ({
+          ...state,
+          employees: state.employees.map((item) => item.id === employee.id ? employee : item)
+        }));
+      })
+    );
   }
 
-  resendInvitation(invitationId: string): void {
-    const sentAt = new Date().toISOString();
-    const expiresAt = this.createExpiryDate(sentAt);
-
-    this.setState((state) => ({
-      ...state,
-      invitations: state.invitations.map((invitation) =>
-        invitation.id === invitationId
-          ? {
-              ...invitation,
-              status: 'pending',
-              sentAt,
-              expiresAt
-            }
-          : invitation
-      )
-    }));
+  resendInvitation(invitationId: string): Observable<InvitationVm> {
+    return this.http.post<InvitationApiDto>(`${this.invitationsUrl}/${invitationId}/resend`, {}).pipe(
+      map((response) => this.mapInvitation(response)),
+      tap((invitation) => {
+        this.setState((state) => ({
+          ...state,
+          invitations: state.invitations.map((item) => item.id === invitation.id ? invitation : item)
+        }));
+      })
+    );
   }
 
-  revokeInvitation(invitationId: string): void {
-    this.setState((state) => ({
-      ...state,
-      invitations: state.invitations.map((invitation) =>
-        invitation.id === invitationId
-          ? {
-              ...invitation,
-              status: 'revoked'
-            }
-          : invitation
-      )
-    }));
+  revokeInvitation(invitationId: string): Observable<InvitationVm> {
+    return this.http.post<InvitationApiDto>(`${this.invitationsUrl}/${invitationId}/revoke`, {}).pipe(
+      map((response) => this.mapInvitation(response)),
+      tap((invitation) => {
+        this.setState((state) => ({
+          ...state,
+          invitations: state.invitations.map((item) => item.id === invitation.id ? invitation : item)
+        }));
+      })
+    );
+  }
+
+  deleteInvitation(invitationId: string): Observable<void> {
+    return this.http.delete<void>(`${this.invitationsUrl}/${invitationId}`).pipe(
+      tap(() => {
+        this.setState((state) => ({
+          ...state,
+          invitations: state.invitations.filter((item) => item.id !== invitationId)
+        }));
+      })
+    );
+  }
+
+  deleteBranch(branchId: string): Observable<void> {
+    return this.http.delete<void>(`${this.branchesUrl}/${branchId}`).pipe(
+      tap(() => {
+        this.setState((state) => ({
+          ...state,
+          branches: state.branches.filter((branch) => branch.id !== branchId),
+          invitations: state.invitations.filter((invitation) => !invitation.branchIds.includes(branchId)),
+          employees: state.employees.filter((employee) => !employee.branchIds.includes(branchId))
+        }));
+      })
+    );
+  }
+
+  deleteEmployee(employeeId: string): Observable<void> {
+    return this.http.delete<void>(`${this.staffUrl}/${employeeId}`).pipe(
+      tap(() => {
+        this.setState((state) => ({
+          ...state,
+          employees: state.employees.filter((employee) => employee.id !== employeeId)
+        }));
+      })
+    );
   }
 
   resetSeedState(): void {
     this.loadState();
   }
 
-  private buildEmployee(input: EmployeeInviteInput, status: EmployeeStatus): EmployeeVm {
-    return {
-      id: this.generateId('employee'),
-      fullName: input.fullName.trim(),
-      jobTitle: this.getTemplateLabelKey(input.roleTemplate),
-      contact: input.contact.trim(),
-      status,
-      roleTemplate: input.roleTemplate,
-      branchIds: [...input.branchIds],
-      permissions: clonePermissionMatrix(input.permissions),
-      lastActiveAt: status === 'active' ? new Date().toISOString() : null
-    };
-  }
-
-  private buildInvitation(type: InvitationType, targetName: string, contact: string, branchIds: string[]): InvitationVm {
-    const id = this.generateId('invite');
-    const sentAt = new Date().toISOString();
-
-    return {
-      id,
-      type,
-      targetName: targetName.trim(),
-      contact: contact.trim(),
-      branchIds: [...branchIds],
-      status: 'pending',
-      sentAt,
-      expiresAt: this.createExpiryDate(sentAt),
-      link: `https://vendor.zadana.app/invitations/${id}`
-    };
-  }
-
   private loadState(): void {
-    this.http.get<Partial<StaffWorkspaceState>>(this.stateUrl).subscribe({
-      next: (stored) => {
-        const normalizedState: StaffWorkspaceState = {
-          updatedAt: stored.updatedAt || new Date().toISOString(),
-          version: this.workspaceVersion,
-          persistenceMode: 'server-persisted',
-          branches: (stored.branches || []).map((branch) => this.cloneBranch(branch)),
-          employees: (stored.employees || []).map((employee) => this.cloneEmployee(employee)),
-          invitations: (stored.invitations || []).map((invitation) => this.cloneInvitation(invitation))
-        };
-
-        this.stateSubject.next(normalizedState);
-      },
+    this.fetchState().subscribe({
+      next: (state) => this.stateSubject.next(state),
       error: () => this.stateSubject.next(this.createEmptyState())
     });
   }
 
-  private createEmptyState(): StaffWorkspaceState {
+  private fetchState(): Observable<StaffState> {
+    return forkJoin({
+      branches: this.http.get<BranchApiDto[]>(this.branchesUrl).pipe(catchError(() => of([] as BranchApiDto[]))),
+      employees: this.http.get<EmployeeApiDto[]>(this.staffUrl).pipe(catchError(() => of([] as EmployeeApiDto[]))),
+      invitations: this.http.get<InvitationApiDto[]>(this.invitationsUrl).pipe(catchError(() => of([] as InvitationApiDto[])))
+    }).pipe(
+      map(({ branches, employees, invitations }) => ({
+        branches: branches.map((branch) => this.mapBranch(branch)),
+        employees: employees.map((employee) => this.mapEmployee(employee)),
+        invitations: invitations.map((invitation) => this.mapInvitation(invitation))
+      }))
+    );
+  }
+
+  private createEmptyState(): StaffState {
     return {
-      updatedAt: new Date().toISOString(),
-      version: this.workspaceVersion,
-      persistenceMode: 'server-persisted',
       branches: [],
       employees: [],
       invitations: []
     };
   }
 
-  private buildSeedState(shouldPersist = true): StaffWorkspaceState {
-    const emptyState = this.createEmptyState();
-
-    if (shouldPersist) {
-      this.persistState(emptyState);
-    }
-
-    return emptyState;
-  }
-
-  private setState(projector: (state: StaffWorkspaceState) => StaffWorkspaceState): void {
+  private setState(projector: (state: StaffState) => StaffState): void {
     const nextState = projector(this.stateSubject.value);
-    const normalizedState: StaffWorkspaceState = {
-      ...nextState,
-      updatedAt: new Date().toISOString(),
-      version: this.workspaceVersion,
-      persistenceMode: 'server-persisted',
+    this.stateSubject.next({
       branches: nextState.branches.map((branch) => this.cloneBranch(branch)),
       employees: nextState.employees.map((employee) => this.cloneEmployee(employee)),
       invitations: nextState.invitations.map((invitation) => this.cloneInvitation(invitation))
+    });
+  }
+
+  private createInvitation(payload: InvitationCreatePayload): Observable<InvitationVm> {
+    return this.http.post<InvitationApiDto>(this.invitationsUrl, payload).pipe(
+      map((response) => this.mapInvitation(response))
+    );
+  }
+
+  private createServerBranch(input: BranchCreationInput): Observable<BranchVm> {
+    const payload: BranchCreatePayload = {
+      name: input.name.trim(),
+      code: input.code.trim() || this.generateBranchCode(input.name),
+      isPrimary: input.isPrimary,
+      addressLine: input.addressLine.trim(),
+      phone: input.phone.trim(),
+      managerName: input.managerName.trim(),
+      managerContact: input.managerContact.trim(),
+      region: input.region,
+      city: input.city,
+      latitude: 0,
+      longitude: 0,
+      deliveryRadiusKm: input.deliveryRadiusKm,
+      operatingHours: cloneOperatingHours(input.operatingHours)
     };
 
-    this.persistState(normalizedState);
-    this.stateSubject.next(normalizedState);
+    return this.http.post<BranchApiDto>(this.branchesUrl, payload).pipe(
+      map((response) => this.mapBranch(response))
+    );
   }
 
-  private createExpiryDate(dateText: string): string {
-    const date = new Date(dateText);
-    date.setDate(date.getDate() + 7);
-    return date.toISOString();
+  private mapBranch(branch: BranchApiDto): BranchVm {
+    const operatingHours = branch.operatingHours?.length
+      ? cloneOperatingHours(branch.operatingHours)
+      : defaultOperatingHours();
+
+    return this.cloneBranch({
+      id: branch.id,
+      name: repairUtf8Mojibake(branch.name || ''),
+      code: branch.code || this.generateBranchCode(branch.name || ''),
+      isPrimary: !!branch.isPrimary,
+      status: branch.status || 'active',
+      phone: branch.phone || '',
+      managerName: repairUtf8Mojibake(branch.managerName || ''),
+      managerContact: repairUtf8Mojibake(branch.managerContact || ''),
+      region: branch.region || '',
+      city: branch.city || '',
+      addressLine: repairUtf8Mojibake(branch.addressLine || ''),
+      latitude: Number(branch.latitude ?? 0),
+      longitude: Number(branch.longitude ?? 0),
+      deliveryRadiusKm: Number(branch.deliveryRadiusKm ?? 5),
+      workingDays: Number(branch.workingDays ?? countOpenDays(operatingHours)),
+      createdAt: branch.createdAt || new Date().toISOString(),
+      operatingHours
+    });
   }
 
-  private generateId(prefix: string): string {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-      return `${prefix}-${crypto.randomUUID()}`;
-    }
-
-    return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+  private mapEmployee(employee: EmployeeApiDto): EmployeeVm {
+    return this.cloneEmployee({
+      id: employee.id,
+      fullName: repairUtf8Mojibake(employee.fullName || ''),
+      jobTitle: this.getTemplateLabelKey(employee.roleTemplate),
+      contact: repairUtf8Mojibake(employee.contact || ''),
+      status: employee.status,
+      roleTemplate: employee.roleTemplate,
+      branchIds: [...(employee.branchIds || [])],
+      permissions: clonePermissionMatrix(employee.permissions),
+      lastActiveAt: employee.lastActiveAt
+    });
   }
 
-  private generateBranchCode(name: string): string {
-    const normalized = name
-      .toUpperCase()
-      .replace(/[^A-Z0-9]+/g, '-')
-      .replace(/^-+|-+$/g, '')
-      .slice(0, 8);
-
-    return `${normalized || 'BRANCH'}-${Math.floor(10 + Math.random() * 89)}`;
-  }
-
-  private getTemplateLabelKey(template: RoleTemplate): string {
-    switch (template) {
-      case 'branch_manager':
-        return 'STAFF_BRANCHES.TEMPLATES.BRANCH_MANAGER';
-      case 'orders_clerk':
-        return 'STAFF_BRANCHES.TEMPLATES.ORDERS_CLERK';
-      default:
-        return 'STAFF_BRANCHES.TEMPLATES.INVENTORY_CLERK';
-    }
-  }
-
-  private persistState(state: StaffWorkspaceState): void {
-    this.http.put(this.stateUrl, state).subscribe();
+  private mapInvitation(invitation: InvitationApiDto): InvitationVm {
+    return this.cloneInvitation({
+      id: invitation.id,
+      type: invitation.type,
+      targetName: invitation.targetName,
+      contact: invitation.contact,
+      branchIds: invitation.branchIds || [],
+      status: invitation.status,
+      sentAt: invitation.sentAt,
+      expiresAt: invitation.expiresAt,
+      link: invitation.link || ''
+    });
   }
 
   private cloneBranch(branch: BranchVm): BranchVm {
@@ -370,6 +448,38 @@ export class StaffBranchesService {
       contact: repairUtf8Mojibake(invitation.contact),
       link: repairUtf8Mojibake(invitation.link),
       branchIds: [...invitation.branchIds]
+    };
+  }
+
+  private generateBranchCode(name: string): string {
+    return name
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .slice(0, 12) || 'BRANCH';
+  }
+
+  private getTemplateLabelKey(template: RoleTemplate): string {
+    switch (template) {
+      case 'branch_manager':
+        return 'STAFF_BRANCHES.TEMPLATES.BRANCH_MANAGER';
+      case 'orders_clerk':
+        return 'STAFF_BRANCHES.TEMPLATES.ORDERS_CLERK';
+      default:
+        return 'STAFF_BRANCHES.TEMPLATES.INVENTORY_CLERK';
+    }
+  }
+
+  private createBranchManagerPermissions(): EmployeeVm['permissions'] {
+    return {
+      dashboard: { view: true, manage: false, approve: false, export: true },
+      products: { view: true, manage: true, approve: false, export: true },
+      inventory: { view: true, manage: true, approve: true, export: false },
+      orders: { view: true, manage: true, approve: true, export: true },
+      offers: { view: true, manage: true, approve: false, export: false },
+      branches_staff: { view: true, manage: true, approve: true, export: false },
+      profile: { view: true, manage: true, approve: false, export: false },
+      finance: { view: true, manage: false, approve: false, export: false }
     };
   }
 }

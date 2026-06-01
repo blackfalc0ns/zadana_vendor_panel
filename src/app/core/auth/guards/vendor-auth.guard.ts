@@ -14,6 +14,10 @@ export const vendorAuthGuard: CanActivateFn = () => {
     return router.createUrlTree(['/login']);
   }
 
+  if (authService.isVendorStaffSession) {
+    return true;
+  }
+
   return profileService.loadProfileForGuard(true).pipe(
     map((profile) => {
       if (profile.status === 'Active' || profile.commercialAccessEnabled) {

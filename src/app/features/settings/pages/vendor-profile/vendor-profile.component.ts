@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -36,6 +36,7 @@ interface LegalDocumentCard {
 type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: string };
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-vendor-profile-page',
   standalone: true,
   imports: [
@@ -188,8 +189,16 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
             [paymentCycleOptions]="paymentCycleOptions"
             [notificationSoundOptions]="notificationSoundOptions"
             [openDaysCount]="openDaysCount"
+            [isSavingBanking]="isSavingBanking"
+            [isSavingHours]="isSavingHours"
+            [isSavingOperationsSettings]="isSavingOperationsSettings"
+            [isSavingNotifications]="isSavingNotifications"
             [fieldClass]="fieldClassFn"
-            [timeFieldClass]="timeFieldClassFn" />
+            [timeFieldClass]="timeFieldClassFn"
+            (saveBanking)="saveBankingSectionAction()"
+            (saveHours)="saveOperatingHoursSection()"
+            (saveOperationsSettings)="saveOperationsSettingsAction()"
+            (saveNotifications)="saveNotificationSettingsAction()" />
 
           <app-profile-timeline-window
             *ngIf="isWindowActive('timeline')"
@@ -247,9 +256,14 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
   `
 })
 export class VendorProfileComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentLang = 'ar';
   isSaving = false;
   isSavingStoreAvailability = false;
+  isSavingBanking = false;
+  isSavingHours = false;
+  isSavingOperationsSettings = false;
+  isSavingNotifications = false;
   isSubmittingReview = false;
   uploadingDocumentType: VendorLegalDocumentType | null = null;
   pageNotice = '';
@@ -401,9 +415,11 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   private loadGeographyOptions(): void {
     this.geographyService.getRegions().subscribe({
       next: (regions) => {
+        this.cdr.markForCheck();
         this.regions = regions.map((region) => this.toRegionOption(region));
 
         forkJoin(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
+      this.cdr.markForCheck();
           this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
           this.reconcileLookupSelections();
         });
@@ -411,6 +427,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
         this.reconcileLookupSelections();
       },
       error: () => {
+        this.cdr.markForCheck();
         this.regions = [];
         this.cities = [];
       }
@@ -467,6 +484,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.refreshGeographyLabels();
     });
@@ -476,6 +494,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.route.queryParamMap.subscribe(params => {
+      this.cdr.markForCheck();
       const tab = params.get('tab');
       if (tab && this.sectionWindowMap[tab]) {
         if (this.activeTab !== tab) {
@@ -492,11 +511,13 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     this.loadGeographyOptions();
 
     this.profileSub = this.profileService.getProfile().subscribe((profile) => {
+      this.cdr.markForCheck();
       this.currentProfile = profile;
       this.patchProfile(profile);
     });
 
     this.profileForm.get('region')?.valueChanges.subscribe((regionCode) => {
+      this.cdr.markForCheck();
       const currentCity = this.profileForm.get('city')?.value;
       if (currentCity) {
         const cityObj = this.cities.find((c) => c.value === currentCity);
@@ -887,11 +908,13 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       }))
       .subscribe({
         next: () => {
+        this.cdr.markForCheck();
           this.pageNotice = this.currentLang === 'ar'
             ? 'تم رفع المستند وتحديث ملف التاجر، وسيظهر فوراً لدى الأدمن.'
             : 'Document uploaded and synced to admin for review.';
         },
         error: (error) => {
+        this.cdr.markForCheck();
           this.pageError = this.resolveErrorMessage(
             error,
             this.currentLang === 'ar'
@@ -1124,17 +1147,204 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       }))
       .subscribe({
         next: () => {
+        this.cdr.markForCheck();
           this.pageNotice = this.currentLang === 'ar'
             ? 'تم حفظ تعديلات الملف وإرسالها للأدمن للمراجعة.'
             : 'Profile changes were saved and synced to the admin workspace.';
         },
         error: (error) => {
+        this.cdr.markForCheck();
           console.error('Failed to save vendor profile.', error);
           this.pageError = this.resolveErrorMessage(
             error,
             this.currentLang === 'ar'
               ? 'تعذر حفظ تعديلات الملف الآن.'
               : 'Unable to save profile changes right now.'
+          );
+        }
+      });
+  }
+
+  saveOperatingHoursSection(): void {
+    if (this.isSavingHours) {
+      return;
+    }
+
+    this.isSavingHours = true;
+    this.pageNotice = '';
+    this.pageError = '';
+
+    const profile: VendorProfile = {
+      ...this.profileService.getProfileSnapshot(),
+      operatingHours: (this.operatingHours.getRawValue() as VendorOperatingHour[])
+    };
+
+    this.profileService.saveOperatingHours(profile)
+      .pipe(finalize(() => {
+        this.isSavingHours = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: () => {
+          this.cdr.markForCheck();
+          this.pageNotice = this.currentLang === 'ar'
+            ? 'تم حفظ مواعيد العمل بنجاح.'
+            : 'Operating hours were saved successfully.';
+        },
+        error: (error) => {
+          this.cdr.markForCheck();
+          console.error('Failed to save operating hours.', error);
+          this.pageError = this.resolveErrorMessage(
+            error,
+            this.currentLang === 'ar'
+              ? 'تعذر حفظ مواعيد العمل الآن.'
+              : 'Unable to save operating hours right now.'
+          );
+        }
+      });
+  }
+
+  saveBankingSectionAction(): void {
+    if (this.isSavingBanking) {
+      return;
+    }
+
+    const bankingControls = ['bankName', 'iban', 'swiftCode', 'payoutCycle'];
+    let invalid = false;
+    bankingControls.forEach((controlName) => {
+      const control = this.profileForm.get(controlName);
+      if (control && control.invalid) {
+        control.markAsTouched();
+        invalid = true;
+      }
+    });
+
+    if (invalid) {
+      this.pageNotice = '';
+      this.pageError = this.currentLang === 'ar'
+        ? 'راجع بيانات التحويل المطلوبة قبل الحفظ.'
+        : 'Please review the required banking fields before saving.';
+      return;
+    }
+
+    this.isSavingBanking = true;
+    this.pageNotice = '';
+    this.pageError = '';
+
+    const formValue = this.profileForm.getRawValue();
+    const profile: VendorProfile = {
+      ...this.profileService.getProfileSnapshot(),
+      bankName: formValue.bankName,
+      iban: formValue.iban,
+      swiftCode: formValue.swiftCode,
+      payoutCycle: formValue.payoutCycle
+    };
+
+    this.profileService.saveBankingSection(profile)
+      .pipe(finalize(() => {
+        this.isSavingBanking = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: () => {
+          this.cdr.markForCheck();
+          this.pageNotice = this.currentLang === 'ar'
+            ? 'تم حفظ بيانات التحويل بنجاح.'
+            : 'Banking details were saved successfully.';
+        },
+        error: (error) => {
+          this.cdr.markForCheck();
+          console.error('Failed to save banking section.', error);
+          this.pageError = this.resolveErrorMessage(
+            error,
+            this.currentLang === 'ar'
+              ? 'تعذر حفظ بيانات التحويل الآن.'
+              : 'Unable to save banking details right now.'
+          );
+        }
+      });
+  }
+
+  saveOperationsSettingsAction(): void {
+    if (this.isSavingOperationsSettings) {
+      return;
+    }
+
+    this.isSavingOperationsSettings = true;
+    this.pageNotice = '';
+    this.pageError = '';
+
+    const formValue = this.profileForm.getRawValue();
+    const profile: VendorProfile = {
+      ...this.profileService.getProfileSnapshot(),
+      acceptOrders: formValue.acceptOrders,
+      minimumOrderAmount: formValue.minimumOrderAmount,
+      preparationTimeMinutes: formValue.preparationTimeMinutes
+    };
+
+    this.profileService.saveOperationsSettingsSection(profile)
+      .pipe(finalize(() => {
+        this.isSavingOperationsSettings = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: () => {
+          this.cdr.markForCheck();
+          this.pageNotice = this.currentLang === 'ar'
+            ? 'تم حفظ إعدادات التشغيل بنجاح.'
+            : 'Operations settings were saved successfully.';
+        },
+        error: (error) => {
+          this.cdr.markForCheck();
+          console.error('Failed to save operations settings.', error);
+          this.pageError = this.resolveErrorMessage(
+            error,
+            this.currentLang === 'ar'
+              ? 'تعذر حفظ إعدادات التشغيل الآن.'
+              : 'Unable to save operations settings right now.'
+          );
+        }
+      });
+  }
+
+  saveNotificationSettingsAction(): void {
+    if (this.isSavingNotifications) {
+      return;
+    }
+
+    this.isSavingNotifications = true;
+    this.pageNotice = '';
+    this.pageError = '';
+
+    const formValue = this.profileForm.getRawValue();
+    const profile: VendorProfile = {
+      ...this.profileService.getProfileSnapshot(),
+      emailNotificationsEnabled: formValue.emailNotificationsEnabled,
+      smsNotificationsEnabled: formValue.smsNotificationsEnabled,
+      newOrdersNotificationsEnabled: formValue.newOrdersNotificationsEnabled,
+      notificationSound: formValue.notificationSound
+    };
+
+    this.profileService.saveNotificationSettingsSection(profile)
+      .pipe(finalize(() => {
+        this.isSavingNotifications = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: () => {
+          this.cdr.markForCheck();
+          this.pageNotice = this.currentLang === 'ar'
+            ? 'تم حفظ إعدادات الإشعارات بنجاح.'
+            : 'Notification settings were saved successfully.';
+        },
+        error: (error) => {
+          this.cdr.markForCheck();
+          console.error('Failed to save notification settings.', error);
+          this.pageError = this.resolveErrorMessage(
+            error,
+            this.currentLang === 'ar'
+              ? 'تعذر حفظ إعدادات الإشعارات الآن.'
+              : 'Unable to save notification settings right now.'
           );
         }
       });
@@ -1156,6 +1366,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       }))
       .subscribe({
         next: (profile) => {
+        this.cdr.markForCheck();
           this.currentProfile = profile;
           this.profileForm.patchValue({
             storeManualMode: profile.storeManualMode ?? 'online',
@@ -1166,6 +1377,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
             : (this.currentLang === 'ar' ? 'تم تحويل المتجر إلى أونلاين وإظهاره في التطبيق.' : 'The store was switched online and is visible in the app.');
         },
         error: (error) => {
+        this.cdr.markForCheck();
           this.pageError = this.resolveErrorMessage(
             error,
             this.currentLang === 'ar'
@@ -1195,11 +1407,13 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       }))
       .subscribe({
         next: () => {
+        this.cdr.markForCheck();
           this.pageNotice = this.currentLang === 'ar'
             ? 'تم إرسال ملف التاجر للمراجعة وسيظهر فورًا لدى الأدمن.'
             : 'The vendor profile was submitted for review and is visible to admin.';
         },
         error: (error) => {
+        this.cdr.markForCheck();
           console.error('Failed to submit vendor profile for review.', error);
           this.pageError = this.resolveErrorMessage(
             error,

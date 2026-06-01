@@ -81,6 +81,14 @@ export interface VendorDashboardDisputeListItem {
   occurredAtUtc: string;
 }
 
+export interface VendorDashboardBranchRevenue {
+  branchId: string;
+  branchName: string;
+  revenue: number;
+  ordersCount: number;
+  averageOrderValue: number;
+}
+
 export interface VendorDashboardAlertItem {
   id: string;
   domain: string;
@@ -181,6 +189,7 @@ export interface VendorDashboardFinanceSection {
   holdAmount: number;
   nextSettlementAt?: string;
   financialLifecycleMode: string;
+  branchRevenues: VendorDashboardBranchRevenue[];
   salesVsPayoutsTrend: VendorDashboardDualTrendPoint[];
   settlementStatusBreakdown: VendorDashboardBreakdownSlice[];
   ledgerTypeBreakdown: VendorDashboardBreakdownSlice[];

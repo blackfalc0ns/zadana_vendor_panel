@@ -1,0 +1,235 @@
+{
+  "DASHBOARD": {
+    "TITLE": "Vendor command center",
+    "SUBTITLE": "Operational, commercial, quality, and finance visibility in one place",
+    "LAST_UPDATED": "Last updated",
+    "REFRESH": "Refresh",
+    "ERROR": "Unable to load dashboard data right now.",
+    "PERIODS": {
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days"
+    },
+    "SECTION_NAV": {
+      "OVERVIEW": "Overview",
+      "OPERATIONS": "Operations",
+      "SALES": "Sales",
+      "INVENTORY": "Inventory",
+      "OFFERS": "Offers",
+      "REVIEWS": "Reviews",
+      "FINANCE": "Finance",
+      "RISK": "Risk",
+      "STAFF": "Staff"
+    },
+    "DOMAIN": {
+      "OPERATIONS": "Operations",
+      "INVENTORY": "Inventory",
+      "FINANCE": "Finance",
+      "REVIEWS": "Reviews",
+      "RISK": "Risk"
+    },
+    "CONTEXT": {
+      "CURRENT_BRANCH": "Current branch",
+      "CURRENT_ROLE": "Account type",
+      "UNKNOWN_BRANCH": "Unassigned"
+    },
+    "HERO": {
+      "PENDING_ORDERS": "Pending orders",
+      "LATE_ORDERS": "Late orders",
+      "READY_FOR_PICKUP": "Ready for pickup",
+      "DRIVER_ISSUES": "Driver issues",
+      "OPEN_DISPUTES": "Open disputes",
+      "LOW_STOCK": "Critical stock"
+    },
+    "SECTIONS": {
+      "OVERVIEW": "Overview",
+      "OVERVIEW_HINT": "Comprehensive summary of operational and financial performance.",
+      "OPERATIONS": "Operational command center",
+      "OPERATIONS_HINT": "What needs action right now across orders and fulfillment.",
+      "SALES": "Sales and commercial performance",
+      "SALES_HINT": "Revenue, order quality, category performance, and weak spots.",
+      "INVENTORY": "Inventory and catalog",
+      "INVENTORY_HINT": "Stock health, catalog movement, and products that need intervention.",
+      "OFFERS": "Offers and merchandising",
+      "OFFERS_HINT": "Live promotions, discount bands, and promotion candidates.",
+      "REVIEWS": "Reviews and customer quality",
+      "REVIEWS_HINT": "Customer sentiment, reply pressure, and quality feedback.",
+      "FINANCE": "Wallet summary",
+      "FINANCE_HINT": "Cash posture, settlements, payouts, and ledger activity.",
+      "RISK": "Disputes and risk",
+      "RISK_HINT": "Cases that may hurt service quality or profitability.",
+      "STAFF": "Staff and branches",
+      "STAFF_HINT": "Light branch summary for operational coverage.",
+      "URGENT_ORDERS": "Urgent orders",
+      "LATEST_ALERTS": "Latest operational alerts",
+      "TOP_PRODUCTS": "Top products",
+      "UNDERPERFORMING_PRODUCTS": "Underperforming products",
+      "CRITICAL_STOCK": "Critical stock watchlist",
+      "NO_MOVEMENT_PRODUCTS": "Products with no movement",
+      "EXPIRING_OFFERS": "Expiring offers",
+      "PROMOTION_CANDIDATES": "Promotion candidates",
+      "LOW_RATING_UNREPLIED": "Low-rating reviews without reply",
+      "RECENT_HIGHLIGHTS": "Recent review highlights",
+      "BRANCH_REVENUE": "Branch revenue",
+      "RECENT_SETTLEMENTS": "Recent settlements",
+      "RECENT_LEDGER": "Recent ledger activity",
+      "AWAITING_ACTION": "Cases awaiting vendor action",
+      "RECENT_ESCALATIONS": "Recent escalations"
+    },
+    "CHARTS": {
+      "COUNT": "Count",
+      "SALES": "Sales",
+      "ORDERS": "Orders",
+      "SALES_TREND": "Sales trend",
+      "PAYOUTS": "Payouts",
+      "PRODUCTS": "Products",
+      "REVIEWS": "Reviews",
+      "DISPUTES": "Disputes",
+      "ORDERS_TREND": "Orders trend",
+      "ORDER_STATUS_BREAKDOWN": "Order status breakdown",
+      "ORDER_FUNNEL": "Order funnel",
+      "SALES_VS_ORDERS": "Sales vs orders",
+      "WEEKDAY_PERFORMANCE": "Weekday performance",
+      "TOP_CATEGORIES": "Top categories",
+      "STOCK_HEALTH": "Stock health distribution",
+      "INVENTORY_RISK": "Inventory risk list",
+      "CATALOG_GROWTH": "Catalog growth",
+      "OFFERS_BY_TYPE": "Offers by type",
+      "DISCOUNT_BANDS": "Discount bands",
+      "OFFER_LINKED_PRODUCTS": "Offer-linked products",
+      "RATING_DISTRIBUTION": "Rating distribution",
+      "REVIEWS_TREND": "Reviews trend",
+      "REPLY_BREAKDOWN": "Reply breakdown",
+      "SALES_VS_PAYOUTS": "Sales vs payouts",
+      "SETTLEMENT_STATUS": "Settlement status",
+      "LEDGER_BREAKDOWN": "Ledger breakdown",
+      "DISPUTES_BY_STATUS": "Disputes by status",
+      "DISPUTES_BY_TYPE": "Disputes by type",
+      "DISPUTES_TREND": "Disputes trend",
+      "BRANCH_STATUS": "Branch status",
+      "STAFF_ROLE_DISTRIBUTION": "Staff role distribution"
+    },
+    "FUNNEL": {
+      "NEW": "New",
+      "CONFIRMED": "Confirmed",
+      "PREPARING": "Preparing",
+      "READY": "Ready",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    },
+    "STOCK_HEALTH": {
+      "HEALTHY": "Healthy",
+      "LOW": "Low",
+      "OUT": "Out of stock"
+    },
+    "OFFER_TYPES": {
+      "DIRECT": "Direct offers",
+      "COUPONS": "Coupons",
+      "CATEGORY_CAMPAIGNS": "Category campaigns",
+      "CLEARANCE": "Clearance",
+      "CAMPAIGNS": "Campaigns"
+    },
+    "REPLY_BREAKDOWN": {
+      "REPLIED": "Replied",
+      "PENDING": "Pending"
+    },
+    "SETTLEMENT_STATUS": {
+      "PAID": "Paid",
+      "PROCESSING": "Processing",
+      "SCHEDULED": "Scheduled"
+    },
+    "LEDGER_TYPES": {
+      "SALES": "Sales",
+      "FEES": "Fees",
+      "PAYOUTS": "Payouts",
+      "REFUNDS": "Refunds"
+    },
+    "SALES": {
+      "GROSS_SALES": "Gross sales",
+      "PAID_SALES": "Paid sales",
+      "ORDERS_COUNT": "Orders",
+      "AVERAGE_ORDER_VALUE": "Average order value",
+      "CANCELLATION_RATE": "Cancellation rate",
+      "REFUND_RATE": "Refund rate",
+      "LOST_REVENUE": "Lost Revenue"
+    },
+    "INVENTORY": {
+      "ACTIVE_PRODUCTS": "Active products",
+      "OUT_OF_STOCK": "Out of stock",
+      "LOW_STOCK": "Low stock",
+      "INACTIVE_PRODUCTS": "Inactive products",
+      "PRODUCTS_WITH_OFFERS": "Products with offers",
+      "CRITICAL_STOCK_NOTE": "Immediate replenishment recommended",
+      "NO_MOVEMENT": "No movement in selected period",
+      "IDLE_CAPITAL": "Idle Capital"
+    },
+    "OFFERS": {
+      "ACTIVE_OFFERS": "Active offers",
+      "CLEARANCE_ITEMS": "Clearance items",
+      "EXPIRING_OFFERS": "Expiring offers",
+      "OFFER_COVERAGE": "Offer coverage",
+      "EXPIRING_HINT": "Offer value currently exposed",
+      "PROMOTION_HINT": "Candidate for promotional push"
+    },
+    "REVIEWS": {
+      "AVERAGE_RATING": "Average rating",
+      "TOTAL_REVIEWS": "Total reviews",
+      "LOW_RATING_COUNT": "Low ratings",
+      "PENDING_REPLIES": "Pending replies",
+      "HIDDEN_REVIEWS": "Hidden reviews"
+    },
+    "FINANCE": {
+      "AVAILABLE_BALANCE": "Available balance",
+      "PENDING_SETTLEMENT": "Pending settlement",
+      "NET_SALES": "Net sales",
+      "FEES": "Fees",
+      "PAYOUTS_PAID": "Payouts paid",
+      "HOLD_AMOUNT": "Hold amount",
+      "NEXT_SETTLEMENT": "Next settlement",
+      "LIFECYCLE_MODE": "Lifecycle mode",
+      "BRANCH_REVENUE_HINT": "Paid revenue is broken down by branch so you can distinguish branch performance clearly.",
+      "BRANCH_ORDERS": "Orders",
+      "AVG_ORDER_VALUE": "Avg order value"
+    },
+    "DISPUTES": {
+      "OPEN": "Open disputes",
+      "HIGH_PRIORITY": "High priority",
+      "REFUND_REQUESTS": "Refund requests",
+      "AWAITING_VENDOR_RESPONSE": "Awaiting vendor response"
+    },
+    "STAFF": {
+      "ACTIVE_BRANCHES": "Active branches",
+      "ACTIVE_STAFF": "Active staff",
+      "PENDING_INVITATIONS": "Pending invitations",
+      "BRANCHES_NEEDING_COVERAGE": "Branches needing coverage"
+    },
+    "ALERTS": {
+      "LATE_ORDERS_TITLE": "Late orders need attention",
+      "LATE_ORDERS_BODY": "Some orders have exceeded the expected preparation window.",
+      "LOW_STOCK_TITLE": "Critical stock needs replenishment",
+      "LOW_STOCK_BODY": "A group of products is running at a risky stock level.",
+      "DISPUTES_TITLE": "Cases are waiting for vendor response",
+      "DISPUTES_BODY": "There are disputes that require immediate vendor follow-up.",
+      "REVIEWS_TITLE": "Customer reviews need replies",
+      "REVIEWS_BODY": "Unreplied low-rating reviews may affect trust and conversion.",
+      "LARGE_SETTLEMENT_TITLE": "Pending settlement in cycle",
+      "LARGE_SETTLEMENT_BODY": "Settlement funds are still in process and should be reviewed."
+    },
+    "EMPTY": {
+      "NO_ALERTS": "No active alerts right now.",
+      "NO_URGENT_ORDERS": "No urgent orders at the moment.",
+      "NO_CRITICAL_STOCK": "No products with critical stock right now.",
+      "NO_PENDING_REVIEWS": "No low-rating reviews waiting for a reply.",
+      "NO_STAFF_DISTRIBUTION": "No staff distribution data is available yet."
+    },
+    "OPERATIONS": {
+      "PREP_EFFICIENCY": "Prep Efficiency (SLA)",
+      "AVG_PREP_TIME": "Avg Prep Time",
+      "MINUTES": "minutes"
+    },
+    "TABLES": {
+      "SALES": "sales"
+    }
+  }
+}

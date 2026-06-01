@@ -111,6 +111,11 @@
       "REVIEWS": "Reviews",
       "RISK": "Risk"
     },
+    "CONTEXT": {
+      "CURRENT_BRANCH": "Current branch",
+      "CURRENT_ROLE": "Account type",
+      "UNKNOWN_BRANCH": "Unassigned"
+    },
     "HERO": {
       "PENDING_ORDERS": "Pending orders",
       "LATE_ORDERS": "Late orders",
@@ -148,6 +153,7 @@
       "PROMOTION_CANDIDATES": "Promotion candidates",
       "LOW_RATING_UNREPLIED": "Low-rating reviews without reply",
       "RECENT_HIGHLIGHTS": "Recent review highlights",
+      "BRANCH_REVENUE": "Branch revenue",
       "RECENT_SETTLEMENTS": "Recent settlements",
       "RECENT_LEDGER": "Recent ledger activity",
       "AWAITING_ACTION": "Cases awaiting vendor action",
@@ -263,7 +269,10 @@
       "PAYOUTS_PAID": "Payouts paid",
       "HOLD_AMOUNT": "Hold amount",
       "NEXT_SETTLEMENT": "Next settlement",
-      "LIFECYCLE_MODE": "Lifecycle mode"
+      "LIFECYCLE_MODE": "Lifecycle mode",
+      "BRANCH_REVENUE_HINT": "Paid revenue is broken down by branch so you can distinguish branch performance clearly.",
+      "BRANCH_ORDERS": "Orders",
+      "AVG_ORDER_VALUE": "Avg order value"
     },
     "DISPUTES": {
       "OPEN": "Open disputes",
@@ -1235,6 +1244,19 @@
     "VENDOR_DASHBOARD": "Vendor Dashboard",
     "SEARCH_PLACEHOLDER": "Search in Zadana..."
   },
+  "HEADER_SEARCH": {
+    "TITLE": "Global Search",
+    "PLACEHOLDER": "Search in Zadana (orders, products, catalog...)",
+    "MIN_QUERY": "Type at least {{count}} characters to search.",
+    "SEARCHING": "Searching vendor panel...",
+    "NO_RESULTS": "No matching results found.",
+    "GROUPS": {
+      "NAVIGATION": "Pages",
+      "ORDERS": "Orders",
+      "PRODUCTS": "My Products",
+      "MASTER_PRODUCTS": "Product Catalog"
+    }
+  },
   "PAGINATION": {
     "PREVIOUS": "Previous",
     "NEXT": "Next",
@@ -1368,6 +1390,11 @@
       "SEND_INVITATION": "Send invitation",
       "SAVE_PERMISSIONS": "Save permissions"
     },
+    "CONFIRMATIONS": {
+      "DELETE_BRANCH": "Delete branch \"{{name}}\"?",
+      "DELETE_EMPLOYEE": "Delete employee \"{{name}}\" from this workspace list?",
+      "DELETE_INVITATION": "Delete invitation for \"{{name}}\"?"
+    },
     "BRANCH_TYPES": {
       "PRIMARY": "Primary branch",
       "BRANCH": "Sub-branch"
@@ -1383,7 +1410,8 @@
       "INVITATION_PENDING": "Pending",
       "INVITATION_ACCEPTED": "Accepted",
       "INVITATION_EXPIRED": "Expired",
-      "INVITATION_REVOKED": "Revoked"
+      "INVITATION_REVOKED": "Revoked",
+      "INVITATION_DELIVERY_FAILED": "Email failed"
     },
     "INVITATION_TYPES": {
       "BRANCH_MANAGER": "Branch manager",
@@ -1411,7 +1439,7 @@
         "MANAGER_NAME": "Branch manager name",
         "ADDRESS": "Address details",
         "DELIVERY_RADIUS": "Delivery radius (km)",
-        "MANAGER_CONTACT": "Manager email or phone",
+      "MANAGER_CONTACT": "Manager email",
         "MESSAGE": "Internal invitation note"
       },
       "PRIMARY_WARNING": "A primary branch already exists. New entries will be created as sub-branches pending review.",
@@ -1469,17 +1497,55 @@
       }
     },
     "FEEDBACK": {
-      "BRANCH_CREATED": "The new branch was added and a manager invitation was created.",
+      "BRANCH_CREATED": "The new branch was added and a manager invitation was sent by email.",
+      "BRANCH_DELETED": "Branch deleted successfully.",
+      "BRANCH_DELETE_FAILED": "The branch could not be deleted. Please try again.",
+      "BRANCH_DELETE_PRIMARY_FORBIDDEN": "The primary branch cannot be deleted.",
+      "BRANCH_DELETE_BLOCKED_PRODUCTS": "This branch still has products linked to it, so it cannot be deleted.",
+      "BRANCH_DELETE_BLOCKED_ORDERS": "This branch still has orders linked to it, so it cannot be deleted.",
+      "BRANCH_DELETE_BLOCKED_STAFF": "This branch still has staff access assigned to it, so it cannot be deleted.",
+      "BRANCH_DELETE_BLOCKED_INVITATIONS": "This branch still has linked invitations, so it cannot be deleted.",
       "PERMISSIONS_UPDATED": "Employee permissions were updated.",
       "EMPLOYEE_CREATED": "The employee was created successfully.",
       "EMPLOYEE_INVITED": "The employee invitation was sent successfully.",
+      "EMPLOYEE_DELETED": "Employee removed from the current workspace list.",
       "EMPLOYEE_ACTIVATED": "The employee was activated.",
       "EMPLOYEE_SUSPENDED": "The employee was suspended.",
       "BRANCH_STATUS_UPDATED": "Branch status was updated.",
       "LINK_COPIED": "Invitation link copied.",
       "LINK_COPY_FALLBACK": "Copy failed here. You can still copy the link manually.",
       "INVITATION_RESENT": "Invitation resent successfully.",
-      "INVITATION_REVOKED": "Invitation was revoked."
+      "INVITATION_DELETED": "Invitation deleted successfully.",
+      "INVITATION_REVOKED": "Invitation was revoked.",
+      "INVITATION_SEND_FAILED": "The invitation email could not be sent. Check the address and email provider, then try again.",
+      "INVITATION_ACTION_FAILED": "The invitation action could not be completed. Please try again."
+    },
+    "ACCEPT": {
+      "LOADING": "Loading invitation...",
+      "EYEBROW": "Vendor invitation",
+      "TITLE": "Create your staff access",
+      "SUBTITLE": "You have been invited to join {{vendor}} on Zadana Vendor Panel.",
+      "INVITED_AS": "Invited as",
+      "EMAIL": "Email",
+      "EXPIRES": "Expires",
+      "FULL_NAME": "Full name",
+      "PASSWORD": "Password",
+      "CONFIRM_PASSWORD": "Confirm password",
+      "SUBMIT": "Accept invitation",
+      "SUBMITTING": "Creating access...",
+      "WEAK_PASSWORD": "Enter your name and a password of at least 8 characters.",
+      "PASSWORD_MISMATCH": "Passwords do not match.",
+      "FAILED": "The invitation could not be accepted. It may have expired or already been used.",
+      "INVALID_EYEBROW": "Invitation unavailable",
+      "INVALID_TITLE": "This invitation is not active",
+      "INVALID_BODY": "The invitation link is expired, revoked, or already accepted.",
+      "SUCCESS_EYEBROW": "Access ready",
+      "SUCCESS_TITLE": "Your account is active",
+      "SUCCESS_BODY": "You can now sign in with the invited email and the password you just created.",
+      "LOGIN": "Go to login",
+      "USER_ALREADY_EXISTS": "An account already exists with this email (e.g. as a customer). Please use a different email or request a new invitation on a different email address.",
+      "STAFF_ALREADY_EXISTS": "This email already has staff access to this vendor.",
+      "ROLE_NOT_CONFIGURED": "The invited role is not configured on the server. Please contact support."
     },
     "DETAILS": {
       "BRANCH": {
@@ -1858,7 +1924,8 @@
       "COMPOSER_TITLE": "Add a New Reply",
       "COMPOSER_SUBTITLE": "Send the update or clarification needed to move the case forward.",
       "MESSAGE_FIELD": "Message",
-      "MESSAGE_PLACEHOLDER": "Write your reply or the clarification you want to add to this ticket"
+      "MESSAGE_PLACEHOLDER": "Write your reply or the clarification you want to add to this ticket",
+      "CLOSED_BANNER": "This ticket has been closed. If you are still facing the issue, please open a new support ticket."
     },
     "REFERENCE": {
       "READ_TIME": "{{count}} min read",
@@ -1871,6 +1938,7 @@
       "EYEBROW": "New Ticket",
       "TITLE": "Open a Support Case",
       "SUBTITLE": "Provide a clear summary so the request reaches the right team quickly.",
+      "ORDER_PLACEHOLDER": "Select a related order if needed",
       "FIELDS": {
         "SUBJECT": "Case Subject",
         "CATEGORY": "Category",
@@ -1893,7 +1961,9 @@
     },
     "FEEDBACK": {
       "TICKET_CREATED": "The support ticket was created successfully.",
+      "TICKET_CREATE_FAILED": "The support ticket could not be created. Check the order ID and try again.",
       "MESSAGE_SENT": "Your reply was sent to the ticket.",
+      "MESSAGE_SEND_FAILED": "Your reply could not be sent. Please try again.",
       "SEED_RESET": "The demo support workspace was reset."
     }
   },
@@ -2101,7 +2171,8 @@
       "REPLY_FIELD": "Response message",
       "REPLY_PLACEHOLDER": "Write your response, explanation, or evidence summary here...",
       "RESPONSE_SENT": "Your response was sent successfully.",
-      "RESPONSE_FAILED": "Unable to send your response right now."
+      "RESPONSE_FAILED": "Unable to send your response right now.",
+      "CLOSED_BANNER": "This dispute is currently closed. Additional messages or attachments cannot be sent."
     }
   }
 }

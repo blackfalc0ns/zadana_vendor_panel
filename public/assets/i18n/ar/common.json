@@ -1,0 +1,203 @@
+{
+  "COMMON": {
+    "SEARCH": "بحث...",
+    "SAVE": "حفظ",
+    "CANCEL": "إلغاء",
+    "DELETE": "حذف",
+    "EDIT": "تعديل",
+    "ADD": "إضافة",
+    "LOADING": "جاري التحميل...",
+    "NO_DATA": "لا توجد بيانات",
+    "ACTIONS": "إجراءات",
+    "STATUS": "الحالة",
+    "CREATED_AT": "تاريخ الإنشاء",
+    "UPDATED_AT": "تاريخ التحديث",
+    "YES": "نعم",
+    "NO": "لا",
+    "CONFIRM": "تأكيد",
+    "SUCCESS": "تمت العملية بنجاح",
+    "ERROR": "حدث خطأ ما",
+    "BACK": "رجوع",
+    "OPTIONAL": "(اختياري)",
+    "EGP": "ج.م",
+    "CURRENCY": "ر.س",
+    "ITEMS": "عناصر",
+    "ALL": "الكل",
+    "LIVE": "مباشر",
+    "TODAY": "اليوم",
+    "OPEN": "فتح",
+    "CLOSE": "إغلاق",
+    "WELCOME": "مرحباً بك",
+    "READY_TODAY": "جاهز لليوم",
+    "OPERATIONAL_PRIORITIES": "أولويات التشغيل",
+    "BRAND_GENERAL": "علامة تجارية عامة",
+    "UNIT_PIECE": "قطعة",
+    "HEADER_PRODUCT": "المنتج",
+    "ENGLISH": "English",
+    "ARABIC": "العربية",
+    "DEFAULT_VENDOR_NAME": "مورد جديد",
+    "LOGOUT": "تسجيل الخروج",
+    "PROFILE": "الملف الشخصي",
+    "SHORTCUT_CTRL_K": "Ctrl K",
+    "ARABIC_DATA": "البيانات العربية",
+    "ENGLISH_DATA": "البيانات الإنجليزية",
+    "SELECT_CATEGORY": "اختر التصنيف...",
+    "SELECT_UNIT": "اختر الوحدة...",
+    "CLEAR_SELECTION": "مسح الاختيار",
+    "ACTIVE": "نشط",
+    "CONTINUE": "متابعة",
+    "ERROR_OCCURRED": "حدث خطأ غير متوقع.",
+    "STATUS_ACTIVE": "نشط",
+    "STATUS_INACTIVE": "غير نشط",
+    "FILTERS": "الفلاتر",
+    "VIEW_ALL": "عرض الكل",
+    "DATE": "التاريخ",
+    "AMOUNT": "المبلغ",
+    "TOTAL": "الإجمالي"
+  },
+  "SIDEBAR": {
+    "APP_NAME": "زدانا",
+    "APP_SUBTITLE": "بوابة الموردين والشركاء",
+    "DASHBOARD": "الرئيسية",
+    "PRODUCTS": "المنتجات / الكتالوج",
+    "ORDERS": "إدارة الطلبات",
+    "OFFERS": "العروض والخصومات",
+    "FINANCE": "محفظتي",
+    "BRANCHES": "الفروع",
+    "STAFF_BRANCHES": "الموظفين والفروع",
+    "REVIEWS": "التقييمات",
+    "SETTINGS": "الإعدادات",
+    "LOGOUT": "تسجيل الخروج",
+    "NEW_BADGE": "جديد",
+    "READY_STATUS": "جاهز للعمل",
+    "SEARCH_PLACEHOLDER": "بحث سريع (Ctrl K)",
+    "OVERVIEW_TITLE": "نظرة عامة",
+    "OPERATIONS_TITLE": "العمليات",
+    "SUPPORT": "الدعم الفني",
+    "ALERTS": "التنبيهات",
+    "VERIFIED_VENDOR": "مورد معتمد لدى زدانا",
+    "STORE_SETUP": "إعداد الحساب",
+    "STORE_SETUP_TITLE": "أكمل بياناتك للبدء في البيع",
+    "CONTINUE_SETUP": "متابعة الإعداد",
+    "DISPUTES": "النزاعات"
+  },
+  "HEADER": {
+    "OPEN_MENU": "فتح القائمة",
+    "NOTIFICATIONS": "التنبيهات",
+    "PROFILE": "الملف الشخصي",
+    "SEARCH": "بحث في النظام...",
+    "ACTIVE_ACCOUNT": "حساب نشط",
+    "VENDOR_DASHBOARD": "لوحة التحكم للمورد",
+    "SEARCH_PLACEHOLDER": "بحث في زدانا..."
+  },
+  "HEADER_SEARCH": {
+    "TITLE": "البحث الموحد",
+    "PLACEHOLDER": "بحث في زدانا (طلبات، منتجات، كتالوج...)",
+    "MIN_QUERY": "اكتب {{count}} أحرف على الأقل لبدء البحث.",
+    "SEARCHING": "جارٍ البحث داخل لوحة المورد...",
+    "NO_RESULTS": "لم يتم العثور على نتائج مطابقة.",
+    "GROUPS": {
+      "NAVIGATION": "الصفحات",
+      "ORDERS": "الطلبات",
+      "PRODUCTS": "منتجاتي",
+      "MASTER_PRODUCTS": "كتالوج المنتجات"
+    }
+  },
+  "PAGINATION": {
+    "PREVIOUS": "السابق",
+    "NEXT": "التالي",
+    "PAGE_INFO": "صفحة {{current}} من {{total}}",
+    "TOTAL_PRODUCTS": "إجمالي: {{count}} منتج",
+    "TOTAL_ITEMS": "إجمالي: {{count}} عنصر",
+    "TOTAL_ORDERS": "إجمالي: {{count}} طلب"
+  },
+  "ALERTS_CENTER": {
+    "TITLE": "مركز التنبيهات",
+    "SUBTITLE": "تابع التنبيهات التشغيلية المشتقة من الطلبات والمنتجات والمالية والدعم وغيرها من نفس لوحة المورد.",
+    "ACTIONS": {
+      "MARK_ALL_READ": "تعليم الكل كمقروء",
+      "MARK_READ": "تعليم كمقروء",
+      "MARK_UNREAD": "تعليم كغير مقروء",
+      "ARCHIVE": "أرشفة",
+      "RESTORE": "استعادة",
+      "OPEN": "فتح",
+      "VIEW_ALL": "عرض كل التنبيهات"
+    },
+    "SUMMARY": {
+      "UNREAD": "غير المقروءة",
+      "UNREAD_HINT": "عناصر لم تُراجع بعد داخل مركز التنبيهات.",
+      "CRITICAL": "حرجة",
+      "CRITICAL_HINT": "تنبيهات تحتاج تدخلاً فوريًا.",
+      "NEEDS_ACTION": "تحتاج إجراء",
+      "NEEDS_ACTION_HINT": "تنبيهات تحمل طابع تشغيلي أو تحذيري.",
+      "ARCHIVED": "مؤرشفة",
+      "ARCHIVED_HINT": "تنبيهات احتفظت بها للرجوع إليها لاحقًا."
+    },
+    "QUICK_TABS": {
+      "ALL": "الكل",
+      "UNREAD": "غير المقروءة",
+      "CRITICAL": "الحرجة",
+      "ARCHIVED": "المؤرشفة"
+    },
+    "SECTION_TITLE": "سجل التنبيهات",
+    "SECTION_SUBTITLE": "تابع المصادر والأولويات والحالة وافتح الصفحة المرتبطة مباشرة من التنبيه.",
+    "FILTERS": {
+      "TITLE": "الفلاتر",
+      "SUBTITLE": "خصص التنبيهات حسب المصدر والشدة والحالة بشكل واضح.",
+      "RESET": "إعادة تعيين",
+      "SEARCH": "بحث",
+      "SOURCE": "المصدر",
+      "SEVERITY": "الشدة",
+      "STATE": "الحالة",
+      "ALL_SOURCES": "كل المصادر",
+      "ALL_SEVERITY": "كل درجات الشدة",
+      "ALL_STATES": "كل الحالات"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "ابحث داخل عناوين التنبيهات ووصفها"
+    },
+    "TABLE": {
+      "ALERT": "التنبيه",
+      "SOURCE": "المصدر",
+      "SEVERITY": "الشدة",
+      "STATE": "الحالة",
+      "TIME": "الوقت"
+    },
+    "SOURCES": {
+      "ORDERS": "الطلبات",
+      "PRODUCTS": "المنتجات",
+      "OFFERS": "العروض",
+      "FINANCE": "المالية",
+      "SUPPORT": "الدعم",
+      "STAFF": "الفروع والموظفون",
+      "REVIEWS": "التقييمات",
+      "PROFILE": "ملف المورد"
+    },
+    "SEVERITY": {
+      "INFO": "معلومة",
+      "WARNING": "تحذير",
+      "CRITICAL": "حرج"
+    },
+    "STATE": {
+      "UNREAD": "غير مقروء",
+      "READ": "مقروء",
+      "ARCHIVED": "مؤرشف"
+    },
+    "POPOVER": {
+      "SUBTITLE": "أعلى الأولويات الحالية غير المؤرشفة",
+      "EMPTY_TITLE": "لا توجد تنبيهات جديدة",
+      "EMPTY_SUBTITLE": "عند ظهور أي تنبيه جديد، سيظهر هنا مباشرة."
+    },
+    "EMPTY": {
+      "TITLE": "لا توجد تنبيهات مطابقة",
+      "SUBTITLE": "جرّب تغيير الفلاتر أو تابع عندما تتغير البيانات التشغيلية."
+    },
+    "FEEDBACK": {
+      "MARKED_READ": "تم تعليم التنبيه كمقروء.",
+      "MARKED_UNREAD": "تمت إعادة التنبيه كغير مقروء.",
+      "ARCHIVED": "تمت أرشفة التنبيه.",
+      "RESTORED": "تمت استعادة التنبيه من الأرشيف.",
+      "ALL_READ": "تم تعليم كل التنبيهات كمقروءة."
+    }
+  }
+}

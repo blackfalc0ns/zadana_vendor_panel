@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -30,6 +30,7 @@ import {
 import { ReviewsService } from '../../services/reviews.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-reviews-center-page',
   standalone: true,
   imports: [
@@ -51,6 +52,7 @@ import { ReviewsService } from '../../services/reviews.service';
   templateUrl: './reviews-center.page.html'
 })
 export class ReviewsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentLang = 'ar';
   isFiltersExpanded = true;
   activeQuickView: ReviewQuickView = 'all';
@@ -94,6 +96,7 @@ export class ReviewsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       if (this.flashMessage) {
         this.flashMessage = '';
@@ -107,6 +110,7 @@ export class ReviewsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
       this.reviewsService.getReviews(),
       this.reviewsService.getSummary()
     ]).subscribe(([reviews, summary]) => {
+      this.cdr.markForCheck();
       this.reviews = reviews;
       this.summary = summary;
 

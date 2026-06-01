@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -29,6 +29,7 @@ import {
 } from '../../utils/vendor-dispute-display.utils';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-vendor-disputes-list',
   standalone: true,
   imports: [
@@ -45,6 +46,7 @@ import {
   templateUrl: './vendor-disputes-list.component.html'
 })
 export class VendorDisputesListComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentLang = 'ar';
   isLoading = true;
   disputes: VendorDisputeListItemVm[] = [];
@@ -74,6 +76,7 @@ export class VendorDisputesListComponent implements OnInit, OnDestroy {
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
     });
     this.searchSub = this.searchTerm$
@@ -82,6 +85,7 @@ export class VendorDisputesListComponent implements OnInit, OnDestroy {
         distinctUntilChanged()
       )
       .subscribe(() => {
+      this.cdr.markForCheck();
         this.currentPage = 1;
         this.loadDisputes();
       });
@@ -91,6 +95,7 @@ export class VendorDisputesListComponent implements OnInit, OnDestroy {
     this.applyQueryParams();
     this.loadDisputes();
     this.alertsSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      this.cdr.markForCheck();
       if (alert.route.startsWith('/disputes')) {
         this.loadDisputes();
       }
@@ -227,6 +232,7 @@ export class VendorDisputesListComponent implements OnInit, OnDestroy {
       pageSize: this.pageSize
     }).subscribe({
       next: (response) => {
+        this.cdr.markForCheck();
         this.disputes = response.items;
         this.currentPage = response.page;
         this.pageSize = response.pageSize;
@@ -235,6 +241,7 @@ export class VendorDisputesListComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: () => {
+        this.cdr.markForCheck();
         this.disputes = [];
         this.totalCount = 0;
         this.totalPages = 1;

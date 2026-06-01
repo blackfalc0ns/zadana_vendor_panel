@@ -1,0 +1,716 @@
+{
+  "SETTINGS_PROFILE": {
+    "TITLE": "ملف المورد",
+    "SUBTITLE": "إدارة كل بيانات المتجر والمالك والبيانات التجارية والتحويلات من مكان واحد",
+    "ROLE_LABEL": "مورد معتمد",
+    "SAVE": "حفظ الملف",
+    "STATUS_ACTIVE": "الملف نشط",
+    "STATUS_PENDING": "قيد المراجعة",
+    "OPEN_NOW": "مفتوح",
+    "OVERVIEW": {
+      "STORE_NAME": "اسم المتجر",
+      "OWNER": "المالك",
+      "JOINED_AT": "تاريخ الانضمام"
+    },
+    "UI": {
+      "STORE_BASICS": "هوية المتجر",
+      "SUPPORT_CHANNELS": "قنوات الدعم",
+      "STORE_DESCRIPTION": "وصف المتجر",
+      "OWNER_DETAILS": "بيانات المالك",
+      "REPRESENTATIVE_INFO": "بيانات الممثل القانوني",
+      "CONTACT_PROFILE": "العنوان ووسائل التواصل",
+      "ADDRESS_LOCATION": "العنوان والموقع",
+      "PROFILE_STATUS": "حالة الملف",
+      "LEGAL_COMPLETION": "الاكتمال القانوني",
+      "REVIEW": "المراجعة",
+      "REVIEW_HINT": "تأكد من تطابق السجل والرقم الضريبي",
+      "LEGAL_IDENTIFIERS": "معرفات قانونية",
+      "VERIFICATION_SUMMARY": "ملخص التحقق",
+      "BANK_PROFILE": "ملف البنك",
+      "REQUIRED_DOCUMENTS": "المستندات المطلوبة",
+      "SAVE_SECTION": "حفظ هذا القسم"
+    },
+    "SECTIONS": {
+      "STORE": "بيانات المتجر",
+      "STORE_HINT": "المعلومات الأساسية التي تظهر عبر لوحة المورد.",
+      "OWNER": "بيانات المالك",
+      "OWNER_HINT": "البيانات الشخصية ووسائل التواصل الخاصة بمالك الحساب.",
+      "CONTACT": "التواصل والعنوان",
+      "CONTACT_HINT": "وسائل التواصل وعنوان المورد الكامل.",
+      "LEGAL": "البيانات القانونية",
+      "LEGAL_HINT": "السجل التجاري والرقم الضريبي للحساب التجاري.",
+      "DOCUMENTS": "المستندات الرسمية",
+      "DOCUMENTS_HINT": "ارفع ملفات PDF المطلوبة لاستكمال الامتثال ومراجعة الحساب.",
+      "BANKING": "بيانات التحويل",
+      "BANKING_HINT": "الحساب البنكي وجدولة التحويلات المالية.",
+      "OPERATIONS_SETTINGS": "إعدادات التشغيل",
+      "OPERATIONS_SETTINGS_HINT": "التحكم في استقبال الطلبات والحد الأدنى ووقت التجهيز.",
+      "NOTIFICATION_SETTINGS": "إعدادات الإشعارات",
+      "NOTIFICATION_SETTINGS_HINT": "تحديد أنواع الإشعارات التي تصلك من المنصة.",
+      "HOURS": "ساعات العمل",
+      "HOURS_HINT": "الأيام والساعات المتاحة لاستقبال وتجهيز الطلبات."
+    },
+    "FIELDS": {
+      "STORE_NAME_AR": "اسم المتجر بالعربية",
+      "STORE_NAME_EN": "اسم المتجر بالإنجليزية",
+      "BUSINESS_TYPE": "نوع النشاط",
+      "SUPPORT_PHONE": "هاتف الدعم",
+      "SUPPORT_EMAIL": "بريد الدعم",
+      "DESCRIPTION_AR": "الوصف بالعربية",
+      "DESCRIPTION_EN": "الوصف بالإنجليزية",
+      "OWNER_NAME": "اسم المالك",
+      "OWNER_EMAIL": "بريد المالك",
+      "OWNER_PHONE": "هاتف المالك",
+      "REGION": "المنطقة",
+      "CITY": "المدينة",
+      "NATIONAL_ADDRESS": "العنوان الوطني",
+      "ID_NUMBER": "رقم الهوية",
+      "NATIONALITY": "الجنسية",
+      "COMMERCIAL_REGISTRATION": "السجل التجاري",
+      "EXPIRY_DATE": "تاريخ انتهاء السجل التجاري",
+      "TAX_ID": "الرقم الضريبي",
+      "LICENSE_NUMBER": "رقم الرخصة",
+      "BANK_NAME": "اسم البنك",
+      "IBAN": "رقم الآيبان",
+      "PAYOUT_CYCLE": "دورة التحويل"
+    },
+    "DAYS": {
+      "SATURDAY": "السبت",
+      "SUNDAY": "الأحد",
+      "MONDAY": "الاثنين",
+      "TUESDAY": "الثلاثاء",
+      "WEDNESDAY": "الأربعاء",
+      "THURSDAY": "الخميس",
+      "FRIDAY": "الجمعة"
+    },
+    "OPERATIONS": {
+      "ACCEPT_ORDERS": "استقبال الطلبات",
+      "ACCEPT_ORDERS_HINT": "إيقاف هذا الخيار يمنع استقبال طلبات جديدة مؤقتًا.",
+      "MINIMUM_ORDER_AMOUNT": "الحد الأدنى للطلب",
+      "PREPARATION_TIME": "وقت التجهيز بالدقائق"
+    },
+    "NOTIFICATIONS": {
+      "EMAIL": "إشعارات البريد الإلكتروني",
+      "EMAIL_HINT": "استلام التنبيهات العامة عبر البريد الإلكتروني.",
+      "SMS": "إشعارات الرسائل النصية",
+      "SMS_HINT": "استلام التنبيهات المهمة عبر الرسائل النصية.",
+      "NEW_ORDERS": "إشعارات الطلبات الجديدة",
+      "NEW_ORDERS_HINT": "تنبيه فوري عند وصول طلب جديد.",
+      "SOUND": "نغمة الإشعارات",
+      "SOUND_HINT": "اختر النغمة التي تعمل عند وصول تنبيه فوري داخل لوحة التاجر.",
+      "PREVIEW_SOUND": "تجربة النغمة",
+      "SOUND_OPTIONS": {
+        "CLASSIC": "كلاسيكية",
+        "CHIME": "جرس خفيف",
+        "SOFT": "هادئة",
+        "URGENT": "عاجلة",
+        "OFF": "بدون صوت"
+      }
+    },
+    "COMMAND": {
+      "EYEBROW": "مساحة عمل المورد",
+      "ACTIVE_SUBTITLE": "حسابك التجاري نشط. التعديلات الهامة وإعادة رفع الملفات ستظهر مباشرة في مساحة المراجعة الخاصة بالإدارة.",
+      "PENDING_SUBTITLE": "أكمل البيانات الأساسية والمستندات الرسمية، ثم أرسل الملف للمراجعة. كل تحديث تحفظه ينعكس لدى الإدارة."
+    },
+    "METRICS": {
+      "REVIEW_READINESS": "جاهزية المراجعة",
+      "ACCOUNT_STATUS": "حالة الحساب",
+      "LAST_DECISION": "القرار الأخير",
+      "MISSING": "مطلوب",
+      "APPROVED": "مقبول",
+      "IN_REVIEW": "قيد المراجعة"
+    },
+    "WINDOWS": {
+      "BASICS_LABEL": "الملف الأساسي",
+      "BASICS_SUMMARY": "المتجر والمالك وبيانات التواصل.",
+      "REVIEW_LABEL": "المستندات والمراجعة",
+      "REVIEW_SUMMARY": "ملفات الـ PDF الرسمية والبيانات القانونية.",
+      "OPERATIONS_LABEL": "المالية والتشغيل",
+      "OPERATIONS_SUMMARY": "حساب التسوية ودورة التحويل وأوقات العمل.",
+      "TIMELINE_LABEL": "سجل المراجعة",
+      "TIMELINE_SUMMARY": "القرارات وتاريخ المراجعات والنشاط الأخير."
+    },
+    "ACCOUNT": {
+      "ACTIVE_ACCESS": "الوصول التجاري مفعل",
+      "GATED_ACCESS": "الوصول التجاري معلق حالياً"
+    },
+    "REVIEW_PANEL": {
+      "TITLE": "المستندات والمراجعة",
+      "SUBTITLE": "هذه النافذة تعكس ما يراه فريق الإدارة أثناء مراجعة ملفك.",
+      "ACCOUNT_STATE": "حالة الحساب",
+      "SUBMISSION_READINESS": "جاهزية التقديم",
+      "LAST_DECISION": "القرار الأخير",
+      "MISSING_ITEMS": "عناصر ناقصة",
+      "LEGAL_IDENTIFIERS": "البيانات القانونية",
+      "OFFICIAL_DOCUMENTS": "المستندات الرسمية",
+      "UPLOADED": "مرفوع",
+      "MISSING": "مطلوب",
+      "VIEW_FILE": "عرض الملف"
+    },
+    "SIDE_RAIL": {
+      "CURRENT_WORKSPACE": "مساحة العمل الحالية",
+      "REQUIRED_BEFORE_REVIEW": "مطلوب قبل المراجعة",
+      "SAVE_WINDOW": "حفظ هذه النافذة",
+      "REVIEW_PROGRESS": "مستوى التقدم",
+      "RECENT_TIMELINE": "النشاط الأخير"
+    },
+    "TIMELINE": {
+      "TITLE": "سجل المراجعة والمتابعة",
+      "SUBTITLE": "تتبع ما تغير في الملف وتجاوب فريق المراجعة.",
+      "CURRENT_STATE": "حالة المراجعة الحالية",
+      "COMPLETE_REVIEW_TIMELINE": "السجل الكامل للمراجعة",
+      "EMPTY": "لا يوجد نشاط للمراجعة حتى الآن."
+    },
+    "NOTICES": {
+      "REOPEN_TITLE": "أي تغيير هنا سيعيد فتح هذا القسم للمراجعة",
+      "REOPEN_SUBMITTED": "يمكنك التعديل، ولكن التحديثات الهامة أو إعادة رفع المستندات ستظهر للإدارة كعمل مراجعة جديد.",
+      "REOPEN_CHANGES_REQUESTED": "قم بتطبيق التعديلات المطلوبة، احفظ، وأعد رفع المستندات المرفوضة قبل إعادة تقديم الملف."
+    },
+    "ACTIVATION": {
+      "TITLE": "الملف جاهز للإعداد الداخلي، لكن التفعيل التجاري لا يزال محظوراً",
+      "BODY": "يمكنك إكمال البيانات المتبقية والإعدادات التشغيلية هنا، ثم تقديم أو إعادة تقديم الملف للمراجعة والامتثال."
+    },
+    "ACTIONS": {
+      "SAVE_CHANGES": "حفظ التغييرات",
+      "SUBMIT_FOR_REVIEW": "تقديم للمراجعة",
+      "RESUBMIT_FOR_REVIEW": "إعادة التقديم للمراجعة",
+      "UPLOADING": "جارِ الرفع",
+      "REUPLOAD": "إعادة رفع",
+      "REPLACE": "استبدال",
+      "UPLOAD_PDF": "رفع ملف PDF"
+    },
+    "MESSAGES": {
+      "NO_FINAL_DECISION": "لم يصدر قرار نهائي بعد",
+      "PDF_ONLY": "يجب رفع المستندات الرسمية بصيغة PDF.",
+      "DOCUMENT_UPLOADED": "تم رفع المستند ومزامنته مع طابور المراجعة.",
+      "DOCUMENT_UPLOAD_FAILED": "تعذر رفع المستند حالياً.",
+      "SAVE_INVALID": "يرجى إكمال الحقول المطلوبة قبل حفظ الملف.",
+      "SAVE_SUCCESS": "تم حفظ التغييرات ومزامنتها بنجاح.",
+      "SAVE_FAILED": "تعذر حفظ التغييرات في الملف حالياً.",
+      "SUBMIT_INVALID": "أكمل البيانات والمستندات المطلوبة قبل التقديم.",
+      "SUBMIT_SUCCESS": "تم تقديم ملف المورد للمراجعة وهو متاح الآن للإدارة.",
+      "SUBMIT_FAILED": "تعذر تقديم الملف للمراجعة حالياً."
+    },
+    "REVIEW_ITEMS": {
+      "COMMERCIAL": "السجل التجاري",
+      "TAX": "الشهادة الضريبية",
+      "LICENSE": "رخصة مزاولة النشاط",
+      "IDENTITY": "بيانات الهوية",
+      "BANK": "البيانات البنكية"
+    },
+    "REVIEW_STATUS": {
+      "APPROVED": "مقبول",
+      "SUBMITTED": "مقدم",
+      "CHANGES": "مطلوب تعديلات",
+      "WAIVED": "معفى",
+      "PENDING_VENDOR": "بانتظار المورد",
+      "AWAITING_SUBMISSION": "بانتظار التقديم",
+      "UNDER_REVIEW": "قيد المراجعة",
+      "VERIFIED": "تم التحقق",
+      "REJECTED": "مرفوض",
+      "SUSPENDED": "موقوف",
+      "IN_SETUP": "قيد الإعداد"
+    },
+    "COMMAND_CENTER": {
+      "READINESS": "جاهزية المراجعة",
+      "ACCOUNT_STATUS": "حالة الحساب:",
+      "LAST_DECISION": "القرار:",
+      "MISSING": "مطلوب",
+      "IN_REVIEW": "مراجعة",
+      "APPROVED": "مقبول",
+      "SAVE": "حفظ",
+      "VENDOR_PROFILE": "ملف التاجر"
+    }
+  },
+  "STAFF_BRANCHES": {
+    "TITLE": "الفروع والموظفون",
+    "SUBTITLE": "أدر الفروع وفرق التشغيل والدعوات من مساحة عمل واحدة واضحة وسريعة.",
+    "HEADER": {
+      "BRANCHES_COUNT": "{{count}} فرع",
+      "EMPLOYEES_COUNT": "{{count}} عضو فريق"
+    },
+    "VIEWS": {
+      "BRANCHES": "الفروع",
+      "EMPLOYEES": "الموظفون",
+      "INVITATIONS": "الدعوات"
+    },
+    "SECTIONS": {
+      "BRANCHES_TITLE": "خريطة تشغيل الفروع",
+      "BRANCHES_SUBTITLE": "تابع الفرع الرئيسي والفروع الجديدة قيد المراجعة وجاهزية التشغيل لكل فرع.",
+      "EMPLOYEES_TITLE": "فريق المتجر",
+      "EMPLOYEES_SUBTITLE": "أدر الأدوار التشغيلية وصلاحيات الوصول للفروع وحالة كل موظف.",
+      "INVITATIONS_TITLE": "مركز متابعة الدعوات",
+      "INVITATIONS_SUBTITLE": "أعد الإرسال أو ألغِ الدعوات وتابع حالة مديري الفروع والموظفين المدعوين."
+    },
+    "FILTERS": {
+      "TITLE": "الفلاتر",
+      "SUBTITLE": "استخدم فلاتر مخصصة لتضييق النتائج داخل الجدول الحالي بدون مغادرة الصفحة.",
+      "SEARCH": "بحث",
+      "STATUS": "الحالة",
+      "CITY": "المدينة",
+      "MANAGER": "المدير",
+      "TEMPLATE": "القالب",
+      "BRANCH": "الفرع",
+      "TYPE": "نوع الدعوة",
+      "ALL_STATUSES": "كل الحالات",
+      "ALL_CITIES": "كل المدن",
+      "ALL_MANAGERS": "كل المديرين",
+      "ALL_TEMPLATES": "كل القوالب",
+      "ALL_BRANCHES": "كل الفروع",
+      "ALL_TYPES": "كل الأنواع",
+      "RESET": "إعادة تعيين"
+    },
+    "SEARCH": {
+      "BRANCHES": "ابحث باسم الفرع أو المدير أو الكود",
+      "EMPLOYEES": "ابحث باسم الموظف أو وسيلة التواصل",
+      "INVITATIONS": "ابحث باسم المستهدف أو وسيلة الدعوة"
+    },
+    "TABLE": {
+      "BRANCH": "الفرع",
+      "TYPE": "النوع",
+      "CITY": "المدينة",
+      "MANAGER": "المدير",
+      "WORKING_DAYS": "أيام العمل",
+      "CONTACT": "التواصل",
+      "EMPLOYEE": "الموظف",
+      "TEMPLATE": "قالب الدور",
+      "BRANCH_ACCESS": "الوصول للفروع",
+      "LAST_ACTIVE": "آخر نشاط",
+      "INVITATION_TYPE": "نوع الدعوة",
+      "TARGET": "المستهدف",
+      "SENT_AT": "تاريخ الإرسال",
+      "EXPIRES_AT": "تاريخ الانتهاء",
+      "DAYS_VALUE": "{{count}} أيام",
+      "NO_ACTIVITY": "لا يوجد نشاط بعد"
+    },
+    "ACTIONS": {
+      "ADD_BRANCH": "إضافة فرع",
+      "INVITE_EMPLOYEE": "دعوة موظف",
+      "CREATE_EMPLOYEE": "إنشاء موظف",
+      "VIEW_DETAILS": "عرض التفاصيل",
+      "ACTIVATE": "تفعيل",
+      "SUSPEND": "تعليق",
+      "REACTIVATE": "إعادة التفعيل",
+      "ARCHIVE": "أرشفة",
+      "EDIT_PERMISSIONS": "تعديل الصلاحيات",
+      "COPY_LINK": "نسخ الرابط",
+      "RESEND": "إعادة الإرسال",
+      "REVOKE": "إلغاء الدعوة",
+      "CREATE_BRANCH": "إنشاء الفرع",
+      "SEND_INVITATION": "إرسال الدعوة",
+      "SAVE_PERMISSIONS": "حفظ الصلاحيات"
+    },
+    "BRANCH_TYPES": {
+      "PRIMARY": "الفرع الرئيسي",
+      "BRANCH": "فرع تابع"
+    },
+    "STATUSES": {
+      "BRANCH_ACTIVE": "نشط",
+      "BRANCH_PENDING": "قيد المراجعة",
+      "BRANCH_SUSPENDED": "معلق",
+      "BRANCH_ARCHIVED": "مؤرشف",
+      "EMPLOYEE_ACTIVE": "نشط",
+      "EMPLOYEE_INVITED": "مدعو",
+      "EMPLOYEE_SUSPENDED": "معلق",
+      "INVITATION_PENDING": "معلقة",
+      "INVITATION_ACCEPTED": "مقبولة",
+      "INVITATION_EXPIRED": "منتهية",
+      "INVITATION_REVOKED": "ملغاة",
+      "INVITATION_DELIVERY_FAILED": "فشل الإرسال"
+    },
+    "INVITATION_TYPES": {
+      "BRANCH_MANAGER": "مدير فرع",
+      "EMPLOYEE": "موظف"
+    },
+    "EMPTY": {
+      "BRANCHES": "لا توجد فروع مطابقة للفلاتر الحالية.",
+      "EMPLOYEES": "لا يوجد موظفون مطابقون للفلاتر الحالية.",
+      "INVITATIONS": "لا توجد دعوات مطابقة للفلاتر الحالية."
+    },
+    "BRANCH_WIZARD": {
+      "EYEBROW": "فرع جديد",
+      "TITLE": "أنشئ فرعًا تابعًا للمتجر الرئيسي",
+      "SUBTITLE": "أضف بيانات التشغيل والموقع وادعُ مدير الفرع في نفس التدفق.",
+      "STEPS": {
+        "INFO": "بيانات الفرع",
+        "LOCATION": "الموقع والتشغيل",
+        "MANAGER": "دعوة المدير"
+      },
+      "FIELDS": {
+        "NAME": "اسم الفرع",
+        "CODE": "كود الفرع",
+        "PHONE": "هاتف الفرع",
+        "TYPE": "نوع الفرع",
+        "MANAGER_NAME": "اسم مدير الفرع",
+        "ADDRESS": "تفاصيل العنوان",
+        "DELIVERY_RADIUS": "نطاق التوصيل (كم)",
+        "MANAGER_CONTACT": "بريد المدير",
+        "MESSAGE": "ملاحظة داخلية مع الدعوة"
+      },
+      "PRIMARY_WARNING": "يوجد بالفعل فرع رئيسي. أي إضافة جديدة سيتم إنشاؤها كفرع تابع وبحالة قيد المراجعة.",
+      "OPERATING_HOURS_TITLE": "ساعات التشغيل",
+      "OPERATING_HOURS_HINT": "حدد أيام وساعات العمل قبل إطلاق هذا الفرع.",
+      "SUMMARY_BRANCH": "الفرع",
+      "SUMMARY_CITY": "المدينة",
+      "SUMMARY_MANAGER": "المدير"
+    },
+    "EMPLOYEE_MODAL": {
+      "EYEBROW": "وصول الفريق",
+      "TITLE": "دعوة موظف",
+      "SUBTITLE": "أرسل دعوة إلى بريد إلكتروني عادي وحدد الفروع المسموح بها وابدأ بقالب صلاحيات جاهز.",
+      "EDIT_TITLE": "تعديل صلاحيات الموظف",
+      "EDIT_SUBTITLE": "راجع قالب الدور واضبط الصلاحيات التفصيلية للموظف المختار.",
+      "IDENTITY_TITLE": "هوية الموظف",
+      "FIELDS": {
+        "NAME": "الاسم الكامل",
+        "CONTACT": "البريد الإلكتروني"
+      },
+      "TEMPLATE_TITLE": "قالب الدور",
+      "BRANCH_ACCESS_TITLE": "الوصول للفروع",
+      "BRANCH_ACCESS_HINT": "اختر الفروع التي يمكن لهذا الموظف العمل عليها.",
+      "BRANCH_ACCESS_LOCKED": "الوصول للفروع ثابت حاليًا عند تعديل موظف موجود في هذه النسخة الأولى.",
+      "PERMISSIONS_TITLE": "مصفوفة الصلاحيات",
+      "PERMISSIONS_HINT": "استخدم القالب الجاهز أو فعّل التخصيص المتقدم للتحكم في كل وحدة.",
+      "CUSTOMIZE": "تخصيص متقدم",
+      "USING_TEMPLATE": "القالب المستخدم"
+    },
+    "TEMPLATES": {
+      "BRANCH_MANAGER": "مدير فرع",
+      "BRANCH_MANAGER_HINT": "مناسب لإدارة الطلبات والمخزون والعروض داخل فرع أو أكثر.",
+      "ORDERS_CLERK": "موظف طلبات",
+      "ORDERS_CLERK_HINT": "مخصص لمعالجة الطلبات والموافقات ومتابعة الشحن.",
+      "INVENTORY_CLERK": "موظف مخزون",
+      "INVENTORY_CLERK_HINT": "مناسب لتحديث المخزون والجرد وتعديل الإتاحة."
+    },
+    "PERMISSIONS": {
+      "MODULE": "الوحدة",
+      "ACTIONS": {
+        "VIEW": "عرض",
+        "MANAGE": "إدارة",
+        "APPROVE": "اعتماد",
+        "EXPORT": "تصدير"
+      },
+      "MODULES": {
+        "DASHBOARD": "لوحة التحكم",
+        "PRODUCTS": "المنتجات",
+        "INVENTORY": "المخزون",
+        "ORDERS": "الطلبات",
+        "OFFERS": "العروض",
+        "BRANCHES_STAFF": "الفروع والموظفون",
+        "PROFILE": "الملف الشخصي",
+        "FINANCE": "المالية"
+      }
+    },
+    "FEEDBACK": {
+      "BRANCH_CREATED": "تمت إضافة الفرع وإرسال دعوة مدير الفرع على البريد.",
+      "PERMISSIONS_UPDATED": "تم تحديث صلاحيات الموظف.",
+      "EMPLOYEE_CREATED": "تم إنشاء الموظف بنجاح.",
+      "EMPLOYEE_INVITED": "تم إرسال دعوة الموظف بنجاح.",
+      "EMPLOYEE_ACTIVATED": "تم تفعيل الموظف.",
+      "EMPLOYEE_SUSPENDED": "تم تعليق الموظف.",
+      "BRANCH_STATUS_UPDATED": "تم تحديث حالة الفرع.",
+      "LINK_COPIED": "تم نسخ رابط الدعوة.",
+      "LINK_COPY_FALLBACK": "تعذر النسخ هنا، ويمكنك نسخ الرابط يدويًا.",
+      "INVITATION_RESENT": "تمت إعادة إرسال الدعوة.",
+      "INVITATION_REVOKED": "تم إلغاء الدعوة.",
+      "INVITATION_SEND_FAILED": "تعذر إرسال بريد الدعوة. راجع البريد وإعدادات مزود الإرسال ثم حاول مرة أخرى.",
+      "INVITATION_ACTION_FAILED": "تعذر تنفيذ إجراء الدعوة. حاول مرة أخرى."
+    },
+    "ACCEPT": {
+      "LOADING": "جاري تحميل الدعوة...",
+      "EYEBROW": "دعوة تاجر",
+      "TITLE": "إنشاء وصول الموظف",
+      "SUBTITLE": "تمت دعوتك للانضمام إلى {{vendor}} على لوحة تجار زادنا.",
+      "INVITED_AS": "الدعوة باسم",
+      "EMAIL": "البريد",
+      "EXPIRES": "تنتهي في",
+      "FULL_NAME": "الاسم الكامل",
+      "PASSWORD": "كلمة المرور",
+      "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
+      "SUBMIT": "قبول الدعوة",
+      "SUBMITTING": "جاري إنشاء الوصول...",
+      "WEAK_PASSWORD": "أدخل الاسم وكلمة مرور لا تقل عن 8 أحرف.",
+      "PASSWORD_MISMATCH": "كلمتا المرور غير متطابقتين.",
+      "FAILED": "تعذر قبول الدعوة. ربما انتهت أو تم استخدامها بالفعل.",
+      "INVALID_EYEBROW": "الدعوة غير متاحة",
+      "INVALID_TITLE": "هذه الدعوة غير نشطة",
+      "INVALID_BODY": "رابط الدعوة منتهي أو ملغي أو تم قبوله من قبل.",
+      "SUCCESS_EYEBROW": "تم تفعيل الوصول",
+      "SUCCESS_TITLE": "حسابك جاهز",
+      "SUCCESS_BODY": "يمكنك الآن تسجيل الدخول بالبريد المدعو وكلمة المرور التي أنشأتها.",
+      "LOGIN": "الذهاب لتسجيل الدخول"
+    },
+    "DETAILS": {
+      "BRANCH": {
+        "OVERVIEW_TITLE": "نظرة عامة على الفرع",
+        "OVERVIEW_SUBTITLE": "البيانات التشغيلية الأساسية للفرع وحالة الجاهزية الحالية.",
+        "FIELDS": {
+          "CODE": "كود الفرع",
+          "PHONE": "هاتف الفرع",
+          "CITY": "المدينة",
+          "REGION": "المنطقة",
+          "DELIVERY_RADIUS": "نطاق التوصيل"
+        },
+        "KM": "كم",
+        "HOURS_TITLE": "ساعات التشغيل",
+        "HOURS_SUBTITLE": "الجدول الأسبوعي المعتمد حاليًا لهذا الفرع.",
+        "TEAM_TITLE": "الفريق المرتبط",
+        "TEAM_SUBTITLE": "الموظفون المرتبطون بهذا الفرع والأدوار التشغيلية الخاصة بهم.",
+        "EMPTY_TEAM": "لا يوجد موظفون مرتبطون بهذا الفرع حتى الآن.",
+        "MANAGER_TITLE": "مدير الفرع",
+        "MANAGER_SUBTITLE": "جهة الاتصال الأساسية المسؤولة عن هذا الفرع.",
+        "SUMMARY_TITLE": "ملخص سريع",
+        "SUMMARY_SUBTITLE": "مؤشرات تشغيلية سريعة لفهم جاهزية الفرع بنظرة واحدة.",
+        "METRICS": {
+          "TEAM_SIZE": "حجم الفريق",
+          "PENDING_INVITATIONS": "الدعوات المعلقة",
+          "WORKING_DAYS": "أيام العمل",
+          "DELIVERY_RADIUS": "نطاق التوصيل"
+        },
+        "INVITATIONS_TITLE": "حركة الدعوات",
+        "INVITATIONS_SUBTITLE": "أحدث الدعوات المرتبطة بالفرع وحالتها الحالية.",
+        "EMPTY_INVITATIONS": "لا توجد دعوات مرتبطة بهذا الفرع."
+      },
+      "EMPLOYEE": {
+        "IDENTITY_TITLE": "ملف الموظف",
+        "IDENTITY_SUBTITLE": "الهوية وقالب الدور وآخر نشاط تشغيلي للموظف.",
+        "BRANCH_ACCESS_TITLE": "الوصول للفروع",
+        "BRANCH_ACCESS_SUBTITLE": "الفروع التي يستطيع هذا الموظف العمل عليها حاليًا.",
+        "EMPTY_BRANCHES": "لا توجد فروع مخصصة لهذا الموظف.",
+        "INVITATIONS_TITLE": "سجل الدعوات",
+        "INVITATIONS_SUBTITLE": "كل الدعوات المرتبطة بهذه الهوية داخل مساحة العمل.",
+        "EMPTY_INVITATIONS": "لا توجد دعوات مرتبطة بهذا الموظف.",
+        "PERMISSIONS_TITLE": "مصفوفة الصلاحيات",
+        "PERMISSIONS_SUBTITLE": "عرض للصلاحيات الفعالة عبر الوحدات التشغيلية المختلفة.",
+        "SUMMARY_TITLE": "الأثر التشغيلي",
+        "SUMMARY_SUBTITLE": "ملخص سريع لعدد الفروع المغطاة والدعوات المرتبطة.",
+        "METRICS": {
+          "BRANCHES": "الفروع",
+          "INVITATIONS": "الدعوات"
+        }
+      },
+      "INVITATION": {
+        "OVERVIEW_TITLE": "نظرة عامة على الدعوة",
+        "OVERVIEW_SUBTITLE": "تابع المستهدف ونافذة الانتهاء وتفاصيل دورة حياة الدعوة.",
+        "BRANCHES_TITLE": "الفروع المرتبطة",
+        "BRANCHES_SUBTITLE": "الفروع التي تمنح هذه الدعوة الوصول إليها حاليًا.",
+        "EMPTY_BRANCHES": "لا توجد فروع مرتبطة بهذه الدعوة.",
+        "LINK_TITLE": "رابط الدعوة",
+        "LINK_SUBTITLE": "استخدم هذا الرابط عند الحاجة إلى إعادة الإرسال أو المشاركة اليدوية.",
+        "MATCH_TITLE": "الموظف المطابق",
+        "MATCH_SUBTITLE": "إذا كان الشخص المدعو موجودًا بالفعل داخل الفريق سيظهر هنا.",
+        "NO_MATCH": "لا يوجد موظف مطابق لهذه الدعوة حتى الآن.",
+        "TIMELINE_TITLE": "خط زمني للدعوة",
+        "TIMELINE_SUBTITLE": "عرض سريع لموعد الإرسال والوضع الحالي للدعوة.",
+        "TIMELINE": {
+          "SENT": "تم إرسال الدعوة"
+        }
+      }
+    }
+  },
+  "REVIEWS": {
+    "TITLE": "مركز تقييمات العملاء",
+    "SUBTITLE": "تابع تقييمات المنتجات وتجربة الطلبات من مساحة موحدة، ورد على العملاء، وأخفِ التقييمات عند الحاجة بدون حذفها.",
+    "ACTIONS": {
+      "RESET_DEMO": "إعادة بيانات التجربة",
+      "VIEW": "عرض",
+      "REPLY": "رد",
+      "EDIT_REPLY": "تعديل الرد",
+      "HIDE": "إخفاء",
+      "SHOW": "إظهار",
+      "OPEN_REFERENCE": "فتح المرجع",
+      "UPDATE_REPLY": "تحديث الرد",
+      "SEND_REPLY": "إرسال الرد"
+    },
+    "SUMMARY": {
+      "AVERAGE_RATING": "متوسط التقييم",
+      "TOTAL_REVIEWS": "إجمالي التقييمات",
+      "TOTAL_HINT": "كل التقييمات المخزنة داخل مساحة العمل الحالية",
+      "PENDING_REPLY": "بانتظار رد",
+      "PENDING_HINT": "تقييمات لم يصلها رد رسمي من المورد بعد",
+      "HIDDEN": "مخفية",
+      "HIDDEN_HINT": "تقييمات مخفية من العرض التشغيلي الحالي"
+    },
+    "QUICK_TABS": {
+      "ALL": "الكل",
+      "NEEDS_REPLY": "تحتاج رد",
+      "LOW_RATING": "منخفضة التقييم",
+      "HIDDEN": "مخفية"
+    },
+    "SECTION_TITLE": "سجل التقييمات الموحد",
+    "SECTION_SUBTITLE": "راجع كل التقييمات، افتح التفاصيل، ورد على العملاء، وتابع ما يحتاج تدخلاً سريعًا.",
+    "FILTERS": {
+      "TITLE": "الفلاتر",
+      "SUBTITLE": "فلترة بحسب النوع والنجوم وحالة الظهور والرد والتاريخ داخل نفس الجدول.",
+      "RESET": "إعادة تعيين",
+      "SEARCH": "بحث",
+      "TYPE": "النوع",
+      "ALL_TYPES": "كل الأنواع",
+      "RATING": "التقييم",
+      "ALL_RATINGS": "كل التقييمات",
+      "STARS_VALUE": "{{count}} نجوم",
+      "VISIBILITY": "الظهور",
+      "ALL_VISIBILITY": "كل حالات الظهور",
+      "REPLY_STATUS": "حالة الرد",
+      "ALL_REPLY_STATUS": "كل حالات الرد",
+      "DATE_FROM": "من تاريخ",
+      "DATE_TO": "إلى تاريخ",
+      "SORT": "الترتيب"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "ابحث باسم العميل أو المنتج أو رقم الطلب أو نص التعليق"
+    },
+    "SORT": {
+      "NEWEST": "الأحدث",
+      "RATING_LOW": "الأقل تقييمًا",
+      "RATING_HIGH": "الأعلى تقييمًا"
+    },
+    "TABLE": {
+      "CUSTOMER": "العميل",
+      "TYPE": "النوع",
+      "REFERENCE": "المرجع",
+      "RATING": "التقييم",
+      "COMMENT": "التعليق",
+      "VISIBILITY": "الظهور",
+      "REPLY_STATUS": "حالة الرد",
+      "DATE": "التاريخ"
+    },
+    "BADGES": {
+      "VERIFIED": "شراء موثّق",
+      "NEEDS_ATTENTION": "يحتاج متابعة"
+    },
+    "TYPES": {
+      "PRODUCT": "تقييم منتج",
+      "ORDER": "تقييم طلب"
+    },
+    "VISIBILITY": {
+      "PUBLISHED": "ظاهر",
+      "HIDDEN": "مخفي"
+    },
+    "REPLY_STATUS": {
+      "NONE": "بدون رد",
+      "REPLIED": "تم الرد"
+    },
+    "EMPTY": {
+      "TITLE": "لا توجد تقييمات مطابقة",
+      "SUBTITLE": "جرّب تغيير الفلاتر أو أعد ضبط البيانات التجريبية لعرض السجل الكامل."
+    },
+    "DRAWER": {
+      "EYEBROW": "تفاصيل التقييم",
+      "REFERENCE": "المرجع المرتبط",
+      "CUSTOMER": "العميل",
+      "COMMENT": "نص التقييم",
+      "ORDER_BREAKDOWN_TITLE": "تفصيل تجربة الطلب",
+      "ORDER_BREAKDOWN_SUBTITLE": "عرض داخلي لعناصر التوصيل والتغليف ودقة الطلب داخل هذا التقييم.",
+      "MEDIA_TITLE": "مرفقات العميل",
+      "MEDIA_SUBTITLE": "صور أو لقطات مرتبطة بالتقييم الحالي.",
+      "REPLY_TITLE": "الرد الرسمي",
+      "REPLY_SUBTITLE": "اكتب ردًا واضحًا يظهر كاستجابة المورد الرسمية ويمكن تعديله لاحقًا.",
+      "CURRENT_REPLY": "الرد الحالي",
+      "REPLY_UPDATED_AT": "آخر تحديث: {{date}}",
+      "REPLY_SENT_AT": "تم الرد في: {{date}}",
+      "REPLY_FIELD": "رسالة الرد",
+      "REPLY_PLACEHOLDER": "اكتب ردًا مهنيًا مختصرًا يوضح الإجراء أو التوضيح المناسب..."
+    },
+    "BREAKDOWN": {
+      "DELIVERY": "التوصيل",
+      "PACKAGING": "التغليف",
+      "ACCURACY": "دقة الطلب"
+    },
+    "FEEDBACK": {
+      "REPLY_UPDATED": "تم تحديث الرد على التقييم.",
+      "REPLY_SENT": "تم إرسال الرد على التقييم بنجاح.",
+      "REVIEW_PUBLISHED": "تمت إعادة إظهار التقييم.",
+      "REVIEW_HIDDEN": "تم إخفاء التقييم من العرض الحالي.",
+      "SEED_RESET": "تمت إعادة بيانات التقييمات التجريبية."
+    }
+  },
+  "VENDOR_FINANCE": {
+    "TITLE": "محفظتي",
+    "SUBTITLE": "تابع رصيدك، وتتبع التسويات، وحركات التحويل بنفس الوضوح المستخدم في السوبر أدمن.",
+    "PERIODS": {
+      "TODAY": "اليوم",
+      "WEEK": "هذا الأسبوع",
+      "MONTH": "هذا الشهر",
+      "QUARTER": "هذا الربع"
+    },
+    "ACTIONS": {
+      "VIEW_REPORTS": "عرض التقارير",
+      "DOWNLOAD_STATEMENT": "تحميل كشف الحساب",
+      "REQUEST_PAYOUT": "طلب سحب الأرباح",
+      "PAYOUT_SUCCESS_MSG": "تم إرسال طلب سحب الأرباح بنجاح للمراجعة"
+    },
+    "LIFECYCLE_MODES": {
+      "PerOrderDirectPayout": "تحويل مباشر بالطلب",
+      "Weekly": "أسبوعي",
+      "Biweekly": "كل أسبوعين",
+      "Monthly": "شهري"
+    },
+    "OVERVIEW": {
+      "AVAILABLE_BALANCE": "الرصيد المتاح",
+      "PENDING_SETTLEMENT": "تسويات معلقة",
+      "NEXT_PAYOUT": "الدفعة القادمة",
+      "HOLD_AMOUNT": "المبالغ المحتجزة"
+    },
+    "KPIS": {
+      "NET_SALES": "صافي المبيعات",
+      "PAYOUTS": "مستحقات المورد",
+      "FEES": "رسوم المنصة",
+      "REFUNDS": "الاسترجاعات"
+    },
+    "CHART": {
+      "TITLE": "اتجاه المبيعات مقابل التحويلات",
+      "SALES": "المبيعات",
+      "PAYOUTS": "التحويلات",
+      "DETAILS": "عرض تفصيلي",
+      "PEAK_SALES": "أعلى فترة مبيعات",
+      "PEAK_PAYOUTS": "أعلى فترة تحويلات",
+      "AVG_SALES": "متوسط المبيعات",
+      "AVG_PAYOUTS": "متوسط التحويلات",
+      "NET_GAP": "صافي الفرق",
+      "BREAKDOWN": "تفصيل الفترات"
+    },
+    "PAYOUT_METHODS": {
+      "BANK_TRANSFER": "تحويل بنكي"
+    },
+    "SETTLEMENTS": {
+      "TITLE": "أحدث التسويات",
+      "BATCH_ID": "رقم الدفعة",
+      "PAID": "مدفوع",
+      "PROCESSING": "قيد المعالجة",
+      "SCHEDULED": "مجدول"
+    },
+    "LEDGER": {
+      "TITLE": "أحدث المعاملات",
+      "DESCRIPTION": "الوصف",
+      "REF": "المرجع",
+      "PAGE_STATUS": "الصفحة {{page}} من {{totalPages}}",
+      "REFERENCES": {
+        "ORDER_REVENUE": "إيراد طلب",
+        "VENDOR_RECOVERY": "استرداد التاجر"
+      },
+      "COMMISSION": "عمولة",
+      "PAYOUT": "تحويل",
+      "FEE": "رسوم",
+      "REFUND": "استرجاع"
+    },
+    "ALERTS": {
+      "TITLE": "مركز التنبيهات",
+      "EMPTY": "لا توجد تنبيهات جديدة."
+    },
+    "MONTHS": {
+      "JAN": "يناير",
+      "FEB": "فبراير",
+      "MAR": "مارس",
+      "APR": "أبريل",
+      "MAY": "مايو",
+      "JUN": "يونيو",
+      "JUL": "يوليو",
+      "AUG": "أغسطس",
+      "SEP": "سبتمبر",
+      "OCT": "أكتوبر",
+      "NOV": "نوفمبر",
+      "DEC": "ديسمبر"
+    }
+  }
+}

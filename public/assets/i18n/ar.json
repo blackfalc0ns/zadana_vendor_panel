@@ -111,6 +111,11 @@
       "REVIEWS": "التقييمات",
       "RISK": "المخاطر"
     },
+    "CONTEXT": {
+      "CURRENT_BRANCH": "الفرع الحالي",
+      "CURRENT_ROLE": "نوع الحساب",
+      "UNKNOWN_BRANCH": "غير محدد"
+    },
     "HERO": {
       "PENDING_ORDERS": "طلبات معلقة",
       "LATE_ORDERS": "طلبات متأخرة",
@@ -148,6 +153,7 @@
       "PROMOTION_CANDIDATES": "مرشحون للترويج",
       "LOW_RATING_UNREPLIED": "تقييمات منخفضة بدون رد",
       "RECENT_HIGHLIGHTS": "أبرز التقييمات الأخيرة",
+      "BRANCH_REVENUE": "إيرادات الفروع",
       "RECENT_SETTLEMENTS": "أحدث التسويات",
       "RECENT_LEDGER": "آخر الحركة المالية",
       "AWAITING_ACTION": "حالات تنتظر إجراء التاجر",
@@ -263,7 +269,10 @@
       "PAYOUTS_PAID": "التحويلات المدفوعة",
       "HOLD_AMOUNT": "المبلغ المحجوز",
       "NEXT_SETTLEMENT": "التسوية القادمة",
-      "LIFECYCLE_MODE": "دورة التسوية"
+      "LIFECYCLE_MODE": "دورة التسوية",
+      "BRANCH_REVENUE_HINT": "يتم توضيح الإيراد المحصل لكل فرع حتى تقدر تميز أداء كل فرع بشكل واضح.",
+      "BRANCH_ORDERS": "الطلبات",
+      "AVG_ORDER_VALUE": "متوسط قيمة الطلب"
     },
     "DISPUTES": {
       "OPEN": "نزاعات مفتوحة",
@@ -1235,6 +1244,19 @@
     "VENDOR_DASHBOARD": "لوحة التحكم للمورد",
     "SEARCH_PLACEHOLDER": "بحث في زدانا..."
   },
+  "HEADER_SEARCH": {
+    "TITLE": "البحث الموحد",
+    "PLACEHOLDER": "بحث في زدانا (طلبات، منتجات، كتالوج...)",
+    "MIN_QUERY": "اكتب {{count}} أحرف على الأقل لبدء البحث.",
+    "SEARCHING": "جارٍ البحث داخل لوحة المورد...",
+    "NO_RESULTS": "لم يتم العثور على نتائج مطابقة.",
+    "GROUPS": {
+      "NAVIGATION": "الصفحات",
+      "ORDERS": "الطلبات",
+      "PRODUCTS": "منتجاتي",
+      "MASTER_PRODUCTS": "كتالوج المنتجات"
+    }
+  },
   "PAGINATION": {
     "PREVIOUS": "السابق",
     "NEXT": "التالي",
@@ -1383,7 +1405,8 @@
       "INVITATION_PENDING": "معلقة",
       "INVITATION_ACCEPTED": "مقبولة",
       "INVITATION_EXPIRED": "منتهية",
-      "INVITATION_REVOKED": "ملغاة"
+      "INVITATION_REVOKED": "ملغاة",
+      "INVITATION_DELIVERY_FAILED": "فشل الإرسال"
     },
     "INVITATION_TYPES": {
       "BRANCH_MANAGER": "مدير فرع",
@@ -1411,7 +1434,7 @@
         "MANAGER_NAME": "اسم مدير الفرع",
         "ADDRESS": "تفاصيل العنوان",
         "DELIVERY_RADIUS": "نطاق التوصيل (كم)",
-        "MANAGER_CONTACT": "بريد أو جوال المدير",
+        "MANAGER_CONTACT": "بريد المدير",
         "MESSAGE": "ملاحظة داخلية مع الدعوة"
       },
       "PRIMARY_WARNING": "يوجد بالفعل فرع رئيسي. أي إضافة جديدة سيتم إنشاؤها كفرع تابع وبحالة قيد المراجعة.",
@@ -1469,7 +1492,7 @@
       }
     },
     "FEEDBACK": {
-      "BRANCH_CREATED": "تمت إضافة الفرع وإنشاء دعوة مدير الفرع بنجاح.",
+      "BRANCH_CREATED": "تمت إضافة الفرع وإرسال دعوة مدير الفرع على البريد.",
       "PERMISSIONS_UPDATED": "تم تحديث صلاحيات الموظف.",
       "EMPLOYEE_CREATED": "تم إنشاء الموظف بنجاح.",
       "EMPLOYEE_INVITED": "تم إرسال دعوة الموظف بنجاح.",
@@ -1479,7 +1502,45 @@
       "LINK_COPIED": "تم نسخ رابط الدعوة.",
       "LINK_COPY_FALLBACK": "تعذر النسخ هنا، ويمكنك نسخ الرابط يدويًا.",
       "INVITATION_RESENT": "تمت إعادة إرسال الدعوة.",
-      "INVITATION_REVOKED": "تم إلغاء الدعوة."
+      "INVITATION_REVOKED": "تم إلغاء الدعوة.",
+      "INVITATION_SEND_FAILED": "تعذر إرسال بريد الدعوة. راجع البريد وإعدادات مزود الإرسال ثم حاول مرة أخرى.",
+      "INVITATION_ACTION_FAILED": "تعذر تنفيذ إجراء الدعوة. حاول مرة أخرى.",
+      "BRANCH_DELETED": "?? ??? ????? ?????.",
+      "BRANCH_DELETE_FAILED": "???? ??? ?????. ???? ??? ????.",
+      "BRANCH_DELETE_PRIMARY_FORBIDDEN": "?? ???? ??? ????? ???????.",
+      "BRANCH_DELETE_BLOCKED_PRODUCTS": "?? ???? ??? ????? ??? ???? ?????? ?????? ??.",
+      "BRANCH_DELETE_BLOCKED_ORDERS": "?? ???? ??? ????? ??? ???? ????? ?????? ??.",
+      "BRANCH_DELETE_BLOCKED_STAFF": "?? ???? ??? ????? ??? ???? ?????? ????? ?????? ???? ????.",
+      "BRANCH_DELETE_BLOCKED_INVITATIONS": "?? ???? ??? ????? ??? ???? ????? ?????? ??.",
+      "EMPLOYEE_DELETED": "?? ????? ?????? ?? ????? ????? ???????.",
+      "INVITATION_DELETED": "?? ??? ?????? ?????."
+    },
+    "ACCEPT": {
+      "LOADING": "جاري تحميل الدعوة...",
+      "EYEBROW": "دعوة تاجر",
+      "TITLE": "إنشاء وصول الموظف",
+      "SUBTITLE": "تمت دعوتك للانضمام إلى {{vendor}} على لوحة تجار زادنا.",
+      "INVITED_AS": "الدعوة باسم",
+      "EMAIL": "البريد",
+      "EXPIRES": "تنتهي في",
+      "FULL_NAME": "الاسم الكامل",
+      "PASSWORD": "كلمة المرور",
+      "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
+      "SUBMIT": "قبول الدعوة",
+      "SUBMITTING": "جاري إنشاء الوصول...",
+      "WEAK_PASSWORD": "أدخل الاسم وكلمة مرور لا تقل عن 8 أحرف.",
+      "PASSWORD_MISMATCH": "كلمتا المرور غير متطابقتين.",
+      "FAILED": "تعذر قبول الدعوة. ربما انتهت أو تم استخدامها بالفعل.",
+      "INVALID_EYEBROW": "الدعوة غير متاحة",
+      "INVALID_TITLE": "هذه الدعوة غير نشطة",
+      "INVALID_BODY": "رابط الدعوة منتهي أو ملغي أو تم قبوله من قبل.",
+      "SUCCESS_EYEBROW": "تم تفعيل الوصول",
+      "SUCCESS_TITLE": "حسابك جاهز",
+      "SUCCESS_BODY": "يمكنك الآن تسجيل الدخول بالبريد المدعو وكلمة المرور التي أنشأتها.",
+      "LOGIN": "الذهاب لتسجيل الدخول",
+      "USER_ALREADY_EXISTS": "يوجد حساب مسجل بالفعل بهذا البريد الإلكتروني (مثلاً كعميل). يرجى استخدام بريد إلكتروني آخر أو طلب دعوة جديدة على بريد آخر.",
+      "STAFF_ALREADY_EXISTS": "هذا البريد الإلكتروني لديه صلاحية موظف بالفعل لهذا المتجر.",
+      "ROLE_NOT_CONFIGURED": "الدور التشغيلي المدعو إليه غير مهيأ على الخادم. يرجى التواصل مع الدعم الفني."
     },
     "DETAILS": {
       "BRANCH": {
@@ -1547,6 +1608,11 @@
           "SENT": "تم إرسال الدعوة"
         }
       }
+    },
+    "CONFIRMATIONS": {
+      "DELETE_BRANCH": "?? ???? ??? ????? \"{{name}}\"?",
+      "DELETE_EMPLOYEE": "?? ???? ??? ?????? \"{{name}}\" ?? ????? ????? ????????",
+      "DELETE_INVITATION": "?? ???? ??? ?????? ?????? ?? \"{{name}}\"?"
     }
   },
   "REVIEWS": {
@@ -1858,7 +1924,8 @@
       "COMPOSER_TITLE": "أضف ردًا جديدًا",
       "COMPOSER_SUBTITLE": "أرسل تحديثًا واضحًا أو أرفق التوضيح المطلوب لاستكمال المعالجة.",
       "MESSAGE_FIELD": "الرسالة",
-      "MESSAGE_PLACEHOLDER": "اكتب ردك أو التوضيح الذي تريد إضافته إلى التذكرة"
+      "MESSAGE_PLACEHOLDER": "اكتب ردك أو التوضيح الذي تريد إضافته إلى التذكرة",
+      "CLOSED_BANNER": "تم إغلاق هذه التذكرة. إذا كنت لا تزال تواجه المشكلة، يرجى فتح تذكرة دعم جديدة."
     },
     "REFERENCE": {
       "READ_TIME": "{{count}} دقائق قراءة",
@@ -1871,6 +1938,7 @@
       "EYEBROW": "تذكرة جديدة",
       "TITLE": "افتح حالة دعم جديدة",
       "SUBTITLE": "اكتب ملخصًا واضحًا حتى يصل الطلب بسرعة للفريق المناسب.",
+      "ORDER_PLACEHOLDER": "اختر طلبًا مرتبطًا عند الحاجة",
       "FIELDS": {
         "SUBJECT": "عنوان الحالة",
         "CATEGORY": "التصنيف",
@@ -1893,7 +1961,9 @@
     },
     "FEEDBACK": {
       "TICKET_CREATED": "تم إنشاء تذكرة الدعم بنجاح.",
+      "TICKET_CREATE_FAILED": "تعذر إنشاء تذكرة الدعم. راجع رقم الطلب وحاول مرة أخرى.",
       "MESSAGE_SENT": "تم إرسال ردك إلى التذكرة.",
+      "MESSAGE_SEND_FAILED": "تعذر إرسال ردك. حاول مرة أخرى.",
       "SEED_RESET": "تمت إعادة بيانات الدعم التجريبية."
     }
   },
@@ -2092,7 +2162,8 @@
       "REPLY_FIELD": "نص الرد",
       "REPLY_PLACEHOLDER": "اكتب ردك أو التوضيح أو ملخص الأدلة هنا...",
       "RESPONSE_SENT": "تم إرسال ردك بنجاح.",
-      "RESPONSE_FAILED": "تعذر إرسال ردك حاليًا."
+      "RESPONSE_FAILED": "تعذر إرسال ردك حاليًا.",
+      "CLOSED_BANNER": "هذا النزاع مغلق حالياً. لا يمكن إرسال رسائل أو مرفقات إضافية."
     }
   }
 }

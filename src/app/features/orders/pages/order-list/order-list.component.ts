@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -14,6 +14,7 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-order-list',
   standalone: true,
   imports: [
@@ -271,6 +272,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
   `]
 })
 export class OrderListComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   orders: OrderListItem[] = [];
   isLoading = true;
   searchTerm = '';
@@ -309,6 +311,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.applyQueryParams();
     this.realtimeOrdersSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      this.cdr.markForCheck();
       if (alert.source === 'orders') {
         this.loadOrders();
       }
@@ -336,6 +339,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
       lateState: this.filters.lateState
     }).subscribe({
       next: (data) => {
+        this.cdr.markForCheck();
         this.orders = data.items;
         this.totalCount = data.totalCount;
         this.totalPages = data.totalPages;
@@ -343,6 +347,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
         this.updateSummary();
       },
       error: () => {
+        this.cdr.markForCheck();
         this.isLoading = false;
       }
     });
@@ -356,6 +361,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
       paymentMethod: 'ALL',
       lateState: 'ALL'
     }).subscribe((data) => {
+      this.cdr.markForCheck();
       this.summary = {
         total: data.totalCount,
         new: data.items.filter(o => o.status === 'NEW').length,

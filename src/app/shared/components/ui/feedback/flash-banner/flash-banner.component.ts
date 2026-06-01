@@ -1,33 +1,48 @@
-import { CommonModule, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, inject, ChangeDetectionStrategy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { AlertModalService } from '../../../../../core/notifications/services/alert-modal.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-flash-banner',
   standalone: true,
-  imports: [CommonModule, NgClass],
-  template: `
-    @if (message) {
-      <div
-        class="rounded-[20px] border px-4 py-3 text-[0.82rem] font-black shadow-sm"
-        [ngClass]="resolvedClasses">
-        {{ message }}
-      </div>
-    }
-  `
+  imports: [CommonModule],
+  template: ''
 })
-export class AppFlashBannerComponent {
+export class AppFlashBannerComponent implements OnChanges {
+  private readonly alertModalService = inject(AlertModalService);
+  private readonly translate = inject(TranslateService);
+
   @Input() message = '';
   @Input() tone: 'success' | 'info' | 'warning' | 'error' = 'success';
   @Input() customClass = '';
 
-  get resolvedClasses(): string {
-    const toneClasses = {
-      success: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-      info: 'border-sky-200 bg-sky-50 text-sky-700',
-      warning: 'border-amber-200 bg-amber-50 text-amber-700',
-      error: 'border-rose-200 bg-rose-50 text-rose-700'
-    }[this.tone];
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['message'] && this.message) {
+      const isAr = (this.translate.currentLang || 'ar') === 'ar';
+      const direction = isAr ? 'rtl' : 'ltr';
 
-    return `${toneClasses} ${this.customClass}`.trim();
+      const typeMap = {
+        success: 'success',
+        info: 'info',
+        warning: 'warning',
+        error: 'error'
+      } as const;
+
+      const titleMap = {
+        success: isAr ? 'نجاح' : 'Success',
+        info: isAr ? 'معلومة' : 'Info',
+        warning: isAr ? 'تحذير' : 'Warning',
+        error: isAr ? 'خطأ' : 'Error'
+      };
+
+      this.alertModalService.open({
+        title: titleMap[this.tone] || '',
+        message: this.message,
+        type: typeMap[this.tone] || 'info',
+        direction
+      });
+    }
   }
 }

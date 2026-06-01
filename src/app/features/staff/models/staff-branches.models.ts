@@ -2,7 +2,7 @@ export type StaffView = 'branches' | 'employees' | 'invitations';
 
 export type BranchStatus = 'active' | 'pending' | 'suspended' | 'archived';
 export type EmployeeStatus = 'invited' | 'active' | 'suspended';
-export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked';
+export type InvitationStatus = 'pending' | 'accepted' | 'expired' | 'revoked' | 'delivery_failed';
 export type InvitationType = 'branch_manager' | 'employee';
 export type RoleTemplate = 'branch_manager' | 'orders_clerk' | 'inventory_clerk';
 export type PermissionAction = 'view' | 'manage' | 'approve' | 'export';

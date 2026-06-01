@@ -1,4 +1,4 @@
-﻿import { Component, OnInit, AfterViewInit, OnDestroy, NgZone } from '@angular/core';
+﻿import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -32,6 +32,7 @@ import { VendorProfileService } from '../../../settings/services/vendor-profile.
 import { VendorReviewItem } from '../../../settings/models/vendor-profile.models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-onboarding',
   standalone: true,
   imports: [
@@ -50,6 +51,7 @@ import { VendorReviewItem } from '../../../settings/models/vendor-profile.models
   styleUrls: ['./onboarding.component.scss']
 })
 export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   readonly logoPath = 'assets/images/logo/zadana-mark.svg';
   readonly stepItems: OnboardingStepItem[] = [
     {
@@ -181,6 +183,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
     this.loadRegions();
 
     this.onboardingForm.get('step2.region')?.valueChanges.subscribe((regionValue: string) => {
+      this.cdr.markForCheck();
       if (regionValue) {
         this.onRegionChange(regionValue);
         return;
@@ -191,6 +194,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
     });
 
     this.onboardingForm.get('step2.city')?.valueChanges.subscribe((cityValue: string) => {
+      this.cdr.markForCheck();
       if (cityValue) {
         this.onCityChange(cityValue);
       }
@@ -317,6 +321,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
     this.geographyService.getCities(regionValue).subscribe({
       next: (cities) => {
+        this.cdr.markForCheck();
         if (step2.get('region')?.value !== regionValue) {
           return;
         }
@@ -329,6 +334,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: () => {
+        this.cdr.markForCheck();
         this.allCities = [];
         this.filteredCities = [];
       }
@@ -644,12 +650,14 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
       switchMap((payload) => this.authService.registerVendor(payload))
     ).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isSubmitting = false;
         const currentBizName = this.isRTL ? step1.businessNameAr : step1.businessNameEn;
         localStorage.setItem('onboarding_biz_name', currentBizName || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
         void this.router.navigate(['/submission-success']);
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.isSubmitting = false;
         this.submissionError = error?.error?.detail
           || error?.error?.message
@@ -853,6 +861,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   private loadRegions(): void {
     this.geographyService.getRegions().subscribe({
       next: (regions) => {
+        this.cdr.markForCheck();
         this.regions = regions.map((region) => this.toRegionOption(region));
 
         const selectedRegion = this.getStepGroup(2).get('region')?.value;
@@ -862,6 +871,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
         }
       },
       error: () => {
+        this.cdr.markForCheck();
         this.regions = [];
         this.allCities = [];
         this.filteredCities = [];
@@ -976,12 +986,14 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   private loadProfileForEdit(): void {
     this.profileService.loadProfileForGuard(true).subscribe({
       next: (profile) => {
+        this.cdr.markForCheck();
         this.currentProfile = profile;
         this.syncRejectedReviewItems(profile);
         this.patchProfileData(profile);
         this.openFirstRejectedStep(profile);
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.submissionError = error?.error?.detail
           || error?.error?.message
           || error?.message
@@ -1201,12 +1213,14 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
       switchMap(() => this.profileService.submitForReview())
     ).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isSubmitting = false;
         const currentBizName = this.isRTL ? step1.businessNameAr : step1.businessNameEn;
         localStorage.setItem('onboarding_biz_name', currentBizName || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
         void this.router.navigate(['/submission-success']);
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.isSubmitting = false;
         this.submissionError = error?.error?.detail
           || error?.error?.message

@@ -1,9 +1,10 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { ProfileSectionNavItem, ProfileWorkspaceWindow } from '../vendor-profile.view-models';
 import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor-profile.models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-profile-side-rail',
   standalone: true,
   imports: [CommonModule, NgClass],

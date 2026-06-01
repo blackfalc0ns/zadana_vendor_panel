@@ -2,7 +2,8 @@ import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, provideZoneCha
 import { provideRouter } from '@angular/router';
 import { provideHttpClient, HttpClient, withInterceptors } from '@angular/common/http';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
-import { firstValueFrom, Observable } from 'rxjs';
+import { firstValueFrom, Observable, forkJoin, of } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { DialogModule } from '@angular/cdk/dialog';
 
@@ -13,11 +14,33 @@ const TRANSLATION_ASSET_VERSION = '2026-05-09-stock-ui-1';
 
 // Custom Loader to guarantee compatibility and fix "0 arguments" error
 export class CustomTranslateLoader implements TranslateLoader {
+  private readonly files = [
+    'common',
+    'auth',
+    'dashboard',
+    'catalog',
+    'offers',
+    'orders',
+    'settings'
+  ];
+
   constructor(private http: HttpClient) {}
   
   getTranslation(lang: string): Observable<any> {
-    // Version the request so updated translations are fetched instead of stale cached JSON.
-    return this.http.get(`./assets/i18n/${lang}.json?v=${TRANSLATION_ASSET_VERSION}`);
+    const requests = this.files.map((file) =>
+      this.http.get(`./assets/i18n/${lang}/${file}.json?v=${TRANSLATION_ASSET_VERSION}`).pipe(
+        catchError((err) => {
+          console.error(`Failed to load translation file: ${lang}/${file}.json`, err);
+          return of({});
+        })
+      )
+    );
+
+    return forkJoin(requests).pipe(
+      map((jsonArray) => {
+        return jsonArray.reduce((acc, current) => ({ ...acc, ...current }), {});
+      })
+    );
   }
 }
 

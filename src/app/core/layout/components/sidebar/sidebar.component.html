@@ -37,7 +37,7 @@
     <section>
       <p class="mb-2 px-3 text-[0.6rem] font-black uppercase tracking-[0.2em] text-slate-400">{{ 'SIDEBAR.OVERVIEW_TITLE' | translate }}</p>
       <nav class="grid gap-1">
-        <ng-container *ngFor="let item of menuItems | slice:0:5">
+        <ng-container *ngFor="let item of overviewMenuItems">
           <a
             [routerLink]="item.route"
             [routerLinkActive]="['!bg-zadna-primary', '!text-white', 'shadow-lg', 'shadow-zadna-primary/25', 'is-active']"
@@ -63,7 +63,7 @@
     <section class="mt-5">
       <p class="mb-2 px-3 text-[0.6rem] font-black uppercase tracking-[0.2em] text-slate-400">{{ 'SIDEBAR.OPERATIONS_TITLE' | translate }}</p>
       <nav class="grid gap-1">
-        <ng-container *ngFor="let item of menuItems | slice:5">
+        <ng-container *ngFor="let item of operationsMenuItems">
           <a
             [routerLink]="item.route"
             [routerLinkActive]="['!bg-zadna-primary', '!text-white', 'shadow-lg', 'shadow-zadna-primary/25', 'is-active']"
@@ -86,7 +86,7 @@
 
   <div class="mt-4 grid shrink-0 gap-2 px-1 pb-2">
     <div class="grid grid-cols-2 gap-2">
-      <a routerLink="/support" class="flex flex-col items-center gap-2 rounded-[14px] bg-white/50 p-3 text-center no-underline transition-all hover:bg-white hover:shadow-sm">
+      <a *ngIf="canAccessSupport" routerLink="/support" class="flex flex-col items-center gap-2 rounded-[14px] bg-white/50 p-3 text-center no-underline transition-all hover:bg-white hover:shadow-sm">
         <div class="flex h-8 w-8 items-center justify-center rounded-full bg-zadna-primary/5 text-zadna-primary">
           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 17h.01M10.1 9.1a2.7 2.7 0 1 1 3.9 2.4c-.8.4-1.3.9-1.3 1.8V14m7.3-2a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"></path>
@@ -95,7 +95,7 @@
         <span class="text-[0.65rem] font-black uppercase tracking-tight text-slate-500">{{ 'SIDEBAR.SUPPORT' | translate }}</span>
       </a>
 
-      <a routerLink="/alerts" class="relative flex flex-col items-center gap-2 rounded-[14px] bg-white/50 p-3 text-center no-underline hover:bg-white hover:shadow-sm">
+      <a *ngIf="canAccessAlerts" routerLink="/alerts" class="relative flex flex-col items-center gap-2 rounded-[14px] bg-white/50 p-3 text-center no-underline hover:bg-white hover:shadow-sm">
         @if (unreadCount$ && (unreadCount$ | async); as unreadCount) {
           @if (unreadCount > 0) {
             <span class="absolute right-3 top-3 inline-flex min-h-[1rem] min-w-[1rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[0.55rem] font-black text-white">

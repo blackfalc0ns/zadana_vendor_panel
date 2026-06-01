@@ -44,7 +44,7 @@
           {{ 'STAFF_BRANCHES.ACTIONS.COPY_LINK' | translate }}
         </button>
 
-        @if (invitation.status === 'pending' || invitation.status === 'expired') {
+        @if (invitation.status === 'pending' || invitation.status === 'expired' || invitation.status === 'delivery_failed') {
           <button
             type="button"
             (click)="resendInvitation()"

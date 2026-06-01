@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-catalog-requests',
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule, AppPageHeaderComponent, AppPaginationComponent, SearchableSelectComponent],
@@ -149,6 +150,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
   `
 })
 export class CatalogRequestsComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   requests: ProductRequest[] = [];
   isLoading = false;
   typeFilter: 'all' | 'product' | 'brand' | 'category' = 'all';
@@ -174,11 +176,13 @@ export class CatalogRequestsComponent implements OnInit {
       pageSize: 10
     }).subscribe({
       next: (response) => {
+        this.cdr.markForCheck();
         this.requests = response.items;
         this.totalPages = response.totalPages || 1;
         this.isLoading = false;
       },
       error: () => {
+        this.cdr.markForCheck();
         this.requests = [];
         this.totalPages = 1;
         this.isLoading = false;

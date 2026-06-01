@@ -1,10 +1,11 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
+import { AlertsCenterService } from '../../../alerts/services/alerts-center.service';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import {
@@ -20,6 +21,7 @@ import {
 import { SupportCenterService } from '../../services/support-center.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-support-ticket-detail',
   standalone: true,
   imports: [
@@ -34,25 +36,32 @@ import { SupportCenterService } from '../../services/support-center.service';
   templateUrl: './support-ticket-detail.component.html'
 })
 export class SupportTicketDetailComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentLang = 'ar';
   ticket: VendorSupportTicketVm | null = null;
   relatedArticles: SupportReferenceArticleVm[] = [];
   composerDraft = '';
   flashMessage = '';
+  flashTone: 'success' | 'info' = 'success';
+  isSendingMessage = false;
   vendorDisplayName = '';
 
   private langSub: Subscription;
   private dataSub?: Subscription;
+  private realtimeSupportSub?: Subscription;
+  private currentTicketId = '';
 
   constructor(
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly supportCenterService: SupportCenterService,
     private readonly profileService: VendorProfileService,
+    private readonly alertsCenterService: AlertsCenterService,
     private readonly translate: TranslateService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.updateVendorDisplayName();
       if (this.flashMessage) {
@@ -70,25 +79,20 @@ export class SupportTicketDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.dataSub = combineLatest([
-      this.supportCenterService.getTicketById(ticketId),
-      this.supportCenterService.getReferenceArticles()
-    ]).subscribe(([ticket, articles]) => {
-      if (!ticket) {
-        this.router.navigate(['/support'], { queryParams: { view: 'support' } });
-        return;
+    this.currentTicketId = ticketId;
+    this.loadTicket(ticketId);
+    this.realtimeSupportSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      this.cdr.markForCheck();
+      if (alert.source === 'support' && this.shouldRefreshForAlert(alert.entityId, alert.route)) {
+        this.loadTicket(ticketId, false);
       }
-
-      this.ticket = ticket;
-      this.relatedArticles = articles
-        .filter((article) => article.category === ticket.category)
-        .sort((first, second) => new Date(second.updatedAt).getTime() - new Date(first.updatedAt).getTime());
     });
   }
 
   ngOnDestroy(): void {
     this.langSub.unsubscribe();
     this.dataSub?.unsubscribe();
+    this.realtimeSupportSub?.unsubscribe();
   }
 
   localized(value: LocalizedTextVm): string {
@@ -176,12 +180,56 @@ export class SupportTicketDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.supportCenterService.addVendorMessage(ticket.id, { ar: message, en: message }, this.vendorDisplayName);
-    this.composerDraft = '';
-    this.flashMessage = this.translate.instant('SUPPORT_CENTER.FEEDBACK.MESSAGE_SENT');
+    this.isSendingMessage = true;
+    this.supportCenterService.addVendorMessage(ticket.id, { ar: message, en: message }, this.vendorDisplayName).subscribe({
+      next: (updatedTicket) => {
+        this.cdr.markForCheck();
+        this.isSendingMessage = false;
+        this.ticket = updatedTicket;
+        this.composerDraft = '';
+        this.showFlash('SUPPORT_CENTER.FEEDBACK.MESSAGE_SENT', 'success');
+      },
+      error: () => {
+        this.cdr.markForCheck();
+        this.isSendingMessage = false;
+        this.showFlash('SUPPORT_CENTER.FEEDBACK.MESSAGE_SEND_FAILED', 'info');
+      }
+    });
+  }
+
+  private loadTicket(ticketId: string, navigateOnMissing = true): void {
+    this.dataSub?.unsubscribe();
+    this.dataSub = combineLatest([
+      this.supportCenterService.getTicketById(ticketId),
+      this.supportCenterService.getReferenceArticles()
+    ]).subscribe(([ticket, articles]) => {
+      this.cdr.markForCheck();
+      if (!ticket) {
+        if (navigateOnMissing) {
+          this.router.navigate(['/support'], { queryParams: { view: 'support' } });
+        }
+        return;
+      }
+
+      this.ticket = ticket;
+      this.relatedArticles = articles
+        .filter((article) => article.category === ticket.category)
+        .sort((first, second) => new Date(second.updatedAt).getTime() - new Date(first.updatedAt).getTime());
+    });
+  }
+
+  private shouldRefreshForAlert(entityId?: string, route?: string): boolean {
+    return !entityId
+      || entityId === this.currentTicketId
+      || Boolean(route?.includes(this.currentTicketId));
+  }
+
+  private showFlash(key: string, tone: 'success' | 'info'): void {
+    this.flashTone = tone;
+    this.flashMessage = this.translate.instant(key);
 
     setTimeout(() => {
-      if (this.flashMessage === this.translate.instant('SUPPORT_CENTER.FEEDBACK.MESSAGE_SENT')) {
+      if (this.flashMessage === this.translate.instant(key)) {
         this.flashMessage = '';
       }
     }, 2800);

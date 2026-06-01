@@ -16,6 +16,10 @@ export const vendorOnboardingGuard: CanActivateFn = (route) => {
       return router.createUrlTree(['/login']);
     }
 
+    if (authService.isVendorStaffSession) {
+      return router.createUrlTree(['/dashboard']);
+    }
+
     return profileService.loadProfileForGuard(true).pipe(
       map((profile) => {
         if (profile.status === 'Active' || profile.commercialAccessEnabled) {
@@ -36,7 +40,7 @@ export const vendorOnboardingGuard: CanActivateFn = (route) => {
   }
 
   if (authService.hasApiSession) {
-    return router.createUrlTree(['/submission-success']);
+    return router.createUrlTree([authService.isVendorStaffSession ? '/dashboard' : '/submission-success']);
   }
 
   if (!authService.hasValidRegistrationDraft()) {

@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
@@ -18,6 +18,7 @@ import {
 import { StaffBranchesService } from '../../services/staff-branches.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-employee-detail',
   standalone: true,
   imports: [
@@ -31,6 +32,7 @@ import { StaffBranchesService } from '../../services/staff-branches.service';
   templateUrl: './employee-detail.component.html'
 })
 export class EmployeeDetailComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentLang = 'ar';
   employee: EmployeeVm | null = null;
   branches: BranchVm[] = [];
@@ -49,6 +51,7 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
     });
   }
@@ -66,6 +69,7 @@ export class EmployeeDetailComponent implements OnInit, OnDestroy {
       this.staffBranchesService.getBranches(),
       this.staffBranchesService.getInvitations()
     ]).subscribe(([employee, branches, invitations]) => {
+      this.cdr.markForCheck();
       if (!employee) {
         this.router.navigate(['/staff']);
         return;

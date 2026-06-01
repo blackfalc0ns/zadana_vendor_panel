@@ -1,18 +1,9 @@
-import {
-  Component,
-  Input,
-  OnChanges,
-  OnDestroy,
-  OnInit,
-  SimpleChanges,
-  ElementRef,
-  ViewChild,
-  AfterViewInit
-} from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges, ElementRef, ViewChild, AfterViewInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import * as L from 'leaflet';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-driver-tracking-map',
   standalone: true,
   imports: [CommonModule],
@@ -57,28 +48,67 @@ import * as L from 'leaflet';
       </div>
 
       <!-- Map Interface -->
-      <div #mapContainer class="h-[320px] w-full" style="z-index: 0; filter: contrast(1.1) saturate(1.1);"></div>
+      <div #mapContainer class="h-[400px] w-full" style="z-index: 0; filter: contrast(1.1) saturate(1.1);"></div>
 
-      <!-- Live Data Overlay -->
-      <div *ngIf="driverLocation" class="absolute bottom-6 inset-x-6 flex items-center justify-between px-6 py-4 rounded-2xl bg-[#004953]/90 text-white backdrop-blur-xl border border-white/20 shadow-2xl transition-all group-hover/map:bottom-8">
-        <div class="flex items-center gap-5">
-          <div class="h-12 w-12 flex items-center justify-center rounded-xl bg-white/10 border border-white/10 text-2xl shadow-inner">
-            🛰️
+      <!-- Unified Premium Navigation Bar -->
+      <div *ngIf="driverLocation" class="absolute bottom-4 inset-x-4 md:inset-x-8 md:bottom-6 flex items-center justify-between px-2 py-2 rounded-[2rem] bg-[#001f24]/90 text-white backdrop-blur-2xl border border-white/10 shadow-[0_16px_40px_-5px_rgba(0,0,0,0.5)] transition-all group-hover/map:bottom-7" style="z-index: 1000">
+        
+        <!-- Telemetry Update (Right in RTL, Left in LTR) -->
+        <div class="flex items-center gap-3 px-3">
+           <div class="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-tr from-white/10 to-white/5 border border-white/10 shadow-inner">
+             <span class="material-symbols-outlined text-[22px] text-teal-300">satellite_alt</span>
+             <div class="absolute top-0 right-0 h-3 w-3 rounded-full bg-emerald-400 border-2 border-[#001f24] animate-pulse"></div>
+           </div>
+           <div class="hidden sm:block">
+             <p class="text-[0.65rem] font-bold text-teal-200/80 uppercase tracking-widest mb-0.5">
+               {{ isArabic ? 'تحديث الإحداثيات' : 'Telemetry' }}
+             </p>
+             <p class="text-[0.85rem] font-black truncate max-w-[120px]">
+               {{ lastUpdateText }}
+             </p>
+           </div>
+        </div>
+
+        <!-- Divider -->
+        <div class="hidden sm:block h-10 w-px bg-white/10"></div>
+
+        <!-- ETA (Center) -->
+        <div *ngIf="routeEtaMinutes" class="flex-1 flex justify-center">
+          <div class="flex items-center gap-3 px-5 py-2.5 md:px-8 md:py-3 rounded-[1.5rem] bg-gradient-to-r from-teal-500/30 to-emerald-500/30 border border-teal-400/30 shadow-[inset_0_2px_10px_rgba(255,255,255,0.1)]">
+             <span class="material-symbols-outlined text-[26px] text-teal-400 animate-bounce" style="animation-duration: 2s;">route</span>
+             <div>
+               <p class="text-[0.65rem] font-bold text-emerald-100 uppercase tracking-widest mb-0.5">
+                 {{ isArabic ? 'الوقت المتبقي' : 'ETA' }}
+               </p>
+               <div class="flex items-baseline gap-1">
+                 <span class="text-2xl font-black font-inter leading-none text-white drop-shadow-md">{{ routeEtaMinutes }}</span>
+                 <span class="text-[0.7rem] font-bold text-emerald-50">{{ isArabic ? 'دقيقة' : 'min' }}</span>
+               </div>
+             </div>
           </div>
-          <div>
-            <p class="text-[0.8rem] font-black uppercase tracking-widest leading-none mb-1">
-              {{ isArabic ? 'موقع المندوب' : 'Carrier Coordinates' }}
-            </p>
-            <p class="text-[0.65rem] font-bold text-white/50 uppercase tracking-[0.2em]">
-              {{ lastUpdateText }}
-            </p>
-          </div>
+        </div>
+
+        <!-- Empty spacer if no ETA to keep layout balanced -->
+        <div *ngIf="!routeEtaMinutes" class="flex-1"></div>
+
+        <!-- Divider -->
+        <div *ngIf="driverLocation?.accuracyMeters" class="hidden sm:block h-10 w-px bg-white/10"></div>
+
+        <!-- Precision (Left in RTL, Right in LTR) -->
+        <div *ngIf="driverLocation?.accuracyMeters" class="flex items-center gap-3 px-3" [dir]="isArabic ? 'ltr' : 'rtl'">
+           <div class="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white/5 border border-white/5">
+              <span class="material-symbols-outlined text-[20px] text-amber-400">my_location</span>
+           </div>
+           <div class="hidden sm:block" [dir]="isArabic ? 'rtl' : 'ltr'">
+             <p class="text-[0.65rem] font-bold text-white/50 uppercase tracking-widest mb-0.5">
+               {{ isArabic ? 'دقة الموقع' : 'Precision' }}
+             </p>
+             <p class="text-[1rem] font-black font-inter text-amber-400 drop-shadow-md">
+               ±{{ driverLocation.accuracyMeters | number:'1.0-0' }}m
+             </p>
+           </div>
         </div>
         
-        <div *ngIf="driverLocation?.accuracyMeters" class="flex flex-col items-end">
-           <span class="text-[0.6rem] font-black text-white/40 uppercase tracking-widest mb-1">Precision</span>
-           <span class="text-[0.9rem] font-black font-inter text-[#FF9800]">±{{ driverLocation.accuracyMeters | number:'1.0-0' }}m</span>
-        </div>
       </div>
     </div>
   `,
@@ -158,20 +188,25 @@ export class DriverTrackingMapComponent implements OnInit, AfterViewInit, OnChan
   @Input() driverLocation?: { lat: number; lng: number; accuracyMeters?: number; recordedAtUtc: string };
   @Input() vendorLocation?: { lat: number; lng: number };
   @Input() customerLocation?: { lat: number; lng: number };
+  @Input() orderStatus?: string;
   @Input() isArabic = false;
 
   @ViewChild('mapContainer', { static: true }) mapContainer!: ElementRef;
 
   isStale = false;
   lastUpdateText = '';
+  routeEtaMinutes?: number;
 
   private map?: L.Map;
   private driverMarker?: L.Marker;
   private vendorMarker?: L.Marker;
   private customerMarker?: L.Marker;
   private accuracyCircle?: L.Circle;
+  private routeLine?: L.Polyline;
   private boundsSet = false;
   private staleTimer?: ReturnType<typeof setInterval>;
+
+  constructor(private cdr: ChangeDetectorRef) {}
 
   ngOnInit(): void {
     this.staleTimer = setInterval(() => this.updateStaleState(), 5000);
@@ -185,14 +220,19 @@ export class DriverTrackingMapComponent implements OnInit, AfterViewInit, OnChan
     if (!this.map) return;
 
     if (changes['driverLocation']) {
+      const hadDriverLocation = !!changes['driverLocation'].previousValue;
       this.updateDriverMarker();
       this.updateStaleState();
+      this.keepDriverInView(!hadDriverLocation);
+      this.fetchAndDrawRoute();
     }
-    if (changes['vendorLocation'] && !this.vendorMarker) {
-      this.addVendorMarker();
+    if (changes['vendorLocation']) {
+      this.upsertVendorMarker();
+      this.fetchAndDrawRoute();
     }
-    if (changes['customerLocation'] && !this.customerMarker) {
-      this.addCustomerMarker();
+    if (changes['customerLocation']) {
+      this.upsertCustomerMarker();
+      this.fetchAndDrawRoute();
     }
     if (!this.boundsSet) {
       this.fitBounds();
@@ -221,14 +261,21 @@ export class DriverTrackingMapComponent implements OnInit, AfterViewInit, OnChan
     }).addTo(this.map);
 
     // Add markers if data already available
-    this.addVendorMarker();
-    this.addCustomerMarker();
+    this.upsertVendorMarker();
+    this.upsertCustomerMarker();
     this.updateDriverMarker();
     this.fitBounds();
   }
 
-  private addVendorMarker(): void {
+  private upsertVendorMarker(): void {
     if (!this.map || !this.vendorLocation) return;
+
+    const latlng: L.LatLngExpression = [this.vendorLocation.lat, this.vendorLocation.lng];
+
+    if (this.vendorMarker) {
+      this.vendorMarker.setLatLng(latlng);
+      return;
+    }
 
     const icon = L.divIcon({
       className: 'vendor-marker-icon',
@@ -238,7 +285,7 @@ export class DriverTrackingMapComponent implements OnInit, AfterViewInit, OnChan
     });
 
     this.vendorMarker = L.marker(
-      [this.vendorLocation.lat, this.vendorLocation.lng],
+      latlng,
       { icon, zIndexOffset: 100 }
     ).addTo(this.map);
 
@@ -248,8 +295,15 @@ export class DriverTrackingMapComponent implements OnInit, AfterViewInit, OnChan
     );
   }
 
-  private addCustomerMarker(): void {
+  private upsertCustomerMarker(): void {
     if (!this.map || !this.customerLocation) return;
+
+    const latlng: L.LatLngExpression = [this.customerLocation.lat, this.customerLocation.lng];
+
+    if (this.customerMarker) {
+      this.customerMarker.setLatLng(latlng);
+      return;
+    }
 
     const icon = L.divIcon({
       className: 'customer-marker-icon',
@@ -259,7 +313,7 @@ export class DriverTrackingMapComponent implements OnInit, AfterViewInit, OnChan
     });
 
     this.customerMarker = L.marker(
-      [this.customerLocation.lat, this.customerLocation.lng],
+      latlng,
       { icon, zIndexOffset: 100 }
     ).addTo(this.map);
 
@@ -313,7 +367,26 @@ export class DriverTrackingMapComponent implements OnInit, AfterViewInit, OnChan
     }
   }
 
-  private fitBounds(): void {
+  private keepDriverInView(isFirstDriverLocation: boolean): void {
+    if (!this.map || !this.driverLocation) return;
+
+    const driverLatLng = L.latLng(this.driverLocation.lat, this.driverLocation.lng);
+
+    if (isFirstDriverLocation) {
+      this.fitBounds(true);
+      return;
+    }
+
+    const innerBounds = this.map.getBounds().pad(-0.15);
+    if (!innerBounds.contains(driverLatLng)) {
+      this.map.panTo(driverLatLng, {
+        animate: true,
+        duration: 0.6
+      });
+    }
+  }
+
+  private fitBounds(force = false): void {
     if (!this.map) return;
 
     const points: L.LatLngExpression[] = [];
@@ -328,6 +401,8 @@ export class DriverTrackingMapComponent implements OnInit, AfterViewInit, OnChan
     } else if (points.length === 1) {
       this.map.setView(points[0], 15);
       this.boundsSet = true;
+    } else if (force) {
+      this.boundsSet = false;
     }
   }
 
@@ -356,5 +431,44 @@ export class DriverTrackingMapComponent implements OnInit, AfterViewInit, OnChan
         ? `منذ ${diffMin} دقيقة`
         : `${diffMin}m ago`;
     }
+  }
+
+  private fetchAndDrawRoute(): void {
+    if (!this.map || !this.driverLocation) return;
+
+    // Determine the destination based on the order status
+    // Statuses indicating courier is heading to customer (after pickup)
+    const afterPickupStatuses = ['PICKED_UP', 'OUT_FOR_DELIVERY'];
+    const headingToCustomer = this.orderStatus && afterPickupStatuses.includes(this.orderStatus);
+
+    const destination = headingToCustomer ? this.customerLocation : this.vendorLocation;
+    
+    if (!destination) return;
+
+    const url = `https://router.project-osrm.org/route/v1/driving/${this.driverLocation.lng},${this.driverLocation.lat};${destination.lng},${destination.lat}?overview=full&geometries=geojson`;
+
+    fetch(url)
+      .then(response => response.json())
+      .then(data => {
+        if (data.routes && data.routes.length > 0) {
+          const coordinates = data.routes[0].geometry.coordinates;
+          const latLngs = coordinates.map((coord: number[]) => [coord[1], coord[0]] as [number, number]);
+
+          if (this.routeLine) {
+            this.map!.removeLayer(this.routeLine);
+          }
+
+          this.routeLine = L.polyline(latLngs, {
+            color: '#00626F',
+            weight: 4,
+            dashArray: '10, 10',
+            opacity: 0.8
+          }).addTo(this.map!);
+          
+          this.routeEtaMinutes = Math.ceil(data.routes[0].duration / 60);
+          this.cdr.detectChanges();
+        }
+      })
+      .catch(error => console.error('Error fetching OSRM route:', error));
   }
 }

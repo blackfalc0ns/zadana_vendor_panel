@@ -18,4 +18,5 @@ export interface CreateTicketDraft {
   category: SupportCategory;
   priority: SupportPriority;
   message: string;
+  orderId: string;
 }

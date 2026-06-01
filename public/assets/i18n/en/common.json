@@ -1,0 +1,203 @@
+{
+  "COMMON": {
+    "SEARCH": "Search...",
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "DELETE": "Delete",
+    "EDIT": "Edit",
+    "ADD": "Add",
+    "LOADING": "Loading...",
+    "NO_DATA": "No Data Available",
+    "ACTIONS": "Actions",
+    "STATUS": "Status",
+    "CREATED_AT": "Created At",
+    "UPDATED_AT": "Updated At",
+    "YES": "Yes",
+    "NO": "No",
+    "CONFIRM": "Confirm",
+    "SUCCESS": "Operation successful",
+    "ERROR": "Something went wrong",
+    "BACK": "Back",
+    "OPTIONAL": "(Optional)",
+    "EGP": "EGP",
+    "CURRENCY": "SAR",
+    "ITEMS": "Items",
+    "ALL": "All",
+    "LIVE": "Live",
+    "TODAY": "Today",
+    "OPEN": "Open",
+    "CLOSE": "Close",
+    "WELCOME": "Welcome",
+    "READY_TODAY": "Ready for today",
+    "OPERATIONAL_PRIORITIES": "Operational Priorities",
+    "BRAND_GENERAL": "General Brand",
+    "UNIT_PIECE": "Piece",
+    "HEADER_PRODUCT": "Product",
+    "ENGLISH": "English",
+    "ARABIC": "Arabic",
+    "DEFAULT_VENDOR_NAME": "New Store",
+    "LOGOUT": "Logout",
+    "PROFILE": "Profile",
+    "SHORTCUT_CTRL_K": "Ctrl K",
+    "ARABIC_DATA": "Arabic Data",
+    "ENGLISH_DATA": "English Data",
+    "SELECT_CATEGORY": "Select category...",
+    "SELECT_UNIT": "Select unit...",
+    "CLEAR_SELECTION": "Clear selection",
+    "ACTIVE": "Active",
+    "CONTINUE": "Continue",
+    "ERROR_OCCURRED": "An unexpected error occurred.",
+    "STATUS_ACTIVE": "Active",
+    "STATUS_INACTIVE": "Inactive",
+    "FILTERS": "Filters",
+    "VIEW_ALL": "View All",
+    "DATE": "Date",
+    "AMOUNT": "Amount",
+    "TOTAL": "Total"
+  },
+  "SIDEBAR": {
+    "APP_NAME": "Zadana",
+    "APP_SUBTITLE": "Vendor & Partner Portal",
+    "DASHBOARD": "Dashboard",
+    "PRODUCTS": "Product Management",
+    "ORDERS": "Order Management",
+    "OFFERS": "Offers & Discounts",
+    "FINANCE": "My Wallet",
+    "BRANCHES": "Branches",
+    "STAFF_BRANCHES": "Staff & Branches",
+    "REVIEWS": "Reviews",
+    "SETTINGS": "Settings",
+    "LOGOUT": "Logout",
+    "NEW_BADGE": "NEW",
+    "READY_STATUS": "Ready to work",
+    "SEARCH_PLACEHOLDER": "Quick search (Ctrl K)",
+    "OVERVIEW_TITLE": "Overview",
+    "OPERATIONS_TITLE": "Operations",
+    "SUPPORT": "Support",
+    "ALERTS": "Alerts",
+    "VERIFIED_VENDOR": "Verified Zadana Vendor",
+    "STORE_SETUP": "Store Setup",
+    "STORE_SETUP_TITLE": "Complete your store setup to start selling",
+    "CONTINUE_SETUP": "Continue Setup",
+    "DISPUTES": "Disputes"
+  },
+  "HEADER": {
+    "OPEN_MENU": "Open Menu",
+    "NOTIFICATIONS": "Notifications",
+    "PROFILE": "Profile",
+    "SEARCH": "Search in system...",
+    "ACTIVE_ACCOUNT": "Active Account",
+    "VENDOR_DASHBOARD": "Vendor Dashboard",
+    "SEARCH_PLACEHOLDER": "Search in Zadana..."
+  },
+  "HEADER_SEARCH": {
+    "TITLE": "Global Search",
+    "PLACEHOLDER": "Search in Zadana (orders, products, catalog...)",
+    "MIN_QUERY": "Type at least {{count}} characters to search.",
+    "SEARCHING": "Searching vendor panel...",
+    "NO_RESULTS": "No matching results found.",
+    "GROUPS": {
+      "NAVIGATION": "Pages",
+      "ORDERS": "Orders",
+      "PRODUCTS": "My Products",
+      "MASTER_PRODUCTS": "Product Catalog"
+    }
+  },
+  "PAGINATION": {
+    "PREVIOUS": "Previous",
+    "NEXT": "Next",
+    "PAGE_INFO": "Page {{current}} of {{total}}",
+    "TOTAL_PRODUCTS": "Total: {{count}} products",
+    "TOTAL_ITEMS": "Total: {{count}} items",
+    "TOTAL_ORDERS": "Total: {{count}} orders"
+  },
+  "ALERTS_CENTER": {
+    "TITLE": "Alerts Center",
+    "SUBTITLE": "Track operational alerts derived from orders, products, finance, support, and the rest of the vendor workspace.",
+    "ACTIONS": {
+      "MARK_ALL_READ": "Mark all as read",
+      "MARK_READ": "Mark as read",
+      "MARK_UNREAD": "Mark as unread",
+      "ARCHIVE": "Archive",
+      "RESTORE": "Restore",
+      "OPEN": "Open",
+      "VIEW_ALL": "View all alerts"
+    },
+    "SUMMARY": {
+      "UNREAD": "Unread",
+      "UNREAD_HINT": "Items that still have not been reviewed in the alerts center.",
+      "CRITICAL": "Critical",
+      "CRITICAL_HINT": "Alerts that need immediate intervention.",
+      "NEEDS_ACTION": "Needs action",
+      "NEEDS_ACTION_HINT": "Alerts with warning or operational weight.",
+      "ARCHIVED": "Archived",
+      "ARCHIVED_HINT": "Alerts you kept for later reference."
+    },
+    "QUICK_TABS": {
+      "ALL": "All",
+      "UNREAD": "Unread",
+      "CRITICAL": "Critical",
+      "ARCHIVED": "Archived"
+    },
+    "SECTION_TITLE": "Alerts log",
+    "SECTION_SUBTITLE": "Track sources, severity, and state, then open the related page directly from the alert.",
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Refine alerts by source, severity, and state from one place.",
+      "RESET": "Reset",
+      "SEARCH": "Search",
+      "SOURCE": "Source",
+      "SEVERITY": "Severity",
+      "STATE": "State",
+      "ALL_SOURCES": "All sources",
+      "ALL_SEVERITY": "All severity levels",
+      "ALL_STATES": "All states"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Search alert titles and summaries"
+    },
+    "TABLE": {
+      "ALERT": "Alert",
+      "SOURCE": "Source",
+      "SEVERITY": "Severity",
+      "STATE": "State",
+      "TIME": "Time"
+    },
+    "SOURCES": {
+      "ORDERS": "Orders",
+      "PRODUCTS": "Products",
+      "OFFERS": "Offers",
+      "FINANCE": "Finance",
+      "SUPPORT": "Support",
+      "STAFF": "Branches & staff",
+      "REVIEWS": "Reviews",
+      "PROFILE": "Store profile"
+    },
+    "SEVERITY": {
+      "INFO": "Info",
+      "WARNING": "Warning",
+      "CRITICAL": "Critical"
+    },
+    "STATE": {
+      "UNREAD": "Unread",
+      "READ": "Read",
+      "ARCHIVED": "Archived"
+    },
+    "POPOVER": {
+      "SUBTITLE": "Highest current priorities that are not archived",
+      "EMPTY_TITLE": "No new alerts",
+      "EMPTY_SUBTITLE": "Any new alert will show up here as soon as it is generated."
+    },
+    "EMPTY": {
+      "TITLE": "No matching alerts",
+      "SUBTITLE": "Try adjusting the filters or revisit when the operational data changes."
+    },
+    "FEEDBACK": {
+      "MARKED_READ": "The alert was marked as read.",
+      "MARKED_UNREAD": "The alert was marked as unread again.",
+      "ARCHIVED": "The alert was archived.",
+      "RESTORED": "The alert was restored from the archive.",
+      "ALL_READ": "All alerts were marked as read."
+    }
+  }
+}

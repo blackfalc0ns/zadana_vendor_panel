@@ -80,7 +80,7 @@
           </div>
           <div>
             <div class="text-[1.6rem] font-black text-white tracking-tight font-inter drop-shadow-sm">
-              {{ formatCurrency(snapshot?.availableBalance || 0) }}
+              {{ formatCurrency(snapshot.availableBalance || 0) }}
             </div>
             <button (click)="requestPayout()" class="mt-2.5 flex items-center gap-1.5 text-[0.65rem] font-bold text-white/90 hover:text-white transition-colors">
               {{ 'VENDOR_FINANCE.ACTIONS.REQUEST_PAYOUT' | translate }}
@@ -97,7 +97,7 @@
         <div class="relative z-10 flex h-full flex-col justify-center">
           <span class="mb-1.5 text-[0.65rem] font-black uppercase tracking-widest text-slate-400 ps-1.5">{{ 'VENDOR_FINANCE.OVERVIEW.PENDING_SETTLEMENT' | translate }}</span>
           <div class="text-[1.3rem] font-black text-slate-800 font-inter ps-1.5">
-            {{ formatCurrency(snapshot?.pendingSettlement || 0) }}
+            {{ formatCurrency(snapshot.pendingSettlement || 0) }}
           </div>
         </div>
       </div>
@@ -110,10 +110,10 @@
           <span class="mb-1.5 text-[0.65rem] font-black uppercase tracking-widest text-slate-400 ps-1.5">{{ 'VENDOR_FINANCE.OVERVIEW.NEXT_PAYOUT' | translate }}</span>
           <div class="flex items-end gap-2 ps-1.5">
             <span class="text-[1.1rem] font-black text-slate-800 font-inter">
-              {{ formatDate(snapshot?.nextPayoutDate) }}
+              {{ formatDate(snapshot.nextPayoutDate) }}
             </span>
             <span class="mb-1 rounded-full bg-sky-50 px-2 py-0.5 text-[0.6rem] font-black text-sky-600 border border-sky-100">
-              {{ getPayoutMethodLabel(snapshot?.payoutMethod) }}
+              {{ getPayoutMethodLabel(snapshot.payoutMethod) }}
             </span>
           </div>
         </div>
@@ -126,7 +126,7 @@
         <div class="relative z-10 flex h-full flex-col justify-center">
           <span class="mb-1.5 text-[0.65rem] font-black uppercase tracking-widest text-slate-400 ps-1.5">{{ 'VENDOR_FINANCE.OVERVIEW.HOLD_AMOUNT' | translate }}</span>
           <div class="text-[1.3rem] font-black text-rose-600 font-inter ps-1.5">
-            {{ formatCurrency(snapshot?.holdAmount || 0) }}
+            {{ formatCurrency(snapshot.holdAmount || 0) }}
           </div>
         </div>
       </div>
@@ -165,7 +165,7 @@
 
         <div class="p-4 md:p-5">
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-6">
-            <div *ngFor="let kpi of snapshot?.kpis || []" class="rounded-[16px] bg-slate-50/50 p-3 border border-slate-100 transition-colors hover:bg-white">
+            <div *ngFor="let kpi of snapshot.kpis || []" class="rounded-[16px] bg-slate-50/50 p-3 border border-slate-100 transition-colors hover:bg-white">
               <span class="text-[0.6rem] font-black text-slate-400 uppercase tracking-widest mb-1 block">{{ getKpiLabel(kpi) }}</span>
               <span class="text-[0.95rem] font-black text-slate-800 font-inter block mb-1.5">{{ formatCurrency(kpi.value) }}</span>
               <div class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md text-[0.6rem] font-black" [ngClass]="getDeltaClass(kpi.trend, kpi.tone)">
@@ -239,16 +239,16 @@
             </div>
             <h2 class="text-[0.75rem] font-black uppercase tracking-widest text-slate-800">{{ 'VENDOR_FINANCE.ALERTS.TITLE' | translate }}</h2>
           </div>
-          <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-100 px-1.5 text-[0.6rem] font-black text-rose-600">{{ (snapshot?.alerts || []).length }}</span>
+          <span class="flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-100 px-1.5 text-[0.6rem] font-black text-rose-600">{{ (snapshot.alerts || []).length }}</span>
         </div>
 
         <div class="flex-1 p-4 overflow-y-auto custom-scrollbar space-y-2">
-          <div *ngIf="(snapshot?.alerts || []).length === 0" class="flex flex-col items-center justify-center h-full py-8 opacity-60">
+          <div *ngIf="(snapshot.alerts || []).length === 0" class="flex flex-col items-center justify-center h-full py-8 opacity-60">
             <svg class="h-10 w-10 text-slate-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
             <p class="text-[0.7rem] font-black text-slate-500">{{ 'VENDOR_FINANCE.ALERTS.EMPTY' | translate }}</p>
           </div>
 
-          <div *ngFor="let alert of snapshot?.alerts || []" 
+          <div *ngFor="let alert of snapshot.alerts || []" 
                class="rounded-[16px] p-3 transition-all duration-300 border hover:-translate-y-0.5 hover:shadow-sm cursor-pointer"
                [ngClass]="alert.severity === 'critical' ? 'bg-rose-50/50 border-rose-100 hover:bg-rose-50' : 'bg-slate-50/50 border-slate-100 hover:bg-white'">
             <div class="flex items-start gap-2.5">
@@ -354,7 +354,7 @@
               </tr>
             </thead>
             <tbody class="divide-y divide-slate-50">
-              <tr *ngFor="let settlement of snapshot?.settlements || []" class="transition-colors hover:bg-slate-50/50">
+              <tr *ngFor="let settlement of snapshot.settlements || []" class="transition-colors hover:bg-slate-50/50">
                 <td class="px-4 py-3 text-[0.7rem] font-black text-slate-800 font-inter">{{ settlement.code }}</td>
                 <td class="px-4 py-3">
                   <span class="inline-flex items-center rounded-full px-2 py-0.5 text-[0.6rem] font-black uppercase tracking-widest border" [ngClass]="getSettlementClass(settlement)">

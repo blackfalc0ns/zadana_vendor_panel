@@ -1,6 +1,6 @@
 import { CommonModule, NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -36,6 +36,7 @@ import {
 } from './offers-list.models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-offers-list',
   standalone: true,
   imports: [
@@ -468,6 +469,7 @@ import {
   `
 })
 export class OffersListComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   isLoading = true;
   searchTerm = '';
   currentLang = 'ar';
@@ -541,6 +543,7 @@ export class OffersListComponent implements OnInit, OnDestroy {
       this.offersService.getClearanceOffers()
     ]).subscribe({
       next: ([productsResponse, categories, coupons, categoryCampaigns, clearanceOffers]) => {
+        this.cdr.markForCheck();
         const products = productsResponse.items;
         this.vendorProducts = products;
         this.categories = categories;
@@ -556,6 +559,7 @@ export class OffersListComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: () => {
+        this.cdr.markForCheck();
         this.isLoading = false;
       }
     });
@@ -865,11 +869,13 @@ export class OffersListComponent implements OnInit, OnDestroy {
 
     this.offersService.createCouponOffer(payload).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isSavingCoupon = false;
         this.closeCouponModal();
         this.currentPages.coupons = 1;
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.isSavingCoupon = false;
         this.couponSaveError = this.describeCouponSaveError(error);
       }

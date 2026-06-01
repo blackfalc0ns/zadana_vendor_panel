@@ -1,8 +1,9 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { AppPanelHeaderComponent } from '../panel-header/panel-header.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-filter-panel',
   standalone: true,
   imports: [CommonModule, AppPanelHeaderComponent],

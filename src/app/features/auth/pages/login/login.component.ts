@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -10,6 +10,7 @@ import { AppCardComponent } from '../../../../shared/components/ui/card/card.com
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-login',
   standalone: true,
   imports: [
@@ -25,6 +26,7 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
   styleUrl: './login.component.scss'
 })
 export class LoginComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   loginForm!: FormGroup;
   verifyEmailForm!: FormGroup;
   isLoading = false;
@@ -71,6 +73,7 @@ export class LoginComponent implements OnInit {
 
   private initModeFromRoute(): void {
     this.route.queryParamMap.subscribe((params) => {
+      this.cdr.markForCheck();
       this.isVerifyEmailMode = this.router.url.startsWith('/verify-email');
       if (!this.isVerifyEmailMode) {
         return;
@@ -110,10 +113,12 @@ export class LoginComponent implements OnInit {
 
     this.authService.login(email, password).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         void this.router.navigate(['/dashboard']);
       },
       error: (error: unknown) => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         if (this.isEmailVerificationRequired(error)) {
           const identifier = `${this.loginForm.get('email')?.value || ''}`.trim();
@@ -144,11 +149,13 @@ export class LoginComponent implements OnInit {
 
     this.authService.verifyEmailOtp(`${identifier || ''}`.trim(), `${otpCode || ''}`.trim()).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         this.successMessage = this.isRTL ? 'تم تفعيل البريد الإلكتروني بنجاح.' : 'Email verified successfully.';
         void this.router.navigate(['/submission-success']);
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         this.errorMessage = this.resolvePlainError(error, this.isRTL ? 'تعذر تأكيد الرمز.' : 'Could not verify the code.');
       }
@@ -171,10 +178,12 @@ export class LoginComponent implements OnInit {
 
     this.authService.resendEmailOtp(identifier).subscribe({
       next: (message) => {
+        this.cdr.markForCheck();
         this.isResending = false;
         this.successMessage = message || (this.isRTL ? 'تم إرسال رمز جديد.' : 'A new OTP has been sent.');
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.isResending = false;
         this.errorMessage = this.resolvePlainError(error, this.isRTL ? 'تعذر إرسال رمز جديد.' : 'Could not resend the OTP.');
       }

@@ -1,0 +1,729 @@
+{
+  "SETTINGS_PROFILE": {
+    "TITLE": "Vendor profile",
+    "SUBTITLE": "Manage the store profile, legal file, banking setup, and review status from one workspace.",
+    "ROLE_LABEL": "Verified vendor",
+    "SAVE": "Save profile",
+    "STATUS_ACTIVE": "Profile active",
+    "STATUS_PENDING": "Pending review",
+    "OPEN_NOW": "Open",
+    "OVERVIEW": {
+      "STORE_NAME": "Store name",
+      "OWNER": "Owner",
+      "JOINED_AT": "Joined at"
+    },
+    "COMMAND": {
+      "EYEBROW": "Vendor workspace",
+      "ACTIVE_SUBTITLE": "Your commercial account is active. Important edits and file re-uploads immediately appear in the admin review workspace.",
+      "PENDING_SUBTITLE": "Complete the required profile data and official documents, then send the file for review. Every saved update is reflected in the admin side."
+    },
+    "METRICS": {
+      "REVIEW_READINESS": "Review readiness",
+      "ACCOUNT_STATUS": "Account status",
+      "LAST_DECISION": "Last decision",
+      "MISSING": "Missing",
+      "APPROVED": "Approved",
+      "IN_REVIEW": "In review"
+    },
+    "WINDOWS": {
+      "BASICS_LABEL": "Core profile",
+      "BASICS_SUMMARY": "Store, owner, and contact information.",
+      "REVIEW_LABEL": "Documents & review",
+      "REVIEW_SUMMARY": "Official PDFs, legal data, and review readiness.",
+      "OPERATIONS_LABEL": "Banking & hours",
+      "OPERATIONS_SUMMARY": "Settlement account, payout cycle, and weekly schedule.",
+      "TIMELINE_LABEL": "Timeline",
+      "TIMELINE_SUMMARY": "Review history, decisions, and recent activity."
+    },
+    "UI": {
+      "STORE_BASICS": "Store basics",
+      "SUPPORT_CHANNELS": "Support channels",
+      "STORE_DESCRIPTION": "Store description",
+      "OWNER_DETAILS": "Owner details",
+      "REPRESENTATIVE_INFO": "Legal representative information",
+      "CONTACT_PROFILE": "Address and communication",
+      "ADDRESS_LOCATION": "Address & location",
+      "PROFILE_STATUS": "Profile status",
+      "LEGAL_COMPLETION": "Legal completion",
+      "REVIEW": "Review",
+      "REVIEW_HINT": "Make sure the commercial registration and tax data match the uploaded documents.",
+      "LEGAL_IDENTIFIERS": "Legal identifiers",
+      "VERIFICATION_SUMMARY": "Verification summary",
+      "BANK_PROFILE": "Bank profile",
+      "REQUIRED_DOCUMENTS": "Required documents",
+      "SAVE_SECTION": "Save this section"
+    },
+    "SECTIONS": {
+      "STORE": "Store details",
+      "STORE_HINT": "Core business information shown across the vendor panel.",
+      "OWNER": "Owner details",
+      "OWNER_HINT": "Personal and contact information for the account owner.",
+      "CONTACT": "Contact and address",
+      "CONTACT_HINT": "Support contacts and the merchant address.",
+      "LEGAL": "Legal documents",
+      "LEGAL_HINT": "Commercial registration, tax details, and operational license.",
+      "DOCUMENTS": "Official documents",
+      "DOCUMENTS_HINT": "Upload the required PDF documents for compliance and account review.",
+      "BANKING": "Payout details",
+      "BANKING_HINT": "Settlement account and payout schedule.",
+      "OPERATIONS_SETTINGS": "Operations settings",
+      "OPERATIONS_SETTINGS_HINT": "Control order intake, minimum order amount, and preparation timing.",
+      "NOTIFICATION_SETTINGS": "Notification settings",
+      "NOTIFICATION_SETTINGS_HINT": "Choose which platform notifications you want to receive.",
+      "HOURS": "Operating hours",
+      "HOURS_HINT": "Weekly operating availability for receiving and preparing orders."
+    },
+    "FIELDS": {
+      "STORE_NAME_AR": "Store name (Arabic)",
+      "STORE_NAME_EN": "Store name (English)",
+      "BUSINESS_TYPE": "Business type",
+      "SUPPORT_PHONE": "Support phone",
+      "SUPPORT_EMAIL": "Support email",
+      "DESCRIPTION_AR": "Description (Arabic)",
+      "DESCRIPTION_EN": "Description (English)",
+      "OWNER_NAME": "Owner name",
+      "OWNER_EMAIL": "Owner email",
+      "OWNER_PHONE": "Owner phone",
+      "REGION": "Region",
+      "CITY": "City",
+      "NATIONAL_ADDRESS": "National address",
+      "ID_NUMBER": "ID number",
+      "NATIONALITY": "Nationality",
+      "COMMERCIAL_REGISTRATION": "Commercial registration",
+      "EXPIRY_DATE": "Commercial registration expiry date",
+      "TAX_ID": "Tax ID",
+      "LICENSE_NUMBER": "License number",
+      "BANK_NAME": "Bank name",
+      "IBAN": "IBAN",
+      "PAYOUT_CYCLE": "Payout cycle"
+    },
+    "ACCOUNT": {
+      "ACTIVE_ACCESS": "Commercial access enabled",
+      "GATED_ACCESS": "Commercial access still gated"
+    },
+    "OPERATIONS": {
+      "ACCEPT_ORDERS": "Accept orders",
+      "ACCEPT_ORDERS_HINT": "Disable this option to temporarily stop receiving new orders.",
+      "MINIMUM_ORDER_AMOUNT": "Minimum order amount",
+      "PREPARATION_TIME": "Preparation time in minutes"
+    },
+    "NOTIFICATIONS": {
+      "EMAIL": "Email notifications",
+      "EMAIL_HINT": "Receive general updates by email.",
+      "SMS": "SMS notifications",
+      "SMS_HINT": "Receive important alerts by text message.",
+      "NEW_ORDERS": "New order notifications",
+      "NEW_ORDERS_HINT": "Instant alert whenever a new order arrives.",
+      "SOUND": "Notification sound",
+      "SOUND_HINT": "Choose the tone that plays when a real-time vendor alert arrives.",
+      "PREVIEW_SOUND": "Preview sound",
+      "SOUND_OPTIONS": {
+        "CLASSIC": "Classic",
+        "CHIME": "Chime",
+        "SOFT": "Soft",
+        "URGENT": "Urgent",
+        "OFF": "Muted"
+      }
+    },
+    "REVIEW_PANEL": {
+      "TITLE": "Documents and review",
+      "SUBTITLE": "This window mirrors what the admin team sees while reviewing your file.",
+      "ACCOUNT_STATE": "Account state",
+      "SUBMISSION_READINESS": "Submission readiness",
+      "LAST_DECISION": "Last decision",
+      "MISSING_ITEMS": "missing items",
+      "LEGAL_IDENTIFIERS": "Legal identifiers",
+      "OFFICIAL_DOCUMENTS": "Official documents",
+      "UPLOADED": "Uploaded",
+      "MISSING": "Missing",
+      "VIEW_FILE": "View file"
+    },
+    "SIDE_RAIL": {
+      "CURRENT_WORKSPACE": "Current workspace",
+      "REQUIRED_BEFORE_REVIEW": "Required before review",
+      "SAVE_WINDOW": "Save this window",
+      "REVIEW_PROGRESS": "Review progress",
+      "RECENT_TIMELINE": "Recent timeline"
+    },
+    "TIMELINE": {
+      "TITLE": "Timeline and follow-up",
+      "SUBTITLE": "Track what changed in the file and how the review team is responding.",
+      "CURRENT_STATE": "Current review state",
+      "COMPLETE_REVIEW_TIMELINE": "Complete review timeline",
+      "EMPTY": "No review activity yet."
+    },
+    "NOTICES": {
+      "REOPEN_TITLE": "Changes here will reopen this section for review",
+      "REOPEN_SUBMITTED": "You can still edit, but important updates or file re-uploads will show up to admin as new review work.",
+      "REOPEN_CHANGES_REQUESTED": "Apply the requested fixes, save, and re-upload rejected files before resubmitting the profile."
+    },
+    "ACTIVATION": {
+      "TITLE": "The profile is ready for internal setup, but commercial activation is still blocked",
+      "BODY": "You can complete the remaining profile, legal, and operating setup here, then submit or resubmit the file for compliance review."
+    },
+    "ACTIONS": {
+      "SAVE_CHANGES": "Save changes",
+      "SUBMIT_FOR_REVIEW": "Submit for review",
+      "RESUBMIT_FOR_REVIEW": "Resubmit for review",
+      "UPLOADING": "Uploading",
+      "REUPLOAD": "Re-upload",
+      "REPLACE": "Replace",
+      "UPLOAD_PDF": "Upload PDF"
+    },
+    "MESSAGES": {
+      "NO_FINAL_DECISION": "No final decision yet",
+      "PDF_ONLY": "Official documents must be uploaded as PDF files.",
+      "DOCUMENT_UPLOADED": "The document was uploaded and synced to the admin review queue.",
+      "DOCUMENT_UPLOAD_FAILED": "Unable to upload the document right now.",
+      "SAVE_INVALID": "Please complete the required fields before saving the profile.",
+      "SAVE_SUCCESS": "Profile changes were saved and synced to the admin workspace.",
+      "SAVE_FAILED": "Unable to save profile changes right now.",
+      "SUBMIT_INVALID": "Complete the required data and documents before submitting for review.",
+      "SUBMIT_SUCCESS": "The vendor profile was submitted for review and is now visible to admin.",
+      "SUBMIT_FAILED": "Unable to submit the profile for review right now."
+    },
+    "REVIEW_ITEMS": {
+      "COMMERCIAL": "Commercial registration",
+      "TAX": "Tax certificate",
+      "LICENSE": "Operating license",
+      "IDENTITY": "Identity details",
+      "BANK": "Banking details"
+    },
+    "REVIEW_STATUS": {
+      "APPROVED": "Approved",
+      "SUBMITTED": "Submitted",
+      "CHANGES": "Changes requested",
+      "WAIVED": "Waived",
+      "PENDING_VENDOR": "Pending vendor",
+      "AWAITING_SUBMISSION": "Awaiting submission",
+      "UNDER_REVIEW": "Under review",
+      "VERIFIED": "Verified",
+      "REJECTED": "Rejected",
+      "SUSPENDED": "Suspended",
+      "IN_SETUP": "In setup"
+    },
+    "DAYS": {
+      "SATURDAY": "Saturday",
+      "SUNDAY": "Sunday",
+      "MONDAY": "Monday",
+      "TUESDAY": "Tuesday",
+      "WEDNESDAY": "Wednesday",
+      "THURSDAY": "Thursday",
+      "FRIDAY": "Friday"
+    },
+    "COMMAND_CENTER": {
+      "READINESS": "Readiness",
+      "ACCOUNT_STATUS": "Account:",
+      "LAST_DECISION": "Decision:",
+      "MISSING": "Missing",
+      "IN_REVIEW": "In Review",
+      "APPROVED": "Approved",
+      "SAVE": "Save",
+      "VENDOR_PROFILE": "VENDOR PROFILE"
+    }
+  },
+  "STAFF_BRANCHES": {
+    "TITLE": "Branches & Staff",
+    "SUBTITLE": "Manage branches, operating teams, and invitation flows from one operational workspace.",
+    "HEADER": {
+      "BRANCHES_COUNT": "{{count}} branches",
+      "EMPLOYEES_COUNT": "{{count}} team members"
+    },
+    "VIEWS": {
+      "BRANCHES": "Branches",
+      "EMPLOYEES": "Employees",
+      "INVITATIONS": "Invitations"
+    },
+    "SECTIONS": {
+      "BRANCHES_TITLE": "Branch operations map",
+      "BRANCHES_SUBTITLE": "Track your main branch, new branches under review, and operating readiness.",
+      "EMPLOYEES_TITLE": "Store team",
+      "EMPLOYEES_SUBTITLE": "Manage operational roles, branch access, and the current employee status.",
+      "INVITATIONS_TITLE": "Invitation control center",
+      "INVITATIONS_SUBTITLE": "Resend, revoke, and follow every pending branch manager or employee invitation."
+    },
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Use focused filters to narrow the current table without leaving the page.",
+      "SEARCH": "Search",
+      "STATUS": "Status",
+      "CITY": "City",
+      "MANAGER": "Manager",
+      "TEMPLATE": "Template",
+      "BRANCH": "Branch",
+      "TYPE": "Invitation type",
+      "ALL_STATUSES": "All statuses",
+      "ALL_CITIES": "All cities",
+      "ALL_MANAGERS": "All managers",
+      "ALL_TEMPLATES": "All templates",
+      "ALL_BRANCHES": "All branches",
+      "ALL_TYPES": "All types",
+      "RESET": "Reset"
+    },
+    "SEARCH": {
+      "BRANCHES": "Search by branch, manager, or code",
+      "EMPLOYEES": "Search by employee name or contact",
+      "INVITATIONS": "Search by invitation target or contact"
+    },
+    "TABLE": {
+      "BRANCH": "Branch",
+      "TYPE": "Type",
+      "CITY": "City",
+      "MANAGER": "Manager",
+      "WORKING_DAYS": "Working days",
+      "CONTACT": "Contact",
+      "EMPLOYEE": "Employee",
+      "TEMPLATE": "Role template",
+      "BRANCH_ACCESS": "Branch access",
+      "LAST_ACTIVE": "Last activity",
+      "INVITATION_TYPE": "Invitation type",
+      "TARGET": "Target",
+      "SENT_AT": "Sent at",
+      "EXPIRES_AT": "Expires at",
+      "DAYS_VALUE": "{{count}} days",
+      "NO_ACTIVITY": "No activity yet"
+    },
+    "ACTIONS": {
+      "ADD_BRANCH": "Add branch",
+      "INVITE_EMPLOYEE": "Invite employee",
+      "CREATE_EMPLOYEE": "Create employee",
+      "VIEW_DETAILS": "View details",
+      "ACTIVATE": "Activate",
+      "SUSPEND": "Suspend",
+      "REACTIVATE": "Reactivate",
+      "ARCHIVE": "Archive",
+      "EDIT_PERMISSIONS": "Edit permissions",
+      "COPY_LINK": "Copy link",
+      "RESEND": "Resend",
+      "REVOKE": "Revoke",
+      "CREATE_BRANCH": "Create branch",
+      "SEND_INVITATION": "Send invitation",
+      "SAVE_PERMISSIONS": "Save permissions"
+    },
+    "BRANCH_TYPES": {
+      "PRIMARY": "Primary branch",
+      "BRANCH": "Sub-branch"
+    },
+    "STATUSES": {
+      "BRANCH_ACTIVE": "Active",
+      "BRANCH_PENDING": "Pending review",
+      "BRANCH_SUSPENDED": "Suspended",
+      "BRANCH_ARCHIVED": "Archived",
+      "EMPLOYEE_ACTIVE": "Active",
+      "EMPLOYEE_INVITED": "Invited",
+      "EMPLOYEE_SUSPENDED": "Suspended",
+      "INVITATION_PENDING": "Pending",
+      "INVITATION_ACCEPTED": "Accepted",
+      "INVITATION_EXPIRED": "Expired",
+      "INVITATION_REVOKED": "Revoked",
+      "INVITATION_DELIVERY_FAILED": "Email failed"
+    },
+    "INVITATION_TYPES": {
+      "BRANCH_MANAGER": "Branch manager",
+      "EMPLOYEE": "Employee"
+    },
+    "EMPTY": {
+      "BRANCHES": "No branches match the active filters.",
+      "EMPLOYEES": "No employees match the active filters.",
+      "INVITATIONS": "No invitations match the active filters."
+    },
+    "BRANCH_WIZARD": {
+      "EYEBROW": "New branch",
+      "TITLE": "Create a sub-branch under the main store",
+      "SUBTITLE": "Add operational details, assign coverage, and invite the branch manager in one flow.",
+      "STEPS": {
+        "INFO": "Branch info",
+        "LOCATION": "Location & operations",
+        "MANAGER": "Manager invitation"
+      },
+      "FIELDS": {
+        "NAME": "Branch name",
+        "CODE": "Branch code",
+        "PHONE": "Branch phone",
+        "TYPE": "Branch type",
+        "MANAGER_NAME": "Branch manager name",
+        "ADDRESS": "Address details",
+        "DELIVERY_RADIUS": "Delivery radius (km)",
+        "MANAGER_CONTACT": "Manager email",
+        "MESSAGE": "Internal invitation note"
+      },
+      "PRIMARY_WARNING": "A primary branch already exists. New entries will be created as sub-branches pending review.",
+      "OPERATING_HOURS_TITLE": "Operating hours",
+      "OPERATING_HOURS_HINT": "Choose the operating days for this branch before it goes live.",
+      "SUMMARY_BRANCH": "Branch",
+      "SUMMARY_CITY": "City",
+      "SUMMARY_MANAGER": "Manager"
+    },
+    "EMPLOYEE_MODAL": {
+      "EYEBROW": "Team access",
+      "TITLE": "Invite an employee",
+      "SUBTITLE": "Send an invitation to a regular email address, assign branch access, and start from a ready-made permission template.",
+      "EDIT_TITLE": "Adjust employee permissions",
+      "EDIT_SUBTITLE": "Review the role template and fine-tune permissions for the selected employee.",
+      "IDENTITY_TITLE": "Employee identity",
+      "FIELDS": {
+        "NAME": "Full name",
+        "CONTACT": "Email address"
+      },
+      "TEMPLATE_TITLE": "Role template",
+      "BRANCH_ACCESS_TITLE": "Branch access",
+      "BRANCH_ACCESS_HINT": "Select the branches this employee can operate in.",
+      "BRANCH_ACCESS_LOCKED": "Branch access stays locked while editing an existing employee in this v1 flow.",
+      "PERMISSIONS_TITLE": "Permission matrix",
+      "PERMISSIONS_HINT": "Keep the ready template or switch to advanced customization for specific modules.",
+      "CUSTOMIZE": "Advanced customization",
+      "USING_TEMPLATE": "Using template"
+    },
+    "TEMPLATES": {
+      "BRANCH_MANAGER": "Branch manager",
+      "BRANCH_MANAGER_HINT": "Best for supervising orders, stock, and offers at one or more branches.",
+      "ORDERS_CLERK": "Orders clerk",
+      "ORDERS_CLERK_HINT": "Focused on order queue handling, approvals, and shipment follow-up.",
+      "INVENTORY_CLERK": "Inventory clerk",
+      "INVENTORY_CLERK_HINT": "Designed for stock updates, inventory checks, and availability changes."
+    },
+    "PERMISSIONS": {
+      "MODULE": "Module",
+      "ACTIONS": {
+        "VIEW": "View",
+        "MANAGE": "Manage",
+        "APPROVE": "Approve",
+        "EXPORT": "Export"
+      },
+      "MODULES": {
+        "DASHBOARD": "Dashboard",
+        "PRODUCTS": "Products",
+        "INVENTORY": "Inventory",
+        "ORDERS": "Orders",
+        "OFFERS": "Offers",
+        "BRANCHES_STAFF": "Branches & staff",
+        "PROFILE": "Profile",
+        "FINANCE": "Finance"
+      }
+    },
+    "FEEDBACK": {
+      "BRANCH_CREATED": "The new branch was added and a manager invitation was sent by email.",
+      "PERMISSIONS_UPDATED": "Employee permissions were updated.",
+      "EMPLOYEE_CREATED": "The employee was created successfully.",
+      "EMPLOYEE_INVITED": "The employee invitation was sent successfully.",
+      "EMPLOYEE_ACTIVATED": "The employee was activated.",
+      "EMPLOYEE_SUSPENDED": "The employee was suspended.",
+      "BRANCH_STATUS_UPDATED": "Branch status was updated.",
+      "LINK_COPIED": "Invitation link copied.",
+      "LINK_COPY_FALLBACK": "Copy failed here. You can still copy the link manually.",
+      "INVITATION_RESENT": "Invitation resent successfully.",
+      "INVITATION_REVOKED": "Invitation was revoked.",
+      "INVITATION_SEND_FAILED": "The invitation email could not be sent. Check the address and email provider, then try again.",
+      "INVITATION_ACTION_FAILED": "The invitation action could not be completed. Please try again."
+    },
+    "ACCEPT": {
+      "LOADING": "Loading invitation...",
+      "EYEBROW": "Vendor invitation",
+      "TITLE": "Create your staff access",
+      "SUBTITLE": "You have been invited to join {{vendor}} on Zadana Vendor Panel.",
+      "INVITED_AS": "Invited as",
+      "EMAIL": "Email",
+      "EXPIRES": "Expires",
+      "FULL_NAME": "Full name",
+      "PASSWORD": "Password",
+      "CONFIRM_PASSWORD": "Confirm password",
+      "SUBMIT": "Accept invitation",
+      "SUBMITTING": "Creating access...",
+      "WEAK_PASSWORD": "Enter your name and a password of at least 8 characters.",
+      "PASSWORD_MISMATCH": "Passwords do not match.",
+      "FAILED": "The invitation could not be accepted. It may have expired or already been used.",
+      "INVALID_EYEBROW": "Invitation unavailable",
+      "INVALID_TITLE": "This invitation is not active",
+      "INVALID_BODY": "The invitation link is expired, revoked, or already accepted.",
+      "SUCCESS_EYEBROW": "Access ready",
+      "SUCCESS_TITLE": "Your account is active",
+      "SUCCESS_BODY": "You can now sign in with the invited email and the password you just created.",
+      "LOGIN": "Go to login"
+    },
+    "DETAILS": {
+      "BRANCH": {
+        "OVERVIEW_TITLE": "Branch overview",
+        "OVERVIEW_SUBTITLE": "Key operational information for this branch and its current readiness.",
+        "FIELDS": {
+          "CODE": "Branch code",
+          "PHONE": "Branch phone",
+          "CITY": "City",
+          "REGION": "Region",
+          "DELIVERY_RADIUS": "Delivery radius"
+        },
+        "KM": "km",
+        "HOURS_TITLE": "Operating hours",
+        "HOURS_SUBTITLE": "The active schedule used by this branch across the week.",
+        "TEAM_TITLE": "Assigned team",
+        "TEAM_SUBTITLE": "Employees currently linked to this branch and their operational role.",
+        "EMPTY_TEAM": "No employees are linked to this branch yet.",
+        "MANAGER_TITLE": "Branch manager",
+        "MANAGER_SUBTITLE": "Primary contact responsible for this branch.",
+        "SUMMARY_TITLE": "Quick summary",
+        "SUMMARY_SUBTITLE": "Operational numbers to understand branch readiness at a glance.",
+        "METRICS": {
+          "TEAM_SIZE": "Team size",
+          "PENDING_INVITATIONS": "Pending invitations",
+          "WORKING_DAYS": "Working days",
+          "DELIVERY_RADIUS": "Delivery radius"
+        },
+        "INVITATIONS_TITLE": "Invitation activity",
+        "INVITATIONS_SUBTITLE": "Recent branch-related invitations and their current status.",
+        "EMPTY_INVITATIONS": "No invitations are linked to this branch."
+      },
+      "EMPLOYEE": {
+        "IDENTITY_TITLE": "Employee profile",
+        "IDENTITY_SUBTITLE": "Identity, role template, and the latest operational activity.",
+        "BRANCH_ACCESS_TITLE": "Branch access",
+        "BRANCH_ACCESS_SUBTITLE": "Branches this employee can currently operate in.",
+        "EMPTY_BRANCHES": "No branches are assigned to this employee.",
+        "INVITATIONS_TITLE": "Invitation history",
+        "INVITATIONS_SUBTITLE": "Invitation records connected to this employee identity.",
+        "EMPTY_INVITATIONS": "No invitations are linked to this employee.",
+        "PERMISSIONS_TITLE": "Permission matrix",
+        "PERMISSIONS_SUBTITLE": "A read-only view of the effective permissions across operational modules.",
+        "SUMMARY_TITLE": "Operational footprint",
+        "SUMMARY_SUBTITLE": "A compact summary of branch access and invitation coverage.",
+        "METRICS": {
+          "BRANCHES": "Branches",
+          "INVITATIONS": "Invitations"
+        }
+      },
+      "INVITATION": {
+        "OVERVIEW_TITLE": "Invitation overview",
+        "OVERVIEW_SUBTITLE": "Track the target, delivery window, and invitation lifecycle details.",
+        "BRANCHES_TITLE": "Linked branches",
+        "BRANCHES_SUBTITLE": "Branches this invitation currently grants access to.",
+        "EMPTY_BRANCHES": "No branches are linked to this invitation.",
+        "LINK_TITLE": "Invitation link",
+        "LINK_SUBTITLE": "Use this direct link when you need to resend or share access manually.",
+        "MATCH_TITLE": "Matched employee",
+        "MATCH_SUBTITLE": "If the invited person already exists in the team workspace, it appears here.",
+        "NO_MATCH": "No matching employee was found yet for this invitation.",
+        "TIMELINE_TITLE": "Invitation timeline",
+        "TIMELINE_SUBTITLE": "A quick view of when the invitation was sent and where it stands now.",
+        "TIMELINE": {
+          "SENT": "Invitation sent"
+        }
+      }
+    }
+  },
+  "REVIEWS": {
+    "TITLE": "Customer Reviews Center",
+    "SUBTITLE": "Track product and order experience reviews from one workspace, reply as the vendor, and hide reviews when needed without deleting them.",
+    "ACTIONS": {
+      "RESET_DEMO": "Reset demo data",
+      "VIEW": "View",
+      "REPLY": "Reply",
+      "EDIT_REPLY": "Edit reply",
+      "HIDE": "Hide",
+      "SHOW": "Show",
+      "OPEN_REFERENCE": "Open reference",
+      "UPDATE_REPLY": "Update reply",
+      "SEND_REPLY": "Send reply"
+    },
+    "SUMMARY": {
+      "AVERAGE_RATING": "Average rating",
+      "TOTAL_REVIEWS": "Total reviews",
+      "TOTAL_HINT": "All reviews currently stored in this workspace",
+      "PENDING_REPLY": "Pending reply",
+      "PENDING_HINT": "Reviews that still need an official vendor response",
+      "HIDDEN": "Hidden",
+      "HIDDEN_HINT": "Reviews currently hidden from the operational view"
+    },
+    "QUICK_TABS": {
+      "ALL": "All",
+      "NEEDS_REPLY": "Needs reply",
+      "LOW_RATING": "Low rating",
+      "HIDDEN": "Hidden"
+    },
+    "SECTION_TITLE": "Unified reviews log",
+    "SECTION_SUBTITLE": "Review every rating, open details, respond to customers, and track what needs attention.",
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Filter by type, stars, visibility, reply state, and date within the same table.",
+      "RESET": "Reset",
+      "SEARCH": "Search",
+      "TYPE": "Type",
+      "ALL_TYPES": "All types",
+      "RATING": "Rating",
+      "ALL_RATINGS": "All ratings",
+      "STARS_VALUE": "{{count}} stars",
+      "VISIBILITY": "Visibility",
+      "ALL_VISIBILITY": "All visibility states",
+      "REPLY_STATUS": "Reply status",
+      "ALL_REPLY_STATUS": "All reply states",
+      "DATE_FROM": "Date from",
+      "DATE_TO": "Date to",
+      "SORT": "Sort"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Search by customer, product, order number, or comment text"
+    },
+    "SORT": {
+      "NEWEST": "Newest",
+      "RATING_LOW": "Lowest rated",
+      "RATING_HIGH": "Highest rated"
+    },
+    "TABLE": {
+      "CUSTOMER": "Customer",
+      "TYPE": "Type",
+      "REFERENCE": "Reference",
+      "RATING": "Rating",
+      "COMMENT": "Comment",
+      "VISIBILITY": "Visibility",
+      "REPLY_STATUS": "Reply status",
+      "DATE": "Date"
+    },
+    "BADGES": {
+      "VERIFIED": "Verified purchase",
+      "NEEDS_ATTENTION": "Needs attention"
+    },
+    "TYPES": {
+      "PRODUCT": "Product review",
+      "ORDER": "Order review"
+    },
+    "VISIBILITY": {
+      "PUBLISHED": "Published",
+      "HIDDEN": "Hidden"
+    },
+    "REPLY_STATUS": {
+      "NONE": "No reply",
+      "REPLIED": "Replied"
+    },
+    "EMPTY": {
+      "TITLE": "No matching reviews",
+      "SUBTITLE": "Try adjusting the filters or reset the demo data to reload the full review log."
+    },
+    "DRAWER": {
+      "EYEBROW": "Review details",
+      "REFERENCE": "Linked reference",
+      "CUSTOMER": "Customer",
+      "COMMENT": "Review comment",
+      "ORDER_BREAKDOWN_TITLE": "Order experience breakdown",
+      "ORDER_BREAKDOWN_SUBTITLE": "Internal view of delivery, packaging, and accuracy for this review.",
+      "MEDIA_TITLE": "Customer attachments",
+      "MEDIA_SUBTITLE": "Images or screenshots attached to the current review.",
+      "REPLY_TITLE": "Official vendor reply",
+      "REPLY_SUBTITLE": "Write a clear professional response that appears as the vendor reply and can be updated later.",
+      "CURRENT_REPLY": "Current reply",
+      "REPLY_UPDATED_AT": "Last updated: {{date}}",
+      "REPLY_SENT_AT": "Replied at: {{date}}",
+      "REPLY_FIELD": "Reply message",
+      "REPLY_PLACEHOLDER": "Write a short professional reply that explains the action taken or the relevant clarification..."
+    },
+    "BREAKDOWN": {
+      "DELIVERY": "Delivery",
+      "PACKAGING": "Packaging",
+      "ACCURACY": "Accuracy"
+    },
+    "FEEDBACK": {
+      "REPLY_UPDATED": "The review reply was updated.",
+      "REPLY_SENT": "The reply was sent successfully.",
+      "REVIEW_PUBLISHED": "The review is visible again.",
+      "REVIEW_HIDDEN": "The review was hidden from the current view.",
+      "SEED_RESET": "The demo reviews data was reset."
+    }
+  },
+  "VENDOR_FINANCE": {
+    "TITLE": "My Wallet",
+    "SUBTITLE": "Track your balance, settlements, and payout movements with the same operational clarity used in super admin.",
+    "PERIODS": {
+      "TODAY": "Today",
+      "WEEK": "This Week",
+      "MONTH": "This Month",
+      "QUARTER": "This Quarter"
+    },
+    "ACTIONS": {
+      "VIEW_REPORTS": "View Reports",
+      "DOWNLOAD_STATEMENT": "Download Statement",
+      "REQUEST_PAYOUT": "Request Payout",
+      "PAYOUT_SUCCESS_MSG": "Payout request submitted successfully and is pending review"
+    },
+    "LIFECYCLE_MODES": {
+      "PerOrderDirectPayout": "Per Order",
+      "Weekly": "Weekly",
+      "Biweekly": "Every Two Weeks",
+      "Monthly": "Monthly"
+    },
+    "OVERVIEW": {
+      "AVAILABLE_BALANCE": "Available Balance",
+      "PENDING_SETTLEMENT": "Pending Settlement",
+      "NEXT_PAYOUT": "Next Payout",
+      "HOLD_AMOUNT": "Hold Amount"
+    },
+    "KPIS": {
+      "NET_SALES": "Net Sales",
+      "PAYOUTS": "Vendor Payouts",
+      "FEES": "Platform Fees",
+      "REFUNDS": "Refunds",
+      "GROSS_SALES": "Gross Sales",
+      "VENDOR_PROFIT": "Vendor Profit",
+      "PLATFORM_FEES": "Platform Fees",
+      "VENDOR_NET": "Vendor Net"
+    },
+    "CHART": {
+      "TITLE": "Sales vs Payouts Trend",
+      "SALES": "Sales",
+      "PAYOUTS": "Payouts",
+      "DETAILS": "Detailed View",
+      "PEAK_SALES": "Top sales window",
+      "PEAK_PAYOUTS": "Top payout window",
+      "AVG_SALES": "Average sales",
+      "AVG_PAYOUTS": "Average payouts",
+      "NET_GAP": "Net gap",
+      "BREAKDOWN": "Period breakdown"
+    },
+    "PAYOUT_METHODS": {
+      "BANK_TRANSFER": "Bank Transfer"
+    },
+    "SETTLEMENTS": {
+      "TITLE": "Recent Settlements",
+      "BATCH_ID": "Batch ID",
+      "PAID": "Paid",
+      "PROCESSING": "Processing",
+      "SCHEDULED": "Scheduled"
+    },
+    "LEDGER": {
+      "TITLE": "Period Transactions",
+      "DESCRIPTION": "Description",
+      "REF": "Ref",
+      "PAGE_STATUS": "Page {{page}} of {{totalPages}}",
+      "REFERENCES": {
+        "ORDER_REVENUE": "Order Revenue",
+        "VENDOR_RECOVERY": "Vendor Recovery"
+      },
+      "COMMISSION": "Commission",
+      "PAYOUT": "Payout",
+      "FEE": "Fee",
+      "REFUND": "Refund"
+    },
+    "ALERTS": {
+      "TITLE": "Action Center",
+      "EMPTY": "All caught up. No new alerts."
+    },
+    "MONTHS": {
+      "JAN": "Jan",
+      "FEB": "Feb",
+      "MAR": "Mar",
+      "APR": "Apr",
+      "MAY": "May",
+      "JUN": "Jun",
+      "JUL": "Jul",
+      "AUG": "Aug",
+      "SEP": "Sep",
+      "OCT": "Oct",
+      "NOV": "Nov",
+      "DEC": "Dec"
+    },
+    "DAYS": {
+      "MON": "Mon",
+      "TUE": "Tue",
+      "WED": "Wed",
+      "THU": "Thu",
+      "FRI": "Fri",
+      "SAT": "Sat",
+      "SUN": "Sun"
+    }
+  }
+}

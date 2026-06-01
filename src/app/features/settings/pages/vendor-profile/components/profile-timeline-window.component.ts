@@ -1,10 +1,11 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AppPageSectionShellComponent } from '../../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
 import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor-profile.models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-profile-timeline-window',
   standalone: true,
   imports: [CommonModule, NgClass, TranslateModule, AppPageSectionShellComponent],

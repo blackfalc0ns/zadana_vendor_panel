@@ -1,0 +1,361 @@
+{
+  "ORDERS": {
+    "LIST_TITLE": "إدارة الطلبات",
+    "LIST_SUBTITLE": "تتبع حالات الطلبات الواردة وتجهيزها",
+    "SUMMARY": {
+      "TOTAL": "إجمالي الطلبات",
+      "NEW": "طلبات جديدة",
+      "IN_PROGRESS": "قيد التجهيز",
+      "LATE": "طلبات متأخرة"
+    },
+    "CREATE_MANUAL_ORDER": "إنشاء طلب يدوي",
+    "CREATE_MANUAL_ORDER_DESC": "قم بإنشاء طلب جديد لعميلك مباشرة من هنا.",
+    "SELECT_CUSTOMER": "اختيار العميل",
+    "ADD_PRODUCTS": "إضافة المنتجات",
+    "ORDER_SUMMARY": "ملخص الطلب",
+    "CUSTOMER_PHONE": "رقم هاتف العميل",
+    "CUSTOMER_NAME": "اسم العميل",
+    "DELIVERY_ADDRESS": "عنوان التوصيل",
+    "SELECTED_ITEMS": "الأصناف المختارة",
+    "NO_ITEMS_SELECTED": "لم يتم اختيار أصناف بعد",
+    "CONFIRM_ORDER": "تأكيد الطلب",
+    "REVIEW_BEFORE_SUBMIT": "يرجى مراجعة بيانات الطلب قبل التأكيد",
+    "CUSTOMER_INFO": "بيانات العميل",
+    "PAYMENT_DETAILS": "بيانات الدفع",
+    "PAYMENT_ON_DELIVERY": "الدفع عند الاستلام",
+    "ORDER_ITEMS": "أصناف الطلب",
+    "ITEM": "الصنف",
+    "QTY": "الكمية",
+    "PLACE_ORDER": "إنشاء الطلب",
+    "ORDER_PLACED_SUCCESS": "تم إنشاء الطلب بنجاح",
+    "SEARCH_PLACEHOLDER": "بحث برقم الطلب أو اسم العميل...",
+    "FILTERS": {
+      "TITLE": "فلاتر الطلبات",
+      "SUBTITLE": "تضييق النطاق بحسب الحالة والوقت وطريقة الدفع",
+      "SEARCH": "بحث",
+      "RESET": "إعادة تعيين",
+      "STATUS": "الحالة",
+      "ALL_STATUSES": "كل الحالات",
+      "PAYMENT_METHOD": "طريقة الدفع",
+      "ALL_PAYMENT_METHODS": "كل طرق الدفع",
+      "PAYMENT_CARD": "بطاقة",
+      "PAYMENT_COD": "دفع عند الاستلام",
+      "TIMING": "الوقت",
+      "ALL_TIMING": "كل الأوقات",
+      "TIMING_LATE": "المتأخرة فقط",
+      "TIMING_ONTIME": "في الموعد"
+    },
+    "HEADER_ORDER_ID": "رقم الطلب",
+    "HEADER_CUSTOMER": "العميل",
+    "HEADER_DATE": "التاريخ",
+    "HEADER_ITEMS": "المنتجات",
+    "HEADER_TOTAL": "الإجمالي",
+    "HEADER_STATUS": "الحالة",
+    "STATUS_NEW": "طلب جديد",
+    "STATUS_CONFIRMED": "تم التأكيد",
+    "STATUS_IN_PROGRESS": "قيد التجهيز",
+    "STATUS_READY": "جاهز للتسليم",
+    "STATUS_READY_FOR_PICKUP": "جاهز للاستلام",
+    "STATUS_PICKED_UP": "تم الاستلام من المتجر",
+    "STATUS_OUT_FOR_DELIVERY": "في الطريق للعميل",
+    "STATUS_DRIVER_ASSIGNED": "تم تعيين مندوب",
+    "STATUS_DRIVER_ASSIGNMENT_IN_PROGRESS": "جاري البحث عن مندوب",
+    "STATUS_DELIVERED": "تم التسليم",
+    "STATUS_COMPLETED": "مكتمل",
+    "STATUS_CANCELLED": "ملغي",
+    "STATUS_RETURNED": "مرتجع",
+    "STATUS_DELIVERY_FAILED": "فشل التوصيل",
+    "STATUS_REFUNDED": "تم الاسترداد",
+    "TAB_ALL": "الكل",
+    "TAB_NEW": "جديدة",
+    "TAB_PREPARING": "قيد التحضير",
+    "TAB_READY": "جاهزة للتسليم",
+    "TAB_COMPLETED": "مكتملة",
+    "DETAIL_TITLE": "تفاصيل الطلب",
+    "DETAIL_TIMELINE": "تتبع حالة الطلب",
+    "DETAIL_CUSTOMER": "بيانات العميل",
+    "DETAIL_DRIVER": "بيانات المندوب",
+    "DETAIL_ITEMS": "المنتجات المطلوبة",
+    "DETAIL_SUMMARY": "ملخص الفاتورة",
+    "SUBTOTAL": "المجموع الفرعي",
+    "DELIVERY_FEE": "رسوم التوصيل",
+    "TAX": "الضريبة",
+    "GRAND_TOTAL": "الإجمالي الكلي",
+    "CURRENCY": "ج.م",
+    "ITEMS_COUNT": "{{count}} منتج",
+    "ITEM_COUNT": "منتج واحد",
+    "EMPTY_TITLE": "لا توجد طلبات حالياً",
+    "EMPTY_DESC": "ستظهر الطلبات الجديدة هنا فور استلامها",
+    "ACTION_CONFIRM": "تأكيد الطلب",
+    "ACTION_START_PREPARING": "بدء التجهيز",
+    "ACTION_MARK_READY": "جاهز للتسليم",
+    "LATE_ALERT": "تأخير في التحضير",
+    "DRIVER_VEHICLE": "نوع المركبة",
+    "DRIVER_PLATE": "رقم اللوحة",
+    "ESTIMATED_DELIVERY": "الوقت المتوقع",
+    "DRIVER_NOT_ASSIGNED": "لم يتم تعيين مندوب بعد",
+    "PAYLOAD_COMPONENTS": "{{count}} مكونات الشحنة",
+    "DIGITAL_MANIFEST": "البيان الرقمي",
+    "QUANTITY_LABEL": "الكمية",
+    "AUTHENTICATED_CLIENT": "عميل مصادق عليه",
+    "VERIFIED_SECURE": "عملية مؤمنة ومحققة",
+    "SATELLITE_TELEMETRY": "تتبع القمر الصناعي",
+    "CARRIER_HANDOVER": "بروتوكول تسليم الطلب",
+    "SYNCHRONIZE_HANDOFF": "يرجى إدخال رمز الأمان المكون من 4 أرقام لتزامن عملية التسليم مع المندوب المعتمد.",
+    "AUTHORIZE_HANDOVER": "تأكيد التسليم الآمن",
+    "CARRIER_SYNTHESIS": "جارٍ تخصيص المندوب",
+    "LOGISTICS_ORCHESTRATION": "يتم الآن تحليل الشبكة اللوجستية لتخصيص أقرب مندوب متاح."
+  },
+  "SUPPORT_CENTER": {
+    "TITLE": "مركز الدعم والمرجع",
+    "SUBTITLE": "تابع تذاكر الدعم المفتوحة وارجع إلى الأدلة التشغيلية من نفس الصفحة بأسلوب واضح يشبه تجربة السوبر أدمن.",
+    "TABS": {
+      "SUPPORT": "الدعم",
+      "REFERENCE": "المرجع"
+    },
+    "SUMMARY": {
+      "OPEN_TICKETS": "تذاكر مفتوحة",
+      "OPEN_TICKETS_HINT": "حالات لا تزال تحتاج متابعة أو إغلاقًا من فريق الدعم.",
+      "PENDING_FOLLOWUPS": "بانتظار ردك",
+      "PENDING_FOLLOWUPS_HINT": "تذاكر تحتاج منك مستندًا أو توضيحًا قبل استكمال المعالجة.",
+      "AVG_RESPONSE": "متوسط أول رد",
+      "AVG_RESPONSE_HINT": "متوسط زمني تقريبي لأول استجابة من فريق الدعم.",
+      "REFERENCE_COUNT": "مراجع جاهزة",
+      "REFERENCE_COUNT_HINT": "أدلة وسياسات سريعة تساعدك قبل فتح تذكرة جديدة."
+    },
+    "FILTERS": {
+      "TITLE": "الفلاتر",
+      "SUBTITLE": "خصص العرض الحالي بسرعة حسب نوع الحالة أو التصنيف أو الأولوية.",
+      "RESET": "إعادة تعيين",
+      "SEARCH": "بحث",
+      "CATEGORY": "التصنيف",
+      "PRIORITY": "الأولوية",
+      "TYPE": "النوع",
+      "ALL_STATUSES": "كل الحالات",
+      "ALL_PRIORITIES": "كل الأولويات",
+      "ALL_CATEGORIES": "كل التصنيفات",
+      "ALL_TYPES": "كل الأنواع"
+    },
+    "SEARCH": {
+      "TICKETS": "ابحث برقم التذكرة أو عنوان الحالة أو ملخصها",
+      "ARTICLES": "ابحث داخل العناوين والملخصات المرجعية"
+    },
+    "SECTIONS": {
+      "SUPPORT_TITLE": "حالات الدعم المفتوحة",
+      "SUPPORT_SUBTITLE": "راجع التذاكر الحالية وتابع الردود والتصعيد من نفس الشاشة.",
+      "REFERENCE_TITLE": "المرجع التشغيلي",
+      "REFERENCE_SUBTITLE": "أدلة قصيرة وسياسات عملية قبل فتح تذكرة جديدة."
+    },
+    "TABLE": {
+      "REFERENCE": "المرجع",
+      "SUBJECT": "الموضوع",
+      "PRIORITY": "الأولوية",
+      "UPDATED": "آخر تحديث"
+    },
+    "STATUSES": {
+      "OPEN": "مفتوحة",
+      "IN_PROGRESS": "قيد المعالجة",
+      "WAITING_VENDOR": "بانتظار المورد",
+      "RESOLVED": "تم الحل"
+    },
+    "PRIORITIES": {
+      "LOW": "منخفضة",
+      "MEDIUM": "متوسطة",
+      "HIGH": "مرتفعة",
+      "URGENT": "عاجلة"
+    },
+    "CATEGORIES": {
+      "ORDERS": "الطلبات",
+      "PRODUCTS": "المنتجات",
+      "FINANCE": "المالية",
+      "OFFERS": "العروض",
+      "STAFF": "الفروع والموظفون",
+      "PROFILE": "ملف المورد",
+      "TECHNICAL": "تقني",
+      "GENERAL": "عام"
+    },
+    "ARTICLE_TYPES": {
+      "GUIDE": "دليل",
+      "POLICY": "سياسة",
+      "CHECKLIST": "قائمة تحقق"
+    },
+    "TAGS": {
+      "ESCALATED": "مصعّدة",
+      "SLA_ACTIVE": "مهلة متابعة نشطة",
+      "FINANCE_REVIEW": "مراجعة مالية",
+      "WAITING_VENDOR": "بانتظار بياناتك",
+      "DOCS_REQUIRED": "مستندات مطلوبة",
+      "RESOLVED": "مغلقة بعد الحل",
+      "NEW_CASE": "حالة جديدة"
+    },
+    "ACTIONS": {
+      "CREATE_TICKET": "فتح تذكرة",
+      "RESET_DEMO": "إعادة بيانات التجربة",
+      "OPEN_TICKET": "عرض الحالة",
+      "OPEN_REFERENCE": "عرض المرجع",
+      "OPEN_LINKED_PATH": "فتح الصفحة المرتبطة",
+      "SEND_MESSAGE": "إرسال الرد",
+      "OPEN_SUPPORT_FROM_REFERENCE": "افتح تذكرة من هذا المرجع",
+      "SUBMIT_TICKET": "إرسال التذكرة"
+    },
+    "DETAIL": {
+      "SUMMARY_TITLE": "ملخص الحالة",
+      "ASSIGNED_AGENT": "المسؤول الحالي",
+      "REFERENCE": "مرجع التذكرة",
+      "THREAD_TITLE": "سجل المتابعة",
+      "THREAD_SUBTITLE": "كل الرسائل بينك وبين فريق الدعم تظهر هنا بترتيب زمني.",
+      "RELATED_REFERENCE_TITLE": "مراجع مرتبطة",
+      "RELATED_REFERENCE_SUBTITLE": "أدلة وسياسات من نفس التصنيف تساعدك على إنهاء الحالة بسرعة أكبر.",
+      "COMPOSER_TITLE": "أضف ردًا جديدًا",
+      "COMPOSER_SUBTITLE": "أرسل تحديثًا واضحًا أو أرفق التوضيح المطلوب لاستكمال المعالجة.",
+      "MESSAGE_FIELD": "الرسالة",
+      "MESSAGE_PLACEHOLDER": "اكتب ردك أو التوضيح الذي تريد إضافته إلى التذكرة",
+      "CLOSED_BANNER": "تم إغلاق هذه التذكرة. إذا كنت لا تزال تواجه المشكلة، يرجى فتح تذكرة دعم جديدة."
+    },
+    "REFERENCE": {
+      "READ_TIME": "{{count}} دقائق قراءة",
+      "RELATED_PATHS": "صفحات مرتبطة",
+      "ESCALATION_NOTE": "متى تصعّد للدعم",
+      "RELATED_TICKETS_TITLE": "حالات دعم مرتبطة",
+      "RELATED_TICKETS_SUBTITLE": "أحدث التذاكر من نفس التصنيف حتى تربط المرجع بالحالات المشابهة."
+    },
+    "CREATE": {
+      "EYEBROW": "تذكرة جديدة",
+      "TITLE": "افتح حالة دعم جديدة",
+      "SUBTITLE": "اكتب ملخصًا واضحًا حتى يصل الطلب بسرعة للفريق المناسب.",
+      "ORDER_PLACEHOLDER": "اختر طلبًا مرتبطًا عند الحاجة",
+      "FIELDS": {
+        "SUBJECT": "عنوان الحالة",
+        "CATEGORY": "التصنيف",
+        "PRIORITY": "الأولوية",
+        "MESSAGE": "تفاصيل الحالة"
+      },
+      "MESSAGE_PLACEHOLDER": "اشرح المشكلة أو الطلب والخطوات التي قمت بها قبل التواصل مع الدعم"
+    },
+    "EMPTY": {
+      "TICKETS_TITLE": "لا توجد تذاكر مطابقة",
+      "TICKETS_SUBTITLE": "جرّب تخفيف الفلاتر أو افتح تذكرة جديدة من الزر العلوي.",
+      "SELECT_TICKET_TITLE": "اختر حالة لعرض التفاصيل",
+      "SELECT_TICKET_SUBTITLE": "حدد تذكرة من الجدول حتى تظهر بياناتها والمحادثة الجانبية.",
+      "ARTICLES_TITLE": "لا توجد مراجع مطابقة",
+      "ARTICLES_SUBTITLE": "عدّل البحث أو غيّر الفلاتر لإظهار الأدلة المناسبة.",
+      "SELECT_ARTICLE_TITLE": "اختر مرجعًا لعرض التفاصيل",
+      "SELECT_ARTICLE_SUBTITLE": "حدد أي مرجع من القائمة حتى يظهر محتواه وروابطه المرتبطة.",
+      "RELATED_REFERENCE": "لا توجد مراجع مرتبطة بهذه التصنيف حالياً.",
+      "RELATED_TICKETS": "لا توجد تذاكر مرتبطة بهذا التصنيف حالياً."
+    },
+    "FEEDBACK": {
+      "TICKET_CREATED": "تم إنشاء تذكرة الدعم بنجاح.",
+      "TICKET_CREATE_FAILED": "تعذر إنشاء تذكرة الدعم. راجع رقم الطلب وحاول مرة أخرى.",
+      "MESSAGE_SENT": "تم إرسال ردك إلى التذكرة.",
+      "MESSAGE_SEND_FAILED": "تعذر إرسال ردك. حاول مرة أخرى.",
+      "SEED_RESET": "تمت إعادة بيانات الدعم التجريبية."
+    }
+  },
+  "VENDOR_DISPUTES": {
+    "TITLE": "النزاعات",
+    "SUBTITLE": "تابع قضايا الدعم المرتبطة بطلباتك ورد على فريق المراجعة.",
+    "SUMMARY": {
+      "TOTAL": "إجمالي القضايا",
+      "OPEN": "القضايا المفتوحة",
+      "RESPONDED": "تم الرد عليها",
+      "WAITING": "بانتظار ردك"
+    },
+    "FILTERS": {
+      "TITLE": "فلاتر القضايا",
+      "SUBTITLE": "ضيّق قائمة النزاعات حسب الحالة أو نوع القضية.",
+      "SEARCH": "البحث",
+      "SEARCH_PLACEHOLDER": "ابحث برقم القضية أو رقم الطلب أو السبب أو الرسالة",
+      "STATUS": "الحالة",
+      "TYPE": "النوع",
+      "RESET": "إعادة التصفية",
+      "ALL_STATUSES": "كل الحالات",
+      "ALL_TYPES": "كل الأنواع"
+    },
+    "TABLE": {
+      "TITLE": "قائمة النزاعات",
+      "SUBTITLE": "افتح القضية لمراجعة التحديثات والمرفقات والرد عليها.",
+      "CASE": "رقم القضية",
+      "ORDER": "رقم الطلب",
+      "TYPE": "النوع",
+      "PRIORITY": "الأولوية",
+      "UPDATED": "آخر تحديث",
+      "NO_REASON": "لا يوجد سبب"
+    },
+    "TYPE": {
+      "COMPLAINT": "شكوى",
+      "RETURN_REQUEST": "طلب إرجاع",
+      "DRIVER_REPORT": "بلاغ سائق",
+      "DRIVER_DISPUTE": "نزاع سائق"
+    },
+    "STATUS": {
+      "SUBMITTED": "مقدمة",
+      "IN_REVIEW": "قيد المراجعة",
+      "AWAITING_CUSTOMER_EVIDENCE": "بانتظار أدلة العميل",
+      "APPROVED": "تمت الموافقة",
+      "REJECTED": "مرفوضة",
+      "RESOLVED": "مغلقة"
+    },
+    "PRIORITY": {
+      "LOW": "منخفضة",
+      "MEDIUM": "متوسطة",
+      "HIGH": "مرتفعة",
+      "CRITICAL": "حرجة"
+    },
+    "ACTIONS": {
+      "OPEN": "فتح القضية",
+      "SEND_RESPONSE": "إرسال الرد"
+    },
+    "WAITING_ON": {
+      "VENDOR": "بانتظار رد التاجر",
+      "CUSTOMER": "بانتظار رد العميل",
+      "DRIVER": "بانتظار رد المندوب",
+      "ADMIN": "قيد مراجعة الأدمن",
+      "REVIEW": "قيد المراجعة"
+    },
+    "PARTICIPANTS": {
+      "CUSTOMER": "العميل",
+      "VENDOR": "التاجر",
+      "DRIVER": "المندوب"
+    },
+    "EMPTY": {
+      "TITLE": "لا توجد نزاعات",
+      "SUBTITLE": "لا توجد قضايا تطابق الفلاتر الحالية."
+    },
+    "DETAIL": {
+      "TITLE": "قضية نزاع",
+      "SUMMARY_TITLE": "ملخص القضية",
+      "SUMMARY_SUBTITLE": "المعلومات الأساسية للنزاع وسياق المبالغ المرتبطة به.",
+      "QUEUE": "المسار",
+      "WAITING_ON": "بانتظار",
+      "REASON_CODE": "رمز السبب",
+      "REQUESTED_REFUND": "المبلغ المطلوب",
+      "APPROVED_REFUND": "المبلغ المعتمد",
+      "REFUND_METHOD": "طريقة الاسترداد",
+      "COST_BEARER": "متحمل التكلفة",
+      "CLOSED_AT": "تاريخ الإغلاق",
+      "NOTES_TITLE": "ملاحظات القضية",
+      "NOTES_SUBTITLE": "راجع رسالة القضية الأصلية وأي ملاحظات ظاهرة.",
+      "PARTICIPANTS": "الأطراف المشاركة",
+      "CASE_MESSAGE": "رسالة القضية",
+      "CUSTOMER_NOTE": "ملاحظة ظاهرة للعميل",
+      "DECISION_NOTES": "ملاحظات القرار",
+      "YOUR_RESPONSE": "آخر رد منك",
+      "ATTACHMENTS_TITLE": "المرفقات",
+      "ATTACHMENTS_SUBTITLE": "الملفات المرتبطة بهذه القضية.",
+      "OPEN_ATTACHMENT": "فتح المرفق",
+      "NO_ATTACHMENTS": "لا توجد مرفقات لهذه القضية.",
+      "ACTIVITY_TITLE": "سجل النشاط",
+      "ACTIVITY_SUBTITLE": "الأحداث الظاهرة وتحديثات فريق المراجعة.",
+      "CONVERSATION_TITLE": "المحادثة",
+      "CONVERSATION_SUBTITLE": "الرسائل الظاهرة لفريقك داخل هذه القضية.",
+      "REPLY_TITLE": "إرسال رد",
+      "REPLY_SUBTITLE": "أرسل ردًا إلى مراجع القضية مع أي تفاصيل إضافية.",
+      "REPLY_FIELD": "نص الرد",
+      "REPLY_PLACEHOLDER": "اكتب ردك أو التوضيح أو ملخص الأدلة هنا...",
+      "RESPONSE_SENT": "تم إرسال ردك بنجاح.",
+      "RESPONSE_FAILED": "تعذر إرسال ردك حاليًا.",
+      "CLOSED_BANNER": "هذا النزاع مغلق حالياً. لا يمكن إرسال رسائل أو مرفقات إضافية."
+    }
+  }
+}

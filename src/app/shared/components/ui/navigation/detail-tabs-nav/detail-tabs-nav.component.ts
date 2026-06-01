@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, QueryList, ViewChildren, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuickTabVm } from '../../models/ui-contracts.models';
 
@@ -9,6 +9,7 @@ export interface DetailTabNavItem extends QuickTabVm {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-detail-tabs-nav',
   standalone: true,
   imports: [CommonModule, TranslateModule],

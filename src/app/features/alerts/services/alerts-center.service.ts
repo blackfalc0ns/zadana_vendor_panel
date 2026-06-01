@@ -46,6 +46,7 @@ interface NotificationItemApiModel {
   bodyAr: string;
   bodyEn: string;
   type?: string | null;
+  category?: string | null;
   referenceId?: string | null;
   data?: string | null;
   dataObject?: Record<string, unknown> | null;
@@ -60,6 +61,7 @@ interface RealtimeNotificationPayload {
   bodyAr: string;
   bodyEn: string;
   type?: string | null;
+  category?: string | null;
   referenceId?: string | null;
   data?: string | null;
   dataObject?: Record<string, unknown> | null;
@@ -326,6 +328,7 @@ export class AlertsCenterService {
       bodyAr: item.bodyAr,
       bodyEn: item.bodyEn,
       type: item.type,
+      category: item.category,
       referenceId: item.referenceId,
       data: item.data,
       dataObject: item.dataObject,
@@ -472,6 +475,10 @@ export class AlertsCenterService {
   }
 
   private resolveSource(type?: string | null, route?: string | null): AlertCenterItemVm['source'] {
+    if (route?.startsWith('/support')) {
+      return 'support';
+    }
+
     if (type?.startsWith('vendor_')) {
       if (route?.startsWith('/finance')) {
         return 'finance';
@@ -853,6 +860,11 @@ export class AlertsCenterService {
     }
 
     const parsedData = this.tryParseData(data);
+    const ticketId = this.extractGuid(dataObject?.['ticketId']) ?? this.extractGuid(parsedData?.['ticketId']);
+    if (this.isSupportNotification(type, dataObject, parsedData)) {
+      return ticketId ? `/support/tickets/${ticketId}` : '/support';
+    }
+
     const caseId = this.extractGuid(dataObject?.['caseId']) ?? this.extractGuid(parsedData?.['caseId']);
     if (caseId && this.isDisputeNotification(type)) {
       return `/disputes/${caseId}`;
@@ -907,6 +919,20 @@ export class AlertsCenterService {
 
     const normalized = type.toLowerCase();
     return normalized.includes('support_case') || normalized.includes('dispute');
+  }
+
+  private isSupportNotification(
+    type?: string | null,
+    dataObject?: Record<string, unknown> | null,
+    parsedData?: Record<string, unknown> | null
+  ): boolean {
+    const source = `${dataObject?.['source'] ?? ''} ${parsedData?.['source'] ?? ''}`.toLowerCase();
+    const targetCandidate = `${this.extractTargetUrl(dataObject) ?? ''} ${this.extractTargetUrl(parsedData) ?? ''}`.toLowerCase();
+    const normalizedType = (type ?? '').toLowerCase();
+
+    return source.includes('vendor_support')
+      || targetCandidate.includes('/support')
+      || normalizedType.includes('vendor_support_ticket');
   }
 
   private isFinanceNotification(

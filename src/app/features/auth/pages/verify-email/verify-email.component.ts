@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-verify-email',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
@@ -116,6 +117,7 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
   `
 })
 export class VerifyEmailComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   isLoading = false;
   isResending = false;
   errorMessage = '';
@@ -161,11 +163,13 @@ export class VerifyEmailComponent implements OnInit {
 
     this.authService.verifyEmailOtp(`${identifier || ''}`.trim(), `${otpCode || ''}`.trim()).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         this.successMessage = this.isRTL ? 'تم تفعيل البريد الإلكتروني بنجاح.' : 'Email verified successfully.';
         void this.router.navigate(['/submission-success']);
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         this.errorMessage = this.resolveError(error, this.isRTL ? 'تعذر تأكيد الرمز.' : 'Could not verify the code.');
       }
@@ -188,10 +192,12 @@ export class VerifyEmailComponent implements OnInit {
 
     this.authService.resendEmailOtp(identifier).subscribe({
       next: (message) => {
+        this.cdr.markForCheck();
         this.isResending = false;
         this.successMessage = message || (this.isRTL ? 'تم إرسال رمز جديد.' : 'A new OTP has been sent.');
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.isResending = false;
         this.errorMessage = this.resolveError(error, this.isRTL ? 'تعذر إرسال رمز جديد.' : 'Could not resend the OTP.');
       }

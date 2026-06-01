@@ -1,9 +1,10 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { EmptyStateVm } from '../../models/ui-contracts.models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-empty-state',
   standalone: true,
   imports: [CommonModule, NgClass, TranslateModule],

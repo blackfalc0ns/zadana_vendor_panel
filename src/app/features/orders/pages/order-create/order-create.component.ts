@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -9,8 +9,10 @@ import { Category, VendorProduct } from '../../../products/models/catalog.models
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppCategorySelectorComponent } from '../../../../shared/components/ui/category-selector/category-selector.component';
+import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-manual-order-create',
   standalone: true,
   imports: [
@@ -239,6 +241,7 @@ import { AppCategorySelectorComponent } from '../../../../shared/components/ui/c
   `]
 })
 export class ManualOrderCreateComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentStep = 1;
   customerPhone = '';
   customerName = '';
@@ -255,7 +258,8 @@ export class ManualOrderCreateComponent implements OnInit {
     private ordersService: OrdersService,
     private catalogService: CatalogService,
     private router: Router,
-    public translate: TranslateService
+    public translate: TranslateService,
+    private alertModalService: AlertModalService
   ) {}
 
   ngOnInit(): void {
@@ -265,6 +269,7 @@ export class ManualOrderCreateComponent implements OnInit {
   loadInitialData(): void {
     this.catalogService.getCategories().subscribe(res => this.categories = res);
     this.catalogService.getVendorProducts({ pageSize: 50 }).subscribe(res => {
+      this.cdr.markForCheck();
       this.products = res.items;
       this.filteredProducts = res.items;
     });
@@ -333,13 +338,15 @@ export class ManualOrderCreateComponent implements OnInit {
 
     this.ordersService.createOrder(orderData).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isSubmitting = false;
-        alert(this.translate.instant('ORDERS.ORDER_PLACED_SUCCESS'));
+        void this.alertModalService.showAlert(this.translate.instant('ORDERS.ORDER_PLACED_SUCCESS'), 'COMMON.SUCCESS', 'success');
         this.router.navigate(['/orders']);
       },
       error: () => {
+        this.cdr.markForCheck();
         this.isSubmitting = false;
-        alert(this.translate.instant('COMMON.ERROR_OCCURRED'));
+        void this.alertModalService.showAlert(this.translate.instant('COMMON.ERROR_OCCURRED'), 'COMMON.ERROR', 'danger');
       }
     });
   }

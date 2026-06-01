@@ -1,8 +1,9 @@
-import { Component, Input, Output, EventEmitter, forwardRef, HostBinding } from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef, HostBinding, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-switch',
   standalone: true,
   imports: [CommonModule],

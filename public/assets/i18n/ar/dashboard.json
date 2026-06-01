@@ -1,0 +1,235 @@
+{
+  "DASHBOARD": {
+    "TITLE": "مركز قيادة التاجر",
+    "SUBTITLE": "رؤية تشغيلية وتجارية وجودة ومالية في مكان واحد",
+    "LAST_UPDATED": "آخر تحديث",
+    "REFRESH": "تحديث",
+    "ERROR": "تعذر تحميل بيانات لوحة التحكم حالياً.",
+    "PERIODS": {
+      "today": "اليوم",
+      "7d": "آخر 7 أيام",
+      "30d": "آخر 30 يوماً",
+      "90d": "آخر 90 يوماً"
+    },
+    "SECTION_NAV": {
+      "OVERVIEW": "نظرة عامة",
+      "OPERATIONS": "التشغيل",
+      "SALES": "المبيعات",
+      "INVENTORY": "المخزون",
+      "OFFERS": "العروض",
+      "REVIEWS": "التقييمات",
+      "FINANCE": "المالية",
+      "RISK": "المخاطر",
+      "STAFF": "الفريق"
+    },
+    "DOMAIN": {
+      "OPERATIONS": "التشغيل",
+      "INVENTORY": "المخزون",
+      "FINANCE": "المالية",
+      "REVIEWS": "التقييمات",
+      "RISK": "المخاطر"
+    },
+    "CONTEXT": {
+      "CURRENT_BRANCH": "الفرع الحالي",
+      "CURRENT_ROLE": "نوع الحساب",
+      "UNKNOWN_BRANCH": "غير محدد"
+    },
+    "HERO": {
+      "PENDING_ORDERS": "طلبات معلقة",
+      "LATE_ORDERS": "طلبات متأخرة",
+      "READY_FOR_PICKUP": "جاهز للاستلام",
+      "DRIVER_ISSUES": "مشكلات المندوب",
+      "OPEN_DISPUTES": "نزاعات مفتوحة",
+      "LOW_STOCK": "مخزون حرج"
+    },
+    "SECTIONS": {
+      "OVERVIEW": "نظرة عامة",
+      "OVERVIEW_HINT": "ملخص شامل للأداء التشغيلي والمالي.",
+      "OPERATIONS": "مركز القيادة التشغيلية",
+      "OPERATIONS_HINT": "ما الذي يحتاج إلى تدخل الآن عبر الطلبات والتنفيذ.",
+      "SALES": "المبيعات والأداء التجاري",
+      "SALES_HINT": "الإيرادات وجودة الطلبات وأداء الفئات ونقاط الضعف.",
+      "INVENTORY": "المخزون والكتالوج",
+      "INVENTORY_HINT": "صحة المخزون وحركة الكتالوج والمنتجات التي تحتاج إلى تدخل.",
+      "OFFERS": "العروض والترويج",
+      "OFFERS_HINT": "العروض النشطة وشرائح الخصم والمنتجات المرشحة للترويج.",
+      "REVIEWS": "التقييمات وجودة العملاء",
+      "REVIEWS_HINT": "انطباع العملاء وضغط الردود ومؤشرات الجودة.",
+      "FINANCE": "ملخص المحفظة",
+      "FINANCE_HINT": "وضع السيولة والتسويات والتحويلات وحركة القيود المالية.",
+      "RISK": "النزاعات والمخاطر",
+      "RISK_HINT": "الحالات التي قد تؤثر على الخدمة أو الربحية.",
+      "STAFF": "الفريق والفروع",
+      "STAFF_HINT": "ملخص خفيف لتغطية الفروع والتشغيل.",
+      "URGENT_ORDERS": "طلبات عاجلة",
+      "LATEST_ALERTS": "آخر التنبيهات التشغيلية",
+      "TOP_PRODUCTS": "أفضل المنتجات",
+      "UNDERPERFORMING_PRODUCTS": "منتجات ضعيفة الأداء",
+      "CRITICAL_STOCK": "قائمة المخزون الحرج",
+      "NO_MOVEMENT_PRODUCTS": "منتجات بلا حركة",
+      "EXPIRING_OFFERS": "عروض قاربت على الانتهاء",
+      "PROMOTION_CANDIDATES": "مرشحون للترويج",
+      "LOW_RATING_UNREPLIED": "تقييمات منخفضة بدون رد",
+      "RECENT_HIGHLIGHTS": "أبرز التقييمات الأخيرة",
+      "BRANCH_REVENUE": "إيرادات الفروع",
+      "RECENT_SETTLEMENTS": "أحدث التسويات",
+      "RECENT_LEDGER": "آخر الحركة المالية",
+      "AWAITING_ACTION": "حالات تنتظر إجراء التاجر",
+      "RECENT_ESCALATIONS": "آخر التصعيدات"
+    },
+    "CHARTS": {
+      "COUNT": "العدد",
+      "SALES": "المبيعات",
+      "ORDERS": "الطلبات",
+      "SALES_TREND": "اتجاه المبيعات",
+      "PAYOUTS": "التحويلات",
+      "PRODUCTS": "المنتجات",
+      "REVIEWS": "التقييمات",
+      "DISPUTES": "النزاعات",
+      "ORDERS_TREND": "اتجاه الطلبات",
+      "ORDER_STATUS_BREAKDOWN": "توزيع حالات الطلبات",
+      "ORDER_FUNNEL": "مسار الطلبات",
+      "SALES_VS_ORDERS": "المبيعات مقابل الطلبات",
+      "WEEKDAY_PERFORMANCE": "أداء أيام الأسبوع",
+      "TOP_CATEGORIES": "أفضل الفئات",
+      "STOCK_HEALTH": "توزيع صحة المخزون",
+      "INVENTORY_RISK": "قائمة مخاطر المخزون",
+      "CATALOG_GROWTH": "نمو الكتالوج",
+      "OFFERS_BY_TYPE": "العروض حسب النوع",
+      "DISCOUNT_BANDS": "شرائح الخصم",
+      "OFFER_LINKED_PRODUCTS": "المنتجات المرتبطة بالعروض",
+      "RATING_DISTRIBUTION": "توزيع التقييمات",
+      "REVIEWS_TREND": "اتجاه التقييمات",
+      "REPLY_BREAKDOWN": "توزيع الردود",
+      "SALES_VS_PAYOUTS": "المبيعات مقابل التحويلات",
+      "SETTLEMENT_STATUS": "حالة التسويات",
+      "LEDGER_BREAKDOWN": "توزيع القيود المالية",
+      "DISPUTES_BY_STATUS": "النزاعات حسب الحالة",
+      "DISPUTES_BY_TYPE": "النزاعات حسب النوع",
+      "DISPUTES_TREND": "اتجاه النزاعات",
+      "BRANCH_STATUS": "حالة الفروع",
+      "STAFF_ROLE_DISTRIBUTION": "توزيع أدوار الفريق"
+    },
+    "FUNNEL": {
+      "NEW": "جديد",
+      "CONFIRMED": "مؤكد",
+      "PREPARING": "قيد التجهيز",
+      "READY": "جاهز",
+      "DELIVERED": "تم التسليم",
+      "CANCELLED": "ملغي"
+    },
+    "STOCK_HEALTH": {
+      "HEALTHY": "جيد",
+      "LOW": "منخفض",
+      "OUT": "نافد"
+    },
+    "OFFER_TYPES": {
+      "DIRECT": "عروض مباشرة",
+      "COUPONS": "كوبونات",
+      "CATEGORY_CAMPAIGNS": "حملات الفئات",
+      "CLEARANCE": "تصفيات",
+      "CAMPAIGNS": "حملات"
+    },
+    "REPLY_BREAKDOWN": {
+      "REPLIED": "تم الرد",
+      "PENDING": "بانتظار الرد"
+    },
+    "SETTLEMENT_STATUS": {
+      "PAID": "مدفوعة",
+      "PROCESSING": "قيد المعالجة",
+      "SCHEDULED": "مجدولة"
+    },
+    "LEDGER_TYPES": {
+      "SALES": "مبيعات",
+      "FEES": "رسوم",
+      "PAYOUTS": "تحويلات",
+      "REFUNDS": "مرتجعات"
+    },
+    "SALES": {
+      "GROSS_SALES": "إجمالي المبيعات",
+      "PAID_SALES": "المبيعات المحصلة",
+      "ORDERS_COUNT": "عدد الطلبات",
+      "AVERAGE_ORDER_VALUE": "متوسط قيمة الطلب",
+      "CANCELLATION_RATE": "معدل الإلغاء",
+      "REFUND_RATE": "معدل الاسترجاع",
+      "LOST_REVENUE": "الإيرادات الضائعة"
+    },
+    "INVENTORY": {
+      "ACTIVE_PRODUCTS": "منتجات نشطة",
+      "OUT_OF_STOCK": "نافد المخزون",
+      "LOW_STOCK": "مخزون منخفض",
+      "INACTIVE_PRODUCTS": "منتجات غير نشطة",
+      "PRODUCTS_WITH_OFFERS": "منتجات عليها عروض",
+      "CRITICAL_STOCK_NOTE": "يوصى بإعادة التوريد فوراً",
+      "NO_MOVEMENT": "لا توجد حركة خلال الفترة المختارة",
+      "IDLE_CAPITAL": "رأس المال المعطل"
+    },
+    "OFFERS": {
+      "ACTIVE_OFFERS": "عروض نشطة",
+      "CLEARANCE_ITEMS": "منتجات تصفية",
+      "EXPIRING_OFFERS": "عروض تنتهي قريباً",
+      "OFFER_COVERAGE": "تغطية العروض",
+      "EXPIRING_HINT": "قيمة عرض معرّضة للانتهاء",
+      "PROMOTION_HINT": "مرشح لدفع ترويجي"
+    },
+    "REVIEWS": {
+      "AVERAGE_RATING": "متوسط التقييم",
+      "TOTAL_REVIEWS": "إجمالي التقييمات",
+      "LOW_RATING_COUNT": "تقييمات منخفضة",
+      "PENDING_REPLIES": "ردود معلقة",
+      "HIDDEN_REVIEWS": "تقييمات مخفية"
+    },
+    "FINANCE": {
+      "AVAILABLE_BALANCE": "الرصيد المتاح",
+      "PENDING_SETTLEMENT": "تسويات معلقة",
+      "NET_SALES": "صافي المبيعات",
+      "FEES": "الرسوم",
+      "PAYOUTS_PAID": "التحويلات المدفوعة",
+      "HOLD_AMOUNT": "المبلغ المحجوز",
+      "NEXT_SETTLEMENT": "التسوية القادمة",
+      "LIFECYCLE_MODE": "دورة التسوية",
+      "BRANCH_REVENUE_HINT": "يتم توضيح الإيراد المحصل لكل فرع حتى تقدر تميز أداء كل فرع بشكل واضح.",
+      "BRANCH_ORDERS": "الطلبات",
+      "AVG_ORDER_VALUE": "متوسط قيمة الطلب"
+    },
+    "DISPUTES": {
+      "OPEN": "نزاعات مفتوحة",
+      "HIGH_PRIORITY": "أولوية عالية",
+      "REFUND_REQUESTS": "طلبات استرجاع",
+      "AWAITING_VENDOR_RESPONSE": "بانتظار رد التاجر"
+    },
+    "STAFF": {
+      "ACTIVE_BRANCHES": "فروع نشطة",
+      "ACTIVE_STAFF": "فريق نشط",
+      "PENDING_INVITATIONS": "دعوات معلقة",
+      "BRANCHES_NEEDING_COVERAGE": "فروع تحتاج تغطية"
+    },
+    "ALERTS": {
+      "LATE_ORDERS_TITLE": "طلبات متأخرة تحتاج متابعة",
+      "LATE_ORDERS_BODY": "بعض الطلبات تجاوزت الوقت المتوقع للتجهيز.",
+      "LOW_STOCK_TITLE": "مخزون حرج يحتاج إعادة تزويد",
+      "LOW_STOCK_BODY": "هناك منتجات وصلت إلى مستوى مخزون محفوف بالمخاطر.",
+      "DISPUTES_TITLE": "حالات تنتظر رد التاجر",
+      "DISPUTES_BODY": "توجد نزاعات تتطلب متابعة عاجلة من التاجر.",
+      "REVIEWS_TITLE": "تقييمات العملاء تحتاج ردوداً",
+      "REVIEWS_BODY": "التقييمات المنخفضة غير المردود عليها قد تؤثر على الثقة والتحويل.",
+      "LARGE_SETTLEMENT_TITLE": "تسوية معلقة ضمن الدورة",
+      "LARGE_SETTLEMENT_BODY": "أموال التسوية ما زالت قيد المعالجة وتحتاج مراجعة."
+    },
+    "EMPTY": {
+      "NO_ALERTS": "لا توجد تنبيهات نشطة حالياً.",
+      "NO_URGENT_ORDERS": "لا توجد طلبات عاجلة حالياً.",
+      "NO_CRITICAL_STOCK": "لا توجد منتجات ذات مخزون حرج حالياً.",
+      "NO_PENDING_REVIEWS": "لا توجد تقييمات منخفضة بانتظار الرد.",
+      "NO_STAFF_DISTRIBUTION": "لا توجد بيانات كافية عن توزيع الفريق حتى الآن."
+    },
+    "OPERATIONS": {
+      "PREP_EFFICIENCY": "كفاءة التجهيز (SLA)",
+      "AVG_PREP_TIME": "متوسط وقت التجهيز",
+      "MINUTES": "دقيقة"
+    },
+    "TABLES": {
+      "SALES": "مبيعات"
+    }
+  }
+}

@@ -4,6 +4,8 @@ export interface VendorAccessScope {
   scopeEntityId?: string | null;
   roleCode: string;
   roleName: string;
+  scopeEntityName?: string | null;
+  scopeClassification?: string | null;
 }
 
 export interface VendorEffectiveAccess {

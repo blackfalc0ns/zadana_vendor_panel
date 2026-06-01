@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, interval, switchMap } from 'rxjs';
@@ -8,8 +8,16 @@ import { DriverTrackingMapComponent } from '../../components/driver-tracking-map
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
 import { OrderDetail, OrderStatus, OrderTimelineEntry } from '../../models/orders.models';
 import { OrdersService } from '../../services/orders.service';
+import {
+  OrderTrackingDriverLocation,
+  OrderTrackingRealtimeService,
+  OrderTrackingStatusChangedPayload
+} from '../../services/order-tracking-realtime.service';
+import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
+import { environment } from '../../../../../environments/environment';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-order-details',
   standalone: true,
   imports: [
@@ -177,14 +185,14 @@ import { OrdersService } from '../../services/orders.service';
                 <div class="mt-4 space-y-2.5">
                   <article *ngFor="let item of currentOrder.items" class="item-row">
                     <div class="flex min-w-0 items-center gap-3">
-                      <div class="item-thumb">
-                        <img [src]="item.imageUrl || 'assets/images/placeholders/product.svg'" [alt]="currentLang === 'ar' ? item.nameAr : item.nameEn">
+                      <div class="w-20 h-20 shrink-0 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden p-1 shadow-sm">
+                        <img [src]="resolveProductImageUrl(item.imageUrl)" [alt]="currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr)" onerror="this.src='/assets/images/placeholders/product.svg'" class="w-full h-full object-contain rounded-xl">
                       </div>
                       <div class="min-w-0">
-                        <p class="truncate text-[0.82rem] font-extrabold text-[#004953] md:text-[0.92rem]">{{ currentLang === 'ar' ? item.nameAr : item.nameEn }}</p>
+                        <p class="truncate text-[0.82rem] font-extrabold text-[#004953] md:text-[0.92rem]">{{ currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr) }}</p>
                         <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[0.68rem] font-bold text-[#6f797b]">
                           <span class="rounded-full bg-[#00626f]/6 px-2.5 py-1 font-numeric text-[#00626f]">{{ item.sku }}</span>
-                          <span *ngIf="item.unitAr || item.unitEn">{{ currentLang === 'ar' ? item.unitAr : item.unitEn }}</span>
+                          <span *ngIf="item.unitAr || item.unitEn">{{ currentLang === 'ar' ? (item.unitAr || item.unitEn) : (item.unitEn || item.unitAr) }}</span>
                         </div>
                       </div>
                     </div>
@@ -241,11 +249,12 @@ import { OrdersService } from '../../services/orders.service';
                 </div>
 
                 <div class="mt-4 overflow-hidden rounded-[1.1rem] border border-white/60 bg-[#12212c] shadow-inner">
-                  <div *ngIf="shouldShowLiveMap(); else trackingPlaceholder" class="h-[270px]">
+                  <div *ngIf="shouldShowLiveMap(); else trackingPlaceholder">
                     <app-driver-tracking-map
                       [driverLocation]="currentOrder.driverLiveLocation"
                       [vendorLocation]="currentOrder.vendorLocation"
                       [customerLocation]="currentOrder.customerLocation"
+                      [orderStatus]="currentOrder.status"
                       [isArabic]="currentLang === 'ar'"
                     ></app-driver-tracking-map>
                   </div>
@@ -329,23 +338,49 @@ import { OrdersService } from '../../services/orders.service';
                   {{ 'ORDERS.DETAIL_TIMELINE' | translate }}
                 </h3>
 
-                <div class="relative mt-4">
-                  <div class="timeline-rail"></div>
-                  <article *ngFor="let step of currentOrder.timeline; let i = index" class="timeline-row" [class.timeline-row-pending]="!step.isCompleted" [class.timeline-row-active]="isActiveTimelineStep(i)">
-                    <div class="timeline-node" [ngClass]="timelineNodeClass(step, i)">
-                      <span class="material-symbols-outlined text-[16px]">{{ timelineIcon(step) }}</span>
+                <div class="relative mt-6 ms-2 pb-2">
+                  <!-- Gradient Vertical Rail -->
+                  <div class="absolute top-4 bottom-4 start-[1.1rem] w-[2px] bg-gradient-to-b from-teal-500 via-teal-300 to-slate-100" [ngClass]="{'opacity-50': !currentOrder.timeline[0]?.isCompleted}"></div>
+                  
+                  <article *ngFor="let step of currentOrder.timeline; let i = index; let last = last" class="relative flex items-start gap-5 group" [ngClass]="{'pb-8': !last}">
+                    
+                    <!-- Node -->
+                    <div class="relative z-10 flex flex-col items-center justify-start">
+                      <!-- Active Pulse Effect -->
+                      <div *ngIf="isActiveTimelineStep(i)" class="absolute -inset-1.5 animate-ping rounded-full bg-teal-400 opacity-20"></div>
+                      <div *ngIf="isActiveTimelineStep(i)" class="absolute -inset-1 rounded-full bg-teal-100 opacity-50"></div>
+                      
+                      <div class="relative flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-300 shadow-sm"
+                           [ngClass]="{
+                             'bg-teal-500 border-teal-500 text-white shadow-[0_4px_12px_rgba(20,184,166,0.3)]': step.isCompleted && !isActiveTimelineStep(i),
+                             'bg-white border-teal-500 text-teal-600 ring-4 ring-teal-50': isActiveTimelineStep(i),
+                             'bg-slate-50 border-slate-200 text-slate-300': !step.isCompleted
+                           }">
+                        <span class="material-symbols-outlined text-[18px] transition-transform" [ngClass]="{'scale-110': isActiveTimelineStep(i)}">
+                          {{ timelineIcon(step) }}
+                        </span>
+                      </div>
                     </div>
-                    <div class="min-w-0 flex-1">
+
+                    <!-- Content -->
+                    <div class="min-w-0 flex-1 pt-1.5">
                       <div class="flex items-start justify-between gap-3">
                         <div class="min-w-0">
-                          <p class="truncate text-[0.82rem] font-extrabold" [ngClass]="timelineTextClass(step, i)">
+                          <p class="truncate text-[0.9rem] font-extrabold transition-colors"
+                             [ngClass]="{
+                               'text-[#004953] drop-shadow-sm': isActiveTimelineStep(i),
+                               'text-slate-700': step.isCompleted && !isActiveTimelineStep(i),
+                               'text-slate-400': !step.isCompleted
+                             }">
                             {{ currentLang === 'ar' ? step.labelAr : step.labelEn }}
                           </p>
-                          <p *ngIf="step.notes" class="mt-0.5 text-[0.7rem] leading-5 text-[#6f797b]">
+                          <p *ngIf="step.notes" class="mt-1 text-[0.75rem] font-medium leading-5 transition-colors"
+                             [ngClass]="{'text-teal-600/80': isActiveTimelineStep(i), 'text-slate-500': step.isCompleted && !isActiveTimelineStep(i), 'text-slate-400/70': !step.isCompleted}">
                             {{ translateTimelineNote(step.notes) }}
                           </p>
                         </div>
-                        <time class="font-numeric text-[0.68rem] font-bold text-[#6f797b]">
+                        <time class="font-numeric text-[0.75rem] font-bold shrink-0 whitespace-nowrap"
+                              [ngClass]="{'text-teal-700 bg-teal-50 px-2.5 py-1 rounded-[0.4rem] border border-teal-100 shadow-sm': isActiveTimelineStep(i), 'text-slate-400': !isActiveTimelineStep(i)}">
                           {{ step.timestamp | date:'shortTime' }}
                         </time>
                       </div>
@@ -361,39 +396,55 @@ import { OrdersService } from '../../services/orders.service';
                 </h3>
 
                 <ng-container *ngIf="currentOrder.driverName; else noDriverState">
-                  <div class="mt-4 flex items-center gap-3">
-                    <div class="driver-avatar">
-                      <img [src]="currentOrder.driverImage || 'assets/images/placeholders/driver.png'" [alt]="currentOrder.driverName">
+                  <!-- Profile Card -->
+                  <div class="mt-4 flex items-center gap-3 p-3 rounded-[1rem] bg-gradient-to-br from-teal-50/50 to-white border border-teal-100/50 shadow-sm relative overflow-hidden">
+                    <!-- Background Accent -->
+                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-teal-100/40 rounded-full blur-xl"></div>
+
+                    <div class="relative">
+                      <div class="h-11 w-11 overflow-hidden rounded-full ring-2 ring-white shadow-sm bg-slate-100">
+                        <img class="h-full w-full object-cover" [src]="resolveImageUrl(currentOrder.driverImage, currentOrder.driverName)" [alt]="currentOrder.driverName" (error)="handleImageError($event, currentOrder.driverName)">
+                      </div>
+                      <div class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white shadow-sm"></div>
                     </div>
-                    <div class="min-w-0 flex-1">
-                      <p class="truncate text-sm font-extrabold text-[#004953]">{{ currentOrder.driverName }}</p>
-                      <p class="mt-1 text-xs font-bold text-[#6f797b]">{{ driverCompanyLabel(currentOrder) }}</p>
-                      <div *ngIf="currentOrder.driverRating" class="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-1 text-[0.75rem] font-bold text-amber-700">
-                        <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1">star</span>
-                        <span class="font-numeric">{{ currentOrder.driverRating }}</span>
+                    <div class="min-w-0 flex-1 relative z-10">
+                      <p class="truncate text-[0.85rem] font-extrabold text-[#004953] drop-shadow-sm">{{ currentOrder.driverName }}</p>
+                      <p class="mt-0.5 text-[0.65rem] font-bold text-teal-700/80">{{ driverCompanyLabel(currentOrder) }}</p>
+                      <div *ngIf="currentOrder.driverRating" class="mt-1.5 inline-flex items-center gap-1 rounded-[0.3rem] bg-amber-50 px-1.5 py-0.5 text-[0.65rem] font-bold text-amber-700 border border-amber-200/60 shadow-sm">
+                        <span class="material-symbols-outlined text-[13px] text-amber-500" style="font-variation-settings: 'FILL' 1">star</span>
+                        <span class="font-numeric leading-none">{{ currentOrder.driverRating }}</span>
                       </div>
                     </div>
                   </div>
 
-                  <div class="mt-4 rounded-[1rem] bg-[#f5f7f8] p-3.5">
-                    <div class="flex items-center justify-between gap-3">
-                      <span class="text-xs font-bold text-[#6f797b]">{{ currentLang === 'ar' ? 'المركبة' : 'Vehicle' }}</span>
-                      <span class="text-sm font-extrabold text-[#004953]">{{ currentOrder.driverVehicleType || '--' }}</span>
+                  <!-- Vehicle Info -->
+                  <div class="mt-3 flex gap-2">
+                    <div class="flex-1 rounded-[1rem] bg-slate-50 border border-slate-100 p-2.5 flex flex-col justify-center items-center gap-1 transition-all hover:bg-white hover:shadow-sm">
+                      <span class="material-symbols-outlined text-[18px] text-slate-400">directions_car</span>
+                      <span class="text-[0.6rem] font-bold text-slate-500">{{ currentLang === 'ar' ? 'المركبة' : 'Vehicle' }}</span>
+                      <span class="text-[0.75rem] font-extrabold text-[#004953]">{{ translateVehicleType(currentOrder.driverVehicleType) }}</span>
                     </div>
-                    <div class="mt-3 flex items-center justify-between gap-3">
-                      <span class="text-xs font-bold text-[#6f797b]">{{ currentLang === 'ar' ? 'اللوحة' : 'Plate' }}</span>
-                      <span class="font-numeric text-sm font-extrabold tracking-[0.18em] text-[#004953]">{{ currentOrder.driverVehiclePlate || '--' }}</span>
+                    <div class="flex-1 rounded-[1rem] bg-slate-50 border border-slate-100 p-2.5 flex flex-col justify-center items-center gap-1 transition-all hover:bg-white hover:shadow-sm min-w-0">
+                      <span class="material-symbols-outlined text-[18px] text-slate-400">pin</span>
+                      <span class="text-[0.6rem] font-bold text-slate-500">{{ currentLang === 'ar' ? 'اللوحة' : 'Plate' }}</span>
+                      <!-- License Plate Styling -->
+                      <div class="mt-0.5 px-3 py-1 bg-white border border-slate-300 rounded-[0.3rem] text-center shadow-sm max-w-full min-w-[70px]">
+                        <p class="font-numeric text-[0.75rem] font-black tracking-widest text-[#004953] truncate">{{ currentOrder.driverVehiclePlate || '--' }}</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div class="mt-3 grid grid-cols-2 gap-2.5">
-                    <a *ngIf="currentOrder.driverPhone" class="contact-action" [href]="'tel:' + currentOrder.driverPhone">
-                      <span class="material-symbols-outlined text-[18px]">call</span>
+                  <!-- Actions -->
+                  <div class="mt-3 grid grid-cols-2 gap-2">
+                    <a *ngIf="currentOrder.driverPhone" [href]="'tel:' + currentOrder.driverPhone" 
+                       class="flex items-center justify-center gap-1.5 rounded-[0.8rem] bg-gradient-to-r from-teal-500 to-[#004953] py-2 px-3 text-white font-bold text-[0.75rem] shadow-sm shadow-teal-500/20 transition-transform active:scale-95 hover:shadow-teal-500/30">
+                      <span class="material-symbols-outlined text-[16px]">call</span>
                       {{ currentLang === 'ar' ? 'اتصال' : 'Call' }}
                     </a>
-                    <a *ngIf="currentOrder.driverPhone" class="contact-action" [href]="'https://wa.me/' + sanitizePhone(currentOrder.driverPhone)" target="_blank" rel="noreferrer">
-                      <span class="material-symbols-outlined text-[18px]">chat</span>
-                      {{ currentLang === 'ar' ? 'رسالة' : 'Message' }}
+                    <a *ngIf="currentOrder.driverPhone" [href]="'https://wa.me/' + sanitizePhone(currentOrder.driverPhone)" target="_blank" rel="noreferrer"
+                       class="flex items-center justify-center gap-1.5 rounded-[0.8rem] bg-gradient-to-r from-emerald-500 to-green-600 py-2 px-3 text-white font-bold text-[0.75rem] shadow-sm shadow-emerald-500/20 transition-transform active:scale-95 hover:shadow-emerald-500/30">
+                      <span class="material-symbols-outlined text-[16px]">chat</span>
+                      {{ currentLang === 'ar' ? 'واتساب' : 'WhatsApp' }}
                     </a>
                   </div>
                 </ng-container>
@@ -464,6 +515,7 @@ import { OrdersService } from '../../services/orders.service';
   `]
 })
 export class OrderDetailsComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   order: OrderDetail | null = null;
   orderId: string | null = null;
   currentLang = 'ar';
@@ -476,15 +528,22 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   private langSub: Subscription | null = null;
   private pollSub: Subscription | null = null;
   private fragmentSub: Subscription | null = null;
+  private driverLocationSub: Subscription | null = null;
+  private statusChangeSub: Subscription | null = null;
+  private trackedOrderId: string | null = null;
   private readonly POLL_INTERVAL_MS = 8000;
 
   constructor(
     private route: ActivatedRoute,
     private ordersService: OrdersService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    private orderTrackingRealtime: OrderTrackingRealtimeService,
+    private zone: NgZone,
+    private alertModalService: AlertModalService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((e) => {
+      this.cdr.markForCheck();
       this.currentLang = e.lang;
     });
   }
@@ -497,10 +556,32 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     }
 
     this.fragmentSub = this.route.fragment.subscribe((fragment) => {
+      this.cdr.markForCheck();
       if (fragment === 'tracking') {
         this.scrollToTracking();
       }
     });
+  }
+
+  resolveImageUrl(path: string | undefined, driverName?: string): string {
+    const fallbackUrl = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23004953'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+    if (!path) return fallbackUrl;
+    if (path.startsWith('http')) return path;
+    const cleanPath = path.replace(/\\/g, '/').replace(/^\//, '');
+    const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+    return `${baseUrl}/${cleanPath}`;
+  }
+
+  resolveProductImageUrl(path: string | undefined): string {
+    if (!path) return '/assets/images/placeholders/product.svg';
+    if (path.startsWith('http')) return path;
+    const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+    return `${baseUrl}/${path.replace(/^\//, '')}`;
+  }
+
+  handleImageError(event: Event, driverName?: string): void {
+    const img = event.target as HTMLImageElement;
+    img.src = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23004953'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
   }
 
   ngOnDestroy(): void {
@@ -508,6 +589,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     this.langSub?.unsubscribe();
     this.fragmentSub?.unsubscribe();
     this.stopPolling();
+    this.stopRealtimeTracking();
   }
 
   canConfirm(): boolean {
@@ -527,8 +609,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   isTrackingActive(): boolean {
-    const status = this.order?.backendStatus;
-    return status === 'DriverAssigned' || status === 'PickedUp' || status === 'OnTheWay';
+    return this.canReceiveLiveDriverTracking(this.order);
   }
 
   isOrderCompleted(): boolean {
@@ -558,14 +639,16 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
     this.ordersService.updateOrderStatus(orderId, status).subscribe({
       next: (updated) => {
-        this.order = updated;
+        this.cdr.markForCheck();
+        this.order = this.applyVendorTrackingPolicy(updated);
         this.isUpdatingStatus = false;
         this.startPollingIfNeeded();
       },
       error: (error: HttpErrorResponse) => {
+        this.cdr.markForCheck();
         this.isUpdatingStatus = false;
         this.loadOrder(orderId);
-        alert(this.resolveUpdateErrorMessage(error));
+        void this.alertModalService.showAlert(this.resolveUpdateErrorMessage(error), 'COMMON.ERROR', 'danger');
       }
     });
   }
@@ -581,12 +664,15 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
     this.ordersService.confirmPickupOtp(orderId, code).subscribe({
       next: (updated) => {
-        this.order = updated;
+        this.cdr.markForCheck();
+        this.order = this.applyVendorTrackingPolicy(updated);
+        this.stopRealtimeTracking();
         this.isConfirmingPickup = false;
         this.otpDigits = ['', '', '', ''];
         this.loadOrder(orderId);
       },
       error: (error: HttpErrorResponse) => {
+        this.cdr.markForCheck();
         this.isConfirmingPickup = false;
         this.otpDigits = ['', '', '', ''];
         setTimeout(() => {
@@ -594,7 +680,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
           first?.focus();
         });
         const detail = error.error?.detail;
-        alert(typeof detail === 'string' && detail.trim() ? detail : (this.currentLang === 'ar' ? 'رمز غير صحيح' : 'Invalid code'));
+        const msg = typeof detail === 'string' && detail.trim() ? detail : (this.currentLang === 'ar' ? 'رمز غير صحيح' : 'Invalid code');
+        void this.alertModalService.showAlert(msg, 'COMMON.ERROR', 'danger');
       }
     });
   }
@@ -705,6 +792,26 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
   sanitizePhone(phone: string): string {
     return phone.replace(/[^\d+]/g, '').replace(/^\+/, '');
+  }
+
+  translateVehicleType(type: string | undefined): string {
+    if (!type) return '--';
+    if (this.currentLang === 'en') return type;
+    
+    const lowerType = type.toLowerCase();
+    if (lowerType.includes('motorcycle') || lowerType.includes('bike') || lowerType.includes('scooter')) return 'دراجة نارية';
+    if (lowerType.includes('car')) return 'سيارة';
+    if (lowerType.includes('van')) return 'عربة نقل (فان)';
+    if (lowerType.includes('truck')) return 'شاحنة';
+    if (lowerType.includes('bicycle')) return 'دراجة هوائية';
+    
+    const translations: Record<string, string> = {
+      'sedan': 'سيارة (سيدان)',
+      'suv': 'سيارة عائلية',
+      'pickup': 'سيارة نقل (بيك أب)',
+    };
+    
+    return translations[lowerType] || type;
   }
 
   timelineIcon(step: OrderTimelineEntry): string {
@@ -838,11 +945,13 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
 
     this.sub = this.ordersService.getOrderById(orderId).subscribe({
       next: (order) => {
-        this.order = order;
+        this.cdr.markForCheck();
+        this.order = this.applyVendorTrackingPolicy(order);
         this.isLoading = false;
 
-        if (!order) {
+        if (!this.order) {
           this.stopPolling();
+          this.stopRealtimeTracking();
           this.loadErrorMessage = this.currentLang === 'ar'
             ? 'تعذر العثور على الطلب المطلوب أو أنك لا تملك صلاحية الوصول إليه.'
             : 'The requested order was not found or you do not have access to it.';
@@ -850,12 +959,19 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
         }
 
         this.startPollingIfNeeded();
+        if (this.canReceiveLiveDriverTracking(this.order)) {
+          this.startRealtimeTracking(this.order.id);
+        } else {
+          this.stopRealtimeTracking();
+        }
         this.scrollToTrackingIfRequested();
       },
       error: () => {
+        this.cdr.markForCheck();
         this.order = null;
         this.isLoading = false;
         this.stopPolling();
+        this.stopRealtimeTracking();
         this.loadErrorMessage = this.currentLang === 'ar'
           ? 'حدث خطأ أثناء تحميل تفاصيل الطلب. حاول مرة أخرى.'
           : 'Failed to load order details. Please try again.';
@@ -881,12 +997,16 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     this.pollSub = interval(pollInterval).pipe(
       switchMap(() => this.ordersService.getOrderById(orderId))
     ).subscribe((updated) => {
+      this.cdr.markForCheck();
       if (!updated) {
-        this.stopPolling();
         return;
       }
 
-      this.order = updated;
+      this.order = this.applyVendorTrackingPolicy(updated);
+
+      if (!this.canReceiveLiveDriverTracking(this.order)) {
+        this.stopRealtimeTracking();
+      }
 
       if (terminalStates.includes(updated.status)) {
         this.stopPolling();
@@ -897,6 +1017,118 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   private stopPolling(): void {
     this.pollSub?.unsubscribe();
     this.pollSub = null;
+  }
+
+  private startRealtimeTracking(orderId: string): void {
+    if (!this.canReceiveLiveDriverTracking(this.order)) {
+      this.stopRealtimeTracking();
+      return;
+    }
+
+    if (this.trackedOrderId === orderId) {
+      return;
+    }
+
+    this.stopRealtimeTracking();
+    this.trackedOrderId = orderId;
+
+    this.driverLocationSub = this.orderTrackingRealtime
+      .driverLocations()
+      .subscribe((payload) => this.applyRealtimeDriverLocation(payload));
+
+    this.statusChangeSub = this.orderTrackingRealtime
+      .statusChanges()
+      .subscribe((payload) => this.applyRealtimeStatusChange(payload));
+
+    void this.orderTrackingRealtime.subscribe(orderId).catch((error) => {
+      console.warn('Vendor order tracking subscription failed.', error);
+    });
+  }
+
+  private stopRealtimeTracking(): void {
+    this.driverLocationSub?.unsubscribe();
+    this.driverLocationSub = null;
+    this.statusChangeSub?.unsubscribe();
+    this.statusChangeSub = null;
+
+    if (this.trackedOrderId) {
+      void this.orderTrackingRealtime.unsubscribe(this.trackedOrderId);
+      this.trackedOrderId = null;
+    }
+  }
+
+  private applyRealtimeDriverLocation(payload: OrderTrackingDriverLocation): void {
+    console.log('[OrderTracking][component] applyRealtimeDriverLocation called', {
+      payloadOrderId: payload.orderId,
+      currentOrderId: this.order?.id,
+      match: payload.orderId === this.order?.id
+    });
+    if (!this.order || payload.orderId !== this.order.id) {
+      return;
+    }
+
+    // SignalR callbacks fire outside Angular's NgZone when the SDK is loaded
+    // dynamically from a CDN, so explicit re-entry is required to trigger
+    // change detection that re-renders the tracking map marker.
+    this.zone.run(() => {
+      if (!this.order || payload.orderId !== this.order.id) {
+        return;
+      }
+
+      if (!this.canReceiveLiveDriverTracking(this.order)) {
+        this.stopRealtimeTracking();
+        return;
+      }
+
+      this.order = {
+        ...this.order,
+        driverLiveLocation: {
+          lat: Number(payload.latitude),
+          lng: Number(payload.longitude),
+          accuracyMeters: payload.accuracyMeters ?? undefined,
+          recordedAtUtc: payload.recordedAtUtc
+        }
+      };
+      console.log('[OrderTracking][component] driverLiveLocation updated to', this.order.driverLiveLocation);
+    });
+  }
+
+  private canReceiveLiveDriverTracking(order: OrderDetail | null): boolean {
+    return order?.backendStatus === 'DriverAssigned';
+  }
+
+  private canReceiveLiveDriverTrackingStatus(status: string | null | undefined): boolean {
+    return status === 'DriverAssigned';
+  }
+
+  private applyVendorTrackingPolicy(order: OrderDetail | null): OrderDetail | null {
+    if (!order || this.canReceiveLiveDriverTracking(order)) {
+      return order;
+    }
+
+    return {
+      ...order,
+      driverLiveLocation: undefined
+    };
+  }
+
+  private applyRealtimeStatusChange(payload: OrderTrackingStatusChangedPayload): void {
+    if (!this.order || !this.orderId || payload.orderId !== this.orderId) {
+      return;
+    }
+
+    this.zone.run(() => {
+      if (!this.canReceiveLiveDriverTrackingStatus(payload.newStatus)) {
+        this.stopRealtimeTracking();
+        this.order = this.applyVendorTrackingPolicy(this.order);
+      }
+
+      // Re-fetch the order so derived state (timeline, driver assignment, etc.)
+      // is rebuilt server-side instead of mirroring backend logic on the client.
+      if (this.orderId) {
+        this.loadOrder(this.orderId);
+      }
+    });
   }
 
   private scrollToTrackingIfRequested(): void {

@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
@@ -11,6 +11,7 @@ import { BranchStatus, BranchVm, EmployeeVm, InvitationVm } from '../../models/s
 import { StaffBranchesService } from '../../services/staff-branches.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-branch-detail',
   standalone: true,
   imports: [
@@ -24,6 +25,7 @@ import { StaffBranchesService } from '../../services/staff-branches.service';
   templateUrl: './branch-detail.component.html'
 })
 export class BranchDetailComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentLang = 'ar';
   branch: BranchVm | null = null;
   employees: EmployeeVm[] = [];
@@ -44,6 +46,7 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.refreshGeographyLabels();
     });
@@ -64,6 +67,7 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
       this.staffBranchesService.getEmployees(),
       this.staffBranchesService.getInvitations()
     ]).subscribe(([branch, employees, invitations]) => {
+      this.cdr.markForCheck();
       if (!branch) {
         this.router.navigate(['/staff']);
         return;
@@ -121,13 +125,16 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
   private loadGeographyOptions(): void {
     this.geographySub = this.geographyService.getRegions().subscribe({
       next: (regions) => {
+        this.cdr.markForCheck();
         this.regions = regions.map((region) => this.toRegionOption(region));
 
         combineLatest(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
+      this.cdr.markForCheck();
           this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
         });
       },
       error: () => {
+        this.cdr.markForCheck();
         this.regions = [];
         this.cities = [];
       }

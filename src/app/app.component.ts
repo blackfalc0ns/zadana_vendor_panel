@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit, Renderer2 } from '@angular/core';
+import { Component, Inject, OnInit, Renderer2, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 import { RouterLink, RouterOutlet } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -10,6 +10,7 @@ import { VendorProfileService } from './features/settings/services/vendor-profil
 import { AlertCenterItemVm, LocalizedAlertText } from './features/alerts/models/alerts-center.models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-root',
   standalone: true,
   imports: [RouterLink, RouterOutlet, TranslateModule],
@@ -17,6 +18,7 @@ import { AlertCenterItemVm, LocalizedAlertText } from './features/alerts/models/
   styleUrl: './app.component.scss'
 })
 export class AppComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   title = 'Zadna Vendor Panel';
   currentLang = 'ar';
 
@@ -38,6 +40,7 @@ export class AppComponent implements OnInit {
     this.setDocumentDirection(savedLang);
 
     this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.setDocumentDirection(event.lang);
       localStorage.setItem('lang', event.lang);
@@ -51,6 +54,7 @@ export class AppComponent implements OnInit {
 
     this.alertsCenterService.startMonitoring();
     this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      this.cdr.markForCheck();
       this.showRealtimeAlertToast(alert);
 
       if (alert.route === '/profile' || alert.route === '/finance' || alert.source === 'profile') {

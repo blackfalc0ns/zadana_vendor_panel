@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -16,8 +16,10 @@ import {
 import { VendorFinanceService } from '../../services/vendor-finance.service';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
+import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-vendor-finance-dashboard',
   standalone: true,
   imports: [CommonModule, TranslateModule, AppCardComponent, AppButtonComponent, AppPanelHeaderComponent, AppPageHeaderComponent, BaseChartDirective],
@@ -26,9 +28,11 @@ import { ChartConfiguration } from 'chart.js';
   styleUrl: './vendor-finance-dashboard.component.scss'
 })
 export class VendorFinanceDashboardComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   private financeService = inject(VendorFinanceService);
   private translate = inject(TranslateService);
   private route = inject(ActivatedRoute);
+  private alertModalService = inject(AlertModalService);
 
   snapshot: VendorFinanceSnapshot | null = null;
   ledgerPage: VendorFinanceLedgerPage | null = null;
@@ -86,6 +90,7 @@ export class VendorFinanceDashboardComponent implements OnInit {
 
   ngOnInit(): void {
     this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.updateChartData();
     });
@@ -107,6 +112,7 @@ export class VendorFinanceDashboardComponent implements OnInit {
   private loadData(): void {
     this.isLoading = true;
     this.financeService.getSnapshot(this.currentPeriod).subscribe((snapshot) => {
+      this.cdr.markForCheck();
       this.snapshot = snapshot;
       this.isLoading = false;
       this.updateChartData();
@@ -117,6 +123,7 @@ export class VendorFinanceDashboardComponent implements OnInit {
 
   loadLedgerPage(page: number): void {
     this.financeService.getLedger(this.currentPeriod, page, this.ledgerPageSize).subscribe((ledgerPage) => {
+      this.cdr.markForCheck();
       this.ledgerPage = ledgerPage;
     });
   }
@@ -286,7 +293,7 @@ export class VendorFinanceDashboardComponent implements OnInit {
 
   requestPayout(): void {
     const successMsg = this.translate.instant('VENDOR_FINANCE.ACTIONS.PAYOUT_SUCCESS_MSG') || 'Payout request submitted successfully and is pending review';
-    alert(successMsg);
+    void this.alertModalService.showAlert(successMsg, 'COMMON.SUCCESS', 'success');
   }
 
   getPeriodLabel(period: VendorFinancePeriod): string {

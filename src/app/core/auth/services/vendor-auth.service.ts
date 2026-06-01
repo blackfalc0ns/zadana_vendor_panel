@@ -46,6 +46,17 @@ export class VendorAuthService {
     return this.currentUserSubject.value;
   }
 
+  get isVendorStaffSession(): boolean {
+    const user = this.currentUserSubject.value;
+    const role = `${user?.role || ''}`.toLowerCase();
+    const roleCode = `${user?.access?.activeScope?.roleCode || ''}`.toLowerCase();
+
+    return role === 'vendorstaff'
+      || role === 'vendor_staff'
+      || roleCode === 'vendor_company_manager'
+      || roleCode.startsWith('vendor_branch_');
+  }
+
   getToken(): string | null {
     return this.getAccessToken();
   }

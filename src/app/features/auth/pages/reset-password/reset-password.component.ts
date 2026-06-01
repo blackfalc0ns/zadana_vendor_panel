@@ -1,11 +1,12 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-reset-password',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, RouterModule, TranslateModule],
@@ -13,6 +14,7 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
   styleUrl: './reset-password.component.scss'
 })
 export class ResetPasswordComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   isLoading = false;
   errorMessage = '';
   successMessage = '';
@@ -69,11 +71,13 @@ export class ResetPasswordComponent implements OnInit {
 
     this.authService.resetPassword(identifier || '', otpCode || '', newPassword || '').subscribe({
       next: (message) => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         this.successMessage = message;
         void this.router.navigate(['/login']);
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         this.errorMessage = error?.error?.detail
           || error?.error?.message

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { VendorNotificationSoundService } from '../../../../../core/notifications/services/vendor-notification-sound.service';
@@ -7,6 +7,7 @@ import { SearchableSelectComponent, SearchableSelectOption } from '../../../../.
 import { AppPageSectionShellComponent } from '../../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-profile-operations-window',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, TranslateModule, SearchableSelectComponent, AppPageSectionShellComponent],
@@ -43,6 +44,18 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
               <input formControlName="swiftCode" type="text" dir="ltr" class="uppercase" [class]="fieldClass('swiftCode', 'ltr')">
             </label>
           </div>
+        </div>
+
+        <div class="flex justify-end">
+          <button
+            type="button"
+            (click)="saveBanking.emit()"
+            [disabled]="isSavingBanking"
+            class="inline-flex items-center justify-center gap-2 rounded-[10px] bg-slate-900 px-5 py-2.5 text-[0.8rem] font-bold text-white shadow-sm transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/30 disabled:opacity-50 disabled:pointer-events-none">
+            <span *ngIf="isSavingBanking" class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+            <span *ngIf="!isSavingBanking" class="material-symbols-outlined text-[16px]">save</span>
+            {{ 'SETTINGS_PROFILE.UI.SAVE_SECTION' | translate }}
+          </button>
         </div>
         </app-page-section-shell>
       </div>
@@ -127,6 +140,18 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
                 </label>
               </div>
             </div>
+          </div>
+
+          <div class="flex justify-end">
+            <button
+              type="button"
+              (click)="saveOperationsSettings.emit()"
+              [disabled]="isSavingOperationsSettings"
+              class="inline-flex items-center justify-center gap-2 rounded-[10px] bg-slate-900 px-5 py-2.5 text-[0.8rem] font-bold text-white shadow-sm transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/30 disabled:opacity-50 disabled:pointer-events-none">
+              <span *ngIf="isSavingOperationsSettings" class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+              <span *ngIf="!isSavingOperationsSettings" class="material-symbols-outlined text-[16px]">save</span>
+              {{ 'SETTINGS_PROFILE.UI.SAVE_SECTION' | translate }}
+            </button>
           </div>
         </app-page-section-shell>
       </div>
@@ -214,6 +239,18 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
               </div>
             </div>
           </div>
+
+          <div class="flex justify-end">
+            <button
+              type="button"
+              (click)="saveNotifications.emit()"
+              [disabled]="isSavingNotifications"
+              class="inline-flex items-center justify-center gap-2 rounded-[10px] bg-slate-900 px-5 py-2.5 text-[0.8rem] font-bold text-white shadow-sm transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/30 disabled:opacity-50 disabled:pointer-events-none">
+              <span *ngIf="isSavingNotifications" class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+              <span *ngIf="!isSavingNotifications" class="material-symbols-outlined text-[16px]">save</span>
+              {{ 'SETTINGS_PROFILE.UI.SAVE_SECTION' | translate }}
+            </button>
+          </div>
         </app-page-section-shell>
       </div>
 
@@ -274,6 +311,18 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
             </div>
           }
         </div>
+
+        <div class="mt-4 flex justify-end border-t border-slate-100 pt-4">
+          <button
+            type="button"
+            (click)="saveHours.emit()"
+            [disabled]="isSavingHours"
+            class="inline-flex items-center justify-center gap-2 rounded-[10px] bg-slate-900 px-5 py-2.5 text-[0.8rem] font-bold text-white shadow-sm transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900/30 disabled:opacity-50 disabled:pointer-events-none">
+            <span *ngIf="isSavingHours" class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+            <span *ngIf="!isSavingHours" class="material-symbols-outlined text-[16px]">save</span>
+            {{ 'SETTINGS_PROFILE.UI.SAVE_SECTION' | translate }}
+          </button>
+        </div>
         </app-page-section-shell>
       </div>
     </div>
@@ -286,8 +335,17 @@ export class ProfileOperationsWindowComponent {
   @Input() paymentCycleOptions: SearchableSelectOption[] = [];
   @Input() notificationSoundOptions: SearchableSelectOption[] = [];
   @Input() openDaysCount = 0;
+  @Input() isSavingBanking = false;
+  @Input() isSavingHours = false;
+  @Input() isSavingOperationsSettings = false;
+  @Input() isSavingNotifications = false;
   @Input() fieldClass!: (controlName: string, mode?: 'context' | 'ltr' | 'rtl') => string;
   @Input() timeFieldClass!: (isOpen: boolean) => string;
+
+  @Output() saveBanking = new EventEmitter<void>();
+  @Output() saveHours = new EventEmitter<void>();
+  @Output() saveOperationsSettings = new EventEmitter<void>();
+  @Output() saveNotifications = new EventEmitter<void>();
 
   constructor(
     private readonly notificationSoundService: VendorNotificationSoundService

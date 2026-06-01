@@ -1,11 +1,14 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { Subscription, combineLatest } from 'rxjs';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
+import { AlertsCenterService } from '../../../alerts/services/alerts-center.service';
+import { OrderListItem } from '../../../orders/models/orders.models';
+import { OrdersService } from '../../../orders/services/orders.service';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import {
   DetailTabNavItem,
@@ -35,6 +38,7 @@ import { SupportCenterService } from '../../services/support-center.service';
 import { CreateTicketDraft, ReferenceFilters, SupportFilters } from './support-center.page.models';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-support-center-page',
   standalone: true,
   imports: [
@@ -56,6 +60,7 @@ import { CreateTicketDraft, ReferenceFilters, SupportFilters } from './support-c
   templateUrl: './support-center.page.html'
 })
 export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
 
   get mappedFilterPriorityOptions() { return [{value: 'all', labelKey: 'SUPPORT_CENTER.FILTERS.ALL_PRIORITIES'}].concat(this.priorityOptions.map((x: any) => ({value: x, labelKey: this.priorityKey(x)}))); }
   get mappedFilterCategoryOptions() { return [{value: 'all', labelKey: 'SUPPORT_CENTER.FILTERS.ALL_CATEGORIES'}].concat(this.categoryOptions.map((x: any) => ({value: x, labelKey: this.categoryKey(x)}))); }
@@ -67,9 +72,12 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   activeView: SupportCenterView = 'support';
   isFiltersExpanded = true;
   isCreateTicketModalOpen = false;
+  isSubmittingTicket = false;
+  isLoadingOrderOptions = false;
   vendorDisplayName = 'Vendor Team';
   flashMessage = '';
   flashTone: 'success' | 'info' = 'success';
+  orderOptions: SearchableSelectOption<string>[] = [];
 
   tickets: VendorSupportTicketVm[] = [];
   referenceArticles: SupportReferenceArticleVm[] = [];
@@ -107,6 +115,8 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   private dataSub?: Subscription;
   private profileSub?: Subscription;
   private querySub?: Subscription;
+  private orderOptionsSub?: Subscription;
+  private realtimeSupportSub?: Subscription;
   private lastFilterSignatures: Record<SupportCenterView, string> = {
     support: '',
     reference: ''
@@ -116,10 +126,13 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     private readonly route: ActivatedRoute,
     private readonly supportCenterService: SupportCenterService,
     private readonly profileService: VendorProfileService,
+    private readonly ordersService: OrdersService,
+    private readonly alertsCenterService: AlertsCenterService,
     private readonly translate: TranslateService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.updateVendorDisplayName();
       if (this.flashMessage) {
@@ -132,6 +145,7 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     this.updateVendorDisplayName();
 
     this.querySub = this.route.queryParamMap.subscribe((params) => {
+      this.cdr.markForCheck();
       const requestedView = params.get('view');
       if (requestedView === 'support' || requestedView === 'reference') {
         this.activeView = requestedView;
@@ -142,7 +156,7 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
 
       if (params.get('action') === 'ticket') {
         this.activeView = 'support';
-        this.openCreateTicket(category);
+        this.openCreateTicket(category, params.get('orderId') || undefined);
       }
     });
 
@@ -151,13 +165,23 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
       this.supportCenterService.getSummary(),
       this.supportCenterService.getReferenceArticles()
     ]).subscribe(([tickets, summary, referenceArticles]) => {
+      this.cdr.markForCheck();
       this.tickets = tickets;
       this.summary = summary;
       this.referenceArticles = referenceArticles;
     });
 
     this.profileSub = this.profileService.getProfile().subscribe(() => {
+      this.cdr.markForCheck();
       this.updateVendorDisplayName();
+    });
+
+    this.loadOrderOptions();
+    this.realtimeSupportSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      this.cdr.markForCheck();
+      if (alert.source === 'support') {
+        this.supportCenterService.refresh();
+      }
     });
   }
 
@@ -166,6 +190,8 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     this.dataSub?.unsubscribe();
     this.profileSub?.unsubscribe();
     this.querySub?.unsubscribe();
+    this.orderOptionsSub?.unsubscribe();
+    this.realtimeSupportSub?.unsubscribe();
   }
 
   ngDoCheck(): void {
@@ -339,11 +365,13 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     this.currentPages[this.activeView] = page;
   }
 
-  openCreateTicket(category?: SupportCategory): void {
+  openCreateTicket(category?: SupportCategory, orderId?: string): void {
     this.ticketDraft.subject = '';
     this.ticketDraft.priority = 'medium';
     this.ticketDraft.category = category || 'general';
     this.ticketDraft.message = '';
+    this.ticketDraft.orderId = orderId?.trim() || '';
+    this.ensureOrderOption(this.ticketDraft.orderId);
     this.isCreateTicketModalOpen = true;
   }
 
@@ -362,13 +390,25 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
       priority: this.ticketDraft.priority,
       summary: this.createLocalizedDraft(this.ticketDraft.message),
       initialMessage: this.createLocalizedDraft(this.ticketDraft.message),
-      authorName: this.vendorDisplayName
+      authorName: this.vendorDisplayName,
+      orderId: this.ticketDraft.orderId.trim() || null
     };
 
-    const ticket = this.supportCenterService.createTicket(input);
-    this.isCreateTicketModalOpen = false;
-    this.activeView = 'support';
-    this.showFlash('SUPPORT_CENTER.FEEDBACK.TICKET_CREATED', 'success');
+    this.isSubmittingTicket = true;
+    this.supportCenterService.createTicket(input).subscribe({
+      next: () => {
+        this.cdr.markForCheck();
+        this.isSubmittingTicket = false;
+        this.isCreateTicketModalOpen = false;
+        this.activeView = 'support';
+        this.showFlash('SUPPORT_CENTER.FEEDBACK.TICKET_CREATED', 'success');
+      },
+      error: () => {
+        this.cdr.markForCheck();
+        this.isSubmittingTicket = false;
+        this.showFlash('SUPPORT_CENTER.FEEDBACK.TICKET_CREATE_FAILED', 'info');
+      }
+    });
   }
 
   resetDemoState(): void {
@@ -483,12 +523,62 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
       subject: '',
       category: 'general',
       priority: 'medium',
-      message: ''
+      message: '',
+      orderId: ''
     };
   }
 
   private isSupportCategory(value: string | null): value is SupportCategory {
     return !!value && this.categoryOptions.includes(value as SupportCategory);
+  }
+
+  private loadOrderOptions(): void {
+    this.isLoadingOrderOptions = true;
+    this.orderOptionsSub?.unsubscribe();
+    this.orderOptionsSub = this.ordersService.getOrders({
+      pageNumber: 1,
+      pageSize: 100,
+      status: 'ALL',
+      paymentMethod: 'ALL',
+      lateState: 'ALL'
+    }).subscribe({
+      next: (response) => {
+        this.cdr.markForCheck();
+        this.orderOptions = response.items.map((order) => this.toOrderOption(order));
+        this.ensureOrderOption(this.ticketDraft.orderId);
+        this.isLoadingOrderOptions = false;
+      },
+      error: () => {
+        this.cdr.markForCheck();
+        this.orderOptions = [];
+        this.ensureOrderOption(this.ticketDraft.orderId);
+        this.isLoadingOrderOptions = false;
+      }
+    });
+  }
+
+  private toOrderOption(order: OrderListItem): SearchableSelectOption<string> {
+    const customerName = order.customerName?.trim();
+    const label = customerName
+      ? `#${order.displayId} - ${customerName}`
+      : `#${order.displayId}`;
+
+    return {
+      value: order.id,
+      label
+    };
+  }
+
+  private ensureOrderOption(orderId: string): void {
+    const normalizedOrderId = orderId.trim();
+    if (!normalizedOrderId || this.orderOptions.some((option) => option.value === normalizedOrderId)) {
+      return;
+    }
+
+    this.orderOptions = [
+      { value: normalizedOrderId, label: `#${normalizedOrderId}` },
+      ...this.orderOptions
+    ];
   }
 
   private totalPagesForCount(count: number): number {

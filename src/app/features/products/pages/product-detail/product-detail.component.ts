@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -15,6 +15,7 @@ import { CatalogService } from '../../services/catalog.service';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-product-detail',
   standalone: true,
   imports: [
@@ -319,6 +320,7 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
   `]
 })
 export class ProductDetailComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   productId: string | null = null;
   product: VendorProduct | null = null;
   isLoading = true;
@@ -368,6 +370,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       this.catalogService.getCategories()
     ]).subscribe({
       next: ([data, categories]) => {
+        this.cdr.markForCheck();
         this.product = this.enrichProductWithCategory(data, this.flattenCategories(categories));
         this.productForm.patchValue({
           costPrice: this.product.costPrice ?? 0,
@@ -380,6 +383,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: () => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         this.router.navigate(['/products']);
       }
@@ -527,31 +531,44 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isSaving = false;
         this.translate.get('PRODUCTS.UPDATE_SUCCESS').subscribe(msg => {
+      this.cdr.markForCheck();
           this.alertModalService.success(msg);
           this.router.navigate(['/products']);
         });
       },
       error: () => {
+        this.cdr.markForCheck();
         this.isSaving = false;
         this.translate.get('PRODUCTS.UPDATE_ERROR').subscribe(msg => {
+      this.cdr.markForCheck();
           this.alertModalService.error(msg);
         });
       }
     });
   }
 
-  deleteProduct(): void {
+  async deleteProduct(): Promise<void> {
     if (!this.product) return;
 
     const productName = this.currentLang === 'ar'
       ? (this.product.nameAr || this.product.nameEn || '')
       : (this.product.nameEn || this.product.nameAr || '');
-    const confirmed = window.confirm(
-      this.currentLang === 'ar'
-        ? `هل تريد حذف المنتج "${productName}"؟`
-        : `Do you want to delete "${productName}"?`
+    
+    const message = this.currentLang === 'ar'
+      ? `هل تريد حذف المنتج "${productName}"؟`
+      : `Do you want to delete "${productName}"?`;
+    
+    const confirmed = await this.alertModalService.showConfirm(
+      message,
+      this.currentLang === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete',
+      {
+        type: 'danger',
+        confirmText: this.currentLang === 'ar' ? 'حذف' : 'Delete',
+        cancelText: this.currentLang === 'ar' ? 'إلغاء' : 'Cancel'
+      }
     );
 
     if (!confirmed) {
@@ -561,6 +578,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
     this.isSaving = true;
     this.catalogService.deleteVendorProduct(this.product.id).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isSaving = false;
         this.alertModalService.success(
           this.currentLang === 'ar' ? 'تم حذف المنتج بنجاح.' : 'Product deleted successfully.'
@@ -568,6 +586,7 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
         this.router.navigate(['/products']);
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.isSaving = false;
         this.alertModalService.error(
           error?.error?.message

@@ -14,6 +14,10 @@ export const vendorGuestGuard: CanActivateFn = () => {
     return true;
   }
 
+  if (authService.isVendorStaffSession) {
+    return router.createUrlTree(['/dashboard']);
+  }
+
   return profileService.loadProfileForGuard(true).pipe(
     map((profile) => router.createUrlTree([
       profile.status === 'Active' || profile.commercialAccessEnabled

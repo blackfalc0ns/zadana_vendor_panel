@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -23,6 +23,7 @@ import {
 } from '../../utils/vendor-dispute-display.utils';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-vendor-dispute-detail',
   standalone: true,
   imports: [
@@ -84,11 +85,13 @@ import {
   `]
 })
 export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentLang = 'ar';
   dispute: VendorDisputeDetailVm | null = null;
   responseDraft = '';
   flashMessage = '';
   isSubmitting = false;
+  isUploadingFile = false;
   selectedImage: string | null = null;
 
   private langSub: Subscription;
@@ -104,8 +107,34 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.flashMessage = '';
+    });
+  }
+
+  onFileSelected(event: any): void {
+    const file = event.target?.files?.[0];
+    if (!file || !this.dispute) return;
+
+    this.isUploadingFile = true;
+    this.flashMessage = '';
+
+    this.disputesService.uploadAttachment(this.dispute.id, file).subscribe({
+      next: (res) => {
+        this.cdr.markForCheck();
+        this.isUploadingFile = false;
+        this.flashMessage = this.translate.currentLang === 'ar' ? 'تم رفع المرفق بنجاح.' : 'Attachment uploaded successfully.';
+        this.loadDispute(this.dispute!.id);
+      },
+      error: (err) => {
+        this.cdr.markForCheck();
+        this.isUploadingFile = false;
+        this.flashMessage = this.translate.currentLang === 'ar' 
+          ? 'فشل رفع المرفق. تأكد من حجم ونوع الملف (PDF أو صورة).' 
+          : 'Failed to upload attachment. Check file size/type (PDF or image).';
+        console.error(err);
+      }
     });
   }
 
@@ -119,6 +148,7 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
 
     this.loadDispute(caseId);
     this.alertsSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
+      this.cdr.markForCheck();
       if (!this.dispute) {
         return;
       }
@@ -269,12 +299,14 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
 
     this.disputesService.respondToDispute(this.dispute.id, responseText).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.responseDraft = '';
         this.flashMessage = this.translate.instant('VENDOR_DISPUTES.DETAIL.RESPONSE_SENT');
         this.isSubmitting = false;
         this.loadDispute(this.dispute!.id);
       },
       error: () => {
+        this.cdr.markForCheck();
         this.flashMessage = this.translate.instant('VENDOR_DISPUTES.DETAIL.RESPONSE_FAILED');
         this.isSubmitting = false;
       }
@@ -373,9 +405,11 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
     this.detailSub?.unsubscribe();
     this.detailSub = this.disputesService.getDisputeById(caseId).subscribe({
       next: (dispute) => {
+        this.cdr.markForCheck();
         this.dispute = dispute;
       },
       error: () => {
+        this.cdr.markForCheck();
         this.router.navigate(['/disputes']);
       }
     });

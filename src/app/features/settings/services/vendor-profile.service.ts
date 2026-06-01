@@ -213,6 +213,34 @@ export class VendorProfileService {
     return request$ as Observable<VendorProfile>;
   }
 
+  saveBankingSection(profile: VendorProfile): Observable<VendorProfile> {
+    return this.updateBanking(profile).pipe(
+      switchMap(() => this.fetchProfile()),
+      tap((next) => this.persistProfile(next))
+    );
+  }
+
+  saveOperatingHours(profile: VendorProfile): Observable<VendorProfile> {
+    return this.updateHours(profile).pipe(
+      switchMap(() => this.fetchProfile()),
+      tap((next) => this.persistProfile(next))
+    );
+  }
+
+  saveOperationsSettingsSection(profile: VendorProfile): Observable<VendorProfile> {
+    return this.updateOperationsSettings(profile).pipe(
+      switchMap(() => this.fetchProfile()),
+      tap((next) => this.persistProfile(next))
+    );
+  }
+
+  saveNotificationSettingsSection(profile: VendorProfile): Observable<VendorProfile> {
+    return this.updateNotificationSettings(profile).pipe(
+      switchMap(() => this.fetchProfile()),
+      tap((next) => this.persistProfile(next))
+    );
+  }
+
   updateOnboardingProfile(profile: VendorProfile): Observable<VendorProfile> {
     return this.updateStore(profile).pipe(
       switchMap(() => this.updateOwner(profile)),

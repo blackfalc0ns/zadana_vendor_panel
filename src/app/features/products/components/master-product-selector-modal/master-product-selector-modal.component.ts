@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, OnInit, Output, ViewChild } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -6,6 +6,7 @@ import { Category, MasterProduct } from '../../models/catalog.models';
 import { CatalogService } from '../../services/catalog.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-master-product-selector-modal',
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule],
@@ -304,6 +305,8 @@ import { CatalogService } from '../../services/catalog.service';
   `]
 })
 export class MasterProductSelectorModalComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
+  @Input() initialSearchTerm: string = '';
   @ViewChild('categoryScroller') categoryScroller?: ElementRef<HTMLDivElement>;
   @Output() close = new EventEmitter<void>();
   @Output() selected = new EventEmitter<MasterProduct>();
@@ -418,6 +421,7 @@ export class MasterProductSelectorModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.searchTerm = this.initialSearchTerm;
     this.loadCategories();
     this.loadProducts();
   }
@@ -425,6 +429,7 @@ export class MasterProductSelectorModalComponent implements OnInit {
   loadCategories(): void {
     this.catalogService.getCategories().subscribe({
       next: (data) => {
+        this.cdr.markForCheck();
         const flatCategories = this.flattenCategories(data);
         this.allFlatCategories = flatCategories;
         // Show level 2 categories (children of root) — the main "التصنيف" level
@@ -433,7 +438,8 @@ export class MasterProductSelectorModalComponent implements OnInit {
         // Re-enrich products if already loaded
         this.enrichProductsWithCategories();
       },
-      error: () => {}
+      error: () => {
+        this.cdr.markForCheck();}
     });
   }
 
@@ -444,11 +450,13 @@ export class MasterProductSelectorModalComponent implements OnInit {
       pageSize: 1000
     }).subscribe({
       next: (data) => {
+        this.cdr.markForCheck();
         this.products = data.items;
         this.enrichProductsWithCategories();
         this.isLoading = false;
       },
       error: () => {
+        this.cdr.markForCheck();
         this.isLoading = false;
         this.products = this.getMockProducts();
       }

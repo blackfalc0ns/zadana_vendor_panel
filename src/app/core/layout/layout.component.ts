@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -7,10 +7,12 @@ import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { VendorProfileService } from '../../features/settings/services/vendor-profile.service';
 import { VendorAuthService } from '../auth/services/vendor-auth.service';
+import { VendorAccessService } from '../auth/services/vendor-access.service';
 import { VendorProfile } from '../../features/settings/models/vendor-profile.models';
 import { repairUtf8Mojibake } from '../../shared/utils/text-normalization.util';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-vendor-layout',
   standalone: true,
   imports: [CommonModule, RouterModule, TranslateModule, HeaderComponent, SidebarComponent],
@@ -18,6 +20,7 @@ import { repairUtf8Mojibake } from '../../shared/utils/text-normalization.util';
   styleUrl: './layout.component.scss'
 })
 export class LayoutComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   isMobileMenuOpen = false;
   currentLang = 'ar';
   userName = 'Vendor User';
@@ -31,7 +34,8 @@ export class LayoutComponent implements OnInit, OnDestroy {
     private readonly translate: TranslateService,
     private readonly router: Router,
     private readonly profileService: VendorProfileService,
-    private readonly authService: VendorAuthService
+    private readonly authService: VendorAuthService,
+    private readonly accessService: VendorAccessService
   ) {
     this.activationProfile = this.profileService.getProfileSnapshot();
   }
@@ -43,6 +47,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     this.scheduleProfilePrefetch();
 
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.updateHtmlAttributes(this.currentLang);
       this.userRole = this.translate.instant('SETTINGS_PROFILE.ROLE_LABEL');
@@ -53,6 +58,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     });
 
     this.profileSub = this.profileService.getProfile().subscribe((profile) => {
+      this.cdr.markForCheck();
       this.activationProfile = profile;
       this.userName = this.resolveDisplayName(profile);
       this.initials = this.buildInitials(this.userName);
@@ -78,6 +84,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
   logout(): void {
     this.authService.logout().subscribe({
       next: () => {
+        this.cdr.markForCheck();
         void this.router.navigate(['/login']);
       }
     });
@@ -130,6 +137,10 @@ export class LayoutComponent implements OnInit, OnDestroy {
     return this.currentLang === 'ar'
       ? 'يمكنك الدخول لكل أجزاء اللوحة، لكن النشر والطلبات والتسويات ستظل محجوبة حتى الاعتماد النهائي.'
       : 'You can access the full workspace, but publishing, orders, and payouts stay blocked until final approval.';
+  }
+
+  get canAccessSupport(): boolean {
+    return this.accessService.hasPermission('vendor_support.view');
   }
 
   private updateHtmlAttributes(lang: string): void {

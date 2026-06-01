@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, combineLatest } from 'rxjs';
@@ -9,6 +9,7 @@ import { BranchVm, EmployeeVm, InvitationStatus, InvitationVm } from '../../mode
 import { StaffBranchesService } from '../../services/staff-branches.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-invitation-detail',
   standalone: true,
   imports: [
@@ -22,6 +23,7 @@ import { StaffBranchesService } from '../../services/staff-branches.service';
   templateUrl: './invitation-detail.component.html'
 })
 export class InvitationDetailComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   currentLang = 'ar';
   invitation: InvitationVm | null = null;
   branches: BranchVm[] = [];
@@ -40,6 +42,7 @@ export class InvitationDetailComponent implements OnInit, OnDestroy {
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
       if (this.flashMessage) {
         this.flashMessage = '';
@@ -60,6 +63,7 @@ export class InvitationDetailComponent implements OnInit, OnDestroy {
       this.staffBranchesService.getBranches(),
       this.staffBranchesService.getEmployees()
     ]).subscribe(([invitation, branches, employees]) => {
+      this.cdr.markForCheck();
       if (!invitation) {
         this.router.navigate(['/staff']);
         return;
@@ -112,6 +116,8 @@ export class InvitationDetailComponent implements OnInit, OnDestroy {
         return 'STAFF_BRANCHES.STATUSES.INVITATION_ACCEPTED';
       case 'expired':
         return 'STAFF_BRANCHES.STATUSES.INVITATION_EXPIRED';
+      case 'delivery_failed':
+        return 'STAFF_BRANCHES.STATUSES.INVITATION_DELIVERY_FAILED';
       default:
         return 'STAFF_BRANCHES.STATUSES.INVITATION_REVOKED';
     }
@@ -123,6 +129,7 @@ export class InvitationDetailComponent implements OnInit, OnDestroy {
         return 'border-emerald-200 bg-emerald-50 text-emerald-700';
       case 'pending':
         return 'border-amber-200 bg-amber-50 text-amber-700';
+      case 'delivery_failed':
       case 'expired':
         return 'border-rose-200 bg-rose-50 text-rose-700';
       default:
@@ -148,8 +155,17 @@ export class InvitationDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.staffBranchesService.resendInvitation(this.invitation.id);
-    this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_RESENT', 'success');
+    this.staffBranchesService.resendInvitation(this.invitation.id).subscribe({
+      next: (invitation) => {
+        this.invitation = invitation;
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_RESENT', 'success');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_ACTION_FAILED', 'info');
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   revokeInvitation(): void {
@@ -157,8 +173,17 @@ export class InvitationDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    this.staffBranchesService.revokeInvitation(this.invitation.id);
-    this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_REVOKED', 'info');
+    this.staffBranchesService.revokeInvitation(this.invitation.id).subscribe({
+      next: (invitation) => {
+        this.invitation = invitation;
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_REVOKED', 'info');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.showFlash('STAFF_BRANCHES.FEEDBACK.INVITATION_ACTION_FAILED', 'info');
+        this.cdr.markForCheck();
+      }
+    });
   }
 
   private showFlash(key: string, tone: 'success' | 'info'): void {

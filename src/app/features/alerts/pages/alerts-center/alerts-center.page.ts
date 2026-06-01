@@ -1,5 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, DoCheck, OnDestroy, OnInit } from '@angular/core';
+import { Component, DoCheck, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -30,6 +30,7 @@ import {
 import { AlertsCenterService } from '../../services/alerts-center.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-alerts-center-page',
   standalone: true,
   imports: [
@@ -50,6 +51,7 @@ import { AlertsCenterService } from '../../services/alerts-center.service';
   templateUrl: './alerts-center.page.html'
 })
 export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
 
   get mappedSourceOptions(): SearchableSelectOption[] {
     return [{value: 'all', labelKey: 'ALERTS_CENTER.FILTERS.ALL_SOURCES'}].concat(
@@ -110,6 +112,7 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.cdr.markForCheck();
       this.currentLang = event.lang;
     });
   }
@@ -119,6 +122,7 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
       this.alertsCenterService.getAlerts(),
       this.alertsCenterService.getSummary()
     ]).subscribe(([alerts, summary]) => {
+      this.cdr.markForCheck();
       this.alerts = alerts;
       this.summary = summary;
     });

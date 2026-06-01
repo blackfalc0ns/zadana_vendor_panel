@@ -1,4 +1,4 @@
-import { Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, forwardRef, HostListener, Input, Output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, FormsModule, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -11,6 +11,7 @@ export interface SearchableSelectOption<T = any> {
 }
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-searchable-select',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule],

@@ -1,15 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { of } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 import { CatalogService } from '../../services/catalog.service';
 import { Category } from '../../models/catalog.models';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppCategorySelectorComponent } from '../../../../shared/components/ui/category-selector/category-selector.component';
+import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-product-submission',
   standalone: true,
   imports: [
@@ -112,6 +116,33 @@ import { AppCategorySelectorComponent } from '../../../../shared/components/ui/c
               </div>
             </div>
           </div>
+          <!-- Product Image Card -->
+          <div class="bg-white rounded-[2rem] border border-slate-200/60 p-8 shadow-sm">
+            <h3 class="text-sm font-black text-slate-800 mb-6 flex items-center gap-2">
+              <span class="w-2 h-6 bg-zadna-primary rounded-full"></span>
+              {{ 'CATALOG.IMAGE' | translate }}
+            </h3>
+
+            <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/30 p-6 text-center relative hover:bg-slate-50/60 transition-all">
+              @if (productImageFile) {
+                <div class="flex items-center justify-between gap-4 px-4">
+                  <div class="flex items-center gap-3">
+                    <img [src]="getProductImageUrlPreview()" class="h-10 w-10 rounded-lg object-cover bg-white border">
+                    <span class="text-[0.75rem] font-bold text-slate-600 truncate max-w-[200px]">{{ productImageFile.name }}</span>
+                  </div>
+                  <button type="button" (click)="removeProductImage()" class="text-[0.72rem] font-black text-rose-500">
+                    {{ 'PRODUCTS.REMOVE_IMAGE' | translate }}
+                  </button>
+                </div>
+              } @else {
+                <label class="block w-full h-full cursor-pointer">
+                  <p class="text-[0.75rem] font-black text-slate-600">{{ 'PRODUCTS.UPLOAD_PHOTO' | translate }}</p>
+                  <p class="text-[0.65rem] font-bold text-slate-400">{{ 'COMMON.OPTIONAL' | translate }}</p>
+                  <input type="file" accept="image/*" class="hidden" (change)="onProductImageSelected($event)">
+                </label>
+              }
+            </div>
+          </div>
 
           <!-- Actions -->
           <div class="flex justify-end gap-3 pt-4">
@@ -136,15 +167,18 @@ import { AppCategorySelectorComponent } from '../../../../shared/components/ui/c
   `
 })
 export class ProductSubmissionComponent implements OnInit {
+  private readonly cdr = inject(ChangeDetectorRef);
   productForm: FormGroup;
   categories: Category[] = [];
   isSubmitting = false;
+  productImageFile: File | null = null;
 
   constructor(
     private fb: FormBuilder,
     private catalogService: CatalogService,
     public translate: TranslateService,
-    private router: Router
+    private router: Router,
+    private alertModalService: AlertModalService
   ) {
     this.productForm = this.fb.group({
       productNameAr: ['', [Validators.required, Validators.minLength(3)]],
@@ -163,6 +197,7 @@ export class ProductSubmissionComponent implements OnInit {
 
   loadCategories(): void {
     this.catalogService.getCategories().subscribe(res => {
+      this.cdr.markForCheck();
       this.categories = res;
     });
   }
@@ -171,20 +206,50 @@ export class ProductSubmissionComponent implements OnInit {
     this.productForm.patchValue({ categoryId: id });
   }
 
+  onProductImageSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0];
+    if (!file) {
+      return;
+    }
+    this.productImageFile = file;
+  }
+
+  getProductImageUrlPreview(): string {
+    return this.productImageFile ? URL.createObjectURL(this.productImageFile) : '';
+  }
+
+  removeProductImage(): void {
+    this.productImageFile = null;
+  }
+
   onSubmit(): void {
     if (this.productForm.invalid) return;
 
     this.isSubmitting = true;
-    this.catalogService.submitProductRequest(this.productForm.value).subscribe({
+
+    const upload$ = this.productImageFile
+      ? this.catalogService.uploadFile(this.productImageFile, 'uploads/catalog/product-requests')
+      : of<string | null>(null);
+
+    upload$.pipe(
+      switchMap((productImageUrl) => {
+        const payload = {
+          ...this.productForm.value,
+          imageUrl: productImageUrl
+        };
+        return this.catalogService.submitProductRequest(payload);
+      })
+    ).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.isSubmitting = false;
-        // Navigate back or to success page
-        alert(this.translate.instant('CATALOG.REQUEST_SUBMITTED_SUCCESS'));
+        void this.alertModalService.showAlert(this.translate.instant('CATALOG.REQUEST_SUBMITTED_SUCCESS'), 'COMMON.SUCCESS', 'success');
         this.router.navigate(['/products']);
       },
       error: () => {
+        this.cdr.markForCheck();
         this.isSubmitting = false;
-        alert(this.translate.instant('COMMON.ERROR_OCCURRED'));
+        void this.alertModalService.showAlert(this.translate.instant('COMMON.ERROR_OCCURRED'), 'COMMON.ERROR', 'danger');
       }
     });
   }

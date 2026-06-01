@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
@@ -18,6 +18,7 @@ import { CatalogService } from '../../services/catalog.service';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-product-list',
   standalone: true,
   imports: [
@@ -394,7 +395,8 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
 
     @if (isSelectorModalOpen) {
       <app-master-product-selector-modal
-        (close)="isSelectorModalOpen = false"
+        [initialSearchTerm]="selectorInitialSearch"
+        (close)="isSelectorModalOpen = false; selectorInitialSearch = ''"
         (selected)="onProductSelected($event)"
         (selectedBulk)="onBulkProductsSelected($event)"
         (requestProduct)="onRequestProduct($event)">
@@ -433,6 +435,7 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
   `]
 })
 export class ProductListComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   products: VendorProduct[] = [];
   categories: any[] = [];
   units: UnitOption[] = [];
@@ -452,6 +455,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
   private langSub: Subscription;
 
   isSelectorModalOpen = false;
+  selectorInitialSearch = '';
   isPricingModalOpen = false;
   isBulkReviewModalOpen = false;
   isRequestModalOpen = false;
@@ -476,11 +480,24 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.applyQueryParams();
+    this.route.queryParamMap.subscribe(params => {
+      this.cdr.markForCheck();
+      const openSelector = params.get('openSelector');
+      const search = params.get('search');
+      if (openSelector === 'true') {
+        this.isSelectorModalOpen = true;
+        if (search) {
+          this.selectorInitialSearch = search;
+        }
+      }
+    });
     this.catalogService.getCategories().subscribe(cats => {
+      this.cdr.markForCheck();
       this.categories = this.flattenCategories(cats || []);
       this.loadProducts();
     });
     this.catalogService.getUnits().subscribe(units => {
+      this.cdr.markForCheck();
       this.units = units || [];
     });
   }
@@ -710,6 +727,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
       searchTerm: this.searchTerm
     }).subscribe({
       next: (response) => {
+        this.cdr.markForCheck();
         this.products = response.items.map(p => {
           const cat = this.categories.find(c => c.id === p.categoryId);
           if (cat) {
@@ -723,6 +741,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
         this.isLoading = false;
       },
       error: () => {
+        this.cdr.markForCheck();
         this.isLoading = false;
       }
     });
@@ -805,10 +824,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
       stockQty: pricingData.stockQuantity
     }).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.selectedMasterProduct = null;
         this.loadProducts();
       },
       error: () => {
+        this.cdr.markForCheck();
         this.loadProducts();
       }
     });
@@ -823,14 +844,23 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.isRequestModalOpen = false;
   }
 
-  deleteProduct(product: VendorProduct): void {
+  async deleteProduct(product: VendorProduct): Promise<void> {
     const productName = this.currentLang === 'ar'
       ? (product.nameAr || product.nameEn || '')
       : (product.nameEn || product.nameAr || '');
-    const confirmed = window.confirm(
-      this.currentLang === 'ar'
-        ? `هل تريد حذف المنتج "${productName}"؟`
-        : `Do you want to delete "${productName}"?`
+    
+    const message = this.currentLang === 'ar'
+      ? `هل تريد حذف المنتج "${productName}"؟`
+      : `Do you want to delete "${productName}"?`;
+    
+    const confirmed = await this.alertModalService.showConfirm(
+      message,
+      this.currentLang === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete',
+      {
+        type: 'danger',
+        confirmText: this.currentLang === 'ar' ? 'حذف' : 'Delete',
+        cancelText: this.currentLang === 'ar' ? 'إلغاء' : 'Cancel'
+      }
     );
 
     if (!confirmed) {
@@ -839,12 +869,14 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
     this.catalogService.deleteVendorProduct(product.id).subscribe({
       next: () => {
+        this.cdr.markForCheck();
         this.alertModalService.success(
           this.currentLang === 'ar' ? 'تم حذف المنتج بنجاح.' : 'Product deleted successfully.'
         );
         this.loadProducts();
       },
       error: (error) => {
+        this.cdr.markForCheck();
         this.alertModalService.error(
           error?.error?.message
             || (this.currentLang === 'ar'
@@ -881,6 +913,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
     if (measurementValue) {
       this.filters.measurementValue = measurementValue;
+    }
+
+    const openSelector = params.get('openSelector');
+    const search = params.get('search');
+    if (openSelector === 'true') {
+      this.isSelectorModalOpen = true;
+      if (search) {
+        this.selectorInitialSearch = search;
+      }
     }
   }
 }

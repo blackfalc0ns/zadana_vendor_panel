@@ -13,16 +13,31 @@ export class VendorHasPermissionGuard {
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot
   ): boolean | UrlTree | Observable<boolean | UrlTree> | Promise<boolean | UrlTree> {
-    const requiredPermission = route.data['permission'] as string;
-    
-    if (!requiredPermission) {
+    const requiredPermission = route.data['permission'] as string | string[] | undefined;
+    const matchMode = (route.data['permissionMatch'] as 'all' | 'any' | undefined) ?? 'any';
+
+    if (!requiredPermission || (Array.isArray(requiredPermission) && requiredPermission.length === 0)) {
       return true;
     }
-    
-    if (this.accessService.hasPermission(requiredPermission)) {
+
+    const hasAccess = Array.isArray(requiredPermission)
+      ? (matchMode === 'all'
+          ? this.accessService.hasAllPermissions(requiredPermission)
+          : this.accessService.hasAnyPermission(requiredPermission))
+      : this.accessService.hasPermission(requiredPermission);
+
+    if (hasAccess) {
       return true;
     }
-    
-    return this.router.createUrlTree(['/unauthorized']);
+
+    return this.router.createUrlTree(
+      ['/profile'],
+      {
+        queryParams: {
+          denied: '1',
+          returnUrl: state.url
+        }
+      }
+    );
   }
 }

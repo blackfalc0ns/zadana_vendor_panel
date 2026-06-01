@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription, interval, switchMap } from 'rxjs';
@@ -14,6 +14,7 @@ import { CatalogService } from '../../services/catalog.service';
 type BulkReviewStage = 'review' | 'submitting' | 'done';
 
 @Component({
+  changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-bulk-add-review-modal',
   standalone: true,
   imports: [CommonModule, FormsModule, TranslateModule],
@@ -206,6 +207,7 @@ type BulkReviewStage = 'review' | 'submitting' | 'done';
   `
 })
 export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
+  private readonly cdr = inject(ChangeDetectorRef);
   @Input() products: MasterProduct[] = [];
   @Input() currentLang = 'ar';
   @Output() close = new EventEmitter<void>();
@@ -367,10 +369,12 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
     this.stage = 'submitting';
     this.catalogService.createBulkProducts(this.rows).subscribe({
       next: (operation) => {
+        this.cdr.markForCheck();
         this.operation = operation;
         this.startPolling(operation.id);
       },
       error: () => {
+        this.cdr.markForCheck();
         this.stage = 'review';
       }
     });
@@ -382,10 +386,12 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
       .pipe(switchMap(() => this.catalogService.getBulkOperation(operationId)))
       .subscribe({
         next: (operation) => {
+        this.cdr.markForCheck();
           this.operation = operation;
           if (operation.status !== 'Pending' && operation.status !== 'Processing') {
             this.catalogService.getBulkOperationItems(operationId).subscribe({
               next: (items) => {
+        this.cdr.markForCheck();
                 this.resultItems = items;
                 this.stage = 'done';
                 this.pollSub?.unsubscribe();

@@ -42,6 +42,8 @@ export interface VendorSupportTicketVm {
   assignedAgentOnline: boolean;
   tags: SupportTagVm[];
   messages: SupportMessageVm[];
+  orderId?: string | null;
+  orderNumber?: string | null;
   linkedRoute?: string;
 }
 
@@ -82,6 +84,7 @@ export interface CreateSupportTicketInput {
   summary: LocalizedTextVm;
   initialMessage: LocalizedTextVm;
   authorName: string;
+  orderId?: string | null;
 }
 
 export function cloneLocalizedText(value: LocalizedTextVm): LocalizedTextVm {
@@ -103,7 +106,9 @@ export function cloneSupportTicket(ticket: VendorSupportTicketVm): VendorSupport
     summary: cloneLocalizedText(ticket.summary),
     assignedAgentRole: cloneLocalizedText(ticket.assignedAgentRole),
     tags: ticket.tags.map((tag) => ({ ...tag })),
-    messages: ticket.messages.map((message) => cloneSupportMessage(message))
+    messages: ticket.messages.map((message) => cloneSupportMessage(message)),
+    orderId: ticket.orderId ?? null,
+    orderNumber: ticket.orderNumber ?? null
   };
 }
 

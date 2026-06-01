@@ -78,17 +78,27 @@
             </div>
           </div>
 
+          <div *ngIf="!dispute.allowedActions.includes('message')" class="mb-3 rounded-[1rem] border border-amber-200 bg-amber-50 px-4 py-3 text-[0.75rem] font-black text-amber-700">
+            {{ 'VENDOR_DISPUTES.DETAIL.CLOSED_BANNER' | translate }}
+          </div>
+
           <div class="mt-4 overflow-hidden rounded-[1.2rem] border border-slate-200/70 bg-white/80">
             <textarea
               rows="4"
               [(ngModel)]="responseDraft"
               [placeholder]="'VENDOR_DISPUTES.DETAIL.REPLY_PLACEHOLDER' | translate"
-              class="min-h-[8.5rem] w-full resize-none border-0 bg-transparent px-4 py-4 text-[0.78rem] font-bold leading-6 text-slate-800 outline-none placeholder:font-bold placeholder:text-slate-400 focus:ring-0"></textarea>
+              [disabled]="!dispute.allowedActions.includes('message')"
+              class="min-h-[8.5rem] w-full resize-none border-0 bg-transparent px-4 py-4 text-[0.78rem] font-bold leading-6 text-slate-800 outline-none placeholder:font-bold placeholder:text-slate-400 focus:ring-0 disabled:cursor-not-allowed disabled:opacity-50"></textarea>
 
             <div class="flex items-center justify-between border-t border-slate-200/70 bg-slate-50/80 px-4 py-3">
               <div class="flex items-center gap-2 text-slate-400">
-                <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-[16px] shadow-sm">
-                  <span class="material-symbols-outlined text-[16px]">attach_file</span>
+                <label class="inline-flex h-8 w-8 cursor-pointer items-center justify-center rounded-full bg-white text-[16px] shadow-sm hover:bg-slate-100 transition-colors"
+                  [ngClass]="{'opacity-50 !cursor-not-allowed': !dispute.allowedActions.includes('message')}">
+                  <span class="material-symbols-outlined text-[16px] text-slate-500">attach_file</span>
+                  <input type="file" class="hidden" (change)="onFileSelected($event)" [disabled]="isUploadingFile || !dispute.allowedActions.includes('message')">
+                </label>
+                <span *ngIf="isUploadingFile" class="text-[11px] font-bold text-[#00626f] animate-pulse">
+                  {{ currentLang === 'ar' ? 'جاري الرفع...' : 'Uploading...' }}
                 </span>
                 <span class="inline-flex h-8 w-8 items-center justify-center rounded-full bg-white text-[16px] shadow-sm">
                   <span class="material-symbols-outlined text-[16px]">format_bold</span>

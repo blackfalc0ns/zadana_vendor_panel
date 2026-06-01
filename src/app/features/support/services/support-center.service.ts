@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { BehaviorSubject, Observable, map, of } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   CreateSupportTicketInput,
   LocalizedTextVm,
-  SupportCategory,
   SupportMessageVm,
   SupportReferenceArticleVm,
   SupportSummaryVm,
@@ -16,11 +15,19 @@ import {
   cloneSupportTicket,
   cloneSupportTickets
 } from '../models/support-center.models';
+
+interface VendorSupportTicketsListResponseApi {
+  items: VendorSupportTicketVm[];
+  page: number;
+  pageSize: number;
+  total: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class SupportCenterService {
-  private readonly stateUrl = `${environment.apiUrl}/vendor/workspace-state/support`;
+  private readonly apiUrl = `${environment.apiUrl}/vendor/support/tickets`;
   private readonly ticketsSubject = new BehaviorSubject<VendorSupportTicketVm[]>([]);
   private readonly referenceArticles = this.buildReferenceArticles();
 
@@ -41,11 +48,11 @@ export class SupportCenterService {
   }
 
   getTicketById(ticketId: string): Observable<VendorSupportTicketVm | null> {
-    return this.ticketsSubject.pipe(
-      map((tickets) => {
-        const ticket = tickets.find((item) => item.id === ticketId);
-        return ticket ? cloneSupportTicket(ticket) : null;
-      })
+    return this.http.get<VendorSupportTicketVm>(`${this.apiUrl}/${ticketId}`).pipe(
+      map((ticket) => this.normalizeTicket(ticket)),
+      tap((ticket) => this.upsertTicket(ticket)),
+      map((ticket) => cloneSupportTicket(ticket)),
+      catchError(() => of(null))
     );
   }
 
@@ -54,104 +61,63 @@ export class SupportCenterService {
     return of(article ? cloneSupportReferenceArticle(article) : null);
   }
 
-  createTicket(input: CreateSupportTicketInput): VendorSupportTicketVm {
-    const timestamp = new Date().toISOString();
-    const ticket: VendorSupportTicketVm = {
-      id: this.generateId('ticket'),
-      reference: this.generateReference(),
-      subject: { ...input.subject },
+  createTicket(input: CreateSupportTicketInput): Observable<VendorSupportTicketVm> {
+    const body = {
+      subject: this.resolveText(input.subject),
       category: input.category,
       priority: input.priority,
-      status: 'open',
-      createdAt: timestamp,
-      updatedAt: timestamp,
-      firstResponseHours: 0.8,
-      summary: { ...input.summary },
-      assignedAgentName: 'Mariam Saleh',
-      assignedAgentRole: {
-        ar: 'أخصائي دعم الموردين',
-        en: 'Vendor Support Specialist'
-      },
-      assignedAgentOnline: true,
-      tags: [
-        { id: 'new', labelKey: 'SUPPORT_CENTER.TAGS.NEW_CASE', tone: 'info' },
-        { id: 'sla', labelKey: 'SUPPORT_CENTER.TAGS.SLA_ACTIVE', tone: 'warning' }
-      ],
-      messages: [
-        {
-          id: this.generateId('message'),
-          direction: 'vendor',
-          author: input.authorName,
-          role: {
-            ar: 'مسؤول المتجر',
-            en: 'Store Admin'
-          },
-          message: { ...input.initialMessage },
-          createdAt: timestamp
-        }
-      ]
+      message: this.resolveText(input.initialMessage),
+      orderId: input.orderId?.trim() || null
     };
 
-    this.setTickets((tickets) => [ticket, ...tickets]);
-    return ticket;
+    return this.http.post<VendorSupportTicketVm>(this.apiUrl, body).pipe(
+      map((ticket) => this.normalizeTicket(ticket)),
+      tap((ticket) => this.upsertTicket(ticket)),
+      map((ticket) => cloneSupportTicket(ticket))
+    );
   }
 
-  addVendorMessage(ticketId: string, message: LocalizedTextVm, authorName: string): void {
-    const normalizedAr = message.ar.trim();
-    const normalizedEn = message.en.trim();
-
-    if (!normalizedAr && !normalizedEn) {
-      return;
+  addVendorMessage(ticketId: string, message: LocalizedTextVm, _authorName: string): Observable<VendorSupportTicketVm> {
+    const normalizedMessage = this.resolveText(message);
+    if (!normalizedMessage) {
+      return this.getTicketById(ticketId).pipe(
+        map((ticket) => ticket as VendorSupportTicketVm)
+      );
     }
 
-    const timestamp = new Date().toISOString();
-
-    this.setTickets((tickets) => tickets.map((ticket) => {
-      if (ticket.id !== ticketId) {
-        return ticket;
-      }
-
-      const nextMessage: SupportMessageVm = {
-        id: this.generateId('message'),
-        direction: 'vendor',
-        author: authorName,
-        role: {
-          ar: 'مسؤول المتجر',
-          en: 'Store Admin'
-        },
-        message: {
-          ar: normalizedAr || normalizedEn,
-          en: normalizedEn || normalizedAr
-        },
-        createdAt: timestamp
-      };
-
-      const nextStatus: SupportTicketStatus = ticket.status === 'resolved' ? 'in_progress' : 'in_progress';
-
-      return {
-        ...ticket,
-        status: nextStatus,
-        updatedAt: timestamp,
-        messages: [...ticket.messages, nextMessage]
-      };
-    }));
+    return this.http.post<VendorSupportTicketVm>(`${this.apiUrl}/${ticketId}/messages`, {
+      message: normalizedMessage
+    }).pipe(
+      map((ticket) => this.normalizeTicket(ticket)),
+      tap((ticket) => this.upsertTicket(ticket)),
+      map((ticket) => cloneSupportTicket(ticket))
+    );
   }
 
   resetSeedState(): void {
     this.loadTickets();
   }
 
+  refresh(): void {
+    this.loadTickets();
+  }
+
   private loadTickets(): void {
-    this.http.get<VendorSupportTicketVm[]>(this.stateUrl).subscribe({
-      next: (tickets) => this.ticketsSubject.next((tickets || []).map((ticket) => this.normalizeTicket(ticket))),
-      error: () => this.ticketsSubject.next([])
-    });
+    this.http.get<VendorSupportTicketsListResponseApi>(this.apiUrl, {
+      params: new HttpParams()
+        .set('page', '1')
+        .set('pageSize', '100')
+    }).pipe(
+      map((response) => (response.items || []).map((ticket) => this.normalizeTicket(ticket))),
+      catchError(() => of([]))
+    ).subscribe((tickets) => this.ticketsSubject.next(tickets));
   }
 
   private buildSummary(tickets: VendorSupportTicketVm[]): SupportSummaryVm {
     const activeTickets = tickets.filter((ticket) => ticket.status !== 'resolved');
-    const averageResponseHours = tickets.length
-      ? Number((tickets.reduce((sum, ticket) => sum + ticket.firstResponseHours, 0) / tickets.length).toFixed(1))
+    const respondedTickets = tickets.filter((ticket) => ticket.firstResponseHours > 0);
+    const averageResponseHours = respondedTickets.length
+      ? Number((respondedTickets.reduce((sum, ticket) => sum + ticket.firstResponseHours, 0) / respondedTickets.length).toFixed(1))
       : 0;
 
     return {
@@ -162,49 +128,64 @@ export class SupportCenterService {
     };
   }
 
-  private buildSeedTickets(): VendorSupportTicketVm[] {
-    this.persistTickets([]);
-    return [];
-  }
-
   private buildReferenceArticles(): SupportReferenceArticleVm[] {
     return [];
   }
 
-  private setTickets(projector: (tickets: VendorSupportTicketVm[]) => VendorSupportTicketVm[]): void {
-    const nextTickets = projector(this.ticketsSubject.value);
-    this.persistTickets(nextTickets);
-    this.ticketsSubject.next(nextTickets);
-  }
-
-  private persistTickets(tickets: VendorSupportTicketVm[]): void {
-    this.http.put(this.stateUrl, tickets).subscribe();
+  private upsertTicket(ticket: VendorSupportTicketVm): void {
+    const existing = this.ticketsSubject.value.filter((item) => item.id !== ticket.id);
+    this.ticketsSubject.next([ticket, ...existing].sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()));
   }
 
   private normalizeTicket(ticket: VendorSupportTicketVm): VendorSupportTicketVm {
+    const category = ticket.category || 'general';
+    const status = this.normalizeStatus(ticket.status);
+    const priority = ticket.priority || 'medium';
+    const summary = ticket.summary ?? ticket.subject ?? { ar: '', en: '' };
+
     return {
       ...ticket,
-      subject: { ...ticket.subject },
-      summary: { ...ticket.summary },
-      assignedAgentRole: { ...ticket.assignedAgentRole },
-      tags: ticket.tags.map((tag) => ({ ...tag })),
-      messages: ticket.messages.map((message) => ({
-        ...message,
-        role: { ...message.role },
-        message: { ...message.message }
-      }))
+      category,
+      status,
+      priority,
+      subject: { ...(ticket.subject ?? { ar: '', en: '' }) },
+      summary: { ...summary },
+      firstResponseHours: Number(ticket.firstResponseHours || 0),
+      assignedAgentName: ticket.assignedAgentName || 'Zadana Support',
+      assignedAgentRole: { ...(ticket.assignedAgentRole ?? { ar: 'Vendor Support Specialist', en: 'Vendor Support Specialist' }) },
+      assignedAgentOnline: ticket.assignedAgentOnline ?? true,
+      tags: (ticket.tags || []).map((tag) => ({ ...tag })),
+      messages: (ticket.messages || []).map((message) => this.normalizeMessage(message)),
+      orderId: ticket.orderId ?? null,
+      orderNumber: ticket.orderNumber ?? null,
+      linkedRoute: ticket.linkedRoute ?? (ticket.orderId ? `/orders/${ticket.orderId}` : undefined)
     };
   }
 
-  private generateReference(): string {
-    return `SUP-${Math.floor(2400 + Math.random() * 400)}`;
+  private normalizeMessage(message: SupportMessageVm): SupportMessageVm {
+    return {
+      ...message,
+      role: { ...(message.role ?? { ar: '', en: '' }) },
+      message: { ...(message.message ?? { ar: '', en: '' }) }
+    };
   }
 
-  private generateId(prefix: string): string {
-    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-      return `${prefix}-${crypto.randomUUID()}`;
+  private normalizeStatus(value: string): SupportTicketStatus {
+    switch ((value || '').trim().toLowerCase()) {
+      case 'inprogress':
+      case 'in_progress':
+        return 'in_progress';
+      case 'waitingvendor':
+      case 'waiting_vendor':
+        return 'waiting_vendor';
+      case 'resolved':
+        return 'resolved';
+      default:
+        return 'open';
     }
+  }
 
-    return `${prefix}-${Math.random().toString(36).slice(2, 10)}`;
+  private resolveText(value: LocalizedTextVm): string {
+    return (value.en || value.ar || '').trim();
   }
 }
