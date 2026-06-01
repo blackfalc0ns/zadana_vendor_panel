@@ -1007,11 +1007,11 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     const alignment = this.currentLang === 'ar' ? 'text-right' : 'text-left';
 
     return [
-      'h-10 w-full rounded-[12px] border px-3 text-[0.75rem] font-semibold text-slate-900 outline-none transition-all',
+      'h-12 w-full rounded-[14px] border px-4 text-sm font-semibold text-slate-900 outline-none transition-all duration-200 shadow-sm',
       alignment,
       invalid
-        ? 'border-rose-200 bg-rose-50/70 focus:border-rose-300 focus:bg-white focus:ring-2 focus:ring-rose-100'
-        : 'border-slate-200/80 bg-slate-50/80 focus:border-zadna-primary/25 focus:bg-white focus:ring-2 focus:ring-zadna-primary/10'
+        ? 'border-rose-300 hover:border-rose-400 bg-rose-50/30 focus:border-rose-400 focus:bg-white focus:ring-4 focus:ring-rose-100'
+        : 'border-slate-200 hover:border-slate-300 bg-slate-50/50 focus:border-zadna-primary focus:bg-white focus:ring-4 focus:ring-zadna-primary/10'
     ].join(' ');
   }
 
@@ -1022,7 +1022,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       this.fieldClass(controlName, mode),
       'appearance-none cursor-pointer',
       alignment,
-      this.currentLang === 'ar' ? 'pl-9 pr-3' : 'pr-9 pl-3'
+      this.currentLang === 'ar' ? 'pl-9 pr-4' : 'pr-9 pl-4'
     ].join(' ');
   }
 
@@ -1031,11 +1031,11 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     const alignment = this.currentLang === 'ar' ? 'text-right' : 'text-left';
 
     return [
-      'w-full rounded-[12px] border px-3 py-2.5 text-[0.75rem] font-semibold text-slate-900 outline-none transition-all resize-none',
+      'w-full rounded-[14px] border px-4 py-3 text-sm font-semibold text-slate-900 outline-none transition-all duration-200 shadow-sm resize-none',
       alignment,
       invalid
-        ? 'border-rose-200 bg-rose-50/70 focus:border-rose-300 focus:bg-white focus:ring-2 focus:ring-rose-100'
-        : 'border-slate-200/80 bg-slate-50/80 focus:border-zadna-primary/25 focus:bg-white focus:ring-2 focus:ring-zadna-primary/10'
+        ? 'border-rose-300 hover:border-rose-400 bg-rose-50/30 focus:border-rose-400 focus:bg-white focus:ring-4 focus:ring-rose-100'
+        : 'border-slate-200 hover:border-slate-300 bg-slate-50/50 focus:border-zadna-primary focus:bg-white focus:ring-4 focus:ring-zadna-primary/10'
     ].join(' ');
   }
 

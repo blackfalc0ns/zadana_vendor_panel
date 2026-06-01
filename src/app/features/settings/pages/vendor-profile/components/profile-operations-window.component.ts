@@ -24,23 +24,49 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
             <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.BANK_PROFILE' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5 md:grid-cols-2">
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'ONBOARDING.FIELDS.BANK_NAME' | translate }}</span>
-              <app-searchable-select formControlName="bankName" [options]="bankOptions" [placeholder]="'ONBOARDING.FIELDS.BANK_NAME'"></app-searchable-select>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'ONBOARDING.FIELDS.BANK_NAME' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+              </span>
+              <app-searchable-select 
+                formControlName="bankName" 
+                [options]="bankOptions" 
+                [placeholder]="'ONBOARDING.FIELDS.BANK_NAME'"
+                [error]="form.get('bankName')?.invalid && (form.get('bankName')?.touched || form.get('bankName')?.dirty) ? 'REGISTER.ERR_GENERAL' : ''"
+                [isTouched]="form.get('bankName')?.touched || form.get('bankName')?.dirty || false"
+                [isRequired]="true"
+              ></app-searchable-select>
             </label>
 
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'ONBOARDING.FIELDS.PAYMENT_CYCLE' | translate }}</span>
-              <app-searchable-select formControlName="payoutCycle" [options]="paymentCycleOptions" [placeholder]="'ONBOARDING.FIELDS.PAYMENT_CYCLE'"></app-searchable-select>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'ONBOARDING.FIELDS.PAYMENT_CYCLE' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+              </span>
+              <app-searchable-select 
+                formControlName="payoutCycle" 
+                [options]="paymentCycleOptions" 
+                [placeholder]="'ONBOARDING.FIELDS.PAYMENT_CYCLE'"
+                [error]="form.get('payoutCycle')?.invalid && (form.get('payoutCycle')?.touched || form.get('payoutCycle')?.dirty) ? 'REGISTER.ERR_GENERAL' : ''"
+                [isTouched]="form.get('payoutCycle')?.touched || form.get('payoutCycle')?.dirty || false"
+                [isRequired]="true"
+              ></app-searchable-select>
             </label>
 
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'ONBOARDING.FIELDS.IBAN' | translate }}</span>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'ONBOARDING.FIELDS.IBAN' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+              </span>
               <input formControlName="iban" type="text" dir="ltr" [class]="fieldClass('iban', 'ltr')">
+              <p *ngIf="form.get('iban')?.invalid && (form.get('iban')?.touched || form.get('iban')?.dirty)" 
+                class="text-[11px] font-semibold text-rose-500 mt-1.5 block px-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                {{ 'REGISTER.ERR_GENERAL' | translate }}
+              </p>
             </label>
 
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'ONBOARDING.FIELDS.SWIFT' | translate }}</span>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'ONBOARDING.FIELDS.SWIFT' | translate }}
+              </span>
               <input formControlName="swiftCode" type="text" dir="ltr" class="uppercase" [class]="fieldClass('swiftCode', 'ltr')">
             </label>
           </div>
@@ -72,8 +98,8 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
                   <p class="text-sm font-bold text-slate-900">{{ currentLang === 'ar' ? 'ظهور المتجر في تطبيق العميل' : 'Store visibility in customer app' }}</p>
                   <p class="mt-1 text-[0.72rem] font-semibold text-slate-500">
                     {{ currentLang === 'ar'
-                      ? 'إذا تم تحويل المتجر إلى أوفلاين ستختفي منتجاته من التطبيق حتى تعيده أونلاين.'
-                      : 'When switched offline, the store products are hidden from the customer app until it is turned online again.' }}
+                       ? 'إذا تم تحويل المتجر إلى أوفلاين ستختفي منتجاته من التطبيق حتى تعيده أونلاين.'
+                       : 'When switched offline, the store products are hidden from the customer app until it is turned online again.' }}
                   </p>
                 </div>
 
@@ -82,8 +108,8 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
                   [ngClass]="isStoreOffline() ? 'border border-rose-200 bg-rose-50 text-rose-700' : 'border border-emerald-200 bg-emerald-50 text-emerald-700'">
                   <span class="h-2 w-2 rounded-full" [ngClass]="isStoreOffline() ? 'bg-rose-500' : 'bg-emerald-500'"></span>
                   {{ isStoreOffline()
-                    ? (currentLang === 'ar' ? 'المتجر أوفلاين' : 'Store is offline')
-                    : (currentLang === 'ar' ? 'المتجر أونلاين' : 'Store is online') }}
+                     ? (currentLang === 'ar' ? 'المتجر أوفلاين' : 'Store is offline')
+                     : (currentLang === 'ar' ? 'المتجر أونلاين' : 'Store is online') }}
                 </span>
               </div>
 
@@ -107,8 +133,10 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
                 </button>
               </div>
 
-              <label *ngIf="isStoreOffline()" class="mt-4 block space-y-2">
-                <span class="text-xs font-bold text-slate-700">{{ currentLang === 'ar' ? 'سبب الإخفاء الاختياري' : 'Optional offline reason' }}</span>
+              <label *ngIf="isStoreOffline()" class="mt-4 block">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                  {{ currentLang === 'ar' ? 'سبب الإخفاء الاختياري' : 'Optional offline reason' }}
+                </span>
                 <input formControlName="storeManualReason" type="text" [class]="fieldClass('storeManualReason')">
               </label>
             </div>
@@ -129,13 +157,17 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
 
             <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
               <div class="grid gap-4 md:grid-cols-2">
-                <label class="space-y-2">
-                  <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.OPERATIONS.MINIMUM_ORDER_AMOUNT' | translate }}</span>
+                <label class="block">
+                  <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                    {{ 'SETTINGS_PROFILE.OPERATIONS.MINIMUM_ORDER_AMOUNT' | translate }}
+                  </span>
                   <input formControlName="minimumOrderAmount" type="number" min="0" [class]="fieldClass('minimumOrderAmount', 'ltr')">
                 </label>
 
-                <label class="space-y-2">
-                  <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.OPERATIONS.PREPARATION_TIME' | translate }}</span>
+                <label class="block">
+                  <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                    {{ 'SETTINGS_PROFILE.OPERATIONS.PREPARATION_TIME' | translate }}
+                  </span>
                   <input formControlName="preparationTimeMinutes" type="number" min="0" [class]="fieldClass('preparationTimeMinutes', 'ltr')">
                 </label>
               </div>
@@ -180,7 +212,9 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
                   <app-searchable-select
                     formControlName="notificationSound"
                     [options]="notificationSoundOptions"
-                    [placeholder]="'SETTINGS_PROFILE.NOTIFICATIONS.SOUND'">
+                    [placeholder]="'SETTINGS_PROFILE.NOTIFICATIONS.SOUND'"
+                    [error]="form.get('notificationSound')?.invalid && (form.get('notificationSound')?.touched || form.get('notificationSound')?.dirty) ? 'REGISTER.ERR_GENERAL' : ''"
+                    [isTouched]="form.get('notificationSound')?.touched || form.get('notificationSound')?.dirty || false">
                   </app-searchable-select>
                 </div>
                 

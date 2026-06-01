@@ -24,33 +24,68 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
             <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.REPRESENTATIVE_INFO' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5 md:grid-cols-2">
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.ID_NUMBER' | translate }}</span>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'SETTINGS_PROFILE.FIELDS.ID_NUMBER' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+              </span>
               <input formControlName="idNumber" type="text" dir="ltr" [class]="fieldClass('idNumber', 'ltr')">
+              <p *ngIf="form.get('idNumber')?.invalid && (form.get('idNumber')?.touched || form.get('idNumber')?.dirty)" 
+                class="text-[11px] font-semibold text-rose-500 mt-1.5 block px-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                {{ 'REGISTER.ERR_GENERAL' | translate }}
+              </p>
             </label>
 
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.NATIONALITY' | translate }}</span>
-              <app-searchable-select formControlName="nationality" [options]="nationalityOptions" [placeholder]="'SETTINGS_PROFILE.FIELDS.NATIONALITY'"></app-searchable-select>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'SETTINGS_PROFILE.FIELDS.NATIONALITY' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+              </span>
+              <app-searchable-select 
+                formControlName="nationality" 
+                [options]="nationalityOptions" 
+                [placeholder]="'SETTINGS_PROFILE.FIELDS.NATIONALITY'"
+                [error]="form.get('nationality')?.invalid && (form.get('nationality')?.touched || form.get('nationality')?.dirty) ? 'REGISTER.ERR_GENERAL' : ''"
+                [isTouched]="form.get('nationality')?.touched || form.get('nationality')?.dirty || false"
+                [isRequired]="true"
+              ></app-searchable-select>
             </label>
 
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.COMMERCIAL_REGISTRATION' | translate }}</span>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'SETTINGS_PROFILE.FIELDS.COMMERCIAL_REGISTRATION' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+              </span>
               <input formControlName="commercialRegistrationNumber" type="text" dir="ltr" [class]="fieldClass('commercialRegistrationNumber', 'ltr')">
+              <p *ngIf="form.get('commercialRegistrationNumber')?.invalid && (form.get('commercialRegistrationNumber')?.touched || form.get('commercialRegistrationNumber')?.dirty)" 
+                class="text-[11px] font-semibold text-rose-500 mt-1.5 block px-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                {{ 'REGISTER.ERR_GENERAL' | translate }}
+              </p>
             </label>
 
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.TAX_ID' | translate }}</span>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'SETTINGS_PROFILE.FIELDS.TAX_ID' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+              </span>
               <input formControlName="taxId" type="text" dir="ltr" [class]="fieldClass('taxId', 'ltr')">
+              <p *ngIf="form.get('taxId')?.invalid && (form.get('taxId')?.touched || form.get('taxId')?.dirty)" 
+                class="text-[11px] font-semibold text-rose-500 mt-1.5 block px-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                {{ 'REGISTER.ERR_GENERAL' | translate }}
+              </p>
             </label>
 
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.EXPIRY_DATE' | translate }}</span>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'SETTINGS_PROFILE.FIELDS.EXPIRY_DATE' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+              </span>
               <input formControlName="expiryDate" type="date" dir="ltr" [class]="fieldClass('expiryDate', 'ltr')">
+              <p *ngIf="form.get('expiryDate')?.invalid && (form.get('expiryDate')?.touched || form.get('expiryDate')?.dirty)" 
+                class="text-[11px] font-semibold text-rose-500 mt-1.5 block px-1 animate-in fade-in slide-in-from-top-1 duration-200">
+                {{ 'REGISTER.ERR_GENERAL' | translate }}
+              </p>
             </label>
 
-            <label class="space-y-2">
-              <span class="text-xs font-bold text-slate-700">{{ 'SETTINGS_PROFILE.FIELDS.LICENSE_NUMBER' | translate }}</span>
+            <label class="block">
+              <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+                {{ 'SETTINGS_PROFILE.FIELDS.LICENSE_NUMBER' | translate }}
+              </span>
               <input formControlName="licenseNumber" type="text" dir="ltr" [class]="fieldClass('licenseNumber', 'ltr')">
             </label>
           </div>

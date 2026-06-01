@@ -3,12 +3,13 @@ import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from 
 import { ProfileSectionNavItem, ProfileWorkspaceWindow } from '../vendor-profile.view-models';
 import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor-profile.models';
 import { resolveLocalizedMessage } from '../../../../../shared/utils/text-normalization.util';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-profile-side-rail',
   standalone: true,
-  imports: [CommonModule, NgClass],
+  imports: [CommonModule, NgClass, TranslateModule],
   template: `
     <aside class="rounded-[12px] border border-slate-200 bg-white shadow-sm overflow-hidden">
       <!-- Header -->
@@ -94,7 +95,7 @@ import { resolveLocalizedMessage } from '../../../../../shared/utils/text-normal
           <div class="flex items-center justify-between gap-3">
             <div>
               <p class="text-[0.65rem] font-bold uppercase tracking-wider text-slate-500">
-                {{ currentLang === 'ar' ? 'حالة الاعتماد' : 'Review progress' }}
+                {{ 'SETTINGS_PROFILE.SIDE_RAIL.REVIEW_PROGRESS' | translate }}
               </p>
               <h4 class="text-sm font-black text-slate-900">{{ reviewStateLabel }}</h4>
             </div>
