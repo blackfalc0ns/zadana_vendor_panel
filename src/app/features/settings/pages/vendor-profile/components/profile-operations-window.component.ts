@@ -19,11 +19,11 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.BANKING_HINT'"
           wrapperClass="overflow-visible"
           bodyClass="grid gap-6 px-5 py-5">
-        <div class="rounded-[12px] border border-slate-200 bg-white shadow-sm">
-          <div class="border-b border-slate-100 bg-slate-50 px-5 py-3">
-            <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.BANK_PROFILE' | translate }}</span>
+        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+            <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.BANK_PROFILE' | translate }}</span>
           </div>
-          <div class="grid gap-4 p-5 md:grid-cols-2">
+          <div class="grid gap-4 p-6 md:grid-cols-2">
             <label class="block">
               <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
                 {{ 'ONBOARDING.FIELDS.BANK_NAME' | translate }} <span class="text-rose-500 font-extrabold">*</span>
@@ -91,8 +91,8 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           [title]="'SETTINGS_PROFILE.SECTIONS.OPERATIONS_SETTINGS'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.OPERATIONS_SETTINGS_HINT'"
           bodyClass="grid gap-6 px-5 py-5">
-          <div class="grid gap-4 lg:grid-cols-2">
-            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm lg:col-span-2">
+          <div class="grid gap-5 lg:grid-cols-2">
+            <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md lg:col-span-2">
               <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div class="max-w-2xl">
                   <p class="text-sm font-bold text-slate-900">{{ currentLang === 'ar' ? 'ظهور المتجر في تطبيق العميل' : 'Store visibility in customer app' }}</p>
@@ -141,7 +141,7 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
               </label>
             </div>
 
-            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md">
               <div class="flex items-center justify-between gap-3">
                 <div>
                   <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.OPERATIONS.ACCEPT_ORDERS' | translate }}</p>
@@ -155,7 +155,7 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
               </div>
             </div>
 
-            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md">
               <div class="grid gap-4 md:grid-cols-2">
                 <label class="block">
                   <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
@@ -194,12 +194,12 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.NOTIFICATION_SETTINGS_HINT'"
           wrapperClass="overflow-visible"
           bodyClass="grid gap-4 px-5 py-5">
-          <div class="rounded-[16px] border border-violet-100 bg-gradient-to-r from-violet-50/50 via-white to-sky-50/50 p-6 shadow-sm transition-all hover:shadow-md">
+          <div class="rounded-[1.5rem] border border-violet-100/60 bg-gradient-to-r from-violet-50/60 via-white/40 to-sky-50/60 backdrop-blur-xl p-6 shadow-sm transition-all hover:shadow-md">
             <div class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
               
               <div class="flex items-start gap-4">
-                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-violet-100 text-violet-600 shadow-sm border border-violet-200/50">
-                  <span class="material-symbols-outlined text-[24px]">notifications_active</span>
+                <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-violet-600 shadow-sm border border-violet-100">
+                  <span class="material-symbols-outlined text-[26px]">notifications_active</span>
                 </div>
                 <div>
                   <h3 class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.SOUND' | translate }}</h3>
@@ -231,7 +231,7 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           </div>
 
           <div class="grid gap-4 lg:grid-cols-3">
-            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.EMAIL' | translate }}</p>
@@ -245,7 +245,7 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
               </div>
             </div>
 
-            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.SMS' | translate }}</p>
@@ -259,7 +259,7 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
               </div>
             </div>
 
-            <div class="rounded-[12px] border border-slate-200 bg-white p-5 shadow-sm">
+            <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md">
               <div class="flex items-start justify-between gap-3">
                 <div>
                   <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.NEW_ORDERS' | translate }}</p>
@@ -307,14 +307,14 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           @for (hour of operatingHours.controls; track $index) {
             <div
               [formGroupName]="$index"
-              class="flex flex-col md:flex-row md:items-center gap-4 rounded-[8px] border p-4 transition-all"
-              [ngClass]="hour.get('isOpen')?.value ? 'border-emerald-200 bg-emerald-50/30' : 'border-slate-200 bg-white'">
+              class="flex flex-col md:flex-row md:items-center gap-4 rounded-[1.25rem] border border-white/60 p-5 shadow-sm transition-all hover:shadow-md hover:-translate-y-0.5"
+              [ngClass]="hour.get('isOpen')?.value ? 'bg-emerald-50/50 backdrop-blur-xl' : 'bg-white/40 backdrop-blur-xl'">
               
-              <div class="flex flex-1 items-center justify-between gap-3 md:justify-start md:min-w-[200px]">
-                <div class="flex items-center gap-3">
-                  <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px]"
-                    [ngClass]="hour.get('isOpen')?.value ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'">
-                    <span class="material-symbols-outlined text-[18px]">{{ hour.get('isOpen')?.value ? 'storefront' : 'store_closed' }}</span>
+              <div class="flex flex-1 items-center justify-between gap-4 md:justify-start md:min-w-[200px]">
+                <div class="flex items-center gap-4">
+                  <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-[1rem] shadow-sm border"
+                    [ngClass]="hour.get('isOpen')?.value ? 'bg-white border-emerald-100 text-emerald-600' : 'bg-white border-slate-100 text-slate-400'">
+                    <span class="material-symbols-outlined text-[22px]">{{ hour.get('isOpen')?.value ? 'storefront' : 'store_closed' }}</span>
                   </div>
                   <div>
                     <p class="text-sm font-bold text-slate-900">{{ hour.get('dayKey')?.value | translate }}</p>

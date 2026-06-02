@@ -144,7 +144,7 @@ textarea,
 
 html, body {
   @apply min-h-screen m-0 p-0 font-sans antialiased text-gray-900 bg-zadna-bgLight;
-  font-family: 'Cairo', 'Inter', 'Segoe UI', Tahoma, Arial, sans-serif;
+  font-family: 'Cairo', ui-sans-serif, system-ui, sans-serif;
   overflow-x: hidden;
 }
 
@@ -745,7 +745,7 @@ html, body {
   background: rgba(255, 255, 255, 0.12);
   color: #fff;
   text-align: center;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Cairo', ui-sans-serif, system-ui, sans-serif;
   font-size: 1.1rem;
   font-weight: 800;
   outline: none;
@@ -770,7 +770,8 @@ html, body {
 }
 
 .font-numeric {
-  font-family: 'Inter', sans-serif;
+  font-family: 'Cairo', ui-sans-serif, system-ui, sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 @media (min-width: 768px) {

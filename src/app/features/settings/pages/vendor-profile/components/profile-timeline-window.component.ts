@@ -3,6 +3,7 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AppPageSectionShellComponent } from '../../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
 import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor-profile.models';
+import { resolveLocalizedMessage } from '../../../../../shared/utils/text-normalization.util';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -19,11 +20,12 @@ import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor
       bodyClass="grid gap-6 px-5 py-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
       
       <!-- Current Review State -->
-      <div class="rounded-[12px] border border-slate-200 bg-white p-6 shadow-sm">
+      <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-7 shadow-sm transition-shadow hover:shadow-md relative overflow-hidden">
+        <div class="absolute -right-20 -top-20 w-48 h-48 bg-gradient-to-br from-zadna-primary/5 to-transparent rounded-full blur-3xl pointer-events-none"></div>
         <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="flex h-10 w-10 items-center justify-center rounded-[8px] bg-slate-100 text-slate-500">
-              <span class="material-symbols-outlined text-[20px]">analytics</span>
+          <div class="flex items-center gap-4 relative z-10">
+            <div class="flex h-14 w-14 items-center justify-center rounded-[1rem] bg-white shadow-sm border border-slate-100 text-slate-500">
+              <span class="material-symbols-outlined text-[26px]">analytics</span>
             </div>
             <div>
               <p class="text-[0.65rem] font-bold uppercase tracking-wider text-slate-500">
@@ -40,12 +42,12 @@ import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor
         <div class="mt-6 space-y-3">
           <div
             *ngFor="let item of reviewItems"
-            class="rounded-[8px] border p-4 transition-colors hover:shadow-sm"
+            class="rounded-2xl border border-white/80 bg-white/50 p-5 shadow-sm transition-all hover:shadow-md hover:bg-white/80 hover:-translate-y-0.5"
             [ngClass]="reviewItemCardClasses(item)">
             <div class="flex items-start justify-between gap-4">
               <div class="min-w-0">
                 <p class="text-sm font-bold text-slate-900">{{ reviewItemLabel(item.code) }}</p>
-                <p *ngIf="item.decisionNote" class="mt-1 text-xs text-slate-600">{{ item.decisionNote }}</p>
+                <p *ngIf="item.decisionNote" class="mt-1 text-xs text-slate-600">{{ localizeMessage(item.decisionNote) }}</p>
               </div>
               <span class="shrink-0 rounded-[6px] px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider border" [ngClass]="reviewItemStatusBadgeClasses(item)">
                 {{ reviewItemStatusLabel(item.status) }}
@@ -56,7 +58,7 @@ import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor
       </div>
 
       <!-- Timeline -->
-      <div class="rounded-[12px] border border-slate-200 bg-slate-50 p-5 shadow-sm">
+      <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md">
         <div class="flex items-center gap-2 mb-6 border-b border-slate-200 pb-3">
           <span class="material-symbols-outlined text-[20px] text-slate-500">history</span>
           <p class="text-xs font-bold uppercase tracking-wider text-slate-600">
@@ -65,12 +67,12 @@ import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor
         </div>
         
         <div class="custom-scrollbar max-h-[420px] overflow-y-auto pe-2">
-        <div class="relative ms-4 space-y-4 before:absolute before:-left-[17px] before:bottom-0 before:top-2 before:w-[2px] before:bg-slate-200" [dir]="'ltr'">
-          <article *ngFor="let entry of fullTimelineEntries" class="relative">
+        <div class="relative ms-4 space-y-5 before:absolute before:-left-[17px] before:bottom-0 before:top-2 before:w-[2px] before:bg-slate-200/60" [dir]="'ltr'">
+          <article *ngFor="let entry of fullTimelineEntries" class="relative group">
             <!-- Timeline dot -->
-            <div class="absolute -left-[23px] top-1.5 h-3.5 w-3.5 rounded-full border-[3px] border-white" [ngClass]="timelineToneDotClasses(entry).replace('bg-', '!bg-')"></div>
+            <div class="absolute -left-[24px] top-1.5 h-4 w-4 rounded-full border-[3.5px] border-white shadow-sm" [ngClass]="timelineToneDotClasses(entry).replace('bg-', '!bg-')"></div>
             
-            <div class="rounded-[8px] border border-slate-200 bg-white p-3.5 shadow-sm transition-all hover:shadow">
+            <div class="rounded-[1rem] border border-white/80 bg-white/60 p-4 shadow-sm transition-all hover:shadow-md hover:bg-white">
               <div class="flex flex-wrap items-center gap-2">
                 <span class="text-sm font-bold text-slate-900">{{ entry.authorName }}</span>
                 <span class="rounded-[4px] bg-slate-100 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-slate-600">{{ localizeRoleLabel(entry.roleLabel) }}</span>
@@ -80,7 +82,7 @@ import { VendorReviewAuditEntry, VendorReviewItem } from '../../../models/vendor
             </div>
           </article>
 
-          <p *ngIf="fullTimelineEntries.length === 0" class="rounded-[8px] border border-dashed border-slate-300 bg-white py-6 text-center text-sm font-medium text-slate-500">
+          <p *ngIf="fullTimelineEntries.length === 0" class="rounded-[1rem] border border-dashed border-slate-300/60 bg-white/40 py-8 text-center text-sm font-medium text-slate-500">
             {{ currentLang === 'ar' ? 'لا يوجد نشاط مراجعة بعد.' : 'No review activity yet.' }}
           </p>
         </div>
@@ -121,7 +123,24 @@ export class ProfileTimelineWindowComponent {
     'Operations Reviewer': 'مراجع العمليات'
   };
 
-  private readonly messageMap: Record<string, string> = {
+  private readonly roleLabelArToEn: Record<string, string> = {
+    'مراجعة الامتثال': 'Compliance Review',
+    'مراجعة المستندات': 'Document Review',
+    'المخاطر والامتثال': 'Risk & Compliance',
+    'مراجعة أمنية': 'Security Review',
+    'التحكم الأمني': 'Security Control',
+    'إجراء إداري': 'Admin Action',
+    'المسؤول': 'Admin',
+    'بوابة التاجر': 'Vendor Portal',
+    'مراجعة التاجر': 'Vendor Review',
+    'لوحة التشغيل': 'Operations Console',
+    'مكتب امتثال التاجر': 'Vendor Compliance Desk',
+    'مكتب المخاطر والامتثال': 'Risk & Compliance Desk',
+    'مكتب الأمان': 'Security Desk',
+    'مراجع العمليات': 'Operations Reviewer'
+  };
+
+  private readonly enToAr: Record<string, string> = {
     'Vendor review started.': 'بدأت مراجعة التاجر.',
     'Vendor account reactivated and returned to active status.': 'تم إعادة تفعيل حساب التاجر وإرجاعه للحالة النشطة.',
     'Vendor login was unlocked and account access was restored.': 'تم فتح دخول التاجر واستعادة الوصول للحساب.',
@@ -139,59 +158,118 @@ export class ProfileTimelineWindowComponent {
     'No review activity yet.': 'لا يوجد نشاط مراجعة بعد.'
   };
 
+  private readonly arToEn: Record<string, string> = {
+    'بدأت مراجعة التاجر.': 'Vendor review started.',
+    'تم إعادة تفعيل حساب التاجر وإرجاعه للحالة النشطة.': 'Vendor account reactivated and returned to active status.',
+    'تم فتح دخول التاجر واستعادة الوصول للحساب.': 'Vendor login was unlocked and account access was restored.',
+    'تمت إعادة تعيين كلمة مرور التاجر بواسطة المسؤول وتم إلغاء جميع الجلسات النشطة.': 'Vendor password was reset by an administrator and all active sessions were revoked.',
+    'يرجى إعادة رفع المستندات القانونية المطلوبة وتأكيد أحدث بيانات التاجر.': 'Please re-upload the required legal documents and confirm the latest vendor information.',
+    'قام التاجر بتحديث بيانات الحساب البنكي والتسويات من بوابة التاجر.': 'Vendor updated banking and payout setup from Vendor Portal.',
+    'قام التاجر بتحديث بيانات المتجر من بوابة التاجر.': 'Vendor updated store profile details from Vendor Portal.',
+    'قام التاجر بتحديث بيانات العنوان والموقع من بوابة التاجر.': 'Vendor updated address and contact location details from Vendor Portal.',
+    'قام التاجر بتحديث ساعات العمل من بوابة التاجر.': 'Vendor updated operating hours from Vendor Portal.',
+    'قام التاجر بتحديث بيانات المالك من بوابة التاجر.': 'Vendor updated owner information from Vendor Portal.',
+    'قام التاجر بتحديث تفضيلات الإشعارات من بوابة التاجر.': 'Vendor updated notification preferences from Vendor Portal.',
+    'قام التاجر بتحديث إعدادات التشغيل من بوابة التاجر.': 'Vendor updated operational settings from Vendor Portal.',
+    'قام التاجر بتحديث البيانات القانونية والامتثال من بوابة التاجر.': 'Vendor updated legal and compliance information from Vendor Portal.',
+    'قام التاجر بإرسال الملف الشخصي والمستندات المطلوبة لمراجعة الامتثال.': 'Vendor submitted the profile and required documents for compliance review.',
+    'لا يوجد نشاط مراجعة بعد.': 'No review activity yet.'
+  };
+
   localizeRoleLabel(roleLabel: string): string {
-    if (this.currentLang !== 'ar') {
-      return roleLabel;
+    const cleanRole = resolveLocalizedMessage(roleLabel, this.currentLang);
+    if (this.currentLang === 'ar') {
+      return this.roleLabelMap[cleanRole] || cleanRole;
     }
-    return this.roleLabelMap[roleLabel] || roleLabel;
+    return this.roleLabelArToEn[cleanRole] || cleanRole;
   }
 
   localizeMessage(message: string): string {
-    if (this.currentLang !== 'ar') {
-      return message;
-    }
+    const rawMessage = resolveLocalizedMessage(message, this.currentLang);
 
-    // Exact match
-    if (this.messageMap[message]) {
-      return this.messageMap[message];
-    }
-
-    // Pattern-based translations for dynamic messages
-    const patterns: { regex: RegExp; replace: string | ((match: RegExpMatchArray) => string) }[] = [
-      {
-        regex: /^Vendor approved with commission rate ([\d.]+)%\.$/,
-        replace: (m) => `تمت الموافقة على التاجر بنسبة عمولة ${m[1]}%.`
-      },
-      {
-        regex: /^(Commercial|Tax|License|Identity|Bank) document approved\.$/,
-        replace: (m) => `تم قبول مستند ${this.docTypeAr(m[1])}.`
-      },
-      {
-        regex: /^(Commercial|Tax|License|Identity|Bank) document rejected\. (.+)$/,
-        replace: (m) => `تم رفض مستند ${this.docTypeAr(m[1])}. ${m[2]}`
-      },
-      {
-        regex: /^Vendor re-uploaded document\(s\): (.+)\. They are back in the review queue\.$/,
-        replace: (m) => `قام التاجر بإعادة رفع مستند(ات): ${m[1]}. تم إرجاعها لقائمة المراجعة.`
-      },
-      {
-        regex: /^Operations settings updated\. Accept orders: (enabled|disabled), minimum order: (.+), preparation time: (.+) minutes\.$/,
-        replace: (m) => `تم تحديث إعدادات التشغيل. قبول الطلبات: ${m[1] === 'enabled' ? 'مفعّل' : 'معطّل'}، الحد الأدنى للطلب: ${m[2] === 'not set' ? 'غير محدد' : m[2]}، وقت التحضير: ${m[3] === 'not set' ? 'غير محدد' : m[3]} دقيقة.`
-      },
-      {
-        regex: /^Notification settings updated\. Email: (enabled|disabled), SMS: (enabled|disabled), new orders: (enabled|disabled), sound: (.+)\.$/,
-        replace: (m) => `تم تحديث إعدادات الإشعارات. البريد: ${m[1] === 'enabled' ? 'مفعّل' : 'معطّل'}، الرسائل: ${m[2] === 'enabled' ? 'مفعّل' : 'معطّل'}، طلبات جديدة: ${m[3] === 'enabled' ? 'مفعّل' : 'معطّل'}، الصوت: ${m[4]}.`
+    if (this.currentLang === 'ar') {
+      if (this.enToAr[rawMessage]) {
+        return this.enToAr[rawMessage];
       }
-    ];
 
-    for (const pattern of patterns) {
-      const match = message.match(pattern.regex);
-      if (match) {
-        return typeof pattern.replace === 'function' ? pattern.replace(match) : pattern.replace;
+      // Pattern-based translations for dynamic messages (English to Arabic)
+      const patterns = [
+        {
+          regex: /^Vendor approved with commission rate ([\d.]+)%\.$/,
+          replace: (m: RegExpMatchArray) => `تمت الموافقة على التاجر بنسبة عمولة ${m[1]}%.`
+        },
+        {
+          regex: /^(Commercial|Tax|License|Identity|Bank) document approved\.$/,
+          replace: (m: RegExpMatchArray) => `تم قبول مستند ${this.docTypeAr(m[1])}.`
+        },
+        {
+          regex: /^(Commercial|Tax|License|Identity|Bank) document rejected\. (.+)$/,
+          replace: (m: RegExpMatchArray) => `تم رفض مستند ${this.docTypeAr(m[1])}. ${m[2]}`
+        },
+        {
+          regex: /^Vendor re-uploaded document\(s\): (.+)\. They are back in the review queue\.$/,
+          replace: (m: RegExpMatchArray) => `قام التاجر بإعادة رفع مستند(ات): ${m[1]}. تم إرجاعها لقائمة المراجعة.`
+        },
+        {
+          regex: /^Operations settings updated\. Accept orders: (enabled|disabled), minimum order: (.+), preparation time: (.+) minutes\.$/,
+          replace: (m: RegExpMatchArray) => `تم تحديث إعدادات التشغيل. قبول الطلبات: ${m[1] === 'enabled' ? 'مفعّل' : 'معطّل'}، الحد الأدنى للطلب: ${m[2] === 'not set' ? 'غير محدد' : m[2]}، وقت التحضير: ${m[3] === 'not set' ? 'غير محدد' : m[3]} دقيقة.`
+        },
+        {
+          regex: /^Notification settings updated\. Email: (enabled|disabled), SMS: (enabled|disabled), new orders: (enabled|disabled), sound: (.+)\.$/,
+          replace: (m: RegExpMatchArray) => `تم تحديث إعدادات الإشعارات. البريد: ${m[1] === 'enabled' ? 'مفعّل' : 'معطّل'}، الرسائل: ${m[2] === 'enabled' ? 'مفعّل' : 'معطّل'}، طلبات جديدة: ${m[3] === 'enabled' ? 'مفعّل' : 'معطّل'}، الصوت: ${m[4]}.`
+        }
+      ];
+
+      for (const pattern of patterns) {
+        const match = rawMessage.match(pattern.regex);
+        if (match) {
+          return pattern.replace(match);
+        }
       }
-    }
 
-    return message;
+      return rawMessage;
+    } else {
+      if (this.arToEn[rawMessage]) {
+        return this.arToEn[rawMessage];
+      }
+
+      // Pattern-based translations for dynamic messages (Arabic to English)
+      const patterns = [
+        {
+          regex: /^تمت الموافقة على التاجر بنسبة عمولة ([\d.]+)%\.$/,
+          replace: (m: RegExpMatchArray) => `Vendor approved with commission rate ${m[1]}%.`
+        },
+        {
+          regex: /^تم قبول مستند (السجل التجاري|الضريبة|الرخصة|الهوية|البنك)\.$/,
+          replace: (m: RegExpMatchArray) => `${this.docTypeEn(m[1])} document approved.`
+        },
+        {
+          regex: /^تم رفض مستند (السجل التجاري|الضريبة|الرخصة|الهوية|البنك)\. (.+)$/,
+          replace: (m: RegExpMatchArray) => `${this.docTypeEn(m[1])} document rejected. ${m[2]}`
+        },
+        {
+          regex: /^قام التاجر بإعادة رفع مستند\(ات\): (.+)\. تم إرجاعها لقائمة المراجعة\.$/,
+          replace: (m: RegExpMatchArray) => `Vendor re-uploaded document(s): ${m[1]}. They are back in the review queue.`
+        },
+        {
+          regex: /^تم تحديث إعدادات التشغيل\. قبول الطلبات: (مفعّل|معطّل)، الحد الأدنى للطلب: (غير محدد|.+?)، وقت التحضير: (غير محدد|.+?) دقيقة\.$/,
+          replace: (m: RegExpMatchArray) => `Operations settings updated. Accept orders: ${m[1] === 'مفعّل' ? 'enabled' : 'disabled'}, minimum order: ${m[2] === 'غير محدد' ? 'not set' : m[2]}, preparation time: ${m[3] === 'غير محدد' ? 'not set' : m[3]} minutes.`
+        },
+        {
+          regex: /^تم تحديث إعدادات الإشعارات\. البريد: (مفعّل|معطّل)، الرسائل: (مفعّل|معطّل)، طلبات جديدة: (مفعّل|معطّل)، الصوت: (.+?)\.$/,
+          replace: (m: RegExpMatchArray) => `Notification settings updated. Email: ${m[1] === 'مفعّل' ? 'enabled' : 'disabled'}, SMS: ${m[2] === 'مفعّل' ? 'enabled' : 'disabled'}, new orders: ${m[3] === 'مفعّل' ? 'enabled' : 'disabled'}, sound: ${m[4]}.`
+        }
+      ];
+
+      for (const pattern of patterns) {
+        const match = rawMessage.match(pattern.regex);
+        if (match) {
+          return pattern.replace(match);
+        }
+      }
+
+      return rawMessage;
+    }
   }
 
   private docTypeAr(type: string): string {
@@ -200,8 +278,24 @@ export class ProfileTimelineWindowComponent {
       'Tax': 'الضريبة',
       'License': 'الرخصة',
       'Identity': 'الهوية',
-      'Bank': 'البنك'
+      'Bank': 'البنك',
+      'commercial': 'السجل التجاري',
+      'tax': 'الضريبة',
+      'license': 'الرخصة',
+      'identity': 'الهوية',
+      'bank': 'البنك'
     };
     return map[type] || type;
+  }
+
+  private docTypeEn(typeAr: string): string {
+    const map: Record<string, string> = {
+      'السجل التجاري': 'Commercial',
+      'الضريبة': 'Tax',
+      'الرخصة': 'License',
+      'الهوية': 'Identity',
+      'البنك': 'Bank'
+    };
+    return map[typeAr] || typeAr;
   }
 }

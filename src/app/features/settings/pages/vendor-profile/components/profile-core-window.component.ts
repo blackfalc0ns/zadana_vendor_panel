@@ -17,9 +17,9 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           [title]="'SETTINGS_PROFILE.SECTIONS.STORE'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.STORE_HINT'"
           bodyClass="grid gap-6 px-5 py-5 lg:grid-cols-2">
-        <div class="rounded-[12px] border border-slate-200 bg-white shadow-sm">
-          <div class="border-b border-slate-100 bg-slate-50 px-5 py-3">
-            <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.STORE_BASICS' | translate }}</span>
+        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+            <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.STORE_BASICS' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5">
             <label class="block">
@@ -60,9 +60,9 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           </div>
         </div>
 
-        <div class="rounded-[12px] border border-slate-200 bg-white shadow-sm">
-          <div class="border-b border-slate-100 bg-slate-50 px-5 py-3">
-            <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.SUPPORT_CHANNELS' | translate }}</span>
+        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+            <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.SUPPORT_CHANNELS' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5">
             <label class="block">
@@ -89,9 +89,9 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           </div>
         </div>
 
-        <div class="rounded-[12px] border border-slate-200 bg-white shadow-sm lg:col-span-2">
-          <div class="border-b border-slate-100 bg-slate-50 px-5 py-3">
-            <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.STORE_DESCRIPTION' | translate }}</span>
+        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md lg:col-span-2">
+          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+            <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.STORE_DESCRIPTION' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5 md:grid-cols-2">
             <label class="block">
@@ -117,9 +117,9 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           [title]="'SETTINGS_PROFILE.SECTIONS.OWNER'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.OWNER_HINT'"
           bodyClass="grid gap-6 px-5 py-5">
-        <div class="rounded-[12px] border border-slate-200 bg-white shadow-sm">
-          <div class="border-b border-slate-100 bg-slate-50 px-5 py-3">
-            <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.OWNER_DETAILS' | translate }}</span>
+        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+            <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.OWNER_DETAILS' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5 md:grid-cols-2">
             <label class="block">
@@ -164,9 +164,9 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
           [title]="'SETTINGS_PROFILE.SECTIONS.CONTACT'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.CONTACT_HINT'"
           bodyClass="grid gap-6 px-5 py-5">
-        <div class="rounded-[12px] border border-slate-200 bg-white shadow-sm">
-          <div class="border-b border-slate-100 bg-slate-50 px-5 py-3">
-            <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.CONTACT_PROFILE' | translate }}</span>
+        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+            <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.CONTACT_PROFILE' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5 md:grid-cols-2">
             <label class="block">

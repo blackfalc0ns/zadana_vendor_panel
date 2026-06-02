@@ -53,15 +53,16 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
     ProfileSideRailComponent
   ],
     template: `
-    <div class="space-y-8 pb-16 min-h-screen bg-slate-50" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-      <div class="w-full px-4 sm:px-6 lg:px-8 pt-8">
+    <div class="space-y-8 pb-16 min-h-screen bg-gradient-to-br from-slate-50 to-slate-100/80 relative" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+      <div class="absolute inset-0 bg-[url('/assets/images/noise.png')] opacity-[0.015] mix-blend-overlay pointer-events-none"></div>
+      <div class="w-full px-4 sm:px-6 lg:px-8 pt-8 relative z-10">
         
         <app-flash-banner *ngIf="pageError" [message]="pageError" tone="error" class="mb-4 block" />
         <app-flash-banner *ngIf="!pageError && pageNotice" [message]="pageNotice" tone="success" class="mb-4 block" />
 
         <section
           *ngIf="showLimitedEditNotice"
-          class="rounded-[20px] border border-amber-200 bg-amber-50/90 px-4 py-3 shadow-sm mb-4">
+          class="rounded-[20px] border border-amber-200/60 bg-amber-50/80 backdrop-blur-md px-5 py-4 shadow-sm mb-4 transition-all hover:shadow-md">
           <div class="flex items-start gap-3">
             <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[14px] bg-white text-amber-700">
               <span class="material-symbols-outlined text-[18px]">pending_actions</span>
@@ -75,7 +76,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
 
         <section
           *ngIf="!currentProfile.commercialAccessEnabled && currentProfile.requiredActions.length > 0"
-          class="relative overflow-hidden rounded-[16px] border px-6 py-5 shadow-sm transition-all hover:shadow mb-4"
+          class="relative overflow-hidden rounded-[24px] border border-white/60 backdrop-blur-xl px-7 py-6 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all hover:shadow-lg mb-6"
           [ngClass]="activationBannerClasses">
           <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div class="space-y-3">
@@ -101,7 +102,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
               type="button"
               (click)="submitForReview()"
               [disabled]="submitReviewDisabled"
-              class="relative z-10 inline-flex items-center justify-center gap-2 rounded-[12px] bg-slate-900 px-5 py-2.5 text-[0.8rem] font-bold text-white shadow-sm transition-colors hover:bg-slate-800 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+              class="relative z-10 inline-flex items-center justify-center gap-2 rounded-2xl bg-slate-900 px-6 py-3 text-[0.8rem] font-bold text-white shadow-lg shadow-slate-900/20 transition-all hover:bg-slate-800 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
               <span *ngIf="isSubmittingReview" class="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white"></span>
               {{ submitReviewLabel }}
             </button>
@@ -117,7 +118,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
         </section>
 
         <!-- Merged Command Center and Window Switcher -->
-        <div class="mb-8 rounded-[16px] border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div class="mb-8 rounded-[2rem] border border-white/80 bg-white/70 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)]">
           <app-profile-command-center
             [currentLang]="currentLang"
             [displayStoreName]="displayStoreName"
@@ -142,7 +143,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
             (storeAvailabilityToggle)="toggleStoreAvailabilityFromHeader()"
             (submit)="submitForReview()" />
 
-          <div class="border-t border-slate-100 mx-4"></div>
+          <div class="h-px bg-gradient-to-r from-transparent via-slate-200/80 to-transparent mx-8"></div>
 
           <app-profile-window-switcher
             [currentLang]="currentLang"
@@ -1431,20 +1432,65 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   }
 
   reviewItemLabel(code: string): string {
+    const cleanCode = (code || '').trim().toLowerCase();
+    
+    // Normalize codes by removing step prefixes like 'step1.', 'step2.', etc.
+    const normalizedCode = cleanCode.replace(/^step\d+\./, '');
+
     const labels: Record<string, { ar: string; en: string }> = {
+      // Document types
       commercial: { ar: 'السجل التجاري', en: 'Commercial registration' },
       tax: { ar: 'الشهادة الضريبية', en: 'Tax certificate' },
       license: { ar: 'الرخصة التشغيلية', en: 'Operating license' },
       identity: { ar: 'بيانات الهوية', en: 'Identity details' },
-      bank: { ar: 'البيانات البنكية', en: 'Banking details' }
-    };
-    const direct = labels[(code || '').trim().toLowerCase()];
+      bank: { ar: 'البيانات البنكية', en: 'Banking details' },
+      
+      // Step 1: Store & Owner
+      businessnamear: { ar: 'اسم المتجر بالعربية', en: 'Store name (Arabic)' },
+      storenamear: { ar: 'اسم المتجر بالعربية', en: 'Store name (Arabic)' },
+      businessnameen: { ar: 'اسم المتجر بالإنجليزية', en: 'Store name (English)' },
+      storenameen: { ar: 'اسم المتجر بالإنجليزية', en: 'Store name (English)' },
+      businesstype: { ar: 'نوع النشاط', en: 'Business type' },
+      contactphone: { ar: 'هاتف الدعم', en: 'Support phone' },
+      supportphone: { ar: 'هاتف الدعم', en: 'Support phone' },
+      supportemail: { ar: 'البريد الإلكتروني للدعم', en: 'Support email' },
+      description: { ar: 'وصف المتجر', en: 'Store description' },
+      descriptionar: { ar: 'وصف المتجر بالعربية', en: 'Store description (Arabic)' },
+      descriptionen: { ar: 'وصف المتجر بالإنجليزية', en: 'Store description (English)' },
+      ownername: { ar: 'اسم المالك', en: 'Owner name' },
+      ownerphone: { ar: 'هاتف المالك', en: 'Owner phone' },
+      owneremail: { ar: 'البريد الإلكتروني للمالك', en: 'Owner email' },
 
+      // Step 2: Contact & Coordinates
+      region: { ar: 'المنطقة', en: 'Region' },
+      city: { ar: 'المدينة', en: 'City' },
+      nationaladdress: { ar: 'العنوان الوطني', en: 'National address' },
+      branchlatitude: { ar: 'خط العرض للفرع', en: 'Branch latitude' },
+      branchlongitude: { ar: 'خط الطول للفرع', en: 'Branch longitude' },
+
+      // Step 3: Legal
+      idnumber: { ar: 'رقم الهوية/الإقامة', en: 'ID/Iqama number' },
+      nationality: { ar: 'الجنسية', en: 'Nationality' },
+      commercialregistrationnumber: { ar: 'رقم السجل التجاري', en: 'Commercial Registration number' },
+      expirydate: { ar: 'تاريخ انتهاء السجل', en: 'Expiry date' },
+      taxid: { ar: 'الرقم الضريبي', en: 'Tax ID' },
+      licensenumber: { ar: 'رقم الرخصة', en: 'License number' },
+
+      // Step 4: Banking
+      bankname: { ar: 'اسم البنك', en: 'Bank name' },
+      iban: { ar: 'رقم الآيبان (IBAN)', en: 'IBAN' },
+      swiftcode: { ar: 'رمز السويفت (Swift Code)', en: 'Swift Code' },
+      paymentcycle: { ar: 'دورة التسوية', en: 'Payout cycle' },
+      payoutcycle: { ar: 'دورة التسوية', en: 'Payout cycle' }
+    };
+
+    const direct = labels[normalizedCode];
     if (direct) {
       return this.currentLang === 'ar' ? direct.ar : direct.en;
     }
 
-    const normalized = code.replace(/([a-z])([A-Z])/g, '$1 $2');
+    // Fallback to title case humanization if not in the map
+    const normalized = normalizedCode.replace(/([a-z])([A-Z])/g, '$1 $2');
     return normalized
       .replace(/_/g, ' ')
       .replace(/\b\w/g, (char) => char.toUpperCase());

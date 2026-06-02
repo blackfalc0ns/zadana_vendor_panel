@@ -19,9 +19,9 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
           [title]="'SETTINGS_PROFILE.SECTIONS.LEGAL'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.LEGAL_HINT'"
           bodyClass="grid gap-6 px-5 py-5">
-        <div class="rounded-[12px] border border-slate-200 bg-white shadow-sm">
-          <div class="border-b border-slate-100 bg-slate-50 px-5 py-3">
-            <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.REPRESENTATIVE_INFO' | translate }}</span>
+        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+            <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.REPRESENTATIVE_INFO' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5 md:grid-cols-2">
             <label class="block">
@@ -98,21 +98,21 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
           [title]="'SETTINGS_PROFILE.SECTIONS.DOCUMENTS'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.DOCUMENTS_HINT'"
           bodyClass="px-5 py-5">
-        <div class="rounded-[12px] border border-slate-200 bg-white shadow-sm">
-          <div class="border-b border-slate-100 bg-slate-50 px-5 py-3 flex justify-between items-center">
-            <span class="text-xs font-bold text-slate-600">{{ 'SETTINGS_PROFILE.UI.REQUIRED_DOCUMENTS' | translate }}</span>
-            <span class="text-xs font-bold" [ngClass]="missingDocumentsCount > 0 ? 'text-amber-600' : 'text-emerald-600'">
+        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem] flex justify-between items-center">
+            <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.REQUIRED_DOCUMENTS' | translate }}</span>
+            <span class="text-[0.75rem] font-black px-3 py-1 rounded-full shadow-sm" [ngClass]="missingDocumentsCount > 0 ? 'bg-amber-100/80 text-amber-800' : 'bg-emerald-100/80 text-emerald-800'">
               {{ missingDocumentsCount }} {{ 'SETTINGS_PROFILE.REVIEW_PANEL.MISSING_ITEMS' | translate }}
             </span>
           </div>
 
-          <div class="grid gap-3 p-5">
+          <div class="grid gap-4 p-6">
             <article
               *ngFor="let document of legalDocumentCards"
-              class="flex flex-col gap-4 rounded-[8px] border border-slate-200 bg-white p-4 transition-all hover:shadow-sm md:flex-row md:items-center md:justify-between">
+              class="flex flex-col gap-4 rounded-[1.25rem] border border-white/80 bg-white/60 p-5 shadow-sm transition-all hover:shadow-md hover:bg-white hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between group">
               <div class="flex items-start gap-4">
-                <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-slate-100 text-slate-500">
-                  <span class="material-symbols-outlined text-[20px]" [ngClass]="document.uploaded ? 'text-zadna-primary' : 'text-slate-400'">description</span>
+                <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white shadow-sm border border-slate-100 text-slate-500 transition-colors group-hover:border-zadna-primary/20">
+                  <span class="material-symbols-outlined text-[24px]" [ngClass]="document.uploaded ? 'text-zadna-primary' : 'text-slate-400'">description</span>
                 </div>
                 <div class="min-w-0 pt-0.5">
                   <div class="flex flex-wrap items-center gap-2">
@@ -133,23 +133,23 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
                 </div>
               </div>
 
-              <div class="flex shrink-0 gap-2 md:flex-col md:items-end">
+              <div class="flex shrink-0 gap-3 md:flex-col md:items-end">
                 <a
                   *ngIf="document.url"
                   [href]="document.url"
                   target="_blank"
                   rel="noopener"
-                  class="inline-flex items-center justify-center gap-1.5 rounded-[6px] border border-slate-200 bg-white px-3 py-1.5 text-xs font-bold text-slate-700 transition-colors hover:bg-slate-50">
-                  <span class="material-symbols-outlined text-[16px]">visibility</span>
+                  class="inline-flex items-center justify-center gap-1.5 rounded-[12px] border border-white bg-white/80 px-4 py-2 text-[0.8rem] font-bold text-slate-700 shadow-sm transition-all hover:bg-white hover:shadow-md">
+                  <span class="material-symbols-outlined text-[18px]">visibility</span>
                   {{ 'SETTINGS_PROFILE.REVIEW_PANEL.VIEW_FILE' | translate }}
                 </a>
                 <button
                   type="button"
                   (click)="uploadClick.emit(document.type)"
                   [disabled]="uploadingDocumentType === document.type"
-                  class="inline-flex items-center justify-center gap-1.5 rounded-[6px] bg-slate-900 px-3 py-1.5 text-xs font-bold text-white transition-colors hover:bg-slate-800 disabled:opacity-60">
-                  <span *ngIf="uploadingDocumentType === document.type" class="h-3 w-3 animate-spin rounded-full border-2 border-slate-500 border-t-white"></span>
-                  <span *ngIf="!uploadingDocumentType" class="material-symbols-outlined text-[16px]">{{ document.uploaded ? 'upload_file' : 'add_circle' }}</span>
+                  class="inline-flex items-center justify-center gap-1.5 rounded-[12px] bg-slate-900 px-4 py-2 text-[0.8rem] font-bold text-white shadow-md transition-all hover:bg-slate-800 disabled:opacity-60">
+                  <span *ngIf="uploadingDocumentType === document.type" class="h-4 w-4 animate-spin rounded-full border-2 border-slate-500 border-t-white"></span>
+                  <span *ngIf="!uploadingDocumentType" class="material-symbols-outlined text-[18px]">{{ document.uploaded ? 'upload_file' : 'add_circle' }}</span>
                   {{ documentActionLabel(document) }}
                 </button>
               </div>

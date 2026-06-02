@@ -6,10 +6,11 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        'sans': ['Cairo', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        "headline": ["Cairo", "Plus Jakarta Sans"],
-        "body": ["Inter", "Cairo"],
-        "label": ["Inter", "Cairo"]
+        sans: ['Cairo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['Cairo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        headline: ['Cairo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        body: ['Cairo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        label: ['Cairo', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
         primary: "#127C8C",
