@@ -47,7 +47,7 @@ import { environment } from '../../../../../environments/environment';
 
           <div class="flex items-center gap-2">
             <a
-              *ngIf="orderId"
+              *ngIf="orderId && isTrackingActive()"
               class="icon-shell"
               [routerLink]="['/orders', orderId]"
               fragment="tracking"
@@ -186,7 +186,11 @@ import { environment } from '../../../../../environments/environment';
                   <article *ngFor="let item of currentOrder.items" class="item-row">
                     <div class="flex min-w-0 items-center gap-3">
                       <div class="w-20 h-20 shrink-0 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden p-1 shadow-sm">
-                        <img [src]="resolveProductImageUrl(item.imageUrl)" [alt]="currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr)" onerror="this.src='/assets/images/placeholders/product.svg'" class="w-full h-full object-contain rounded-xl">
+                        <img
+                          [src]="resolveProductImageUrl(item.imageUrl)"
+                          [alt]="currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr)"
+                          (error)="handleProductImageError($event)"
+                          class="w-full h-full object-contain rounded-xl">
                       </div>
                       <div class="min-w-0">
                         <p class="truncate text-[0.82rem] font-extrabold text-[#004953] md:text-[0.92rem]">{{ currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr) }}</p>
@@ -215,7 +219,7 @@ import { environment } from '../../../../../environments/environment';
                 </div>
               </section>
 
-              <section id="tracking" class="tracking-card scroll-mt-24">
+              <section id="tracking" class="tracking-card scroll-mt-24" *ngIf="isTrackingActive()">
                 <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div>
                     <h3 class="section-title">
@@ -224,28 +228,18 @@ import { environment } from '../../../../../environments/environment';
                     </h3>
                     <p class="section-copy">
                       {{ hasTrackableMapData()
-                        ? (isTrackingActive()
-                          ? (currentLang === 'ar' ? 'المندوب يتحرك الآن على المسار المباشر.' : 'The courier is moving on the live route now.')
-                          : isOrderCompleted()
-                            ? (currentLang === 'ar' ? 'الخريطة تعرض آخر المواقع المسجلة لهذا الطلب.' : 'The map shows the last recorded locations for this order.')
-                            : (currentLang === 'ar' ? 'الخريطة تعرض مواقع المتجر والعميل حاليًا، وسيظهر موقع المندوب فور توفره.' : 'The map is showing store and customer locations now, and the courier will appear as soon as live coordinates arrive.'))
-                        : (currentLang === 'ar' ? 'لا توجد بيانات موقع حقيقية متاحة لهذا الطلب حتى الآن.' : 'No real location data is available for this order yet.') }}
+                        ? (currentLang === 'ar' ? 'المندوب في الطريق إلى المتجر. يمكنك متابعة موقعه مباشرة حتى تسليم الطلب للمندوب.' : 'The courier is heading to the store. Track their location live until the handoff is complete.')
+                        : (currentLang === 'ar' ? 'سيظهر موقع المندوب على الخريطة فور توفر إحداثياته.' : 'The courier location will appear on the map as soon as coordinates are available.') }}
                     </p>
                   </div>
 
-                  <div class="live-pill" *ngIf="isTrackingActive(); else completedOrWaitingPill">
+                  <div class="live-pill">
                     <span class="relative flex h-2.5 w-2.5">
                       <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
                       <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
                     </span>
                     <span>{{ currentLang === 'ar' ? 'مباشر' : 'Live' }}</span>
                   </div>
-                  <ng-template #completedOrWaitingPill>
-                    <div class="live-pill" [ngClass]="isOrderCompleted() ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'">
-                      <span class="material-symbols-outlined text-[18px]">{{ isOrderCompleted() ? 'check_circle' : (hasTrackableMapData() ? 'map' : 'location_off') }}</span>
-                      <span>{{ isOrderCompleted() ? (currentLang === 'ar' ? 'مكتمل' : 'Completed') : (hasTrackableMapData() ? (currentLang === 'ar' ? 'خريطة الطلب متاحة' : 'Order map available') : (currentLang === 'ar' ? 'لا توجد بيانات تتبع' : 'No tracking data')) }}</span>
-                    </div>
-                  </ng-template>
                 </div>
 
                 <div class="mt-4 overflow-hidden rounded-[1.1rem] border border-white/60 bg-[#12212c] shadow-inner">
@@ -364,26 +358,37 @@ import { environment } from '../../../../../environments/environment';
 
                     <!-- Content -->
                     <div class="min-w-0 flex-1 pt-1.5">
-                      <div class="flex items-start justify-between gap-3">
-                        <div class="min-w-0">
-                          <p class="truncate text-[0.9rem] font-extrabold transition-colors"
-                             [ngClass]="{
-                               'text-[#004953] drop-shadow-sm': isActiveTimelineStep(i),
-                               'text-slate-700': step.isCompleted && !isActiveTimelineStep(i),
-                               'text-slate-400': !step.isCompleted
-                             }">
-                            {{ currentLang === 'ar' ? step.labelAr : step.labelEn }}
-                          </p>
-                          <p *ngIf="step.notes" class="mt-1 text-[0.75rem] font-medium leading-5 transition-colors"
-                             [ngClass]="{'text-teal-600/80': isActiveTimelineStep(i), 'text-slate-500': step.isCompleted && !isActiveTimelineStep(i), 'text-slate-400/70': !step.isCompleted}">
-                            {{ translateTimelineNote(step.notes) }}
-                          </p>
-                        </div>
-                        <time class="font-numeric text-[0.75rem] font-bold shrink-0 whitespace-nowrap"
-                              [ngClass]="{'text-teal-700 bg-teal-50 px-2.5 py-1 rounded-[0.4rem] border border-teal-100 shadow-sm': isActiveTimelineStep(i), 'text-slate-400': !isActiveTimelineStep(i)}">
-                          {{ step.timestamp | date:'shortTime' }}
-                        </time>
-                      </div>
+                      <p class="truncate text-[0.9rem] font-extrabold transition-colors"
+                         [ngClass]="{
+                           'text-[#004953] drop-shadow-sm': isActiveTimelineStep(i),
+                           'text-slate-700': step.isCompleted && !isActiveTimelineStep(i),
+                           'text-slate-400': !step.isCompleted
+                         }">
+                        {{ currentLang === 'ar' ? step.labelAr : step.labelEn }}
+                      </p>
+
+                      <p class="mt-1 text-[0.75rem] font-medium leading-5 transition-colors"
+                         [ngClass]="{'text-teal-700/90': isActiveTimelineStep(i), 'text-slate-500': step.isCompleted && !isActiveTimelineStep(i), 'text-slate-400/80': !step.isCompleted}">
+                        {{ timelineStepDescriptionKey(step) | translate }}
+                      </p>
+
+                      <p *ngIf="step.changedAtUtc" class="mt-1 text-[0.72rem] font-bold leading-5 font-numeric transition-colors"
+                         [ngClass]="{'text-teal-700': isActiveTimelineStep(i), 'text-slate-400': !isActiveTimelineStep(i)}">
+                        {{ 'ORDERS.TIMELINE.CHANGED_AT' | translate:{ datetime: (step.changedAtUtc | date:(currentLang === 'ar' ? 'd MMM y، h:mm a' : 'MMM d, y, h:mm a')) } }}
+                      </p>
+
+                      <p *ngIf="isActiveTimelineStep(i)" class="mt-1 inline-flex items-center rounded-[0.45rem] bg-teal-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-teal-700 border border-teal-100">
+                        {{ 'ORDERS.TIMELINE.CURRENT_STEP' | translate }}
+                      </p>
+
+                      <p *ngIf="!step.isCompleted" class="mt-1 text-[0.72rem] font-semibold italic text-slate-400/90">
+                        {{ 'ORDERS.TIMELINE.PENDING_STEP' | translate }}
+                      </p>
+
+                      <p *ngIf="step.notes" class="mt-1 text-[0.72rem] font-medium leading-5 transition-colors"
+                         [ngClass]="{'text-teal-600/80': isActiveTimelineStep(i), 'text-slate-500': step.isCompleted && !isActiveTimelineStep(i), 'text-slate-400/70': !step.isCompleted}">
+                        {{ translateTimelineNote(step.notes) }}
+                      </p>
                     </div>
                   </article>
                 </div>
@@ -573,10 +578,26 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   resolveProductImageUrl(path: string | undefined): string {
-    if (!path) return '/assets/images/placeholders/product.svg';
-    if (path.startsWith('http')) return path;
+    if (!path) {
+      return '/assets/images/placeholders/product.svg';
+    }
+
+    if (path.startsWith('http')) {
+      return path;
+    }
+
+    if (path.startsWith('assets/') || path.startsWith('/assets/')) {
+      return path.startsWith('/') ? path : `/${path}`;
+    }
+
+    const cleanPath = path.replace(/\\/g, '/').replace(/^\//, '');
     const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
-    return `${baseUrl}/${path.replace(/^\//, '')}`;
+    return `${baseUrl}/${cleanPath}`;
+  }
+
+  handleProductImageError(event: Event): void {
+    const img = event.target as HTMLImageElement;
+    img.src = '/assets/images/placeholders/product.svg';
   }
 
   handleImageError(event: Event, driverName?: string): void {
@@ -626,7 +647,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   shouldShowLiveMap(): boolean {
-    return this.hasTrackableMapData();
+    return this.isTrackingActive() && this.hasTrackableMapData();
   }
 
   updateStatus(status: OrderStatus): void {
@@ -812,6 +833,10 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     };
     
     return translations[lowerType] || type;
+  }
+
+  timelineStepDescriptionKey(step: OrderTimelineEntry): string {
+    return `ORDERS.TIMELINE.STEPS.${step.status}.DESCRIPTION`;
   }
 
   timelineIcon(step: OrderTimelineEntry): string {

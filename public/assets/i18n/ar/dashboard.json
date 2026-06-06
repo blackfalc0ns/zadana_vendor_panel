@@ -139,11 +139,18 @@
       "PROCESSING": "قيد المعالجة",
       "SCHEDULED": "مجدولة"
     },
+    "CHART_LABELS": {
+      "SUBSIDIZED": "مدعوم",
+      "ADJUSTMENTS": "تعديلات",
+      "ADJUSTMENT": "تعديل",
+      "CATEGORY": "فئة"
+    },
     "LEDGER_TYPES": {
       "SALES": "مبيعات",
       "FEES": "رسوم",
       "PAYOUTS": "تحويلات",
-      "REFUNDS": "مرتجعات"
+      "REFUNDS": "مرتجعات",
+      "ADJUSTMENTS": "تعديلات"
     },
     "SALES": {
       "GROSS_SALES": "إجمالي المبيعات",

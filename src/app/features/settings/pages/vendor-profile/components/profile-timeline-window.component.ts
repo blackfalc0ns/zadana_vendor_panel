@@ -10,6 +10,41 @@ import { resolveLocalizedMessage } from '../../../../../shared/utils/text-normal
   selector: 'app-profile-timeline-window',
   standalone: true,
   imports: [CommonModule, NgClass, TranslateModule, AppPageSectionShellComponent],
+  styles: [`
+    .profile-timeline-items-scroll {
+      max-height: min(22rem, 42vh);
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.8) transparent;
+    }
+
+    .profile-timeline-items-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .profile-timeline-items-scroll::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.75);
+      border-radius: 999px;
+    }
+
+    .profile-timeline-list-scroll {
+      max-height: min(26rem, 48vh);
+      overflow-x: hidden;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(148, 163, 184, 0.8) transparent;
+    }
+
+    .profile-timeline-list-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .profile-timeline-list-scroll::-webkit-scrollbar-thumb {
+      background: rgba(148, 163, 184, 0.75);
+      border-radius: 999px;
+    }
+  `],
   template: `
     <div id="timeline-window">
       <app-page-section-shell
@@ -20,69 +55,73 @@ import { resolveLocalizedMessage } from '../../../../../shared/utils/text-normal
       bodyClass="grid gap-6 px-5 py-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
       
       <!-- Current Review State -->
-      <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-7 shadow-sm transition-shadow hover:shadow-md relative overflow-hidden">
+      <div class="rounded-[1.25rem] border border-white/60 bg-white/40 backdrop-blur-xl p-4 shadow-sm transition-shadow hover:shadow-md relative overflow-hidden flex flex-col min-h-0">
         <div class="absolute -right-20 -top-20 w-48 h-48 bg-gradient-to-br from-zadna-primary/5 to-transparent rounded-full blur-3xl pointer-events-none"></div>
-        <div class="flex items-center justify-between gap-3">
-          <div class="flex items-center gap-4 relative z-10">
-            <div class="flex h-14 w-14 items-center justify-center rounded-[1rem] bg-white shadow-sm border border-slate-100 text-slate-500">
-              <span class="material-symbols-outlined text-[26px]">analytics</span>
+        <div class="flex items-center justify-between gap-2 shrink-0">
+          <div class="flex items-center gap-3 relative z-10 min-w-0">
+            <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-[0.85rem] bg-white shadow-sm border border-slate-100 text-slate-500">
+              <span class="material-symbols-outlined text-[20px]">analytics</span>
             </div>
-            <div>
-              <p class="text-[0.65rem] font-bold uppercase tracking-wider text-slate-500">
+            <div class="min-w-0">
+              <p class="text-[0.58rem] font-bold uppercase tracking-wider text-slate-500">
                 {{ currentLang === 'ar' ? 'الحالة الحالية' : 'Current review state' }}
               </p>
-              <h4 class="text-base font-black text-slate-900">{{ reviewStateLabel }}</h4>
+              <h4 class="truncate text-sm font-black text-slate-900">{{ reviewStateLabel }}</h4>
             </div>
           </div>
-          <span class="rounded-[6px] border px-2.5 py-1 text-sm font-black" [ngClass]="reviewStateBadgeClasses">
+          <span class="shrink-0 rounded-[6px] border px-2 py-0.5 text-[0.68rem] font-black" [ngClass]="reviewStateBadgeClasses">
             {{ reviewProgressPercent }}%
           </span>
         </div>
 
-        <div class="mt-6 space-y-3">
+        <div class="profile-timeline-items-scroll mt-3 space-y-2 pe-1">
           <div
             *ngFor="let item of reviewItems"
-            class="rounded-2xl border border-white/80 bg-white/50 p-5 shadow-sm transition-all hover:shadow-md hover:bg-white/80 hover:-translate-y-0.5"
+            class="rounded-xl border border-white/80 bg-white/50 p-3 shadow-sm transition-all hover:bg-white/80"
             [ngClass]="reviewItemCardClasses(item)">
-            <div class="flex items-start justify-between gap-4">
+            <div class="flex items-start justify-between gap-2">
               <div class="min-w-0">
-                <p class="text-sm font-bold text-slate-900">{{ reviewItemLabel(item.code) }}</p>
-                <p *ngIf="item.decisionNote" class="mt-1 text-xs text-slate-600">{{ localizeMessage(item.decisionNote) }}</p>
+                <p class="text-xs font-bold leading-5 text-slate-900">{{ reviewItemLabel(item.code) }}</p>
+                <p *ngIf="item.decisionNote" class="mt-0.5 line-clamp-2 text-[0.68rem] leading-5 text-slate-600">{{ localizeMessage(item.decisionNote) }}</p>
               </div>
-              <span class="shrink-0 rounded-[6px] px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wider border" [ngClass]="reviewItemStatusBadgeClasses(item)">
+              <span class="shrink-0 rounded-[5px] px-1.5 py-0.5 text-[0.58rem] font-bold uppercase tracking-wide border" [ngClass]="reviewItemStatusBadgeClasses(item)">
                 {{ reviewItemStatusLabel(item.status) }}
               </span>
             </div>
           </div>
+
+          <p *ngIf="reviewItems.length === 0" class="rounded-xl border border-dashed border-slate-300/60 bg-white/40 py-6 text-center text-xs font-medium text-slate-500">
+            {{ currentLang === 'ar' ? 'لا توجد عناصر مراجعة بعد.' : 'No review items yet.' }}
+          </p>
         </div>
       </div>
 
       <!-- Timeline -->
-      <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md">
-        <div class="flex items-center gap-2 mb-6 border-b border-slate-200 pb-3">
-          <span class="material-symbols-outlined text-[20px] text-slate-500">history</span>
-          <p class="text-xs font-bold uppercase tracking-wider text-slate-600">
+      <div class="rounded-[1.25rem] border border-white/60 bg-white/40 backdrop-blur-xl p-4 shadow-sm transition-shadow hover:shadow-md flex flex-col min-h-0">
+        <div class="flex items-center gap-2 mb-3 border-b border-slate-200 pb-2 shrink-0">
+          <span class="material-symbols-outlined text-[18px] text-slate-500">history</span>
+          <p class="text-[0.65rem] font-bold uppercase tracking-wider text-slate-600">
             {{ currentLang === 'ar' ? 'السجل الزمني الكامل' : 'Complete review timeline' }}
           </p>
         </div>
         
-        <div class="custom-scrollbar max-h-[420px] overflow-y-auto pe-2">
-        <div class="relative ms-4 space-y-5 before:absolute before:-left-[17px] before:bottom-0 before:top-2 before:w-[2px] before:bg-slate-200/60" [dir]="'ltr'">
+        <div class="profile-timeline-list-scroll pe-1">
+        <div class="relative ms-3 space-y-3 before:absolute before:-left-[13px] before:bottom-0 before:top-2 before:w-[2px] before:bg-slate-200/60" [dir]="'ltr'">
           <article *ngFor="let entry of fullTimelineEntries" class="relative group">
             <!-- Timeline dot -->
-            <div class="absolute -left-[24px] top-1.5 h-4 w-4 rounded-full border-[3.5px] border-white shadow-sm" [ngClass]="timelineToneDotClasses(entry).replace('bg-', '!bg-')"></div>
+            <div class="absolute -left-[20px] top-1 h-3 w-3 rounded-full border-[3px] border-white shadow-sm" [ngClass]="timelineToneDotClasses(entry).replace('bg-', '!bg-')"></div>
             
-            <div class="rounded-[1rem] border border-white/80 bg-white/60 p-4 shadow-sm transition-all hover:shadow-md hover:bg-white">
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="text-sm font-bold text-slate-900">{{ entry.authorName }}</span>
-                <span class="rounded-[4px] bg-slate-100 px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider text-slate-600">{{ localizeRoleLabel(entry.roleLabel) }}</span>
-                <span class="ms-auto text-xs font-bold text-slate-400">{{ formatReviewDate(entry.createdAtUtc) }}</span>
+            <div class="rounded-[0.85rem] border border-white/80 bg-white/60 p-3 shadow-sm transition-all hover:bg-white">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <span class="text-xs font-bold text-slate-900">{{ entry.authorName }}</span>
+                <span class="rounded-[4px] bg-slate-100 px-1.5 py-0.5 text-[0.55rem] font-bold uppercase tracking-wider text-slate-600">{{ localizeRoleLabel(entry.roleLabel) }}</span>
+                <span class="ms-auto text-[0.65rem] font-bold text-slate-400">{{ formatReviewDate(entry.createdAtUtc) }}</span>
               </div>
-              <p class="mt-1.5 text-xs text-slate-600">{{ localizeMessage(entry.message) }}</p>
+              <p class="mt-1 text-[0.68rem] leading-5 text-slate-600">{{ localizeMessage(entry.message) }}</p>
             </div>
           </article>
 
-          <p *ngIf="fullTimelineEntries.length === 0" class="rounded-[1rem] border border-dashed border-slate-300/60 bg-white/40 py-8 text-center text-sm font-medium text-slate-500">
+          <p *ngIf="fullTimelineEntries.length === 0" class="rounded-[0.85rem] border border-dashed border-slate-300/60 bg-white/40 py-6 text-center text-xs font-medium text-slate-500">
             {{ currentLang === 'ar' ? 'لا يوجد نشاط مراجعة بعد.' : 'No review activity yet.' }}
           </p>
         </div>

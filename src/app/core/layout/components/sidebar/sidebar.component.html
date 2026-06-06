@@ -1,158 +1,110 @@
 <aside
-  class="flex h-full flex-col overflow-hidden rounded-[24px] border border-slate-200/70 bg-[linear-gradient(180deg,rgba(255,255,255,0.98),rgba(247,249,252,0.95))] p-4 pt-5 text-slate-900 shadow-[0_6px_20px_rgba(15,23,42,0.035)]">
-  <div class="mb-4 flex shrink-0 flex-col items-stretch gap-4 px-1">
-    <a routerLink="/"
-      class="flex items-center gap-3 rounded-[20px] border border-white/70 bg-white p-3 no-underline shadow-[0_8px_18px_rgba(15,23,42,0.04)]">
-      <span
-        class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[16px] bg-white shadow-[inset_0_0_0_1px_rgba(18,124,140,0.08)]">
-        <img src="assets/images/logo/zadana-mark.svg" alt="Zadana" class="h-auto w-6 object-contain">
-      </span>
-      <div class="min-w-0">
-        <strong class="block text-[0.85rem] font-black tracking-tight text-slate-900">{{ 'SIDEBAR.APP_NAME' | translate }}</strong>
-        <small class="mt-0.5 block truncate text-[0.62rem] font-bold text-slate-400 uppercase tracking-wider">{{ 'SIDEBAR.APP_SUBTITLE' | translate }}</small>
-      </div>
-    </a>
-
-    <div
-      class="inline-flex w-fit items-center gap-1.5 self-start rounded-full bg-zadna-primary/10 px-3 py-1.5 text-[0.7rem] font-bold text-zadna-primaryDark">
-      <span class="relative flex h-1.5 w-1.5">
-        <span class="relative inline-flex rounded-full h-1.5 w-1.5 bg-teal-500"></span>
-      </span>
-      {{ 'SIDEBAR.READY_STATUS' | translate }}
-    </div>
-  </div>
-
-  <div class="mb-3.5 flex shrink-0 items-center gap-2.5 rounded-[14px] border border-slate-300/70 bg-white/80 mx-1 px-3 py-2 transition-all focus-within:border-zadna-primary/30 focus-within:bg-white focus-within:shadow-sm">
-    <svg class="h-3.5 w-3.5 shrink-0 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-5.2-5.2m0 0A7.5 7.5 0 1 0 5.2 5.2a7.5 7.5 0 0 0 10.6 10.6Z"></path>
-    </svg>
-    <input
-      type="text"
-      [placeholder]="'SIDEBAR.SEARCH_PLACEHOLDER' | translate"
-      class="min-w-0 flex-1 border-0 bg-transparent text-[0.78rem] text-slate-900 outline-none placeholder:text-slate-400">
-    <span class="rounded-[4px] border border-slate-200 bg-slate-50 px-1.5 py-0.5 text-[0.6rem] font-black text-slate-400">{{ 'COMMON.SHORTCUT_CTRL_K' | translate }}</span>
-  </div>
-
-  <div class="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-1 pe-2">
-    <section>
-      <p class="mb-2 px-3 text-[0.6rem] font-black uppercase tracking-[0.2em] text-slate-400">{{ 'SIDEBAR.OVERVIEW_TITLE' | translate }}</p>
-      <nav class="grid gap-1">
-        <ng-container *ngFor="let item of overviewMenuItems">
-          <a
-            [routerLink]="item.route"
-            [routerLinkActive]="['!bg-zadna-primary', '!text-white', 'shadow-lg', 'shadow-zadna-primary/25', 'is-active']"
-            [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
-            class="group flex items-center gap-3 rounded-[14px] px-3 py-2 text-slate-500 hover:bg-white hover:text-slate-900 active:scale-[0.97]"
-            [attr.dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-slate-100 group-[.is-active]:bg-white/20 transition-all group-hover:scale-110">
-              <svg viewBox="0 0 24 24" fill="none" class="h-[1.05rem] w-[1.05rem]" stroke="currentColor" [innerHTML]="item.icon"></svg>
-            </span>
-            <span class="flex-1 truncate text-[0.8rem] font-bold tracking-tight">{{ item.label | translate }}</span>
-
-            <span *ngIf="item.badgeType === 'new'" class="rounded-full bg-orange-500 px-1.5 py-0.5 text-[0.55rem] font-black uppercase text-white shadow-sm">
-              {{ 'SIDEBAR.NEW_BADGE' | translate }}
-            </span>
-            <span *ngIf="item.badgeType === 'number'" class="rounded-full bg-slate-100 px-2 py-0.5 text-[0.65rem] font-black text-slate-500 group-[.is-active]:bg-white/20 group-[.is-active]:text-white">
-              {{ item.badge }}
-            </span>
-          </a>
-        </ng-container>
-      </nav>
-    </section>
-
-    <section class="mt-5">
-      <p class="mb-2 px-3 text-[0.6rem] font-black uppercase tracking-[0.2em] text-slate-400">{{ 'SIDEBAR.OPERATIONS_TITLE' | translate }}</p>
-      <nav class="grid gap-1">
-        <ng-container *ngFor="let item of operationsMenuItems">
-          <a
-            [routerLink]="item.route"
-            [routerLinkActive]="['!bg-zadna-primary', '!text-white', 'shadow-lg', 'shadow-zadna-primary/25', 'is-active']"
-            [routerLinkActiveOptions]="item.exact ? { exact: true } : { exact: false }"
-            class="group flex items-center gap-3 rounded-[14px] px-3 py-2 text-slate-500 hover:bg-white hover:text-slate-900 active:scale-[0.97]"
-            [attr.dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-            <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-slate-100 group-[.is-active]:bg-white/20 transition-all group-hover:scale-110">
-              <svg viewBox="0 0 24 24" fill="none" class="h-[1.05rem] w-[1.05rem]" stroke="currentColor" [innerHTML]="item.icon"></svg>
-            </span>
-            <span class="flex-1 truncate text-[0.8rem] font-bold tracking-tight">{{ item.label | translate }}</span>
-
-            <span *ngIf="item.badgeType === 'number'" class="rounded-full bg-slate-100 px-2 py-0.5 text-[0.65rem] font-black text-slate-500 group-[.is-active]:bg-white/20 group-[.is-active]:text-white">
-              {{ item.badge }}
-            </span>
-          </a>
-        </ng-container>
-      </nav>
-    </section>
-  </div>
-
-  <div class="mt-4 grid shrink-0 gap-2 px-1 pb-2">
-    <div class="grid grid-cols-2 gap-2">
-      <a *ngIf="canAccessSupport" routerLink="/support" class="flex flex-col items-center gap-2 rounded-[14px] bg-white/50 p-3 text-center no-underline transition-all hover:bg-white hover:shadow-sm">
-        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-zadna-primary/5 text-zadna-primary">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 17h.01M10.1 9.1a2.7 2.7 0 1 1 3.9 2.4c-.8.4-1.3.9-1.3 1.8V14m7.3-2a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z"></path>
-          </svg>
-        </div>
-        <span class="text-[0.65rem] font-black uppercase tracking-tight text-slate-500">{{ 'SIDEBAR.SUPPORT' | translate }}</span>
+  class="vendor-sidebar"
+  [class.is-collapsed]="isCollapsed"
+  [attr.dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+  <!-- Brand -->
+  <div class="vendor-sidebar__brand">
+    <div class="vendor-sidebar__brand-top">
+      <a
+        routerLink="/dashboard"
+        [queryParams]="{ tab: 'overview' }"
+        class="vendor-sidebar__logo"
+        [attr.title]="'SIDEBAR.DASHBOARD' | translate">
+        <img
+          src="assets/i18n/images/logo/logo-auth.png"
+          alt="Zadana"
+          class="vendor-sidebar__logo-full"
+          width="800"
+          height="309"
+        />
       </a>
 
-      <a *ngIf="canAccessAlerts" routerLink="/alerts" class="relative flex flex-col items-center gap-2 rounded-[14px] bg-white/50 p-3 text-center no-underline hover:bg-white hover:shadow-sm">
-        @if (unreadCount$ && (unreadCount$ | async); as unreadCount) {
-          @if (unreadCount > 0) {
-            <span class="absolute right-3 top-3 inline-flex min-h-[1rem] min-w-[1rem] items-center justify-center rounded-full bg-rose-500 px-1 text-[0.55rem] font-black text-white">
-              {{ unreadCount > 99 ? '99+' : unreadCount }}
-            </span>
-          }
-        }
-        <div class="flex h-8 w-8 items-center justify-center rounded-full bg-rose-50 text-rose-500">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M14.9 17.5a24 24 0 0 1-5.8 0m5.8 0a3 3 0 1 1-5.8 0m5.8 0c1.9-.2 3.7-.6 5.4-1.3A9 9 0 0 1 18 9.8V9a6 6 0 1 0-12 0v.8a9 9 0 0 1-2.3 6.4c1.7.7 3.5 1.1 5.4 1.3"></path>
-          </svg>
-        </div>
-        <span class="text-[0.65rem] font-black uppercase tracking-tight text-slate-500">{{ 'SIDEBAR.ALERTS' | translate }}</span>
-      </a>
-    </div>
+      <button
+        type="button"
+        (click)="onToggleMobileMenu()"
+        class="vendor-sidebar__close-btn lg:hidden"
+        [attr.aria-label]="'HEADER.CLOSE_MENU' | translate"
+      >
+        <svg class="h-4 w-4" [ngClass]="mobileCloseChevronClass" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+        </svg>
+      </button>
 
-    <a
-      routerLink="/profile"
-      class="flex items-center gap-2 rounded-[14px] border border-slate-200/80 bg-white/80 p-2 no-underline hover:bg-white transition-all cursor-pointer overflow-hidden active:scale-[0.98]">
-      <div
-        class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-slate-900 text-[0.65rem] font-black text-white uppercase">
-        {{ initials }}</div>
-      <div class="flex-1 min-w-0">
-        <strong title="{{ userName }}" class="block text-[0.78rem] font-bold text-slate-900 truncate">{{ userName
-          }}</strong>
-        <p class="text-[0.62rem] font-bold text-slate-400 uppercase tracking-tight">{{ 'SIDEBAR.VERIFIED_VENDOR' | translate }}</p>
-      </div>
-    </a>
-
-    <div class="rounded-[20px] border p-3.5 shadow-[0_12px_24px_rgba(18,124,140,0.06)] ring-1"
-      [ngClass]="isVendorVerified
-        ? 'border-emerald-200/50 bg-emerald-50/30 ring-emerald-100/50'
-        : 'border-zadna-primary/10 bg-white ring-zadna-primary/5'">
-      <div class="text-[0.6rem] font-black uppercase tracking-[0.12em]"
-        [ngClass]="isVendorVerified ? 'text-emerald-600/80' : 'text-zadna-primary/80'">{{ setupCardLabel }}</div>
-      <h5 class="mt-1 text-[0.78rem] font-black leading-tight text-slate-900">{{ setupCardTitle }}</h5>
-      
-      <div class="mt-2.5 flex items-center gap-2">
-        <div class="h-1 flex-1 overflow-hidden rounded-full bg-slate-100">
-          <div class="h-full rounded-full transition-all duration-700 ease-out"
-            [ngClass]="isVendorVerified ? 'bg-emerald-500' : 'bg-zadna-primary'"
-            [style.width.%]="profileCompletion"></div>
-        </div>
-        <span class="text-[0.62rem] font-black" [ngClass]="isVendorVerified ? 'text-emerald-600' : 'text-slate-400'">{{ profileCompletion }}%</span>
-      </div>
-
-      <button type="button" (click)="navigateToSetup()"
-        class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl py-2 text-[0.72rem] font-black text-white active:scale-[0.97]"
-        [ngClass]="isVendorVerified
-          ? 'bg-emerald-600 hover:bg-emerald-700'
-          : 'bg-zadna-primary hover:bg-zadna-primaryDark'">
-        {{ setupButtonLabel }}
-        <svg class="h-3 w-3 transition-transform group-hover:translate-x-1" [ngClass]="currentLang === 'ar' ? 'rotate-180' : ''" fill="none"
-          stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path>
+      <button
+        type="button"
+        (click)="onCollapseSidebar()"
+        class="vendor-sidebar__collapse-btn hidden lg:inline-flex"
+        [attr.aria-label]="(isCollapsed ? 'HEADER.OPEN_MENU' : 'HEADER.CLOSE_MENU') | translate"
+      >
+        <svg class="h-4 w-4" [ngClass]="collapseToggleChevronClass" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
         </svg>
       </button>
     </div>
   </div>
+
+  <!-- Navigation -->
+  <div class="vendor-sidebar__nav-wrap">
+    <section *ngFor="let category of menuCategories; trackBy: trackByCategory" class="vendor-sidebar__section">
+      <p class="vendor-sidebar__section-title">
+        {{ category.label | translate }}
+      </p>
+
+      <nav class="vendor-sidebar__nav">
+        <ng-container *ngFor="let item of category.items; trackBy: trackByItem">
+          <a
+            [routerLink]="item.route"
+            [queryParams]="item.queryParams"
+            [routerLinkActive]="['is-active']"
+            [routerLinkActiveOptions]="getLinkActiveOptions(item)"
+            class="vendor-sidebar__link"
+            [attr.title]="isCollapsed ? null : (item.label | translate)"
+            [attr.aria-label]="isCollapsed ? (item.label | translate) : null"
+            (mouseenter)="onLinkHoverStart(item.label, $event)"
+            (mousemove)="onLinkHoverMove($event)"
+            (mouseleave)="hideCursorTooltip()"
+            (click)="onNavClick()"
+          >
+            <span class="vendor-sidebar__link-icon">
+              <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" [innerHTML]="item.icon"></svg>
+              <span *ngIf="item.badge && isCollapsed" class="vendor-sidebar__badge-dot" aria-hidden="true"></span>
+            </span>
+
+            <span class="vendor-sidebar__link-label">
+              <strong>{{ item.label | translate }}</strong>
+              <small class="block mt-0.5 font-medium opacity-70">
+                {{ item.description | translate }}
+              </small>
+            </span>
+
+            <span
+              *ngIf="item.badge && !isCollapsed"
+              class="vendor-sidebar__chip"
+              [ngClass]="
+                item.badgeType === 'number'
+                  ? 'vendor-sidebar__chip--number'
+                  : item.badgeType === 'progress'
+                    ? 'vendor-sidebar__chip--progress'
+                    : 'vendor-sidebar__chip--new'
+              "
+            >
+              {{ item.badge }}
+            </span>
+          </a>
+        </ng-container>
+      </nav>
+    </section>
+  </div>
+
+  @if (isCollapsed && cursorTooltip.visible) {
+    <div
+      class="vendor-sidebar-cursor-tooltip"
+      [class.is-active]="cursorTooltip.active"
+      [class.is-rtl]="currentLang === 'ar'"
+      [style.left.px]="cursorTooltip.x"
+      [style.top.px]="cursorTooltip.y"
+      role="tooltip">
+      {{ cursorTooltip.text }}
+    </div>
+  }
 </aside>

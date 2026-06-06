@@ -1,5 +1,5 @@
 import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, HttpClient, withInterceptors } from '@angular/common/http';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
 import { firstValueFrom, Observable, forkJoin, of } from 'rxjs';
@@ -10,7 +10,7 @@ import { DialogModule } from '@angular/cdk/dialog';
 import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
 
-const TRANSLATION_ASSET_VERSION = '2026-05-09-stock-ui-1';
+const TRANSLATION_ASSET_VERSION = '2026-06-06-modals-i18n-1';
 
 // Custom Loader to guarantee compatibility and fix "0 arguments" error
 export class CustomTranslateLoader implements TranslateLoader {
@@ -59,7 +59,10 @@ export function initializeTranslations(translate: TranslateService) {
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
-    provideRouter(routes),
+    provideRouter(
+      routes,
+      withInMemoryScrolling({ scrollPositionRestoration: 'top' })
+    ),
     provideHttpClient(withInterceptors([vendorAuthInterceptor])),
     provideAnimations(),
     importProvidersFrom(

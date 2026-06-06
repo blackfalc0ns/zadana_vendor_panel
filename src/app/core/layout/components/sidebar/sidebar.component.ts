@@ -1,23 +1,37 @@
-import { Component, Input, OnInit, OnDestroy, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterModule, RouterLinkActive } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { Observable, Subscription } from 'rxjs';
-import { AlertsCenterService } from '../../../../features/alerts/services/alerts-center.service';
-import { VendorProfileService } from '../../../../features/settings/services/vendor-profile.service';
-import { VendorProfile } from '../../../../features/settings/models/vendor-profile.models';
+import { Subscription, filter } from 'rxjs';
 import { VendorAccessService } from '../../../auth/services/vendor-access.service';
+import { VendorAuthService } from '../../../auth/services/vendor-auth.service';
 
 export interface SidebarItem {
   icon: string | SafeHtml;
   label: string;
+  description: string;
   route: string;
   exact?: boolean;
+  queryParams?: Record<string, string>;
   badge?: string;
   badgeType?: 'new' | 'number' | 'notification' | 'progress';
   permissions?: string[];
   permissionMatch?: 'any' | 'all';
+  category: 'overview' | 'operations' | 'catalog' | 'management';
+}
+
+export interface SidebarCategory {
+  label: string;
+  items: SidebarItem[];
+}
+
+interface SidebarCursorTooltip {
+  visible: boolean;
+  text: string;
+  x: number;
+  y: number;
+  active: boolean;
 }
 
 @Component({
@@ -28,102 +42,179 @@ export interface SidebarItem {
   templateUrl: './sidebar.component.html',
   styleUrl: './sidebar.component.scss'
 })
-export class SidebarComponent implements OnInit, OnDestroy {
+export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
   private readonly cdr = inject(ChangeDetectorRef);
   private sanitizer = inject(DomSanitizer);
-  private alertsCenterService = inject(AlertsCenterService);
-  private profileService = inject(VendorProfileService);
   private accessService = inject(VendorAccessService);
+  private authService = inject(VendorAuthService);
   private translate = inject(TranslateService);
   private router = inject(Router);
+  private routerEventsSub?: Subscription;
+  private authSub?: Subscription;
 
   @Input() currentLang: string = 'ar';
-  unreadCount$?: Observable<number>;
   @Input() userName: string = 'Ember Crest';
   @Input() userRole: string = 'Vendor';
   @Input() initials: string = 'مت';
 
-  // Profile-backed setup card
-  profileCompletion = 0;
-  isVendorVerified = false;
-  setupCardLabel = '';
-  setupCardTitle = '';
-  setupButtonLabel = '';
-  private profileSub?: Subscription;
+  @Input() isMobileMenuOpen = false;
+  @Input() isCollapsed = false;
+
+  @Output() toggleMobileMenu = new EventEmitter<void>();
+  @Output() collapseSidebar = new EventEmitter<void>();
+  @Output() languageSwitch = new EventEmitter<void>();
+  @Output() logoutAction = new EventEmitter<void>();
+
+  menuCategories: SidebarCategory[] = [];
+  cursorTooltip: SidebarCursorTooltip = {
+    visible: false,
+    text: '',
+    x: 0,
+    y: 0,
+    active: false
+  };
 
   ngOnInit() {
     this.menuItems = this.menuItems.map(item => ({
       ...item,
       icon: this.sanitizer.bypassSecurityTrustHtml(item.icon as string)
     }));
-    this.unreadCount$ = this.alertsCenterService.getUnreadCount();
+    this.rebuildMenuCategories();
 
-    this.profileSub = this.profileService.getProfile().subscribe(profile => {
+    this.authSub = this.authService.currentUser$.subscribe(() => {
+      this.rebuildMenuCategories();
       this.cdr.markForCheck();
-      this.updateSetupCard(profile);
     });
-    this.profileService.loadProfile().subscribe();
+
+    this.routerEventsSub = this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe(() => this.cdr.markForCheck());
   }
 
   ngOnDestroy() {
-    this.profileSub?.unsubscribe();
+    this.routerEventsSub?.unsubscribe();
+    this.authSub?.unsubscribe();
   }
 
-  get overviewMenuItems(): SidebarItem[] {
-    return this.visibleMenuItems.slice(0, 5);
-  }
-
-  get operationsMenuItems(): SidebarItem[] {
-    return this.visibleMenuItems.slice(5);
-  }
-
-  get canAccessSupport(): boolean {
-    return this.accessService.hasPermission('vendor_support.view');
-  }
-
-  get canAccessAlerts(): boolean {
-    return this.accessService.hasPermission('vendor_alerts.view');
-  }
-
-  get visibleMenuItems(): SidebarItem[] {
-    return this.menuItems.filter((item) => this.canAccessItem(item));
-  }
-
-  navigateToSetup(): void {
-    this.router.navigate(['/profile']);
-  }
-
-  private updateSetupCard(profile: VendorProfile): void {
-    const lang = this.translate.currentLang || 'ar';
-    this.isVendorVerified = profile.commercialAccessEnabled
-      || (profile.reviewState || '').toLowerCase() === 'verified';
-    this.profileCompletion = this.calcCompletion(profile);
-
-    if (this.isVendorVerified) {
-      this.setupCardLabel = lang === 'ar' ? 'حالة المتجر' : 'Store status';
-      this.setupCardTitle = lang === 'ar' ? 'حسابك التجاري مفعل وجاهز' : 'Your commercial account is active';
-      this.setupButtonLabel = lang === 'ar' ? 'عرض الملف الشخصي' : 'View profile';
-    } else {
-      this.setupCardLabel = lang === 'ar' ? 'إعداد الحساب' : 'Account setup';
-      this.setupCardTitle = lang === 'ar' ? 'أكمل بياناتك للبدء في البيع' : 'Complete your profile to start selling';
-      this.setupButtonLabel = lang === 'ar' ? 'متابعة الإعداد' : 'Continue setup';
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isCollapsed'] && !this.isCollapsed) {
+      this.hideCursorTooltip();
     }
   }
 
-  private calcCompletion(p: VendorProfile): number {
-    if (p.commercialAccessEnabled || (p.reviewState || '').toLowerCase() === 'verified') {
-      return 100;
-    }
+  trackByCategory(_index: number, category: SidebarCategory): string {
+    return category.label;
+  }
 
-    const fields = [
-      p.storeNameAr, p.storeNameEn, p.businessType, p.supportPhone, p.supportEmail,
-      p.region, p.city, p.nationalAddress,
-      p.ownerName, p.ownerEmail, p.ownerPhone,
-      p.idNumber, p.nationality, p.taxId, p.commercialRegistrationNumber, p.expiryDate, p.licenseNumber,
-      p.bankName, p.iban, p.payoutCycle
+  trackByItem(_index: number, item: SidebarItem): string {
+    return item.route;
+  }
+
+  getLinkActiveOptions(item: SidebarItem): {
+    paths: 'exact' | 'subset';
+    queryParams: 'ignored';
+    fragment: 'ignored';
+    matrixParams: 'ignored';
+  } {
+    return {
+      paths: item.exact ? 'exact' : 'subset',
+      queryParams: 'ignored',
+      fragment: 'ignored',
+      matrixParams: 'ignored'
+    };
+  }
+
+  private rebuildMenuCategories(): void {
+    const categories: { label: string; key: SidebarItem['category'] }[] = [
+      { label: 'SIDEBAR.CAT_OVERVIEW', key: 'overview' },
+      { label: 'SIDEBAR.CAT_OPERATIONS', key: 'operations' },
+      { label: 'SIDEBAR.CAT_CATALOG', key: 'catalog' },
+      { label: 'SIDEBAR.CAT_MANAGEMENT', key: 'management' }
     ];
-    const filled = fields.filter(v => !!v && v.trim().length > 0).length;
-    return Math.round((filled / fields.length) * 100);
+
+    this.menuCategories = categories.map(cat => ({
+      label: cat.label,
+      items: this.menuItems.filter(item => item.category === cat.key && this.canAccessItem(item))
+    })).filter(cat => cat.items.length > 0);
+  }
+
+  switchLanguage(): void {
+    this.languageSwitch.emit();
+  }
+
+  onToggleMobileMenu(): void {
+    this.toggleMobileMenu.emit();
+  }
+
+  onCollapseSidebar(): void {
+    this.collapseSidebar.emit();
+  }
+
+  /** Chevron-left SVG: collapse points inward; expand points outward — flipped for RTL/LTR. */
+  get collapseToggleChevronClass(): string {
+    const isRtl = this.currentLang === 'ar';
+
+    if (this.isCollapsed) {
+      // Expand: LTR → right, RTL → left
+      return isRtl ? '' : 'rotate-180';
+    }
+
+    // Collapse: LTR → left, RTL → right
+    return isRtl ? 'rotate-180' : '';
+  }
+
+  /** Mobile drawer close chevron points toward the screen edge. */
+  get mobileCloseChevronClass(): string {
+    return this.currentLang === 'ar' ? 'rotate-180' : '';
+  }
+
+  onNavClick(): void {
+    this.hideCursorTooltip();
+
+    if (this.isMobileMenuOpen) {
+      this.toggleMobileMenu.emit();
+    }
+  }
+
+  onLinkHoverStart(labelKey: string, event: MouseEvent): void {
+    if (!this.isCollapsed) {
+      return;
+    }
+
+    const target = event.currentTarget as HTMLElement | null;
+    this.cursorTooltip.text = this.translate.instant(labelKey);
+    this.cursorTooltip.active = target?.classList.contains('is-active') ?? false;
+    this.cursorTooltip.visible = true;
+    this.setCursorTooltipPosition(event);
+    this.cdr.markForCheck();
+  }
+
+  onLinkHoverMove(event: MouseEvent): void {
+    if (!this.isCollapsed || !this.cursorTooltip.visible) {
+      return;
+    }
+
+    this.setCursorTooltipPosition(event);
+    this.cdr.markForCheck();
+  }
+
+  hideCursorTooltip(): void {
+    if (!this.cursorTooltip.visible) {
+      return;
+    }
+
+    this.cursorTooltip.visible = false;
+    this.cdr.markForCheck();
+  }
+
+  private setCursorTooltipPosition(event: MouseEvent): void {
+    const offset = 14;
+    this.cursorTooltip.x = event.clientX + (this.currentLang === 'ar' ? -offset : offset);
+    this.cursorTooltip.y = event.clientY + offset;
+  }
+
+  logout(): void {
+    this.logoutAction.emit();
   }
 
   private canAccessItem(item: SidebarItem): boolean {
@@ -140,60 +231,83 @@ export class SidebarComponent implements OnInit, OnDestroy {
     {
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />',
       label: 'SIDEBAR.DASHBOARD',
-      route: '/',
+      description: 'SIDEBAR.DASHBOARD_DESC',
+      route: '/dashboard',
       exact: true,
-      permissions: ['vendor_dashboard.view']
-    },
-    {
-      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />',
-      label: 'SIDEBAR.PRODUCTS',
-      route: '/products',
-      permissions: ['vendor_catalog.view']
+      queryParams: { tab: 'overview' },
+      permissions: ['vendor_dashboard.view'],
+      category: 'overview'
     },
     {
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />',
       label: 'SIDEBAR.ORDERS',
+      description: 'SIDEBAR.ORDERS_DESC',
       route: '/orders',
       badge: 'New',
       badgeType: 'new',
-      permissions: ['vendor_orders.view']
+      permissions: ['vendor_orders.view'],
+      category: 'operations'
     },
     {
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 22h6M12 18v4M5 4h14l-1 8a4 4 0 0 1-4 3H10a4 4 0 0 1-4-3L5 4Zm2.5 0a4.5 4.5 0 0 0 9 0" />',
       label: 'SIDEBAR.DISPUTES',
+      description: 'SIDEBAR.DISPUTES_DESC',
       route: '/disputes',
-      permissions: ['vendor_disputes.view']
+      permissions: ['vendor_disputes.view'],
+      category: 'operations'
+    },
+    {
+      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />',
+      label: 'SIDEBAR.PRODUCTS',
+      description: 'SIDEBAR.PRODUCTS_DESC',
+      route: '/products',
+      permissions: ['vendor_catalog.view'],
+      category: 'catalog'
     },
     {
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" />',
       label: 'SIDEBAR.OFFERS',
+      description: 'SIDEBAR.OFFERS_DESC',
       route: '/offers',
-      permissions: ['vendor_offers.view']
+      queryParams: { type: 'direct' },
+      permissions: ['vendor_offers.view'],
+      category: 'catalog'
     },
     {
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />',
       label: 'SIDEBAR.FINANCE',
+      description: 'SIDEBAR.FINANCE_DESC',
       route: '/finance',
-      permissions: ['vendor_finance.view']
+      queryParams: { period: 'month' },
+      permissions: ['vendor_finance.view'],
+      category: 'management'
     },
     {
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />',
       label: 'SIDEBAR.STAFF_BRANCHES',
+      description: 'SIDEBAR.STAFF_BRANCHES_DESC',
       route: '/staff',
+      queryParams: { view: 'branches' },
       permissions: ['vendor_staff.view', 'vendor_branch_team.view'],
-      permissionMatch: 'any'
+      permissionMatch: 'any',
+      category: 'management'
     },
     {
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />',
       label: 'SIDEBAR.REVIEWS',
+      description: 'SIDEBAR.REVIEWS_DESC',
       route: '/reviews',
-      permissions: ['vendor_reviews.view']
+      permissions: ['vendor_reviews.view'],
+      category: 'management'
     },
     {
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />',
       label: 'SIDEBAR.SETTINGS',
+      description: 'SIDEBAR.SETTINGS_DESC',
       route: '/profile',
-      permissions: ['vendor_profile.view']
+      queryParams: { tab: 'store-section' },
+      permissions: ['vendor_profile.view'],
+      category: 'management'
     }
   ];
 }

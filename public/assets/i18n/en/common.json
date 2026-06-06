@@ -1,4 +1,4 @@
-{
+﻿{
   "COMMON": {
     "SEARCH": "Search...",
     "SAVE": "Save",
@@ -28,6 +28,7 @@
     "OPEN": "Open",
     "CLOSE": "Close",
     "WELCOME": "Welcome",
+    "PHONE_LOCAL_PLACEHOLDER": "05X XXX XXXX",
     "READY_TODAY": "Ready for today",
     "OPERATIONAL_PRIORITIES": "Operational Priorities",
     "BRAND_GENERAL": "General Brand",
@@ -57,16 +58,24 @@
   },
   "SIDEBAR": {
     "APP_NAME": "Zadana",
-    "APP_SUBTITLE": "Vendor & Partner Portal",
+    "APP_SUBTITLE": "Vendor Workspace",
     "DASHBOARD": "Dashboard",
-    "PRODUCTS": "Product Management",
+    "DASHBOARD_DESC": "Performance indicators & operational pulse",
+    "PRODUCTS": "Products / Catalog",
+    "PRODUCTS_DESC": "Manage products, stock and prices",
     "ORDERS": "Order Management",
+    "ORDERS_DESC": "Track orders, shipping and delivery",
     "OFFERS": "Offers & Discounts",
+    "OFFERS_DESC": "Create discounts and promotional offers",
     "FINANCE": "My Wallet",
+    "FINANCE_DESC": "Accounts, earnings and financial settlements",
     "BRANCHES": "Branches",
     "STAFF_BRANCHES": "Staff & Branches",
+    "STAFF_BRANCHES_DESC": "Manage staff permissions and branches",
     "REVIEWS": "Reviews",
+    "REVIEWS_DESC": "Review customer ratings & feedback",
     "SETTINGS": "Settings",
+    "SETTINGS_DESC": "Control store settings & profile",
     "LOGOUT": "Logout",
     "NEW_BADGE": "NEW",
     "READY_STATUS": "Ready to work",
@@ -79,20 +88,32 @@
     "STORE_SETUP": "Store Setup",
     "STORE_SETUP_TITLE": "Complete your store setup to start selling",
     "CONTINUE_SETUP": "Continue Setup",
-    "DISPUTES": "Disputes"
+    "DISPUTES": "Disputes",
+    "DISPUTES_DESC": "Resolve customer disputes & issues",
+    "WORKSPACE_LABEL": "Workspace",
+    "NAVIGATION_TITLE": "Navigation",
+    "CAT_OVERVIEW": "Overview",
+    "CAT_OPERATIONS": "Access",
+    "CAT_CATALOG": "Catalog",
+    "CAT_MANAGEMENT": "Management"
   },
   "HEADER": {
     "OPEN_MENU": "Open Menu",
+    "CLOSE_MENU": "Close menu",
     "NOTIFICATIONS": "Notifications",
     "PROFILE": "Profile",
     "SEARCH": "Search in system...",
     "ACTIVE_ACCOUNT": "Active Account",
+    "PENDING_ACTIVATION": "Pending activation",
+    "UNDER_REVIEW": "Under review",
+    "CHANGES_REQUESTED": "Changes requested",
+    "ACCOUNT_SUSPENDED": "Account suspended",
     "VENDOR_DASHBOARD": "Vendor Dashboard",
-    "SEARCH_PLACEHOLDER": "Search in Zadana..."
+    "SEARCH_PLACEHOLDER": "Search in Coupony..."
   },
   "HEADER_SEARCH": {
     "TITLE": "Global Search",
-    "PLACEHOLDER": "Search in Zadana (orders, products, catalog...)",
+    "PLACEHOLDER": "Search in Coupony (orders, products, catalog...)",
     "MIN_QUERY": "Type at least {{count}} characters to search.",
     "SEARCHING": "Searching vendor panel...",
     "NO_RESULTS": "No matching results found.",
@@ -191,6 +212,18 @@
     "EMPTY": {
       "TITLE": "No matching alerts",
       "SUBTITLE": "Try adjusting the filters or revisit when the operational data changes."
+    },
+    "LOAD_ERROR": "Could not load alerts. Check your connection and try again.",
+    "DATE_GROUPS": {
+      "TODAY": "Today",
+      "YESTERDAY": "Yesterday",
+      "EARLIER": "Earlier"
+    },
+    "REALTIME": {
+      "CONNECTED": "Live connected",
+      "CONNECTING": "Connecting...",
+      "ERROR": "Live connection error",
+      "OFFLINE": "Live offline"
     },
     "FEEDBACK": {
       "MARKED_READ": "The alert was marked as read.",

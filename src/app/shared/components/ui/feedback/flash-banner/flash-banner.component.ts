@@ -41,7 +41,8 @@ export class AppFlashBannerComponent implements OnChanges {
         title: titleMap[this.tone] || '',
         message: this.message,
         type: typeMap[this.tone] || 'info',
-        direction
+        direction,
+        titleIsTranslationKey: false
       });
     }
   }

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, catchError, map, of, switchMap, timeout } from 'rxjs';
+import { Observable, catchError, finalize, map, of, shareReplay, switchMap, tap, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   OrderDetail,
@@ -110,9 +110,30 @@ interface VendorOrderStatusMutationResponse {
   providedIn: 'root'
 })
 export class OrdersService {
+  private static readonly VENDOR_TIMELINE_FLOW: OrderStatus[] = [
+    'NEW',
+    'CONFIRMED',
+    'IN_PROGRESS',
+    'READY_FOR_PICKUP',
+    'DRIVER_ASSIGNMENT_IN_PROGRESS',
+    'DRIVER_ASSIGNED',
+    'PICKED_UP',
+    'OUT_FOR_DELIVERY',
+    'DELIVERED'
+  ];
+
+  private static readonly TERMINAL_STATUSES: OrderStatus[] = ['CANCELLED', 'DELIVERY_FAILED', 'REFUNDED'];
+
   private readonly apiUrl = `${environment.apiUrl}/vendor/orders`;
+  private cachedAllOrders: OrderListItem[] | null = null;
+  private allOrdersRequest$?: Observable<OrderListItem[]>;
 
   constructor(private readonly http: HttpClient) {}
+
+  invalidateOrdersCache(): void {
+    this.cachedAllOrders = null;
+    this.allOrdersRequest$ = undefined;
+  }
 
   getOrders(params: {
     pageNumber: number;
@@ -122,15 +143,69 @@ export class OrdersService {
     paymentMethod?: OrderPaymentMethod | 'ALL';
     lateState?: 'ALL' | 'LATE' | 'ONTIME';
   }): Observable<PaginatedOrdersResponse> {
-    const requestParams = new HttpParams()
-      .set('page', '1')
-      .set('pageSize', '250');
-
-    return this.http.get<VendorOrdersApiResponse>(this.apiUrl, { params: requestParams }).pipe(
-      map((response) => response.items.map((item) => this.mapListItem(item))),
+    return this.fetchAllOrders().pipe(
       map((items) => this.applyFilters(items, params)),
       map((items) => this.toPaginatedResponse(items, params.pageNumber, params.pageSize))
     );
+  }
+
+  getOrdersSummary(): Observable<{
+    total: number;
+    new: number;
+    inProgress: number;
+    late: number;
+  }> {
+    return this.fetchAllOrders().pipe(
+      map((items) => ({
+        total: items.length,
+        new: items.filter((order) => order.status === 'NEW').length,
+        inProgress: items.filter((order) =>
+          ['CONFIRMED', 'IN_PROGRESS', 'READY_FOR_PICKUP'].includes(order.status)
+        ).length,
+        late: items.filter((order) => order.isLate).length
+      }))
+    );
+  }
+
+  private fetchAllOrders(): Observable<OrderListItem[]> {
+    if (this.cachedAllOrders) {
+      return of(this.cachedAllOrders);
+    }
+
+    if (!this.allOrdersRequest$) {
+      const requestParams = new HttpParams()
+        .set('page', '1')
+        .set('pageSize', '250');
+
+      this.allOrdersRequest$ = this.http.get<VendorOrdersApiResponse>(this.apiUrl, { params: requestParams }).pipe(
+        timeout(15000),
+        map((response) => this.extractApiItems(response).map((item) => this.mapListItem(item))),
+        tap((items) => {
+          this.cachedAllOrders = items;
+        }),
+        catchError(() => {
+          if (this.cachedAllOrders) {
+            return of(this.cachedAllOrders);
+          }
+
+          return of([]);
+        }),
+        finalize(() => {
+          this.allOrdersRequest$ = undefined;
+        }),
+        shareReplay(1)
+      );
+    }
+
+    return this.allOrdersRequest$;
+  }
+
+  private extractApiItems(response: VendorOrdersApiResponse | null | undefined): VendorOrderListItemApiModel[] {
+    const rawItems = (response as { items?: VendorOrderListItemApiModel[]; Items?: VendorOrderListItemApiModel[] } | null | undefined)?.items
+      ?? (response as { Items?: VendorOrderListItemApiModel[] } | null | undefined)?.Items
+      ?? [];
+
+    return Array.isArray(rawItems) ? rawItems : [];
   }
 
   getOrderById(id: string): Observable<OrderDetail | null> {
@@ -145,7 +220,8 @@ export class OrdersService {
     const action = this.resolveMutationAction(status);
     return this.http.post<VendorOrderStatusMutationResponse>(`${this.apiUrl}/${orderId}/${action}`, {}).pipe(
       switchMap(() => this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${orderId}`)),
-      map((order) => this.mapDetail(order))
+      map((order) => this.mapDetail(order)),
+      tap(() => this.invalidateOrdersCache())
     );
   }
 
@@ -252,159 +328,327 @@ export class OrdersService {
   }
 
   private mapListItem(item: VendorOrderListItemApiModel): OrderListItem {
-    const status = this.mapBackendStatus(item.status);
-    const paymentMethodType = this.mapPaymentMethod(item.paymentMethod);
+    const raw = item as VendorOrderListItemApiModel & Record<string, unknown>;
+    const statusValue = String(raw.status ?? raw['Status'] ?? '');
+    const paymentMethodValue = String(raw.paymentMethod ?? raw['PaymentMethod'] ?? '');
+    const paymentStatusValue = String(raw.paymentStatus ?? raw['PaymentStatus'] ?? '');
+    const placedAtUtc = String(raw.placedAtUtc ?? raw['PlacedAtUtc'] ?? '');
+
+    const status = this.mapBackendStatus(statusValue);
+    const paymentMethodType = this.mapPaymentMethod(paymentMethodValue);
 
     return {
-      id: item.id,
-      displayId: item.orderNumber,
-      backendStatus: item.status,
-      customerName: item.customerName,
-      customerPhone: item.customerPhone,
-      date: this.formatDate(item.placedAtUtc),
-      time: item.placedAtUtc,
+      id: String(raw.id ?? raw['Id'] ?? ''),
+      displayId: String(raw.orderNumber ?? raw['OrderNumber'] ?? ''),
+      backendStatus: statusValue,
+      customerName: String(raw.customerName ?? raw['CustomerName'] ?? ''),
+      customerPhone: String(raw.customerPhone ?? raw['CustomerPhone'] ?? ''),
+      date: this.formatDate(placedAtUtc),
+      time: placedAtUtc,
       status,
-      paymentStatus: this.mapPaymentStatus(item.paymentStatus),
+      paymentStatus: this.mapPaymentStatus(paymentStatusValue),
       paymentMethodType,
       fulfillmentStatus: this.mapFulfillmentStatus(status),
       paymentMethodLabel: this.mapPaymentMethodLabel(paymentMethodType),
-      total: item.totalAmount,
-      itemCount: item.itemsCount,
-      isLate: item.isLate,
+      total: Number(raw.totalAmount ?? raw['TotalAmount'] ?? 0),
+      itemCount: Number(raw.itemsCount ?? raw['ItemsCount'] ?? 0),
+      isLate: Boolean(raw.isLate ?? raw['IsLate'] ?? false),
       hasActiveIssue: status === 'CANCELLED'
     };
   }
 
   private mapDetail(item: VendorOrderDetailApiModel): OrderDetail {
-    const status = this.mapBackendStatus(item.status);
-    const paymentMethodType = this.mapPaymentMethod(item.paymentMethod);
-    const tax = Math.max(0, item.totalAmount - item.subtotal - item.deliveryFee);
-    const driver = item.assignedDriver;
-    const items = Array.isArray(item.items) ? item.items : [];
-    const timeline = Array.isArray(item.timeline) ? item.timeline : [];
+    const raw = item as VendorOrderDetailApiModel & Record<string, unknown>;
+    const status = this.mapBackendStatus(String(raw.status ?? raw['Status'] ?? ''));
+    const paymentMethodType = this.mapPaymentMethod(String(raw.paymentMethod ?? raw['PaymentMethod'] ?? ''));
+    const subtotal = Number(raw.subtotal ?? raw['Subtotal'] ?? 0);
+    const deliveryFee = Number(raw.deliveryFee ?? raw['DeliveryFee'] ?? 0);
+    const totalAmount = Number(raw.totalAmount ?? raw['TotalAmount'] ?? 0);
+    const tax = Math.max(0, totalAmount - subtotal - deliveryFee);
+    const driver = (raw.assignedDriver ?? raw['AssignedDriver']) as VendorAssignedDriverApiModel | null | undefined;
+    const rawItems = (raw.items ?? raw['Items']) as VendorOrderItemApiModel[] | undefined;
+    const items = Array.isArray(rawItems) ? rawItems : [];
+    const rawTimeline = (raw.timeline ?? raw['Timeline']) as VendorOrderTimelineApiModel[] | undefined;
+    const timeline = Array.isArray(rawTimeline) ? rawTimeline : [];
+    const placedAtUtc = String(raw.placedAtUtc ?? raw['PlacedAtUtc'] ?? '');
 
     return {
-      id: item.id,
-      displayId: item.orderNumber,
-      backendStatus: item.status,
-      customerName: item.customerName,
-      customerPhone: item.customerPhone,
-      customerAddress: item.customerAddress,
-      date: this.formatDate(item.placedAtUtc),
-      time: item.placedAtUtc,
+      id: String(raw.id ?? raw['Id'] ?? ''),
+      displayId: String(raw.orderNumber ?? raw['OrderNumber'] ?? ''),
+      backendStatus: String(raw.status ?? raw['Status'] ?? ''),
+      customerName: String(raw.customerName ?? raw['CustomerName'] ?? ''),
+      customerPhone: String(raw.customerPhone ?? raw['CustomerPhone'] ?? ''),
+      customerAddress: String(raw.customerAddress ?? raw['CustomerAddress'] ?? ''),
+      date: this.formatDate(placedAtUtc),
+      time: placedAtUtc,
       status,
-      paymentStatus: this.mapPaymentStatus(item.paymentStatus),
+      paymentStatus: this.mapPaymentStatus(String(raw.paymentStatus ?? raw['PaymentStatus'] ?? '')),
       paymentMethodType,
       fulfillmentStatus: this.mapFulfillmentStatus(status),
       paymentMethodLabel: this.mapPaymentMethodLabel(paymentMethodType),
-      total: item.totalAmount,
-      subtotal: item.subtotal,
-      deliveryFee: item.deliveryFee,
+      total: totalAmount,
+      subtotal,
+      deliveryFee,
       tax,
       itemCount: items.length,
       isLate: false,
       hasActiveIssue: status === 'CANCELLED',
-      notes: item.notes ?? undefined,
+      notes: (raw.notes ?? raw['Notes']) ? String(raw.notes ?? raw['Notes']) : undefined,
       driverName: driver?.name,
       driverPhone: driver?.phoneNumber ?? undefined,
       driverVehicleType: driver?.vehicleType,
       driverVehiclePlate: driver?.plateNumber,
       driverImage: driver?.imageUrl ?? undefined,
       items: items.map((orderItem) => this.mapOrderItem(orderItem)),
-      timeline: this.normalizeTimeline(timeline.map((timelineItem) => this.mapTimelineItem(timelineItem))),
-      canConfirmPickup: item.canConfirmPickup ?? false,
-      pickupOtpStatus: item.pickupOtpStatus ?? undefined,
-      vendorLocation: item.vendorLocation
-        ? { lat: item.vendorLocation.latitude, lng: item.vendorLocation.longitude }
-        : undefined,
-      customerLocation: item.customerLocation
-        ? { lat: item.customerLocation.latitude, lng: item.customerLocation.longitude }
-        : undefined,
-      driverLiveLocation: item.driverLiveLocation
-        ? {
-            lat: item.driverLiveLocation.latitude,
-            lng: item.driverLiveLocation.longitude,
-            accuracyMeters: item.driverLiveLocation.accuracyMeters ?? undefined,
-            recordedAtUtc: item.driverLiveLocation.recordedAtUtc
-          }
-        : undefined
+      timeline: this.buildFullVendorTimeline(
+        status,
+        timeline,
+        placedAtUtc
+      ),
+      canConfirmPickup: Boolean(raw.canConfirmPickup ?? raw['CanConfirmPickup'] ?? false),
+      pickupOtpStatus: (raw.pickupOtpStatus ?? raw['PickupOtpStatus']) ? String(raw.pickupOtpStatus ?? raw['PickupOtpStatus']) : undefined,
+      vendorLocation: this.mapCoordinatePair(raw.vendorLocation ?? raw['VendorLocation']),
+      customerLocation: this.mapCoordinatePair(raw.customerLocation ?? raw['CustomerLocation']),
+      driverLiveLocation: this.mapDriverLiveLocation(raw.driverLiveLocation ?? raw['DriverLiveLocation'])
+    };
+  }
+
+  private mapCoordinatePair(value: unknown): { lat: number; lng: number } | undefined {
+    const raw = value as { latitude?: number; longitude?: number; Latitude?: number; Longitude?: number } | null | undefined;
+    if (!raw) {
+      return undefined;
+    }
+
+    const lat = Number(raw.latitude ?? raw.Latitude);
+    const lng = Number(raw.longitude ?? raw.Longitude);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) {
+      return undefined;
+    }
+
+    return { lat, lng };
+  }
+
+  private mapDriverLiveLocation(value: unknown): OrderDetail['driverLiveLocation'] {
+    const raw = value as {
+      latitude?: number;
+      longitude?: number;
+      accuracyMeters?: number | null;
+      recordedAtUtc?: string;
+      Latitude?: number;
+      Longitude?: number;
+      AccuracyMeters?: number | null;
+      RecordedAtUtc?: string;
+    } | null | undefined;
+
+    if (!raw) {
+      return undefined;
+    }
+
+    const lat = Number(raw.latitude ?? raw.Latitude);
+    const lng = Number(raw.longitude ?? raw.Longitude);
+    if (Number.isNaN(lat) || Number.isNaN(lng)) {
+      return undefined;
+    }
+
+    return {
+      lat,
+      lng,
+      accuracyMeters: raw.accuracyMeters ?? raw.AccuracyMeters ?? undefined,
+      recordedAtUtc: String(raw.recordedAtUtc ?? raw.RecordedAtUtc ?? '')
     };
   }
 
   private mapOrderItem(item: VendorOrderItemApiModel): OrderItem {
+    const raw = item as VendorOrderItemApiModel & Record<string, unknown>;
+    const imageUrl = raw.imageUrl ?? raw['ImageUrl'] ?? raw['snapshotImageUrl'] ?? raw['SnapshotImageUrl'];
+    const productName = String(raw.productName ?? raw['ProductName'] ?? '');
+    const productNameAr = String(raw.productNameAr ?? raw['ProductNameAr'] ?? productName);
+    const productNameEn = String(raw.productNameEn ?? raw['ProductNameEn'] ?? productName);
+    const id = String(raw.id ?? raw['Id'] ?? '');
+
     return {
-      id: item.id,
-      nameAr: item.productNameAr || item.productName,
-      nameEn: item.productNameEn || item.productName,
-      quantity: item.quantity,
-      price: item.unitPrice,
-      total: item.lineTotal,
-      imageUrl: item.imageUrl ?? undefined,
-      variantDisplaySize: item.variantDisplaySize ?? undefined,
-      packageTypeName: item.packageTypeName ?? undefined,
-      measurementValue: item.measurementValue ?? null,
-      measurementUnitName: item.measurementUnitName ?? undefined,
-      sku: item.id.slice(0, 8)
+      id,
+      nameAr: productNameAr,
+      nameEn: productNameEn,
+      quantity: Number(raw.quantity ?? raw['Quantity'] ?? 0),
+      price: Number(raw.unitPrice ?? raw['UnitPrice'] ?? 0),
+      total: Number(raw.lineTotal ?? raw['LineTotal'] ?? 0),
+      imageUrl: typeof imageUrl === 'string' && imageUrl.trim() ? imageUrl.trim() : undefined,
+      variantDisplaySize: (raw.variantDisplaySize ?? raw['VariantDisplaySize']) ? String(raw.variantDisplaySize ?? raw['VariantDisplaySize']) : undefined,
+      packageTypeName: (raw.packageTypeName ?? raw['PackageTypeName']) ? String(raw.packageTypeName ?? raw['PackageTypeName']) : undefined,
+      measurementValue: this.toNullableNumber(raw.measurementValue ?? raw['MeasurementValue']),
+      measurementUnitName: (raw.measurementUnitName ?? raw['MeasurementUnitName']) ? String(raw.measurementUnitName ?? raw['MeasurementUnitName']) : undefined,
+      sku: id ? id.slice(0, 8) : ''
     };
   }
 
+  private toNullableNumber(value: unknown): number | null {
+    if (value === null || value === undefined || value === '') {
+      return null;
+    }
+
+    const parsed = Number(value);
+    return Number.isNaN(parsed) ? null : parsed;
+  }
+
   private mapTimelineItem(item: VendorOrderTimelineApiModel): OrderTimelineEntry {
-    const status = this.mapBackendStatus(item.status);
+    return this.parseTimelineItem(item);
+  }
+
+  private parseTimelineItem(item: VendorOrderTimelineApiModel): OrderTimelineEntry {
+    const raw = item as VendorOrderTimelineApiModel & Record<string, unknown>;
+    const backendStatus = String(raw.status ?? raw['Status'] ?? '');
+    const status = this.mapBackendStatus(backendStatus);
     const label = this.getStatusLabel(status);
+    const timestamp = String(raw.timestampUtc ?? raw['TimestampUtc'] ?? '');
+    const note = raw.note ?? raw['Note'];
 
     return {
       status,
       labelAr: label.ar,
       labelEn: label.en,
-      timestamp: item.timestampUtc,
-      isCompleted: item.isCompleted,
-      notes: item.note ?? undefined
+      timestamp,
+      isCompleted: Boolean(raw.isCompleted ?? raw['IsCompleted'] ?? true),
+      notes: typeof note === 'string' && note.trim() ? note.trim() : undefined
     };
   }
 
-  private normalizeTimeline(entries: OrderTimelineEntry[]): OrderTimelineEntry[] {
-    if (!entries.length) {
-      return [];
+  private buildFullVendorTimeline(
+    currentStatus: OrderStatus,
+    rawTimeline: VendorOrderTimelineApiModel[],
+    placedAtUtc: string
+  ): OrderTimelineEntry[] {
+    const parsedHistory = rawTimeline.map((item) => this.parseTimelineItem(item));
+    const historyTimestamps = this.buildStatusTimestampMap(parsedHistory, placedAtUtc);
+    const historyNotes = this.buildStatusNotesMap(parsedHistory);
+    const isTerminal = OrdersService.TERMINAL_STATUSES.includes(currentStatus);
+    const currentFlowRank = this.getFlowRank(currentStatus);
+
+    let stepStatuses: OrderStatus[];
+
+    if (currentStatus === 'REFUNDED') {
+      stepStatuses = [...OrdersService.VENDOR_TIMELINE_FLOW, 'REFUNDED'];
+    } else if (currentStatus === 'CANCELLED' || currentStatus === 'DELIVERY_FAILED') {
+      const maxReachedRank = this.resolveMaxReachedFlowRank(parsedHistory, currentStatus);
+      stepStatuses = [
+        ...OrdersService.VENDOR_TIMELINE_FLOW.filter((status) => this.getFlowRank(status) <= maxReachedRank),
+        currentStatus
+      ];
+    } else {
+      stepStatuses = [...OrdersService.VENDOR_TIMELINE_FLOW];
     }
 
-    const normalized = [...entries]
-      .sort((a, b) => {
-        const aTime = new Date(a.timestamp).getTime();
-        const bTime = new Date(b.timestamp).getTime();
+    const completedThroughRank = isTerminal
+      ? currentStatus === 'REFUNDED'
+        ? this.getFlowRank('DELIVERED')
+        : this.resolveMaxReachedFlowRank(parsedHistory, currentStatus)
+      : currentFlowRank;
 
-        if (Number.isNaN(aTime) || Number.isNaN(bTime)) {
-          return 0;
-        }
+    return stepStatuses.map((status) => {
+      const label = this.getStatusLabel(status);
+      const flowRank = this.getFlowRank(status);
+      const isTerminalStep = OrdersService.TERMINAL_STATUSES.includes(status);
+      const isCompleted = isTerminalStep
+        ? true
+        : flowRank <= completedThroughRank;
 
-        return aTime - bTime;
-      })
-      .reduce<OrderTimelineEntry[]>((acc, entry) => {
-        const previous = acc[acc.length - 1];
-        if (!previous) {
-          acc.push(entry);
-          return acc;
-        }
+      return {
+        status,
+        labelAr: label.ar,
+        labelEn: label.en,
+        timestamp: '',
+        changedAtUtc: this.resolveChangedAtUtc(status, historyTimestamps, placedAtUtc, isCompleted),
+        isCompleted,
+        notes: historyNotes.get(status)
+      };
+    });
+  }
 
-        const previousNote = (previous.notes || '').trim();
-        const currentNote = (entry.notes || '').trim();
-        const isDuplicateStep =
-          previous.status === entry.status &&
-          previous.isCompleted === entry.isCompleted;
+  private buildStatusTimestampMap(
+    parsedHistory: OrderTimelineEntry[],
+    placedAtUtc: string
+  ): Map<OrderStatus, string> {
+    const sorted = [...parsedHistory].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+    const map = new Map<OrderStatus, string>();
 
-        if (isDuplicateStep) {
-          acc[acc.length - 1] = {
-            ...previous,
-            timestamp: entry.timestamp,
-            notes: currentNote || previousNote || undefined
-          };
-          return acc;
-        }
+    for (const entry of sorted) {
+      if (!entry.timestamp || map.has(entry.status)) {
+        continue;
+      }
 
-        acc.push(entry);
-        return acc;
-      }, []);
+      map.set(entry.status, entry.timestamp);
+    }
 
-    return normalized.slice(-8);
+    if (!map.has('NEW') && placedAtUtc) {
+      map.set('NEW', placedAtUtc);
+    }
+
+    return map;
+  }
+
+  private buildStatusNotesMap(parsedHistory: OrderTimelineEntry[]): Map<OrderStatus, string> {
+    const sorted = [...parsedHistory].sort(
+      (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
+    );
+    const map = new Map<OrderStatus, string>();
+
+    for (const entry of sorted) {
+      if (!entry.notes) {
+        continue;
+      }
+
+      map.set(entry.status, entry.notes);
+    }
+
+    return map;
+  }
+
+  private resolveChangedAtUtc(
+    status: OrderStatus,
+    historyTimestamps: Map<OrderStatus, string>,
+    placedAtUtc: string,
+    isCompleted: boolean
+  ): string | undefined {
+    const recorded = historyTimestamps.get(status);
+    if (recorded) {
+      return recorded;
+    }
+
+    if (status === 'NEW' && isCompleted && placedAtUtc) {
+      return placedAtUtc;
+    }
+
+    return undefined;
+  }
+
+  private getFlowRank(status: OrderStatus): number {
+    if (status === 'CANCELLED' || status === 'DELIVERY_FAILED') {
+      return 999;
+    }
+
+    if (status === 'REFUNDED') {
+      return 1000;
+    }
+
+    const index = OrdersService.VENDOR_TIMELINE_FLOW.indexOf(status);
+    return index >= 0 ? index : -1;
+  }
+
+  private resolveMaxReachedFlowRank(
+    historyEntries: OrderTimelineEntry[],
+    currentStatus: OrderStatus
+  ): number {
+    const ranks = historyEntries
+      .map((entry) => this.getFlowRank(entry.status))
+      .filter((rank) => rank >= 0);
+
+    if (!OrdersService.TERMINAL_STATUSES.includes(currentStatus)) {
+      ranks.push(this.getFlowRank(currentStatus));
+    }
+
+    return ranks.length ? Math.max(...ranks) : 0;
   }
 
   private resolveMutationAction(status: OrderStatus): string {
@@ -421,32 +665,34 @@ export class OrdersService {
   }
 
   private mapBackendStatus(status: string): OrderStatus {
-    switch (status) {
-      case 'PendingPayment':
-      case 'Placed':
-      case 'PendingVendorAcceptance':
+    switch ((status ?? '').trim().toLowerCase()) {
+      case 'pendingpayment':
+      case 'pendingbankconfirmation':
+      case 'placed':
+      case 'pendingvendoracceptance':
         return 'NEW';
-      case 'Accepted':
+      case 'accepted':
         return 'CONFIRMED';
-      case 'Preparing':
+      case 'preparing':
         return 'IN_PROGRESS';
-      case 'ReadyForPickup':
+      case 'readyforpickup':
         return 'READY_FOR_PICKUP';
-      case 'DriverAssignmentInProgress':
+      case 'driverassignmentinprogress':
         return 'DRIVER_ASSIGNMENT_IN_PROGRESS';
-      case 'DriverAssigned':
+      case 'driverassigned':
         return 'DRIVER_ASSIGNED';
-      case 'PickedUp':
+      case 'pickedup':
         return 'PICKED_UP';
-      case 'OnTheWay':
+      case 'ontheway':
         return 'OUT_FOR_DELIVERY';
-      case 'Delivered':
+      case 'delivered':
         return 'DELIVERED';
-      case 'Refunded':
-        return 'RETURNED';
-      case 'Cancelled':
-      case 'VendorRejected':
-      case 'DeliveryFailed':
+      case 'refunded':
+        return 'REFUNDED';
+      case 'deliveryfailed':
+        return 'DELIVERY_FAILED';
+      case 'cancelled':
+      case 'vendorrejected':
         return 'CANCELLED';
       default:
         return 'NEW';

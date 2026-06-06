@@ -139,11 +139,18 @@
       "PROCESSING": "Processing",
       "SCHEDULED": "Scheduled"
     },
+    "CHART_LABELS": {
+      "SUBSIDIZED": "Subsidized",
+      "ADJUSTMENTS": "Adjustments",
+      "ADJUSTMENT": "Adjustment",
+      "CATEGORY": "Category"
+    },
     "LEDGER_TYPES": {
       "SALES": "Sales",
       "FEES": "Fees",
       "PAYOUTS": "Payouts",
-      "REFUNDS": "Refunds"
+      "REFUNDS": "Refunds",
+      "ADJUSTMENTS": "Adjustments"
     },
     "SALES": {
       "GROSS_SALES": "Gross sales",

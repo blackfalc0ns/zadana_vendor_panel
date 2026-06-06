@@ -57,6 +57,7 @@ export interface OrderTimelineEntry {
   labelAr: string;
   labelEn: string;
   timestamp: string;
+  changedAtUtc?: string;
   isCompleted: boolean;
   notes?: string;
 }

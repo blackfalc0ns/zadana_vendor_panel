@@ -12,6 +12,7 @@ import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorRevie
 import { VendorLegalDocumentType, VendorProfileService } from '../../services/vendor-profile.service';
 import { ProfileSectionNavItem, ProfileWorkspaceWindow, ProfileWorkspaceWindowId } from './vendor-profile.view-models';
 import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
+import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
 import { ProfileCommandCenterComponent } from './components/profile-command-center.component';
 import { ProfileWindowSwitcherComponent } from './components/profile-window-switcher.component';
@@ -59,6 +60,19 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
         
         <app-flash-banner *ngIf="pageError" [message]="pageError" tone="error" class="mb-4 block" />
         <app-flash-banner *ngIf="!pageError && pageNotice" [message]="pageNotice" tone="success" class="mb-4 block" />
+
+        <section *ngIf="isProfileLoading" class="rounded-[24px] border border-slate-200/80 bg-white/80 px-6 py-10 text-center shadow-sm">
+          <p class="text-[0.9rem] font-black text-slate-700">{{ currentLang === 'ar' ? 'جاري تحميل ملف التاجر...' : 'Loading vendor profile...' }}</p>
+        </section>
+
+        <section *ngIf="!isProfileLoading && profileLoadFailed" class="rounded-[24px] border border-rose-200 bg-rose-50/80 px-6 py-8 text-center shadow-sm">
+          <p class="text-[0.9rem] font-black text-rose-900">{{ currentLang === 'ar' ? 'تعذر تحميل بيانات الملف الشخصي.' : 'Unable to load profile data.' }}</p>
+          <button type="button" (click)="reloadProfile()" class="mt-4 inline-flex items-center justify-center rounded-[14px] bg-rose-600 px-4 py-2 text-[0.78rem] font-black text-white">
+            {{ currentLang === 'ar' ? 'إعادة المحاولة' : 'Retry' }}
+          </button>
+        </section>
+
+        <ng-container *ngIf="!isProfileLoading && !profileLoadFailed">
 
         <section
           *ngIf="showLimitedEditNotice"
@@ -253,6 +267,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
             (submit)="submitForReview()" />
         </div>
       </form>
+      </ng-container>
       </div>
     </div>
   `
@@ -270,6 +285,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   uploadingDocumentType: VendorLegalDocumentType | null = null;
   pageNotice = '';
   pageError = '';
+  isProfileLoading = false;
+  profileLoadFailed = false;
   activeTab = 'store-section';
   profileForm: FormGroup;
   currentProfile: VendorProfile;
@@ -492,6 +509,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     });
     this.profileForm = this.buildForm();
     this.currentProfile = this.profileService.getProfileSnapshot();
+    this.isProfileLoading = !this.profileService.hasCachedProfileSnapshot();
   }
 
   ngOnInit(): void {
@@ -529,7 +547,29 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       }
     });
 
-    this.profileService.loadProfile().subscribe();
+    this.reloadProfile();
+  }
+
+  reloadProfile(): void {
+    const hadIdentity = this.profileService.hasCachedProfileSnapshot();
+    if (!hadIdentity) {
+      this.isProfileLoading = true;
+      this.profileLoadFailed = false;
+    }
+
+    this.profileService.loadProfile(true).pipe(
+      finalize(() => {
+        this.isProfileLoading = false;
+        this.profileLoadFailed = !this.profileService.hasCachedProfileSnapshot();
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (profile) => {
+        this.cdr.markForCheck();
+        this.currentProfile = profile;
+        this.patchProfile(profile);
+      }
+    });
   }
 
   ngOnDestroy(): void {
@@ -1433,15 +1473,17 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
   reviewItemLabel(code: string): string {
     const cleanCode = (code || '').trim().toLowerCase();
-    
-    // Normalize codes by removing step prefixes like 'step1.', 'step2.', etc.
-    const normalizedCode = cleanCode.replace(/^step\d+\./, '');
+
+    const normalizedCode = cleanCode
+      .replace(/^step\d+\./, '')
+      .replace(/[\s_.-]/g, '');
 
     const labels: Record<string, { ar: string; en: string }> = {
       // Document types
       commercial: { ar: 'السجل التجاري', en: 'Commercial registration' },
       tax: { ar: 'الشهادة الضريبية', en: 'Tax certificate' },
       license: { ar: 'الرخصة التشغيلية', en: 'Operating license' },
+      logo: { ar: 'شعار المتجر', en: 'Store logo' },
       identity: { ar: 'بيانات الهوية', en: 'Identity details' },
       bank: { ar: 'البيانات البنكية', en: 'Banking details' },
       
@@ -1528,23 +1570,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   }
 
   private localizedReviewItemLabel(code: string): string {
-    const keyMap: Record<string, string> = {
-      commercial: 'COMMERCIAL',
-      tax: 'TAX',
-      license: 'LICENSE',
-      identity: 'IDENTITY',
-      bank: 'BANK'
-    };
-
-    const key = keyMap[(code || '').trim().toLowerCase()];
-    if (key) {
-      return this.translate.instant(`SETTINGS_PROFILE.REVIEW_ITEMS.${key}`);
-    }
-
-    const normalized = code.replace(/([a-z])([A-Z])/g, '$1 $2');
-    return normalized
-      .replace(/_/g, ' ')
-      .replace(/\b\w/g, (char) => char.toUpperCase());
+    return this.reviewItemLabel(code);
   }
 
   private localizedReviewItemStatusLabel(status: string): string {
@@ -1622,7 +1648,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       storeNameAr: ['', Validators.required],
       storeNameEn: ['', Validators.required],
       businessType: ['', Validators.required],
-      supportPhone: ['', Validators.required],
+      supportPhone: ['', [Validators.required, saudiMobilePhoneValidator()]],
       supportEmail: ['', [Validators.required, Validators.email]],
       descriptionAr: [''],
       descriptionEn: [''],
@@ -1631,7 +1657,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       nationalAddress: ['', Validators.required],
       ownerName: ['', Validators.required],
       ownerEmail: ['', [Validators.required, Validators.email]],
-      ownerPhone: ['', Validators.required],
+      ownerPhone: ['', [Validators.required, saudiMobilePhoneValidator()]],
       idNumber: ['', Validators.required],
       nationality: ['', Validators.required],
       taxId: ['', Validators.required],

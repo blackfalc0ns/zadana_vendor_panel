@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { Subscription } from 'rxjs';
@@ -191,7 +191,9 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
                     </tr>
                   }
                   @for (product of group.variants; track product.id) {
-                  <tr class="group transition-all hover:bg-slate-50/30">
+                  <tr
+                    class="group cursor-pointer transition-all hover:bg-slate-50/30"
+                    (click)="openProductDetails(product)">
                     <td class="px-6 py-4">
                       <div class="flex items-center gap-4">
                         <div class="h-12 w-12 flex-shrink-0 overflow-hidden rounded-xl bg-slate-50">
@@ -250,10 +252,11 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
                     <td class="px-6 py-4">
                       <app-product-status-badge [isActive]="product.isActive"></app-product-status-badge>
                     </td>
-                    <td class="px-6 py-4">
+                    <td class="px-6 py-4" (click)="$event.stopPropagation()">
                       <div class="flex items-center justify-center gap-1.5 opacity-40 transition-opacity group-hover:opacity-100">
                         <button
-                          [routerLink]="['/products', product.id]"
+                          type="button"
+                          (click)="openProductDetails(product)"
                           class="flex h-8 w-8 items-center justify-center rounded-xl border border-slate-100 bg-white text-slate-500 shadow-sm transition-all hover:border-zadna-primary/30 hover:bg-zadna-primary/10 hover:text-zadna-primary">
                           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
@@ -261,7 +264,7 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
                         </button>
                         <button
                           type="button"
-                          (click)="deleteProduct(product)"
+                          (click)="deleteProduct(product, $event)"
                           class="flex h-8 w-8 items-center justify-center rounded-xl border border-rose-100 bg-white text-rose-500 shadow-sm transition-all hover:border-rose-300 hover:bg-rose-50 hover:text-rose-700">
                           <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -278,7 +281,9 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
             <!-- Mobile Cards View -->
             <div class="md:hidden grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 animate-in slide-in-from-bottom-2 duration-500">
               @for (product of filteredProducts; track product.id) {
-                <div class="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all hover:shadow-md hover:border-zadna-primary/30">
+                <div
+                  class="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all hover:border-zadna-primary/30 hover:shadow-md"
+                  (click)="openProductDetails(product)">
                   <div class="flex items-start gap-4">
                     <div class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-[14px] bg-slate-50 p-1">
                       <img [src]="product.imageUrl || 'assets/images/placeholder.png'" class="h-full w-full object-contain">
@@ -289,7 +294,8 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
                           {{ currentLang === 'ar' ? product.nameAr : product.nameEn }}
                         </span>
                         <button
-                          [routerLink]="['/products', product.id]"
+                          type="button"
+                          (click)="openProductDetails(product, $event)"
                           class="flex h-7 w-7 items-center justify-center rounded-lg bg-slate-50 text-slate-400 transition hover:bg-zadna-primary/10 hover:text-zadna-primary">
                           <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
@@ -297,7 +303,7 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
                         </button>
                         <button
                           type="button"
-                          (click)="deleteProduct(product)"
+                          (click)="deleteProduct(product, $event)"
                           class="flex h-7 w-7 items-center justify-center rounded-lg bg-rose-50 text-rose-500 transition hover:bg-rose-100 hover:text-rose-700">
                           <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
@@ -436,6 +442,7 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
 })
 export class ProductListComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly router = inject(Router);
   products: VendorProduct[] = [];
   categories: any[] = [];
   units: UnitOption[] = [];
@@ -844,22 +851,27 @@ export class ProductListComponent implements OnInit, OnDestroy {
     this.isRequestModalOpen = false;
   }
 
-  async deleteProduct(product: VendorProduct): Promise<void> {
+  openProductDetails(product: VendorProduct, event?: Event): void {
+    event?.stopPropagation();
+    void this.router.navigate(['/products', product.id]);
+  }
+
+  async deleteProduct(product: VendorProduct, event?: Event): Promise<void> {
+    event?.stopPropagation();
     const productName = this.currentLang === 'ar'
       ? (product.nameAr || product.nameEn || '')
       : (product.nameEn || product.nameAr || '');
-    
-    const message = this.currentLang === 'ar'
-      ? `هل تريد حذف المنتج "${productName}"؟`
-      : `Do you want to delete "${productName}"?`;
-    
+
     const confirmed = await this.alertModalService.showConfirm(
-      message,
-      this.currentLang === 'ar' ? 'تأكيد الحذف' : 'Confirm Delete',
+      this.translate.instant('PRODUCTS.DELETE_CONFIRM_MESSAGE', { name: productName }),
+      'PRODUCTS.DELETE_CONFIRM_TITLE',
       {
         type: 'danger',
-        confirmText: this.currentLang === 'ar' ? 'حذف' : 'Delete',
-        cancelText: this.currentLang === 'ar' ? 'إلغاء' : 'Cancel'
+        confirmText: 'PRODUCTS.DELETE_CONFIRM_BUTTON',
+        cancelText: 'COMMON.CANCEL',
+        titleIsTranslationKey: true,
+        confirmTextIsTranslationKey: true,
+        cancelTextIsTranslationKey: true
       }
     );
 

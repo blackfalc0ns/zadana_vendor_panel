@@ -1,12 +1,11 @@
 import { CommonModule, DatePipe, DecimalPipe, PercentPipe } from '@angular/common';
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, ChartConfiguration, ChartData, registerables } from 'chart.js';
 import { Subject, Subscription, timer } from 'rxjs';
-import { filter, takeUntil } from 'rxjs/operators';
-import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
+import { catchError, filter, finalize, skip, switchMap, takeUntil } from 'rxjs/operators';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import {
   VendorDashboardAlertItem,
@@ -18,13 +17,26 @@ import {
   VendorDashboardReviewListItem
 } from '../../models/vendor-dashboard.models';
 import { VendorDashboardService } from '../../services/vendor-dashboard.service';
+import { StaffBranchesService } from '../../../staff/services/staff-branches.service';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 import { VendorAccessScope, VendorCurrentUser } from '../../../../core/auth/models/vendor-auth.models';
+import { looksLikeUtf8Mojibake, repairUtf8Mojibake } from '../../../../shared/utils/text-normalization.util';
 
 Chart.register(...registerables);
 
+type DashboardTabId =
+  | 'overview'
+  | 'operations'
+  | 'sales'
+  | 'inventory'
+  | 'offers'
+  | 'reviews'
+  | 'finance'
+  | 'risk'
+  | 'staff';
+
 interface DashboardNavItem {
-  id: string;
+  id: DashboardTabId;
   labelKey: string;
 }
 
@@ -38,6 +50,20 @@ interface DashboardMetricCard {
   delta?: number;
 }
 
+const DASHBOARD_REFRESH_MS = 60000;
+const DASHBOARD_TAB_IDS: DashboardTabId[] = [
+  'overview',
+  'operations',
+  'sales',
+  'inventory',
+  'offers',
+  'reviews',
+  'finance',
+  'risk',
+  'staff'
+];
+const DASHBOARD_PERIOD_IDS: Array<'today' | '7d' | '30d' | '90d'> = ['today', '7d', '30d', '90d'];
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-vendor-dashboard',
@@ -47,7 +73,6 @@ interface DashboardMetricCard {
     RouterModule,
     TranslateModule,
     BaseChartDirective,
-    AppPageHeaderComponent,
     AppPanelHeaderComponent
   ],
   providers: [DatePipe, DecimalPipe, PercentPipe],
@@ -62,7 +87,8 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
   dashboardError = '';
   selectedPeriod: 'today' | '7d' | '30d' | '90d' = '7d';
   readonly periods: Array<'today' | '7d' | '30d' | '90d'> = ['today', '7d', '30d', '90d'];
-  activeTabId = 'overview';
+  activeTabId: DashboardTabId = 'overview';
+  private readonly renderedTabIds = new Set<DashboardTabId>(['overview']);
   readonly sectionNav: DashboardNavItem[] = [
     { id: 'overview', labelKey: 'DASHBOARD.SECTION_NAV.OVERVIEW' },
     { id: 'operations', labelKey: 'DASHBOARD.SECTION_NAV.OPERATIONS' },
@@ -76,12 +102,17 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
   ];
 
   private readonly destroy$ = new Subject<void>();
+  private readonly reload$ = new Subject<boolean>();
   private readonly langSub: Subscription;
+  private readonly branchNameById = new Map<string, string>();
 
   constructor(
     private readonly translate: TranslateService,
     private readonly dashboardService: VendorDashboardService,
+    private readonly staffBranchesService: StaffBranchesService,
     private readonly vendorAuthService: VendorAuthService,
+    private readonly route: ActivatedRoute,
+    private readonly router: Router,
     private readonly datePipe: DatePipe,
     private readonly decimalPipe: DecimalPipe,
     private readonly percentPipe: PercentPipe
@@ -90,12 +121,78 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     this.langSub = this.translate.onLangChange.subscribe((event) => {
       this.cdr.markForCheck();
       this.currentLang = event.lang;
+      this.rebuildChartCache();
+      this.cdr.markForCheck();
     });
   }
 
   ngOnInit(): void {
+    this.reload$
+      .pipe(
+        switchMap((showLoading) => {
+          if (showLoading) {
+            this.isLoading = true;
+            this.cdr.markForCheck();
+          }
+
+          return this.dashboardService.getOverview(this.selectedPeriod, true).pipe(
+            finalize(() => {
+              this.isLoading = false;
+              this.cdr.markForCheck();
+            })
+          );
+        }),
+        takeUntil(this.destroy$)
+      )
+      .subscribe({
+        next: (overview) => {
+          try {
+            this.overview = overview;
+            this.dashboardError = '';
+            this.rebuildChartCache();
+          } catch {
+            if (!this.overview) {
+              this.dashboardError = this.translate.instant('DASHBOARD.ERROR');
+            }
+          }
+          this.cdr.markForCheck();
+        },
+        error: (error) => {
+          if (this.dashboardService.isAbortError(error)) {
+            return;
+          }
+
+          if (!this.overview) {
+            this.dashboardError = this.translate.instant('DASHBOARD.ERROR');
+            this.cdr.markForCheck();
+          }
+        }
+      });
+
+    this.hydrateFromQueryParams(this.route.snapshot.queryParamMap);
+
+    this.route.queryParamMap
+      .pipe(
+        skip(1),
+        takeUntil(this.destroy$)
+      )
+      .subscribe((params) => {
+        this.hydrateFromQueryParams(params, true);
+      });
+
     this.loadOverview();
-    timer(60000, 60000)
+
+    this.staffBranchesService.getBranches()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((branches) => {
+        this.branchNameById.clear();
+        branches.forEach((branch) => {
+          this.branchNameById.set(branch.id, branch.name);
+        });
+        this.cdr.markForCheck();
+      });
+
+    timer(DASHBOARD_REFRESH_MS, DASHBOARD_REFRESH_MS)
       .pipe(
         filter(() => !document.hidden),
         takeUntil(this.destroy$)
@@ -115,6 +212,7 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     }
 
     this.selectedPeriod = period;
+    this.syncDashboardQueryParams();
     this.loadOverview();
   }
 
@@ -122,24 +220,61 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     this.loadOverview();
   }
 
-  loadOverview(showLoading = true): void {
-    if (showLoading) {
-      this.isLoading = true;
+  setActiveTab(tabId: DashboardTabId): void {
+    if (this.activeTabId === tabId) {
+      return;
     }
 
-    this.dashboardService.getOverview(this.selectedPeriod).subscribe({
-      next: (overview) => {
-        this.cdr.markForCheck();
-        this.overview = overview;
-        this.dashboardError = '';
-        this.isLoading = false;
-      },
-      error: () => {
-        this.cdr.markForCheck();
-        this.dashboardError = this.translate.instant('DASHBOARD.ERROR');
-        this.isLoading = false;
+    this.activeTabId = tabId;
+    this.renderedTabIds.add(tabId);
+    this.syncDashboardQueryParams();
+    this.cdr.markForCheck();
+  }
+
+  private hydrateFromQueryParams(params: ParamMap, reloadOnPeriodChange = false): void {
+    const tab = params.get('tab');
+    if (tab && this.isDashboardTabId(tab) && tab !== this.activeTabId) {
+      this.activeTabId = tab;
+      this.renderedTabIds.add(tab);
+      this.cdr.markForCheck();
+    }
+
+    const period = params.get('period');
+    if (period && this.isDashboardPeriod(period) && period !== this.selectedPeriod) {
+      this.selectedPeriod = period;
+      if (reloadOnPeriodChange) {
+        this.loadOverview();
       }
+      this.cdr.markForCheck();
+    }
+  }
+
+  private syncDashboardQueryParams(): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        tab: this.activeTabId,
+        period: this.selectedPeriod
+      },
+      queryParamsHandling: 'merge',
+      replaceUrl: false
     });
+  }
+
+  private isDashboardTabId(value: string): value is DashboardTabId {
+    return DASHBOARD_TAB_IDS.includes(value as DashboardTabId);
+  }
+
+  private isDashboardPeriod(value: string): value is 'today' | '7d' | '30d' | '90d' {
+    return DASHBOARD_PERIOD_IDS.includes(value as 'today' | '7d' | '30d' | '90d');
+  }
+
+  shouldRenderTab(tabId: DashboardTabId): boolean {
+    return this.renderedTabIds.has(tabId);
+  }
+
+  loadOverview(showLoading = true): void {
+    this.reload$.next(showLoading);
   }
 
   get lastUpdatedLabel(): string {
@@ -419,7 +554,7 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
 
   buildBarChart(slices: VendorDashboardBreakdownSlice[], context: string, horizontal = false): ChartData<'bar'> {
     return {
-      labels: slices.map((slice) => slice.label || this.sliceLabel(context, slice.key)),
+      labels: slices.map((slice) => this.resolveSliceLabel(context, slice)),
       datasets: [
         {
           label: this.translate.instant('DASHBOARD.CHARTS.COUNT'),
@@ -435,7 +570,7 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
 
   buildDoughnutChart(slices: VendorDashboardBreakdownSlice[], context: string): ChartData<'doughnut'> {
     return {
-      labels: slices.map((slice) => slice.label || this.sliceLabel(context, slice.key)),
+      labels: slices.map((slice) => this.resolveSliceLabel(context, slice)),
       datasets: [
         {
           data: slices.map((slice) => slice.value),
@@ -478,80 +613,149 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     };
   }
 
-  get barChartOptions(): ChartConfiguration['options'] {
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { display: false },
-        tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.9)',
-          padding: 12,
-          titleFont: { size: 13, family: 'Inter, sans-serif' },
-          bodyFont: { size: 13, family: 'Inter, sans-serif' },
-          displayColors: false,
-          cornerRadius: 8
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'Inter, sans-serif' } } },
-        y: { 
-          beginAtZero: true, 
-          border: { display: false },
-          grid: { color: 'rgba(226, 232, 240, 0.6)', drawTicks: false },
-          ticks: { font: { family: 'Inter, sans-serif' }, padding: 8 }
-        }
+  readonly charts = this.createEmptyChartCache();
+
+  readonly barChartOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        padding: 12,
+        titleFont: { size: 13, family: 'Inter, sans-serif' },
+        bodyFont: { size: 13, family: 'Inter, sans-serif' },
+        displayColors: false,
+        cornerRadius: 8
       }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { family: 'Inter, sans-serif' } } },
+      y: {
+        beginAtZero: true,
+        border: { display: false },
+        grid: { color: 'rgba(226, 232, 240, 0.6)', drawTicks: false },
+        ticks: { font: { family: 'Inter, sans-serif' }, padding: 8 }
+      }
+    }
+  };
+
+  readonly dualAxisOptions: ChartConfiguration['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom',
+        labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter, sans-serif' } }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        padding: 12,
+        cornerRadius: 8
+      }
+    },
+    scales: {
+      x: { grid: { display: false }, ticks: { font: { family: 'Inter, sans-serif' } } },
+      y: {
+        beginAtZero: true,
+        position: 'left',
+        border: { display: false },
+        grid: { color: 'rgba(226, 232, 240, 0.6)', drawTicks: false },
+        ticks: { font: { family: 'Inter, sans-serif' }, padding: 8 }
+      },
+      y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, border: { display: false }, ticks: { font: { family: 'Inter, sans-serif' } } }
+    }
+  };
+
+  readonly doughnutOptions: ChartConfiguration<'doughnut'>['options'] = {
+    responsive: true,
+    maintainAspectRatio: false,
+    cutout: '75%',
+    plugins: {
+      legend: {
+        position: 'right',
+        labels: { usePointStyle: true, padding: 20, font: { family: 'Inter, sans-serif' } }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(15, 23, 42, 0.9)',
+        padding: 12,
+        cornerRadius: 8
+      }
+    }
+  };
+
+  private emptyBarChart(): ChartData<'bar'> {
+    return { labels: [], datasets: [] };
+  }
+
+  private emptyDoughnutChart(): ChartData<'doughnut'> {
+    return { labels: [], datasets: [] };
+  }
+
+  private emptyLineChart(): ChartData<'line'> {
+    return { labels: [], datasets: [] };
+  }
+
+  private createEmptyChartCache() {
+    return {
+      overviewSalesVsOrders: this.emptyBarChart(),
+      overviewSettlements: this.emptyDoughnutChart(),
+      operationsOrdersTrend: this.emptyBarChart(),
+      operationsOrderStatus: this.emptyDoughnutChart(),
+      salesTrend: this.emptyBarChart(),
+      salesTopCategories: this.emptyDoughnutChart(),
+      inventoryStockHealth: this.emptyDoughnutChart(),
+      inventoryRiskBar: this.emptyBarChart(),
+      inventoryCatalogGrowth: this.emptyLineChart(),
+      offersByType: this.emptyDoughnutChart(),
+      discountBands: this.emptyBarChart(),
+      reviewsTrend: this.emptyLineChart(),
+      replyBreakdown: this.emptyDoughnutChart(),
+      financeSalesVsPayouts: this.emptyBarChart(),
+      financeSettlements: this.emptyDoughnutChart(),
+      disputeStatus: this.emptyDoughnutChart(),
+      disputeTrend: this.emptyLineChart()
     };
   }
 
-  get dualAxisOptions(): ChartConfiguration['options'] {
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: 'index', intersect: false },
-      plugins: {
-        legend: { 
-          display: true, 
-          position: 'bottom',
-          labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter, sans-serif' } }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.9)',
-          padding: 12,
-          cornerRadius: 8
-        }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { font: { family: 'Inter, sans-serif' } } },
-        y: { 
-          beginAtZero: true, position: 'left', 
-          border: { display: false },
-          grid: { color: 'rgba(226, 232, 240, 0.6)', drawTicks: false },
-          ticks: { font: { family: 'Inter, sans-serif' }, padding: 8 }
-        },
-        y1: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, border: { display: false }, ticks: { font: { family: 'Inter, sans-serif' } } }
-      }
-    };
-  }
+  private rebuildChartCache(): void {
+    const ov = this.overview;
+    if (!ov) {
+      Object.assign(this.charts, this.createEmptyChartCache());
+      return;
+    }
 
-  get doughnutOptions(): any {
-    return {
-      responsive: true,
-      maintainAspectRatio: false,
-      cutout: '75%',
-      plugins: {
-        legend: { 
-          position: 'right', 
-          labels: { usePointStyle: true, padding: 20, font: { family: 'Inter, sans-serif' } }
-        },
-        tooltip: {
-          backgroundColor: 'rgba(15, 23, 42, 0.9)',
-          padding: 12,
-          cornerRadius: 8
-        }
-      }
-    };
+    this.charts.overviewSalesVsOrders = this.buildDualAxisChart(
+      ov.salesSection.data.salesVsOrdersTrend,
+      'DASHBOARD.CHARTS.SALES',
+      'DASHBOARD.CHARTS.ORDERS'
+    );
+    this.charts.overviewSettlements = this.buildDoughnutChart(ov.financeSection.settlementStatusBreakdown, 'settlements');
+    this.charts.operationsOrdersTrend = this.buildDualAxisChart(
+      ov.ordersSection.ordersTrend,
+      'DASHBOARD.CHARTS.ORDERS',
+      'DASHBOARD.CHARTS.SALES'
+    );
+    this.charts.operationsOrderStatus = this.buildDoughnutChart(ov.ordersSection.statusBreakdown, 'order-status');
+    this.charts.salesTrend = this.charts.overviewSalesVsOrders;
+    this.charts.salesTopCategories = this.buildDoughnutChart(ov.salesSection.data.topCategories, 'generic');
+    this.charts.inventoryStockHealth = this.buildDoughnutChart(ov.inventorySection.stockHealthDistribution, 'stock-health');
+    this.charts.inventoryRiskBar = this.buildBarChart(this.buildRankedSlices(ov.inventorySection.inventoryRiskList), 'generic');
+    this.charts.inventoryCatalogGrowth = this.buildLineChart(ov.inventorySection.catalogGrowth, 'DASHBOARD.CHARTS.PRODUCTS');
+    this.charts.offersByType = this.buildDoughnutChart(ov.offersSection.offersByType, 'offer-types');
+    this.charts.discountBands = this.buildBarChart(ov.offersSection.discountBands, 'discount-bands');
+    this.charts.reviewsTrend = this.buildLineChart(ov.reviewsSection.reviewsTrend, 'DASHBOARD.CHARTS.REVIEWS');
+    this.charts.replyBreakdown = this.buildDoughnutChart(ov.reviewsSection.replyBreakdown, 'reply-breakdown');
+    this.charts.financeSalesVsPayouts = this.buildDualAxisChart(
+      ov.financeSection.salesVsPayoutsTrend,
+      'DASHBOARD.CHARTS.SALES',
+      'DASHBOARD.CHARTS.PAYOUTS'
+    );
+    this.charts.financeSettlements = this.charts.overviewSettlements;
+    this.charts.disputeStatus = this.buildDoughnutChart(ov.disputesSection.statusBreakdown, 'dispute-status');
+    this.charts.disputeTrend = this.buildLineChart(ov.disputesSection.disputeTrend, 'DASHBOARD.CHARTS.DISPUTES');
   }
 
   metricToneClass(tone: DashboardMetricCard['tone']): string {
@@ -593,6 +797,17 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
       case 'critical': return 'bg-rose-100/80 text-rose-600';
       case 'warning': return 'bg-amber-100/80 text-amber-600';
       default: return 'bg-sky-100/80 text-sky-600';
+    }
+  }
+
+  alertSeverityLabelKey(severity: VendorDashboardAlertItem['severity']): string {
+    switch (severity) {
+      case 'critical':
+        return 'ALERTS_CENTER.SEVERITY.CRITICAL';
+      case 'warning':
+        return 'ALERTS_CENTER.SEVERITY.WARNING';
+      default:
+        return 'ALERTS_CENTER.SEVERITY.INFO';
     }
   }
 
@@ -652,7 +867,26 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
   }
 
   labelForRankedItem(item: VendorDashboardRankedItem): string {
-    return this.currentLang === 'ar' ? item.labelAr : item.labelEn;
+    const label = this.currentLang === 'ar' ? item.labelAr : item.labelEn;
+    return repairUtf8Mojibake(label);
+  }
+
+  branchDisplayName(branch: VendorDashboardBranchRevenue): string {
+    if (branch.branchId === 'main') {
+      return this.translate.instant('STAFF_BRANCHES.BRANCH_TYPES.PRIMARY');
+    }
+
+    const catalogName = this.branchNameById.get(branch.branchId)?.trim();
+    if (catalogName) {
+      return catalogName;
+    }
+
+    const repaired = repairUtf8Mojibake(branch.branchName);
+    if (repaired && !looksLikeUtf8Mojibake(repaired)) {
+      return repaired;
+    }
+
+    return this.translate.instant('DASHBOARD.CONTEXT.UNKNOWN_BRANCH');
   }
 
   formatCurrency(value: number): string {
@@ -687,12 +921,68 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
   }
 
   private formatTrendLabel(label: string): string {
-    if (/^\d{4}-\d{2}-\d{2}$/.test(label)) {
-      return this.safeDateTransform(label, 'MMM d', label);
+    const trimmed = label.trim();
+    const localized = this.localizeTrendLabel(trimmed);
+    if (localized !== trimmed) {
+      return localized;
     }
 
-    return this.sliceLabel('generic', label);
+    return this.sliceLabel('generic', trimmed);
   }
+
+  private localizeTrendLabel(label: string): string {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(label)) {
+      return this.safeDateTransform(label, this.currentLang === 'ar' ? 'd MMM' : 'MMM d', label);
+    }
+
+    const monthIndex = VendorDashboardComponent.EN_MONTH_ABBREVS
+      .findIndex((month) => month.toLowerCase() === label.toLowerCase());
+    if (monthIndex >= 0) {
+      const monthDate = new Date(Date.UTC(2026, monthIndex, 1));
+      return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short' }).format(monthDate);
+    }
+
+    const weekdayIndex = VendorDashboardComponent.EN_WEEKDAY_ABBREVS
+      .findIndex((weekday) => weekday.toLowerCase() === label.toLowerCase());
+    if (weekdayIndex >= 0) {
+      const weekdayDate = new Date(Date.UTC(2026, 0, 4 + weekdayIndex));
+      return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'short' }).format(weekdayDate);
+    }
+
+    const weekMatch = label.match(/^W(\d+)$/i);
+    if (weekMatch) {
+      return this.currentLang === 'ar'
+        ? `أسبوع ${weekMatch[1]}`
+        : `Week ${weekMatch[1]}`;
+    }
+
+    return label;
+  }
+
+  private resolveSliceLabel(context: string, slice: VendorDashboardBreakdownSlice): string {
+    const translatedFromKey = this.sliceLabel(context, slice.key);
+    if (context !== 'generic') {
+      return translatedFromKey;
+    }
+
+    const rawLabel = (slice.label || '').trim();
+    if (/[\u0600-\u06FF]/.test(rawLabel)) {
+      return rawLabel;
+    }
+
+    if (translatedFromKey !== this.fallbackGenericLabel(slice.key)) {
+      return translatedFromKey;
+    }
+
+    return rawLabel || translatedFromKey;
+  }
+
+  private fallbackGenericLabel(key: string): string {
+    return (key || '').replace(/_/g, ' ');
+  }
+
+  private static readonly EN_MONTH_ABBREVS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  private static readonly EN_WEEKDAY_ABBREVS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   private safeDateTransform(value: string, format: string, fallback = '-'): string {
     try {
@@ -730,8 +1020,16 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
         return key === 'active'
           ? this.translate.instant('COMMON.STATUS_ACTIVE')
           : this.translate.instant('COMMON.STATUS_INACTIVE');
-      default:
-        return key.replace(/_/g, ' ');
+      default: {
+        const normalizedKey = (key || '').trim().toUpperCase().replace(/[^A-Z0-9]+/g, '_');
+        const chartLabelKey = `DASHBOARD.CHART_LABELS.${normalizedKey}`;
+        const chartLabel = this.translate.instant(chartLabelKey);
+        if (chartLabel !== chartLabelKey) {
+          return chartLabel;
+        }
+
+        return this.fallbackGenericLabel(key);
+      }
     }
   }
 

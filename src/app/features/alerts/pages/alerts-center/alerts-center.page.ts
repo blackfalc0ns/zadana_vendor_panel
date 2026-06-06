@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { Subscription, combineLatest } from 'rxjs';
-import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import {
   DetailTabNavItem,
@@ -15,7 +14,6 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
 import { AppMetricCardComponent } from '../../../../shared/components/ui/data-display/metric-card/metric-card.component';
 import { AppEmptyStateComponent } from '../../../../shared/components/ui/data-display/empty-state/empty-state.component';
-import { AppFilterPanelComponent } from '../../../../shared/components/ui/layout/filter-panel/filter-panel.component';
 import { AppPageSectionShellComponent } from '../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
 import {
   AlertCenterItemVm,
@@ -29,6 +27,17 @@ import {
 } from '../../models/alerts-center.models';
 import { AlertsCenterService } from '../../services/alerts-center.service';
 
+type AlertDateGroupKey = 'today' | 'yesterday' | 'earlier';
+
+interface AlertDateGroup {
+  key: AlertDateGroupKey;
+  labelKey: string;
+  alerts: AlertCenterItemVm[];
+}
+
+type LoadStatus = 'idle' | 'loading' | 'ready' | 'error';
+type RealtimeStatus = 'idle' | 'connecting' | 'connected' | 'reconnecting' | 'closed' | 'error';
+
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-alerts-center-page',
@@ -39,23 +48,32 @@ import { AlertsCenterService } from '../../services/alerts-center.service';
     TranslateModule,
     NgClass,
     AppPageHeaderComponent,
-    AppPanelHeaderComponent,
     DetailTabsNavComponent,
     AppPaginationComponent,
     AppFlashBannerComponent,
     AppMetricCardComponent,
     AppEmptyStateComponent,
-    AppFilterPanelComponent,
-    AppPageSectionShellComponent
-  , SearchableSelectComponent],
-  templateUrl: './alerts-center.page.html'
+    AppPageSectionShellComponent,
+    SearchableSelectComponent
+  ],
+  templateUrl: './alerts-center.page.html',
+  styles: [`
+    :host { display: block; }
+
+    .line-clamp-2 {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  `]
 })
 export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
 
   get mappedSourceOptions(): SearchableSelectOption[] {
-    return [{value: 'all', labelKey: 'ALERTS_CENTER.FILTERS.ALL_SOURCES'}].concat(
-      this.sourceOptions.map((x: any) => ({value: x, labelKey: this.sourceLabelKey(x)}))
+    return [{ value: 'all', labelKey: 'ALERTS_CENTER.FILTERS.ALL_SOURCES' }].concat(
+      this.sourceOptions.map((source) => ({ value: source, labelKey: this.sourceLabelKey(source) }))
     );
   }
 
@@ -78,10 +96,12 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   currentLang = 'ar';
-  isFiltersExpanded = true;
   activeQuickView: AlertQuickView = 'all';
   flashMessage = '';
   flashTone: 'success' | 'info' = 'success';
+  loadStatus: LoadStatus = 'idle';
+  loadError = false;
+  realtimeStatus: RealtimeStatus = 'idle';
 
   alerts: AlertCenterItemVm[] = [];
   summary: AlertSummaryVm = {
@@ -103,6 +123,7 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
 
   private langSub: Subscription;
   private dataSub?: Subscription;
+  private statusSub?: Subscription;
   private lastFilterSignature = '';
 
   constructor(
@@ -112,25 +133,36 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => {
-      this.cdr.markForCheck();
       this.currentLang = event.lang;
+      this.cdr.markForCheck();
     });
   }
 
   ngOnInit(): void {
+    this.statusSub = combineLatest([
+      this.alertsCenterService.getInitialLoadStatus(),
+      this.alertsCenterService.getRealtimeConnectionState()
+    ]).subscribe(([loadStatus, realtimeStatus]) => {
+      this.loadStatus = loadStatus;
+      this.loadError = loadStatus === 'error';
+      this.realtimeStatus = realtimeStatus;
+      this.cdr.markForCheck();
+    });
+
     this.dataSub = combineLatest([
       this.alertsCenterService.getAlerts(),
       this.alertsCenterService.getSummary()
     ]).subscribe(([alerts, summary]) => {
-      this.cdr.markForCheck();
       this.alerts = alerts;
       this.summary = summary;
+      this.cdr.markForCheck();
     });
   }
 
   ngOnDestroy(): void {
     this.langSub.unsubscribe();
     this.dataSub?.unsubscribe();
+    this.statusSub?.unsubscribe();
   }
 
   ngDoCheck(): void {
@@ -141,6 +173,52 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
 
     this.lastFilterSignature = nextSignature;
     this.currentPage = 1;
+  }
+
+  get isInitialLoading(): boolean {
+    return (this.loadStatus === 'loading' || this.loadStatus === 'idle') && this.alerts.length === 0;
+  }
+
+  get realtimeStatusLabelKey(): string {
+    switch (this.realtimeStatus) {
+      case 'connected':
+        return 'ALERTS_CENTER.REALTIME.CONNECTED';
+      case 'connecting':
+      case 'reconnecting':
+        return 'ALERTS_CENTER.REALTIME.CONNECTING';
+      case 'error':
+        return 'ALERTS_CENTER.REALTIME.ERROR';
+      default:
+        return 'ALERTS_CENTER.REALTIME.OFFLINE';
+    }
+  }
+
+  get realtimeStatusClass(): string {
+    switch (this.realtimeStatus) {
+      case 'connected':
+        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
+      case 'connecting':
+      case 'reconnecting':
+        return 'border-amber-200 bg-amber-50 text-amber-700';
+      case 'error':
+        return 'border-rose-200 bg-rose-50 text-rose-700';
+      default:
+        return 'border-slate-200 bg-slate-50 text-slate-600';
+    }
+  }
+
+  get realtimeDotClass(): string {
+    switch (this.realtimeStatus) {
+      case 'connected':
+        return 'bg-emerald-500 animate-pulse';
+      case 'connecting':
+      case 'reconnecting':
+        return 'bg-amber-500 animate-pulse';
+      case 'error':
+        return 'bg-rose-500';
+      default:
+        return 'bg-slate-400';
+    }
   }
 
   get quickTabs(): DetailTabNavItem[] {
@@ -188,6 +266,25 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     return this.filteredAlerts.slice(startIndex, startIndex + this.pageSize);
   }
 
+  get groupedPagedAlerts(): AlertDateGroup[] {
+    const groups = new Map<AlertDateGroupKey, AlertCenterItemVm[]>();
+
+    for (const alert of this.pagedAlerts) {
+      const key = this.resolveDateGroupKey(alert.createdAt);
+      const bucket = groups.get(key) ?? [];
+      bucket.push(alert);
+      groups.set(key, bucket);
+    }
+
+    return (['today', 'yesterday', 'earlier'] as AlertDateGroupKey[])
+      .filter((key) => groups.has(key))
+      .map((key) => ({
+        key,
+        labelKey: `ALERTS_CENTER.DATE_GROUPS.${key.toUpperCase()}`,
+        alerts: groups.get(key) ?? []
+      }));
+  }
+
   get hasActiveFilters(): boolean {
     return !!this.filters.search.trim()
       || this.filters.source !== 'all'
@@ -202,6 +299,7 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   setActiveQuickView(view: string): void {
     this.activeQuickView = view as AlertQuickView;
     this.currentPage = 1;
+    this.cdr.markForCheck();
   }
 
   resetFilters(): void {
@@ -210,10 +308,12 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     this.filters.severity = 'all';
     this.filters.state = 'all';
     this.currentPage = 1;
+    this.cdr.markForCheck();
   }
 
   onPageChange(page: number): void {
     this.currentPage = page;
+    this.cdr.markForCheck();
   }
 
   markAllAsRead(): void {
@@ -255,6 +355,50 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     this.router.navigateByUrl(this.buildRoute(alert));
   }
 
+  alertCardClass(alert: AlertCenterItemVm): string {
+    if (alert.state === 'archived') {
+      return 'border-slate-200/70 bg-slate-50/50';
+    }
+
+    if (alert.state === 'unread') {
+      return 'border-zadna-primary/15 bg-gradient-to-br from-white to-teal-50/20';
+    }
+
+    return 'border-slate-200/80 bg-white';
+  }
+
+  severityIconClass(severity: AlertSeverity): string {
+    switch (severity) {
+      case 'critical':
+        return 'bg-rose-50 text-rose-600 ring-rose-200/70';
+      case 'warning':
+        return 'bg-amber-50 text-amber-600 ring-amber-200/70';
+      default:
+        return 'bg-sky-50 text-sky-600 ring-sky-200/70';
+    }
+  }
+
+  sourceIcon(source: AlertSource): string {
+    switch (source) {
+      case 'orders':
+        return 'receipt_long';
+      case 'products':
+        return 'inventory_2';
+      case 'offers':
+        return 'local_offer';
+      case 'finance':
+        return 'account_balance_wallet';
+      case 'support':
+        return 'support_agent';
+      case 'staff':
+        return 'groups';
+      case 'reviews':
+        return 'reviews';
+      default:
+        return 'storefront';
+    }
+  }
+
   sourceLabelKey(source: AlertSource): string {
     switch (source) {
       case 'orders':
@@ -284,17 +428,6 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
         return 'ALERTS_CENTER.SEVERITY.WARNING';
       default:
         return 'ALERTS_CENTER.SEVERITY.INFO';
-    }
-  }
-
-  stateLabelKey(state: AlertState): string {
-    switch (state) {
-      case 'archived':
-        return 'ALERTS_CENTER.STATE.ARCHIVED';
-      case 'read':
-        return 'ALERTS_CENTER.STATE.READ';
-      default:
-        return 'ALERTS_CENTER.STATE.UNREAD';
     }
   }
 
@@ -330,17 +463,6 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     }
   }
 
-  stateBadgeClass(state: AlertState): string {
-    switch (state) {
-      case 'archived':
-        return 'border-slate-300 bg-slate-100 text-slate-600';
-      case 'read':
-        return 'border-emerald-200 bg-emerald-50 text-emerald-700';
-      default:
-        return 'border-zadna-primary/20 bg-zadna-primary/10 text-zadna-primary';
-    }
-  }
-
   formatDateTime(dateText: string): string {
     return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
       year: 'numeric',
@@ -351,12 +473,74 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     }).format(new Date(dateText));
   }
 
+  formatRelativeTime(dateText: string): string {
+    const createdAt = new Date(dateText);
+    const diffMs = Date.now() - createdAt.getTime();
+
+    if (Number.isNaN(diffMs)) {
+      return dateText;
+    }
+
+    const minute = 60_000;
+    const hour = 60 * minute;
+    const day = 24 * hour;
+
+    if (diffMs < minute) {
+      return this.currentLang === 'ar' ? 'الآن' : 'Just now';
+    }
+
+    if (diffMs < hour) {
+      const minutes = Math.max(1, Math.floor(diffMs / minute));
+      return this.currentLang === 'ar'
+        ? `منذ ${minutes} د`
+        : `${minutes}m ago`;
+    }
+
+    if (diffMs < day) {
+      const hours = Math.max(1, Math.floor(diffMs / hour));
+      return this.currentLang === 'ar'
+        ? `منذ ${hours} س`
+        : `${hours}h ago`;
+    }
+
+    if (diffMs < day * 2) {
+      return this.currentLang === 'ar' ? 'أمس' : 'Yesterday';
+    }
+
+    const days = Math.max(1, Math.floor(diffMs / day));
+    return this.currentLang === 'ar'
+      ? `منذ ${days} ي`
+      : `${days}d ago`;
+  }
+
   alertText(text: LocalizedAlertText): string {
     return this.currentLang === 'ar' ? text.ar : text.en;
   }
 
   trackByAlertId(_index: number, alert: AlertCenterItemVm): string {
     return alert.id;
+  }
+
+  private resolveDateGroupKey(dateText: string): AlertDateGroupKey {
+    const date = new Date(dateText);
+    if (Number.isNaN(date.getTime())) {
+      return 'earlier';
+    }
+
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const startOfYesterday = new Date(startOfToday);
+    startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+
+    if (date >= startOfToday) {
+      return 'today';
+    }
+
+    if (date >= startOfYesterday) {
+      return 'yesterday';
+    }
+
+    return 'earlier';
   }
 
   private matchesQuickView(alert: AlertCenterItemVm): boolean {
@@ -415,10 +599,12 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   private showFlash(key: string, tone: 'success' | 'info'): void {
     this.flashMessage = this.translate.instant(key);
     this.flashTone = tone;
+    this.cdr.markForCheck();
 
     setTimeout(() => {
       if (this.flashMessage === this.translate.instant(key)) {
         this.flashMessage = '';
+        this.cdr.markForCheck();
       }
     }, 2800);
   }

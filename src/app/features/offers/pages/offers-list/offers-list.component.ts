@@ -2,7 +2,7 @@ import { CommonModule, NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { TimeoutError, combineLatest, Subscription } from 'rxjs';
@@ -515,6 +515,7 @@ export class OffersListComponent implements OnInit, OnDestroy {
     clearance: 1
   };
   private langSub: Subscription;
+  private routeSub?: Subscription;
 
   readonly views: Array<{ value: OffersView; label: string }> = [
     { value: 'direct', label: 'OFFERS.VIEWS.DIRECT' },
@@ -527,7 +528,8 @@ export class OffersListComponent implements OnInit, OnDestroy {
     private readonly catalogService: CatalogService,
     private readonly offersService: OffersService,
     private readonly translate: TranslateService,
-    private readonly route: ActivatedRoute
+    private readonly route: ActivatedRoute,
+    private readonly router: Router
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
     this.langSub = this.translate.onLangChange.subscribe((event) => this.currentLang = event.lang);
@@ -535,6 +537,11 @@ export class OffersListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.applyQueryParams();
+    this.routeSub = this.route.queryParamMap.subscribe((params) => {
+      this.applyQueryParamsFromMap(params);
+      this.cdr.markForCheck();
+    });
+
     combineLatest([
       this.catalogService.getVendorProducts({ pageNumber: 1, pageSize: 100 }),
       this.catalogService.getCategories(),
@@ -567,6 +574,7 @@ export class OffersListComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.langSub.unsubscribe();
+    this.routeSub?.unsubscribe();
   }
 
   get filteredProductOffers(): VendorProduct[] {
@@ -853,7 +861,14 @@ export class OffersListComponent implements OnInit, OnDestroy {
   }
 
   onViewChange(view: string): void {
-    this.activeView = view as OffersView;
+    const nextView = view as OffersView;
+    if (this.activeView === nextView) {
+      return;
+    }
+
+    this.activeView = nextView;
+    this.syncTypeQueryParam();
+    this.cdr.markForCheck();
   }
 
   openCreateModal(): void {
@@ -1081,7 +1096,10 @@ export class OffersListComponent implements OnInit, OnDestroy {
   }
 
   private applyQueryParams(): void {
-    const params = this.route.snapshot.queryParamMap;
+    this.applyQueryParamsFromMap(this.route.snapshot.queryParamMap);
+  }
+
+  private applyQueryParamsFromMap(params: { get(name: string): string | null }): void {
     const expiryState = params.get('expiryState');
     const type = params.get('type');
 
@@ -1093,5 +1111,14 @@ export class OffersListComponent implements OnInit, OnDestroy {
       this.activeView = 'coupons';
       this.couponFilters.expiry = expiryState;
     }
+  }
+
+  private syncTypeQueryParam(): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { type: this.activeView },
+      queryParamsHandling: 'merge',
+      replaceUrl: false
+    });
   }
 }

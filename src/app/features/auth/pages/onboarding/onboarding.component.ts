@@ -19,6 +19,7 @@ import {
 import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../services/geography.service';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppInputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
+import { PhoneInputComponent } from '../../../../shared/components/ui/form-controls/phone-input/phone-input.component';
 import { AppSelectComponent } from '../../../../shared/components/ui/form-controls/select/select.component';
 import { AppCardComponent } from '../../../../shared/components/ui/card/card.component';
 import { AppBadgeComponent } from '../../../../shared/components/ui/feedback/badge/badge.component';
@@ -31,6 +32,7 @@ import { VendorProfile } from '../../../settings/models/vendor-profile.models';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 import { VendorReviewItem } from '../../../settings/models/vendor-profile.models';
 import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
+import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +45,7 @@ import { resolveLocalizedMessage } from '../../../../shared/utils/text-normaliza
     TranslateModule,
     AppButtonComponent,
     AppInputComponent,
+    PhoneInputComponent,
     AppSelectComponent,
     AppCardComponent,
     AppBadgeComponent,
@@ -934,11 +937,11 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
         businessNameAr: ['', [Validators.required, Validators.minLength(3)]],
         businessNameEn: ['', [Validators.required, Validators.minLength(3)]],
         businessType: ['', Validators.required],
-        contactPhone: ['', [Validators.required, Validators.pattern(/^([0-9+]{9,15})$/)]],
+        contactPhone: ['', [Validators.required, saudiMobilePhoneValidator()]],
         description: ['', [Validators.required, Validators.maxLength(500)]],
         ownerName: ['', [Validators.required, Validators.minLength(3)]],
         ownerEmail: ['', [Validators.required, Validators.email]],
-        ownerPhone: ['', [Validators.required, Validators.pattern(/^([0-9+]{9,15})$/)]]
+        ownerPhone: ['', [Validators.required, saudiMobilePhoneValidator()]]
       }),
       step2: this.fb.group({
         region: ['', Validators.required],

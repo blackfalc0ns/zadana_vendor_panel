@@ -270,27 +270,27 @@ import { CatalogService } from '../../services/catalog.service';
         <div class="border-t border-slate-100 bg-white px-6 py-4">
           <div class="flex flex-wrap items-center justify-between gap-3">
             <div class="text-sm font-black text-slate-600">
-              {{ currentLang === 'ar' ? 'تم تحديد' : 'Selected' }}: {{ selectedProductIds.size }}
+              {{ 'PRODUCTS.BULK.SELECTED' | translate }}: {{ selectedProductIds.size }}
             </div>
             <div class="flex flex-wrap gap-2">
               <button
                 type="button"
                 (click)="onRequestNew()"
                 class="rounded-2xl border border-zadna-primary/20 bg-zadna-primary/10 px-4 py-2 text-xs font-black text-zadna-primary">
-                {{ currentLang === 'ar' ? 'إضافة منتج' : 'Add product' }}
+                {{ 'PRODUCTS.ADD_BUTTON' | translate }}
               </button>
               <button
                 type="button"
                 (click)="clearSelection()"
                 class="rounded-2xl border border-slate-200 px-4 py-2 text-xs font-black text-slate-700">
-                {{ currentLang === 'ar' ? 'مسح التحديد' : 'Clear selection' }}
+                {{ 'PRODUCTS.BULK.CLEAR_SELECTION' | translate }}
               </button>
               <button
                 type="button"
                 (click)="confirmBulkSelection()"
                 [disabled]="selectedProductIds.size === 0"
                 class="rounded-2xl bg-zadna-primary px-4 py-2 text-xs font-black text-white shadow-lg shadow-zadna-primary/20 disabled:opacity-40">
-                {{ currentLang === 'ar' ? 'مراجعة المحدد' : 'Review selected' }}
+                {{ 'PRODUCTS.BULK.REVIEW_SELECTED' | translate }}
               </button>
             </div>
           </div>

@@ -54,7 +54,9 @@ import { TranslateModule } from '@ngx-translate/core';
                   (click)="close.emit()"
                   [attr.aria-label]="closeAriaLabel"
                   class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-50 text-slate-500 transition hover:border-slate-300 hover:bg-white hover:text-slate-700">
-                  <span class="text-lg leading-none">x</span>
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"></path>
+                  </svg>
                 </button>
               }
             </div>

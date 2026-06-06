@@ -8,7 +8,7 @@ test.describe('Vendor Panel smoke', () => {
   });
   test('loads the dashboard shell', async ({ page }) => {
     await page.goto('/dashboard');
-    await expect(page.locator('app-page-header h1')).toBeVisible();
+    await expect(page.getByRole('button', { name: /تحديث|refresh/i })).toBeVisible();
   });
   test('loads the staff operations page and its switcher', async ({ page }) => {
     await page.goto('/staff');

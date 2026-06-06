@@ -312,6 +312,12 @@ export class VendorAuthService {
 
   private persistUser(user: VendorCurrentUser): void {
     localStorage.setItem(this.userKey, JSON.stringify(user));
+
+    const workspaceName = user.access?.activeScope?.scopeEntityName?.trim();
+    if (workspaceName) {
+      localStorage.setItem('vendor_workspace_name', workspaceName);
+    }
+
     this.currentUserSubject.next(user);
   }
 
@@ -349,6 +355,7 @@ export class VendorAuthService {
     localStorage.removeItem(this.accessTokenKey);
     localStorage.removeItem(this.refreshTokenKey);
     localStorage.removeItem(this.userKey);
+    localStorage.removeItem('vendor_workspace_name');
     this.currentUserSubject.next(null);
   }
 }

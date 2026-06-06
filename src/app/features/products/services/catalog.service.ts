@@ -223,7 +223,6 @@ export class CatalogService {
       idempotencyKey: this.generateIdempotencyKey(),
       items: items.map((item) => ({
         masterProductId: item.masterProductId,
-        costPrice: item.costPrice ?? null,
         tradePrice: item.tradePrice ?? null,
         sellingPrice: item.sellingPrice,
         compareAtPrice: item.compareAtPrice ?? this.calculateCompareAtPrice(item.sellingPrice ?? 0, item.discountPercentage ?? 0),

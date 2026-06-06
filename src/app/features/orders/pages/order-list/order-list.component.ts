@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { ActivatedRoute, RouterModule } from '@angular/router';
-import { Subscription } from 'rxjs';
+import { Subscription, debounceTime, filter } from 'rxjs';
 import { AlertsCenterService } from '../../../alerts/services/alerts-center.service';
 import { OrdersService } from '../../services/orders.service';
 import { OrderListItem, OrderStatus } from '../../models/orders.models';
@@ -86,7 +86,17 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
         </app-panel-header>
 
         <div class="overflow-x-auto no-scrollbar">
-          @if (isLoading) {
+          @if (loadError && !hasLoadedOnce) {
+            <div class="p-6 text-center">
+              <p class="text-[0.85rem] font-bold text-rose-600">{{ 'ORDERS.LOAD_ERROR' | translate }}</p>
+              <button
+                type="button"
+                (click)="loadOrders()"
+                class="mt-4 inline-flex h-10 items-center justify-center rounded-xl bg-zadna-primary px-4 text-[0.78rem] font-black text-white">
+                {{ 'ORDERS.RETRY' | translate }}
+              </button>
+            </div>
+          } @else if (isLoading && !hasLoadedOnce) {
             <div class="p-4 space-y-4">
               <!-- Skeleton Table Header -->
               <div class="flex items-center justify-between gap-4 px-2">
@@ -106,7 +116,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
                 </div>
               }
             </div>
-          } @else if (orders.length === 0) {
+          } @else if (!isLoading && orders.length === 0) {
             <div class="p-4 animate-in zoom-in duration-500">
               <div class="min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
                 <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">receipt_long</span>
@@ -115,6 +125,11 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
               </div>
             </div>
           } @else {
+            @if (isRefreshing) {
+              <div class="border-b border-slate-100 bg-slate-50/70 px-6 py-2 text-[0.72rem] font-bold text-slate-500">
+                {{ 'ORDERS.REFRESHING' | translate }}
+              </div>
+            }
             <table class="hidden md:table w-full text-start border-collapse animate-in slide-in-from-bottom-2 duration-500">
               <thead>
                 <tr class="border-b border-slate-50 bg-slate-50/50 text-[0.62rem] font-black uppercase tracking-widest text-slate-400">
@@ -275,6 +290,9 @@ export class OrderListComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
   orders: OrderListItem[] = [];
   isLoading = true;
+  isRefreshing = false;
+  hasLoadedOnce = false;
+  loadError = false;
   searchTerm = '';
   currentLang = 'ar';
   filters = {
@@ -292,6 +310,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
   private langSub: Subscription;
   private realtimeOrdersSub?: Subscription;
+  private loadRequestId = 0;
+  private filterChangeTimer?: ReturnType<typeof setTimeout>;
 
   currentPage = 1;
   pageSize = 10;
@@ -305,19 +325,23 @@ export class OrderListComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
-    this.langSub = this.translate.onLangChange.subscribe((event) => this.currentLang = event.lang);
+    this.langSub = this.translate.onLangChange.subscribe((event) => {
+      this.currentLang = event.lang;
+      this.cdr.markForCheck();
+    });
   }
 
   ngOnInit(): void {
     this.applyQueryParams();
-    this.realtimeOrdersSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
-      this.cdr.markForCheck();
-      if (alert.source === 'orders') {
-        this.loadOrders();
-      }
+    this.realtimeOrdersSub = this.alertsCenterService.getRealtimeAlerts().pipe(
+      filter((alert) => alert.source === 'orders'),
+      debounceTime(600)
+    ).subscribe(() => {
+      this.ordersService.invalidateOrdersCache();
+      this.loadOrders(false);
     });
 
-    this.loadOrders();
+    this.loadOrders(true);
   }
 
   ngOnDestroy(): void {
@@ -326,10 +350,24 @@ export class OrderListComponent implements OnInit, OnDestroy {
     }
 
     this.realtimeOrdersSub?.unsubscribe();
+    if (this.filterChangeTimer) {
+      clearTimeout(this.filterChangeTimer);
+    }
   }
 
-  loadOrders(): void {
-    this.isLoading = true;
+  loadOrders(forceInitialLoading = false): void {
+    const requestId = ++this.loadRequestId;
+    const initial = !this.hasLoadedOnce || forceInitialLoading;
+
+    if (initial) {
+      this.isLoading = true;
+      this.loadError = false;
+    } else {
+      this.isRefreshing = true;
+    }
+
+    this.cdr.markForCheck();
+
     this.ordersService.getOrders({
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
@@ -339,35 +377,37 @@ export class OrderListComponent implements OnInit, OnDestroy {
       lateState: this.filters.lateState
     }).subscribe({
       next: (data) => {
-        this.cdr.markForCheck();
+        if (requestId !== this.loadRequestId) {
+          return;
+        }
+
         this.orders = data.items;
         this.totalCount = data.totalCount;
         this.totalPages = data.totalPages;
         this.isLoading = false;
+        this.isRefreshing = false;
+        this.hasLoadedOnce = true;
+        this.loadError = false;
+        this.cdr.markForCheck();
         this.updateSummary();
       },
       error: () => {
-        this.cdr.markForCheck();
+        if (requestId !== this.loadRequestId) {
+          return;
+        }
+
         this.isLoading = false;
+        this.isRefreshing = false;
+        this.loadError = !this.hasLoadedOnce;
+        this.cdr.markForCheck();
       }
     });
   }
 
   private updateSummary(): void {
-    this.ordersService.getOrders({
-      pageNumber: 1,
-      pageSize: 250,
-      status: 'ALL',
-      paymentMethod: 'ALL',
-      lateState: 'ALL'
-    }).subscribe((data) => {
+    this.ordersService.getOrdersSummary().subscribe((summary) => {
       this.cdr.markForCheck();
-      this.summary = {
-        total: data.totalCount,
-        new: data.items.filter(o => o.status === 'NEW').length,
-        inProgress: data.items.filter(o => ['CONFIRMED', 'IN_PROGRESS', 'READY_FOR_PICKUP'].includes(o.status)).length,
-        late: data.items.filter(o => o.isLate).length
-      };
+      this.summary = summary;
     });
   }
 
@@ -378,7 +418,14 @@ export class OrderListComponent implements OnInit, OnDestroy {
 
   onFiltersChange(): void {
     this.currentPage = 1;
-    this.loadOrders();
+
+    if (this.filterChangeTimer) {
+      clearTimeout(this.filterChangeTimer);
+    }
+
+    this.filterChangeTimer = setTimeout(() => {
+      this.loadOrders();
+    }, 300);
   }
 
   resetFilters(): void {
@@ -389,6 +436,11 @@ export class OrderListComponent implements OnInit, OnDestroy {
       lateState: 'ALL'
     };
     this.currentPage = 1;
+
+    if (this.filterChangeTimer) {
+      clearTimeout(this.filterChangeTimer);
+    }
+
     this.loadOrders();
   }
 

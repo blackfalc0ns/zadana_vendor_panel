@@ -1,6 +1,7 @@
-import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectionStrategy, ChangeDetectorRef, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { AppCardComponent } from '../../../../shared/components/ui/card/card.component';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
@@ -29,9 +30,11 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
 })
 export class VendorFinanceDashboardComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   private financeService = inject(VendorFinanceService);
   private translate = inject(TranslateService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
   private alertModalService = inject(AlertModalService);
 
   snapshot: VendorFinanceSnapshot | null = null;
@@ -100,13 +103,49 @@ export class VendorFinanceDashboardComponent implements OnInit {
       this.currentPeriod = period;
     }
 
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((params) => {
+        const nextPeriod = params.get('period');
+        if (
+          nextPeriod !== 'today'
+          && nextPeriod !== 'week'
+          && nextPeriod !== 'month'
+          && nextPeriod !== 'quarter'
+        ) {
+          return;
+        }
+
+        if (this.currentPeriod === nextPeriod) {
+          return;
+        }
+
+        this.currentPeriod = nextPeriod;
+        this.ledgerPage = null;
+        this.loadData();
+      });
+
     this.loadData();
   }
 
   setPeriod(period: VendorFinancePeriod): void {
+    if (this.currentPeriod === period) {
+      return;
+    }
+
     this.currentPeriod = period;
     this.ledgerPage = null;
+    this.syncPeriodQueryParam();
     this.loadData();
+  }
+
+  private syncPeriodQueryParam(): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { period: this.currentPeriod },
+      queryParamsHandling: 'merge',
+      replaceUrl: false
+    });
   }
 
   private loadData(): void {

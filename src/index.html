@@ -39,6 +39,37 @@
       overflow-x: hidden;
       overflow-y: auto;
     }
+
+    #app-loader {
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #ffffff;
+      transition: opacity 0.42s ease;
+    }
+
+    .splash-logo-wrap {
+      display: flex;
+      width: clamp(120px, 16vw, 190px);
+      align-items: center;
+      justify-content: center;
+    }
+
+    .splash-logo-img {
+      width: 100%;
+      height: auto;
+      object-fit: contain;
+      animation: zadnaLogoPulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes zadnaLogoPulse {
+      0% { opacity: 0.15; transform: scale(0.98); }
+      50% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0.15; transform: scale(0.98); }
+    }
   </style>
   <script>
     (function () {
@@ -50,32 +81,9 @@
 </head>
 
 <body>
-  <div id="app-loader" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#fff;z-index:99999;overflow:hidden;transition:opacity .42s ease;">
-    <style>
-      .splash-logo-wrap {
-        display: flex;
-        width: clamp(110px, 15vw, 180px);
-        height: auto;
-        align-items: center;
-        justify-content: center;
-      }
-      .splash-logo-img {
-        width: 100%;
-        height: auto;
-        object-fit: contain;
-        animation: zadnaLogoFlicker 1.8s ease-in-out infinite;
-      }
-      @keyframes zadnaLogoFlicker {
-        0% { opacity: 0.4; transform: scale(0.99); }
-        50% { opacity: 1; transform: scale(1.02); }
-        100% { opacity: 0.4; transform: scale(0.99); }
-      }
-      @media (max-width: 640px) {
-        .splash-logo-wrap { width: min(38vw, 130px); }
-      }
-    </style>
+  <div id="app-loader" role="status" aria-live="polite">
     <div class="splash-logo-wrap">
-      <img src="assets/i18n/images/logo/logo-auth.png" alt="Zadna" class="splash-logo-img">
+      <img src="assets/i18n/images/logo/logo-auth.png" alt="Zadana" class="splash-logo-img">
     </div>
   </div>
 
@@ -83,27 +91,19 @@
 
   <script>
     (function () {
+      // The Angular AppComponent.dismissSplash() takes over hiding the splash
+      // once the app has bootstrapped and the first route is ready.
+      // This safety valve only fires if Angular fails to bootstrap entirely.
       var splash = document.getElementById('app-loader');
-      var minimumVisibleMs = 2400;
-      var startedAt = Date.now();
-      var hideScheduled = false;
 
       function hideSplash() {
-        if (!splash || hideScheduled) return;
-        hideScheduled = true;
-        var remainingMs = Math.max(0, minimumVisibleMs - (Date.now() - startedAt));
-        setTimeout(function () {
-          splash.style.opacity = '0';
-          setTimeout(function () { splash.remove(); }, 450);
-        }, remainingMs);
+        if (!splash) return;
+        splash.style.opacity = '0';
+        setTimeout(function () { splash.remove(); }, 450);
       }
 
-      window.addEventListener('load', function () {
-        setTimeout(hideSplash, 300);
-      });
-
-      // Safety valve
-      setTimeout(hideSplash, 8000);
+      // Safety valve – only if Angular never bootstraps (e.g. fatal JS error)
+      setTimeout(hideSplash, 12000);
     })();
   </script>
 </body>

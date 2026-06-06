@@ -5,6 +5,7 @@ import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
+import { PhoneInputComponent } from '../../../../shared/components/ui/form-controls/phone-input/phone-input.component';
 import { Subscription, combineLatest, forkJoin } from 'rxjs';
 import { SelectOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
@@ -62,7 +63,8 @@ import {
     AppFlashBannerComponent,
     AppFilterPanelComponent,
     AppPageSectionShellComponent,
-    SearchableSelectComponent
+    SearchableSelectComponent,
+    PhoneInputComponent
   ],
   templateUrl: './staff-branches.page.html'
 })
@@ -244,16 +246,24 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
 
     this.routeSub = this.route.queryParamMap.subscribe((params) => {
       this.cdr.markForCheck();
+
+      const view = params.get('view');
+      if (view === 'branches' || view === 'employees' || view === 'invitations') {
+        if (this.activeView !== view) {
+          this.activeView = view;
+        }
+      }
+
       const action = params.get('action');
 
       if (action === 'branch') {
         this.activeView = 'branches';
         this.openBranchWizard();
-        this.clearActionQueryParam();
+        this.clearActionQueryParam('branches');
       } else if (action === 'employee') {
         this.activeView = 'employees';
         this.openEmployeeInvite();
-        this.clearActionQueryParam();
+        this.clearActionQueryParam('employees');
       }
     });
   }
@@ -509,7 +519,14 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   setActiveView(view: string): void {
-    this.activeView = view as StaffView;
+    const nextView = view as StaffView;
+    if (this.activeView === nextView) {
+      return;
+    }
+
+    this.activeView = nextView;
+    this.syncViewQueryParam();
+    this.cdr.markForCheck();
   }
 
   resetFilters(): void {
@@ -714,6 +731,7 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
       next: () => {
         this.closeEmployeeModal();
         this.activeView = 'invitations';
+        this.syncViewQueryParam();
         this.showFlash('STAFF_BRANCHES.FEEDBACK.EMPLOYEE_INVITED', 'success');
         this.cdr.markForCheck();
       },
@@ -1071,11 +1089,21 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
     return item.value;
   }
 
-  private clearActionQueryParam(): void {
-    this.router.navigate([], {
+  private clearActionQueryParam(view: StaffView): void {
+    void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: {},
+      queryParams: { action: null, view },
+      queryParamsHandling: 'merge',
       replaceUrl: true
+    });
+  }
+
+  private syncViewQueryParam(): void {
+    void this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { view: this.activeView },
+      queryParamsHandling: 'merge',
+      replaceUrl: false
     });
   }
 

@@ -30,3 +30,15 @@ canvas {
   /* Provide a slight hover glow based on the border color for the tone if desired */
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
+.dashboard-alert-arrow {
+  .group:hover & {
+    transform: translateX(0.25rem);
+  }
+}
+
+.dashboard-alert-arrow--rtl {
+  .group:hover & {
+    transform: translateX(-0.25rem);
+  }
+}

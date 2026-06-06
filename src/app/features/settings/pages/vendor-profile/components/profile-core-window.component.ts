@@ -3,13 +3,14 @@ import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../../shared/components/ui/form-controls/select/searchable-select.component';
+import { PhoneInputComponent } from '../../../../../shared/components/ui/form-controls/phone-input/phone-input.component';
 import { AppPageSectionShellComponent } from '../../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   selector: 'app-profile-core-window',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, TranslateModule, SearchableSelectComponent, AppPageSectionShellComponent],
+  imports: [CommonModule, ReactiveFormsModule, TranslateModule, SearchableSelectComponent, PhoneInputComponent, AppPageSectionShellComponent],
   template: `
     <div [formGroup]="form" class="space-y-6">
       <div id="store-section">
@@ -69,7 +70,10 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
               <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
                 {{ 'SETTINGS_PROFILE.FIELDS.SUPPORT_PHONE' | translate }} <span class="text-rose-500 font-extrabold">*</span>
               </span>
-              <input formControlName="supportPhone" type="tel" dir="ltr" [class]="fieldClass('supportPhone', 'ltr')">
+              <app-phone-input
+                formControlName="supportPhone"
+                [invalid]="!!(form.get('supportPhone')?.invalid && (form.get('supportPhone')?.touched || form.get('supportPhone')?.dirty))"
+              ></app-phone-input>
               <p *ngIf="form.get('supportPhone')?.invalid && (form.get('supportPhone')?.touched || form.get('supportPhone')?.dirty)" 
                 class="text-[11px] font-semibold text-rose-500 mt-1.5 block px-1 animate-in fade-in slide-in-from-top-1 duration-200">
                 {{ 'REGISTER.ERR_GENERAL' | translate }}
@@ -137,7 +141,10 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
               <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
                 {{ 'SETTINGS_PROFILE.FIELDS.OWNER_PHONE' | translate }} <span class="text-rose-500 font-extrabold">*</span>
               </span>
-              <input formControlName="ownerPhone" type="tel" dir="ltr" [class]="fieldClass('ownerPhone', 'ltr')">
+              <app-phone-input
+                formControlName="ownerPhone"
+                [invalid]="!!(form.get('ownerPhone')?.invalid && (form.get('ownerPhone')?.touched || form.get('ownerPhone')?.dirty))"
+              ></app-phone-input>
               <p *ngIf="form.get('ownerPhone')?.invalid && (form.get('ownerPhone')?.touched || form.get('ownerPhone')?.dirty)" 
                 class="text-[11px] font-semibold text-rose-500 mt-1.5 block px-1 animate-in fade-in slide-in-from-top-1 duration-200">
                 {{ 'REGISTER.ERR_GENERAL' | translate }}

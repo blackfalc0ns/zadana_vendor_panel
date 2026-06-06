@@ -132,6 +132,7 @@ interface VendorStoreAvailabilityStateApi {
   providedIn: 'root'
 })
 export class VendorProfileService {
+  private static readonly profileCacheKey = 'vendor_profile_cache_v1';
   private readonly apiUrl = `${environment.apiUrl}/vendors/profile`;
   private readonly storeAvailabilityUrl = `${environment.apiUrl}/vendor/workspace-state/store-availability`;
   private readonly profileSubject = new BehaviorSubject<VendorProfile>(this.getDefaultProfile());
@@ -143,7 +144,23 @@ export class VendorProfileService {
     private readonly http: HttpClient,
     private readonly authService: VendorAuthService,
     private readonly notificationSoundService: VendorNotificationSoundService
-  ) {}
+  ) {
+    const cachedProfile = this.readCachedProfile();
+    if (cachedProfile) {
+      this.profileSubject.next(cachedProfile);
+      this.notificationSoundService.setSound(cachedProfile.notificationSound);
+    }
+
+    this.authService.currentUser$.subscribe((user) => {
+      if (user) {
+        return;
+      }
+
+      this.clearCachedProfile();
+      this.hasLoaded = false;
+      this.profileSubject.next(this.getDefaultProfile());
+    });
+  }
 
   getProfile(): Observable<VendorProfile> {
     return this.profile$;
@@ -151,6 +168,10 @@ export class VendorProfileService {
 
   getProfileSnapshot(): VendorProfile {
     return this.profileSubject.value;
+  }
+
+  hasCachedProfileSnapshot(): boolean {
+    return this.hasStoreIdentity(this.profileSubject.value);
   }
 
   loadProfile(force = false): Observable<VendorProfile> {
@@ -176,6 +197,14 @@ export class VendorProfileService {
     }
 
     if (this.hasLoaded && !force) {
+      return of(this.profileSubject.value);
+    }
+
+    if (!force && this.hasCachedProfileSnapshot()) {
+      this.fetchProfile().pipe(
+        catchError(() => of(this.profileSubject.value))
+      ).subscribe();
+
       return of(this.profileSubject.value);
     }
 
@@ -433,7 +462,9 @@ export class VendorProfileService {
 
   private fetchProfile(): Observable<VendorProfile> {
     return forkJoin({
-      workspace: this.http.get<VendorWorkspaceApi>(this.apiUrl),
+      workspace: this.http.get<VendorWorkspaceApi | ApiEnvelope<VendorWorkspaceApi>>(this.apiUrl).pipe(
+        map((response) => this.unwrap(response))
+      ),
       storeAvailability: this.http.get<VendorStoreAvailabilityStateApi>(this.storeAvailabilityUrl).pipe(
         catchError(() => of<VendorStoreAvailabilityStateApi>({ manual_mode: 'online', manual_reason: null }))
       )
@@ -448,6 +479,58 @@ export class VendorProfileService {
     this.profileSubject.next(profile);
     this.notificationSoundService.setSound(profile.notificationSound);
     localStorage.setItem('onboarding_biz_name', profile.storeNameAr || profile.storeNameEn || 'Vendor');
+    this.writeCachedProfile(profile);
+  }
+
+  private readCachedProfile(): VendorProfile | null {
+    if (typeof sessionStorage === 'undefined') {
+      return null;
+    }
+
+    try {
+      const raw = sessionStorage.getItem(VendorProfileService.profileCacheKey);
+      if (!raw) {
+        return null;
+      }
+
+      const parsed = JSON.parse(raw) as { userId?: string; profile?: VendorProfile };
+      const currentUserId = this.authService.currentUserSnapshot?.id;
+      if (!parsed.profile || !currentUserId || parsed.userId !== currentUserId) {
+        return null;
+      }
+
+      return parsed.profile;
+    } catch {
+      return null;
+    }
+  }
+
+  private writeCachedProfile(profile: VendorProfile): void {
+    if (typeof sessionStorage === 'undefined') {
+      return;
+    }
+
+    const userId = this.authService.currentUserSnapshot?.id;
+    if (!userId) {
+      return;
+    }
+
+    sessionStorage.setItem(
+      VendorProfileService.profileCacheKey,
+      JSON.stringify({ userId, profile })
+    );
+  }
+
+  private clearCachedProfile(): void {
+    if (typeof sessionStorage === 'undefined') {
+      return;
+    }
+
+    sessionStorage.removeItem(VendorProfileService.profileCacheKey);
+  }
+
+  private hasStoreIdentity(profile: VendorProfile): boolean {
+    return !!(profile.storeNameAr?.trim() || profile.storeNameEn?.trim());
   }
 
   private mapWorkspaceToProfile(
@@ -474,7 +557,8 @@ export class VendorProfileService {
       ...entry,
       tone: this.normalizeTone(entry.tone)
     }));
-    const reviewState = workspace.reviewState || (workspace.status === 'Active' ? 'Verified' : 'AwaitingSubmission');
+    const reviewState = workspace.reviewState
+      ?? (workspace.commercialAccessEnabled ? 'Verified' : 'AwaitingSubmission');
 
     return {
       status: workspace.status || '',
@@ -514,7 +598,7 @@ export class VendorProfileService {
       reviewStatus: workspace.status === 'Active' ? 'active' : 'pending',
       reviewState,
       rejectionReason: workspace.rejectionReason || null,
-      commercialAccessEnabled: !!workspace.commercialAccessEnabled || workspace.status === 'Active',
+      commercialAccessEnabled: !!workspace.commercialAccessEnabled,
       countryCode: workspace.countryCode || 'SA',
       complianceProfile: workspace.complianceProfile || 'SA_DEFAULT',
       assignedReviewerId: workspace.assignedReviewerId || null,

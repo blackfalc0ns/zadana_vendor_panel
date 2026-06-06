@@ -45,6 +45,13 @@
       "TIMING_LATE": "المتأخرة فقط",
       "TIMING_ONTIME": "في الموعد"
     },
+    "TABLE": {
+      "TITLE": "قائمة الطلبات",
+      "SUBTITLE": "راجع الطلبات الواردة وحالاتها من جدول واحد."
+    },
+    "LOAD_ERROR": "تعذّر تحميل الطلبات. تحقق من الاتصال ثم حاول مرة أخرى.",
+    "REFRESHING": "جاري تحديث قائمة الطلبات...",
+    "RETRY": "إعادة المحاولة",
     "HEADER_ORDER_ID": "رقم الطلب",
     "HEADER_CUSTOMER": "العميل",
     "HEADER_DATE": "التاريخ",
@@ -73,6 +80,49 @@
     "TAB_COMPLETED": "مكتملة",
     "DETAIL_TITLE": "تفاصيل الطلب",
     "DETAIL_TIMELINE": "تتبع حالة الطلب",
+    "TIMELINE": {
+      "CHANGED_AT": "وقت تغيير الحالة: {{datetime}}",
+      "CURRENT_STEP": "المرحلة الحالية",
+      "PENDING_STEP": "لم تصل بعد إلى هذه المرحلة",
+      "STEPS": {
+        "NEW": {
+          "DESCRIPTION": "تم استلام الطلب من العميل وينتظر مراجعتك وتأكيدك."
+        },
+        "CONFIRMED": {
+          "DESCRIPTION": "تم قبول الطلب وبدأ مسار التجهيز داخل المتجر."
+        },
+        "IN_PROGRESS": {
+          "DESCRIPTION": "يجري تجهيز المنتجات وتعبئة الطلب حالياً."
+        },
+        "READY_FOR_PICKUP": {
+          "DESCRIPTION": "الطلب جاهز للاستلام وينتظر وصول المندوب."
+        },
+        "DRIVER_ASSIGNMENT_IN_PROGRESS": {
+          "DESCRIPTION": "النظام يبحث عن أقرب مندوب متاح للتوصيل."
+        },
+        "DRIVER_ASSIGNED": {
+          "DESCRIPTION": "تم تعيين مندوب وسيتوجه إلى المتجر لاستلام الطلب."
+        },
+        "PICKED_UP": {
+          "DESCRIPTION": "استلم المندوب الطلب من المتجر وغادر نحو العميل."
+        },
+        "OUT_FOR_DELIVERY": {
+          "DESCRIPTION": "المندوب في الطريق إلى عنوان العميل."
+        },
+        "DELIVERED": {
+          "DESCRIPTION": "تم تسليم الطلب للعميل بنجاح."
+        },
+        "CANCELLED": {
+          "DESCRIPTION": "تم إلغاء الطلب وإيقاف مسار التوصيل."
+        },
+        "DELIVERY_FAILED": {
+          "DESCRIPTION": "تعذّر إتمام التوصيل ويحتاج متابعة من فريق الدعم."
+        },
+        "REFUNDED": {
+          "DESCRIPTION": "تم استرداد قيمة الطلب للعميل."
+        }
+      }
+    },
     "DETAIL_CUSTOMER": "بيانات العميل",
     "DETAIL_DRIVER": "بيانات المندوب",
     "DETAIL_ITEMS": "المنتجات المطلوبة",

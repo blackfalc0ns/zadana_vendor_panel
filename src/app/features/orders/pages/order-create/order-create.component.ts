@@ -9,6 +9,7 @@ import { Category, VendorProduct } from '../../../products/models/catalog.models
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppCategorySelectorComponent } from '../../../../shared/components/ui/category-selector/category-selector.component';
+import { PhoneInputComponent } from '../../../../shared/components/ui/form-controls/phone-input/phone-input.component';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 
 @Component({
@@ -22,7 +23,8 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
     TranslateModule,
     AppPageHeaderComponent,
     AppButtonComponent,
-    AppCategorySelectorComponent
+    AppCategorySelectorComponent,
+    PhoneInputComponent
   ],
   template: `
     <div class="space-y-6 animate-fade-in pb-20">
@@ -57,14 +59,7 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
            <div class="flex flex-col gap-6 max-w-2xl mx-auto">
               <div class="flex flex-col gap-2">
                 <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider">{{ 'ORDERS.CUSTOMER_PHONE' | translate }} *</label>
-                <div class="relative">
-                  <input type="text" [(ngModel)]="customerPhone" 
-                    class="w-full h-14 pl-12 pr-4 bg-slate-50 border border-slate-200 rounded-2xl text-base font-bold text-slate-700 outline-none focus:ring-2 focus:ring-zadna-primary/20 focus:border-zadna-primary transition-all"
-                    placeholder="01xxxxxxxxx">
-                  <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                  </svg>
-                </div>
+                <app-phone-input [(ngModel)]="customerPhone"></app-phone-input>
               </div>
 
               <div class="flex flex-col gap-2">

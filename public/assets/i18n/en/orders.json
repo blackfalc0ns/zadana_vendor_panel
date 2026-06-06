@@ -45,6 +45,13 @@
       "TIMING_LATE": "Delayed only",
       "TIMING_ONTIME": "On time"
     },
+    "TABLE": {
+      "TITLE": "Orders List",
+      "SUBTITLE": "Review incoming orders and their status in one table."
+    },
+    "LOAD_ERROR": "Could not load orders. Check your connection and try again.",
+    "REFRESHING": "Refreshing orders...",
+    "RETRY": "Try again",
     "HEADER_ORDER_ID": "Order ID",
     "HEADER_CUSTOMER": "Customer",
     "HEADER_DATE": "Date",
@@ -73,6 +80,49 @@
     "TAB_COMPLETED": "Completed",
     "DETAIL_TITLE": "Order Details",
     "DETAIL_TIMELINE": "Order Timeline",
+    "TIMELINE": {
+      "CHANGED_AT": "Status changed at: {{datetime}}",
+      "CURRENT_STEP": "Current stage",
+      "PENDING_STEP": "Not reached yet",
+      "STEPS": {
+        "NEW": {
+          "DESCRIPTION": "The order was received from the customer and is waiting for your review."
+        },
+        "CONFIRMED": {
+          "DESCRIPTION": "The order was accepted and moved into preparation."
+        },
+        "IN_PROGRESS": {
+          "DESCRIPTION": "Items are being prepared and packed in the store."
+        },
+        "READY_FOR_PICKUP": {
+          "DESCRIPTION": "The order is ready and waiting for the courier to arrive."
+        },
+        "DRIVER_ASSIGNMENT_IN_PROGRESS": {
+          "DESCRIPTION": "The system is searching for the nearest available courier."
+        },
+        "DRIVER_ASSIGNED": {
+          "DESCRIPTION": "A courier was assigned and will head to the store for pickup."
+        },
+        "PICKED_UP": {
+          "DESCRIPTION": "The courier picked up the order from the store."
+        },
+        "OUT_FOR_DELIVERY": {
+          "DESCRIPTION": "The courier is on the way to the customer address."
+        },
+        "DELIVERED": {
+          "DESCRIPTION": "The order was delivered to the customer successfully."
+        },
+        "CANCELLED": {
+          "DESCRIPTION": "The order was cancelled and delivery was stopped."
+        },
+        "DELIVERY_FAILED": {
+          "DESCRIPTION": "Delivery could not be completed and needs follow-up."
+        },
+        "REFUNDED": {
+          "DESCRIPTION": "The order amount was refunded to the customer."
+        }
+      }
+    },
     "DETAIL_CUSTOMER": "Customer Data",
     "DETAIL_DRIVER": "Driver Data",
     "DETAIL_ITEMS": "Requested Items",

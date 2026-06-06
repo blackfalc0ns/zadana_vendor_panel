@@ -1,4 +1,14 @@
 :host {
   display: block;
   height: 100%;
+  min-height: 100%;
+  max-height: 100%;
+}
+
+@media (min-width: 1024px) {
+  :host {
+    height: calc(100vh - 2rem);
+    min-height: calc(100vh - 2rem);
+    max-height: calc(100vh - 2rem);
+  }
 }

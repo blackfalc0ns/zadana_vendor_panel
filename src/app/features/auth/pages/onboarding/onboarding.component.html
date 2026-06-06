@@ -138,16 +138,15 @@
                 ></app-select>
                 <p *ngIf="isRejectedField('step1.businessType')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessType') }}</p>
 
-                <app-input 
-                  formControlName="contactPhone" 
-                  [label]="'ONBOARDING.FIELDS.PHONE'" 
-                  [placeholder]="'ONBOARDING.FIELDS.PHONE'"
+                <app-phone-input
+                  formControlName="contactPhone"
+                  [label]="'ONBOARDING.FIELDS.PHONE'"
                   [customClass]="getReviewFieldClass('step1.contactPhone')"
                   [isRequired]="true"
+                  [invalid]="isInvalid('1', 'contactPhone')"
                   [error]="isInvalid('1', 'contactPhone') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step1.contactPhone')?.touched || false"
-                  dir="ltr"
-                ></app-input>
+                ></app-phone-input>
                 <p *ngIf="isRejectedField('step1.contactPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.contactPhone') }}</p>
 
                 <app-input 
@@ -202,16 +201,15 @@
                 ></app-input>
                 <p *ngIf="isRejectedField('step1.ownerEmail')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerEmail') }}</p>
 
-                <app-input 
-                  formControlName="ownerPhone" 
-                  [label]="'ONBOARDING.FIELDS.OWNER_PHONE'" 
-                  [placeholder]="'ONBOARDING.FIELDS.OWNER_PHONE'"
+                <app-phone-input
+                  formControlName="ownerPhone"
+                  [label]="'ONBOARDING.FIELDS.OWNER_PHONE'"
                   [customClass]="getReviewFieldClass('step1.ownerPhone')"
                   [isRequired]="true"
+                  [invalid]="isInvalid('1', 'ownerPhone')"
                   [error]="isInvalid('1', 'ownerPhone') ? 'REGISTER.ERR_GENERAL' : ''"
                   [isTouched]="onboardingForm.get('step1.ownerPhone')?.touched || false"
-                  dir="ltr"
-                ></app-input>
+                ></app-phone-input>
                 <p *ngIf="isRejectedField('step1.ownerPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerPhone') }}</p>
               </div>
             </app-card>

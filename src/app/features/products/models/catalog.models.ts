@@ -145,7 +145,6 @@ export interface BulkVendorProductDraft {
   displaySizeEn?: string;
   branchId?: string | null;
   sku?: string | null;
-  costPrice?: number | null;
   tradePrice?: number | null;
   sellingPrice: number | null;
   discountPercentage?: number | null;
@@ -177,7 +176,6 @@ export interface VendorProductBulkOperationItem {
   masterProductId: string;
   productNameAr?: string | null;
   productNameEn?: string | null;
-  costPrice?: number | null;
   tradePrice?: number | null;
   sellingPrice: number;
   compareAtPrice?: number | null;

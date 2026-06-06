@@ -1,9 +1,11 @@
 import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { CanActivateFn, Router } from '@angular/router';
-import { catchError, map, of } from 'rxjs';
+import { catchError, map, of, timeout } from 'rxjs';
 import { VendorProfileService } from '../../../features/settings/services/vendor-profile.service';
 import { VendorAuthService } from '../services/vendor-auth.service';
+
+const PROFILE_GUARD_TIMEOUT_MS = 6000;
 
 export const vendorAuthGuard: CanActivateFn = () => {
   const authService = inject(VendorAuthService);
@@ -18,7 +20,8 @@ export const vendorAuthGuard: CanActivateFn = () => {
     return true;
   }
 
-  return profileService.loadProfileForGuard(true).pipe(
+  return profileService.loadProfileForGuard(false).pipe(
+    timeout({ first: PROFILE_GUARD_TIMEOUT_MS }),
     map((profile) => {
       if (profile.status === 'Active' || profile.commercialAccessEnabled) {
         return true;
@@ -32,7 +35,16 @@ export const vendorAuthGuard: CanActivateFn = () => {
         return of(router.createUrlTree(['/login']));
       }
 
-      return of(router.createUrlTree(['/submission-success']));
+      const cachedProfile = profileService.getProfileSnapshot();
+      if (profileService.hasCachedProfileSnapshot()) {
+        if (cachedProfile.status === 'Active' || cachedProfile.commercialAccessEnabled) {
+          return of(true);
+        }
+
+        return of(router.createUrlTree(['/submission-success']));
+      }
+
+      return of(router.createUrlTree(['/login']));
     })
   );
 };

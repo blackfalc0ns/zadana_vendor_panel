@@ -1,13 +1,17 @@
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Subscription, finalize, timeout } from 'rxjs';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppInputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { AppCardComponent } from '../../../../shared/components/ui/card/card.component';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
+import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
+
+const LOGIN_REQUEST_TIMEOUT_MS = 15000;
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -25,8 +29,9 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
   templateUrl: './login.component.html',
   styleUrl: './login.component.scss'
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
+  private routeParamsSub?: Subscription;
   loginForm!: FormGroup;
   verifyEmailForm!: FormGroup;
   isLoading = false;
@@ -43,22 +48,28 @@ export class LoginComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private translate: TranslateService,
-    private authService: VendorAuthService
-  ) {
-    // Default to Arabic as per rules
-    this.translate.setDefaultLang('ar');
-    this.translate.use('ar');
-  }
+    private authService: VendorAuthService,
+    private profileService: VendorProfileService
+  ) {}
 
   ngOnInit(): void {
+    const savedLang = localStorage.getItem('lang') || localStorage.getItem('vendor_lang') || 'ar';
+    this.translate.use(savedLang);
+    this.applyDocumentLanguage(savedLang);
+    this.dismissAppSplash();
+
     this.initForm();
     this.initVerifyEmailForm();
     this.initModeFromRoute();
   }
 
+  ngOnDestroy(): void {
+    this.routeParamsSub?.unsubscribe();
+  }
+
   private initForm(): void {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      email: ['', [Validators.required]],
       password: ['', [Validators.required]],
       rememberMe: [false]
     });
@@ -72,10 +83,11 @@ export class LoginComponent implements OnInit {
   }
 
   private initModeFromRoute(): void {
-    this.route.queryParamMap.subscribe((params) => {
-      this.cdr.markForCheck();
+    this.routeParamsSub?.unsubscribe();
+    this.routeParamsSub = this.route.queryParamMap.subscribe((params) => {
       this.isVerifyEmailMode = this.router.url.startsWith('/verify-email');
       if (!this.isVerifyEmailMode) {
+        this.cdr.markForCheck();
         return;
       }
 
@@ -84,11 +96,14 @@ export class LoginComponent implements OnInit {
         this.verifyEmailForm.patchValue({ identifier });
         this.loginForm.patchValue({ email: identifier });
       }
+
+      this.cdr.markForCheck();
     });
   }
 
   togglePassword(): void {
     this.showPassword = !this.showPassword;
+    this.cdr.markForCheck();
   }
 
   onSubmit(): void {
@@ -105,32 +120,49 @@ export class LoginComponent implements OnInit {
       Object.keys(this.loginForm.controls).forEach((key) => {
         this.loginForm.get(key)?.markAsTouched();
       });
+      this.cdr.markForCheck();
       return;
     }
 
     this.isLoading = true;
+    this.cdr.markForCheck();
     const { email, password } = this.loginForm.getRawValue();
 
-    this.authService.login(email, password).subscribe({
-      next: () => {
-        this.cdr.markForCheck();
+    this.authService.login(email, password).pipe(
+      timeout({ first: LOGIN_REQUEST_TIMEOUT_MS }),
+      finalize(() => {
         this.isLoading = false;
-        void this.router.navigate(['/dashboard']);
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: () => {
+        void this.navigateAfterLogin();
       },
       error: (error: unknown) => {
-        this.cdr.markForCheck();
-        this.isLoading = false;
         if (this.isEmailVerificationRequired(error)) {
           const identifier = `${this.loginForm.get('email')?.value || ''}`.trim();
           void this.router.navigate(['/verify-email'], {
             queryParams: identifier ? { identifier } : undefined
           });
+          this.cdr.markForCheck();
           return;
         }
 
         this.errorMessage = this.resolveLoginErrorMessage(error);
+        this.cdr.markForCheck();
       }
     });
+  }
+
+  private async navigateAfterLogin(): Promise<void> {
+    try {
+      await this.router.navigateByUrl('/dashboard');
+      this.profileService.loadProfile(true).subscribe();
+    } catch {
+      await this.router.navigateByUrl('/dashboard');
+    } finally {
+      this.cdr.markForCheck();
+    }
   }
 
   submitVerifyEmail(): void {
@@ -141,10 +173,12 @@ export class LoginComponent implements OnInit {
     if (this.verifyEmailForm.invalid) {
       this.verifyEmailForm.markAllAsTouched();
       this.errorMessage = this.isRTL ? 'تأكد من البريد الإلكتروني ورمز التحقق.' : 'Check the email and OTP code.';
+      this.cdr.markForCheck();
       return;
     }
 
     this.isLoading = true;
+    this.cdr.markForCheck();
     const { identifier, otpCode } = this.verifyEmailForm.getRawValue();
 
     this.authService.verifyEmailOtp(`${identifier || ''}`.trim(), `${otpCode || ''}`.trim()).subscribe({
@@ -195,6 +229,7 @@ export class LoginComponent implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
     void this.router.navigate(['/login']);
+    this.cdr.markForCheck();
   }
 
   toggleLanguage(): void {
@@ -205,8 +240,28 @@ export class LoginComponent implements OnInit {
 
   switchLanguage(lang: string): void {
     this.translate.use(lang);
+    localStorage.setItem('lang', lang);
+    localStorage.setItem('vendor_lang', lang);
+    this.applyDocumentLanguage(lang);
+    this.cdr.markForCheck();
+  }
+
+  private applyDocumentLanguage(lang: string): void {
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
+  }
+
+  private dismissAppSplash(): void {
+    queueMicrotask(() => {
+      const splash = document.getElementById('app-loader');
+      if (!splash || splash.dataset['dismissed'] === 'true') {
+        return;
+      }
+
+      splash.dataset['dismissed'] = 'true';
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 450);
+    });
   }
 
   get isRTL(): boolean {

@@ -1,4 +1,4 @@
-{
+﻿{
   "SETTINGS_PROFILE": {
     "TITLE": "Vendor profile",
     "SUBTITLE": "Manage the store profile, legal file, banking setup, and review status from one workspace.",
@@ -420,7 +420,7 @@
       "LOADING": "Loading invitation...",
       "EYEBROW": "Vendor invitation",
       "TITLE": "Create your staff access",
-      "SUBTITLE": "You have been invited to join {{vendor}} on Zadana Vendor Panel.",
+      "SUBTITLE": "You have been invited to join {{vendor}} on Coupony Vendor Panel.",
       "INVITED_AS": "Invited as",
       "EMAIL": "Email",
       "EXPIRES": "Expires",
