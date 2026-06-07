@@ -686,12 +686,12 @@
             <div class="grid gap-4 md:grid-cols-2">
               <label class="space-y-2">
                 <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.REGION' | translate }}</span>
-                <app-searchable-select [(ngModel)]="branchDraft.region" [options]="regions" [placeholder]="'STAFF_BRANCHES.FIELDS.REGION'"></app-searchable-select>
+                <app-searchable-select [(ngModel)]="branchDraft.region" (ngModelChange)="onBranchRegionChange($event)" [options]="regions" [placeholder]="'STAFF_BRANCHES.FIELDS.REGION'"></app-searchable-select>
               </label>
 
               <label class="space-y-2">
                 <span class="text-[0.75rem] font-black text-slate-500">{{ 'SETTINGS_PROFILE.FIELDS.CITY' | translate }}</span>
-                <app-searchable-select [(ngModel)]="branchDraft.city" [options]="cities" [placeholder]="'STAFF_BRANCHES.FIELDS.CITY'"></app-searchable-select>
+                <app-searchable-select [(ngModel)]="branchDraft.city" (ngModelChange)="onBranchCityChange($event)" [options]="branchWizardCityOptions" [placeholder]="'STAFF_BRANCHES.FIELDS.CITY'"></app-searchable-select>
               </label>
 
               <label class="space-y-2 md:col-span-2">
@@ -708,8 +708,78 @@
                   type="number"
                   min="1"
                   [(ngModel)]="branchDraft.deliveryRadiusKm"
+                  (ngModelChange)="onBranchDeliveryRadiusChange()"
                   class="h-11 w-full rounded-[16px] border border-slate-200/60 bg-white/60 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/40 focus:bg-white focus:ring-[3px] focus:ring-zadna-primary/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
               </label>
+
+              <div class="space-y-4 rounded-[22px] border border-slate-200 bg-slate-50/70 p-4 md:col-span-2">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <h4 class="text-[0.86rem] font-black text-slate-900">{{ 'STAFF_BRANCHES.BRANCH_WIZARD.LOCATION_PICKER_TITLE' | translate }}</h4>
+                    <p class="mt-1 text-[0.74rem] font-bold text-slate-500">{{ 'STAFF_BRANCHES.BRANCH_WIZARD.LOCATION_PICKER_HINT' | translate }}</p>
+                  </div>
+
+                  <div class="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      (click)="selectBranchCityCenter()"
+                      class="inline-flex items-center justify-center gap-2 rounded-[14px] border border-slate-200 bg-white px-3 py-2 text-[0.72rem] font-black text-slate-700 transition hover:border-zadna-primary/30 hover:text-zadna-primary">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11Z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 10.25h.01"></path>
+                      </svg>
+                      {{ 'STAFF_BRANCHES.BRANCH_WIZARD.USE_CITY_CENTER' | translate }}
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="useCurrentBranchLocation()"
+                      class="inline-flex items-center justify-center gap-2 rounded-[14px] border border-zadna-primary/20 bg-zadna-primary/[0.06] px-3 py-2 text-[0.72rem] font-black text-zadna-primary transition hover:bg-zadna-primary/10">
+                      <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M12 3v3m0 12v3m9-9h-3M6 12H3"></path>
+                        <circle cx="12" cy="12" r="4.25" stroke-width="2.2"></circle>
+                      </svg>
+                      {{ 'ONBOARDING.MAP.USE_CURRENT' | translate }}
+                    </button>
+                  </div>
+                </div>
+
+                <div #branchLocationMap class="h-72 min-h-[18rem] w-full overflow-hidden rounded-[18px] border border-slate-200 bg-slate-100 shadow-inner"></div>
+
+                <div class="grid gap-3 md:grid-cols-2">
+                  <label class="space-y-2">
+                    <span class="text-[0.7rem] font-black uppercase tracking-[0.12em] text-slate-400">{{ 'STAFF_BRANCHES.BRANCH_WIZARD.FIELDS.LATITUDE' | translate }}</span>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      min="-90"
+                      max="90"
+                      dir="ltr"
+                      [(ngModel)]="branchDraft.latitude"
+                      (ngModelChange)="onBranchCoordinateInputChange()"
+                      class="h-11 w-full rounded-[16px] border border-slate-200/60 bg-white px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/40 focus:ring-[3px] focus:ring-zadna-primary/10">
+                  </label>
+
+                  <label class="space-y-2">
+                    <span class="text-[0.7rem] font-black uppercase tracking-[0.12em] text-slate-400">{{ 'STAFF_BRANCHES.BRANCH_WIZARD.FIELDS.LONGITUDE' | translate }}</span>
+                    <input
+                      type="number"
+                      step="0.000001"
+                      min="-180"
+                      max="180"
+                      dir="ltr"
+                      [(ngModel)]="branchDraft.longitude"
+                      (ngModelChange)="onBranchCoordinateInputChange()"
+                      class="h-11 w-full rounded-[16px] border border-slate-200/60 bg-white px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/40 focus:ring-[3px] focus:ring-zadna-primary/10">
+                  </label>
+                </div>
+
+                @if (!hasBranchLocationCoordinates) {
+                  <p class="text-[0.72rem] font-black text-rose-600">{{ 'STAFF_BRANCHES.BRANCH_WIZARD.LOCATION_REQUIRED' | translate }}</p>
+                } @else {
+                  <p class="text-[0.72rem] font-bold text-slate-500" dir="ltr">{{ branchLocationCoordinateText }}</p>
+                }
+              </div>
             </div>
 
             <div class="mt-6 rounded-[22px] border border-slate-200 bg-slate-50/70 p-4">

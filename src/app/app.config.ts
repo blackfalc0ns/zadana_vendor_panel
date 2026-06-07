@@ -10,7 +10,7 @@ import { DialogModule } from '@angular/cdk/dialog';
 import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
 
-const TRANSLATION_ASSET_VERSION = '2026-06-06-modals-i18n-1';
+const TRANSLATION_ASSET_VERSION = '2026-06-07-branch-map-1';
 
 // Custom Loader to guarantee compatibility and fix "0 arguments" error
 export class CustomTranslateLoader implements TranslateLoader {

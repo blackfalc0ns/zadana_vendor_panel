@@ -344,12 +344,18 @@
         "MANAGER_NAME": "Branch manager name",
         "ADDRESS": "Address details",
         "DELIVERY_RADIUS": "Delivery radius (km)",
+        "LATITUDE": "Latitude",
+        "LONGITUDE": "Longitude",
         "MANAGER_CONTACT": "Manager email",
         "MESSAGE": "Internal invitation note"
       },
       "PRIMARY_WARNING": "A primary branch already exists. New entries will be created as sub-branches pending review.",
       "OPERATING_HOURS_TITLE": "Operating hours",
       "OPERATING_HOURS_HINT": "Choose the operating days for this branch before it goes live.",
+      "LOCATION_PICKER_TITLE": "Branch location",
+      "LOCATION_PICKER_HINT": "Map range follows the selected region and city; coordinates are used for delivery coverage.",
+      "USE_CITY_CENTER": "City center",
+      "LOCATION_REQUIRED": "Branch coordinates are required.",
       "SUMMARY_BRANCH": "Branch",
       "SUMMARY_CITY": "City",
       "SUMMARY_MANAGER": "Manager"

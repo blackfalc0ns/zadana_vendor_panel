@@ -95,8 +95,8 @@ interface BranchCreatePayload {
   managerContact: string;
   region: string;
   city: string;
-  latitude: number;
-  longitude: number;
+  latitude: number | null;
+  longitude: number | null;
   deliveryRadiusKm: number;
   operatingHours: BranchOperatingHourVm[];
 }
@@ -355,8 +355,8 @@ export class StaffBranchesService {
       managerContact: input.managerContact.trim(),
       region: input.region,
       city: input.city,
-      latitude: 0,
-      longitude: 0,
+      latitude: this.normalizeCoordinate(input.latitude),
+      longitude: this.normalizeCoordinate(input.longitude),
       deliveryRadiusKm: input.deliveryRadiusKm,
       operatingHours: cloneOperatingHours(input.operatingHours)
     };
@@ -457,6 +457,15 @@ export class StaffBranchesService {
       .replace(/[^A-Z0-9]+/g, '-')
       .replace(/^-+|-+$/g, '')
       .slice(0, 12) || 'BRANCH';
+  }
+
+  private normalizeCoordinate(value: number | null | undefined): number | null {
+    if (value === null || value === undefined) {
+      return null;
+    }
+
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : null;
   }
 
   private getTemplateLabelKey(template: RoleTemplate): string {

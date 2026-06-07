@@ -39,6 +39,8 @@ export interface BranchWizardDraft {
   region: string;
   city: string;
   addressLine: string;
+  latitude: number | null;
+  longitude: number | null;
   deliveryRadiusKm: number;
   operatingHours: BranchOperatingHourVm[];
   inviteMessage: string;

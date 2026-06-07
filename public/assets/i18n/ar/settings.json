@@ -344,12 +344,18 @@
         "MANAGER_NAME": "اسم مدير الفرع",
         "ADDRESS": "تفاصيل العنوان",
         "DELIVERY_RADIUS": "نطاق التوصيل (كم)",
+        "LATITUDE": "خط العرض",
+        "LONGITUDE": "خط الطول",
         "MANAGER_CONTACT": "بريد المدير",
         "MESSAGE": "ملاحظة داخلية مع الدعوة"
       },
       "PRIMARY_WARNING": "يوجد بالفعل فرع رئيسي. أي إضافة جديدة سيتم إنشاؤها كفرع تابع وبحالة قيد المراجعة.",
       "OPERATING_HOURS_TITLE": "ساعات التشغيل",
       "OPERATING_HOURS_HINT": "حدد أيام وساعات العمل قبل إطلاق هذا الفرع.",
+      "LOCATION_PICKER_TITLE": "موقع الفرع",
+      "LOCATION_PICKER_HINT": "نطاق الخريطة يتبع المنطقة والمدينة المختارتين، وتستخدم الإحداثيات لحساب التوصيل.",
+      "USE_CITY_CENTER": "مركز المدينة",
+      "LOCATION_REQUIRED": "إحداثيات الفرع مطلوبة.",
       "SUMMARY_BRANCH": "الفرع",
       "SUMMARY_CITY": "المدينة",
       "SUMMARY_MANAGER": "المدير"

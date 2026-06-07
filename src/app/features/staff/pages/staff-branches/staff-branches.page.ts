@@ -1,9 +1,22 @@
 import { CommonModule, NgClass } from '@angular/common';
-import { Component, DoCheck, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import {
+  AfterViewChecked,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  DoCheck,
+  ElementRef,
+  NgZone,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  inject
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import * as L from 'leaflet';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { PhoneInputComponent } from '../../../../shared/components/ui/form-controls/phone-input/phone-input.component';
 import { Subscription, combineLatest, forkJoin } from 'rxjs';
@@ -68,8 +81,11 @@ import {
   ],
   templateUrl: './staff-branches.page.html'
 })
-export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
+export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChecked, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly ngZone = inject(NgZone);
+
+  @ViewChild('branchLocationMap') private branchLocationMap?: ElementRef<HTMLDivElement>;
 
   get mappedActiveBranchOptions(): SearchableSelectOption[] {
     return [
@@ -154,6 +170,8 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
 
   regions: SelectOption[] = [];
   cities: SelectOption[] = [];
+  private regionDirectory: SaudiRegionDto[] = [];
+  private cityDirectory: SaudiCityDto[] = [];
   readonly roleTemplates = ROLE_TEMPLATE_OPTIONS;
   readonly permissionModules: PermissionModuleConfig[] = STAFF_PERMISSION_MODULES;
   readonly permissionActions: PermissionActionOption[] = STAFF_PERMISSION_ACTIONS;
@@ -205,6 +223,16 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
   private dataSub?: Subscription;
   private routeSub?: Subscription;
   private geographySub?: Subscription;
+  private branchLocationLeafletMap: L.Map | null = null;
+  private branchLocationMarker: L.Marker | null = null;
+  private branchDeliveryRadiusCircle: L.Circle | null = null;
+  private branchLocationMapElement: HTMLElement | null = null;
+  private static leafletDefaultIconConfigured = false;
+  private readonly defaultBranchMapView = {
+    lat: 24.7136,
+    lng: 46.6753,
+    zoom: 6
+  };
   private lastFilterSignatures: Record<StaffView, string> = {
     branches: '',
     employees: '',
@@ -269,10 +297,20 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    this.destroyBranchLocationMap();
     this.langSub.unsubscribe();
     this.dataSub?.unsubscribe();
     this.routeSub?.unsubscribe();
     this.geographySub?.unsubscribe();
+  }
+
+  ngAfterViewChecked(): void {
+    if (this.isBranchWizardOpen && this.branchWizardStep === 2) {
+      this.ensureBranchLocationMap();
+      return;
+    }
+
+    this.destroyBranchLocationMap();
   }
 
   ngDoCheck(): void {
@@ -338,6 +376,27 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
 
   get canManageBranchLifecycle(): boolean {
     return !this.vendorAccessService.hasScope('VendorPanel', 'VendorBranch');
+  }
+
+  get hasBranchLocationCoordinates(): boolean {
+    return this.isLatitude(this.branchDraft.latitude) && this.isLongitude(this.branchDraft.longitude);
+  }
+
+  get branchWizardCityOptions(): SelectOption[] {
+    const selectedRegion = this.branchDraft.region;
+    const cities = selectedRegion
+      ? this.cityDirectory.filter((city) => city.regionCode === selectedRegion)
+      : this.cityDirectory;
+
+    return cities.map((city) => this.toCityOption(city));
+  }
+
+  get branchLocationCoordinateText(): string {
+    if (!this.hasBranchLocationCoordinates) {
+      return '-';
+    }
+
+    return `${this.branchDraft.latitude?.toFixed(6)}, ${this.branchDraft.longitude?.toFixed(6)}`;
   }
 
   get isEditingEmployee(): boolean {
@@ -560,12 +619,14 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
     }
 
     this.branchDraft = this.createEmptyBranchDraft();
+    this.applySelectedCityLocationIfMissing();
     this.branchWizardStep = 1;
     this.isBranchWizardOpen = true;
   }
 
   closeBranchWizard(): void {
     this.isBranchWizardOpen = false;
+    this.destroyBranchLocationMap();
   }
 
   goToBranchWizardStep(step: number): void {
@@ -599,10 +660,94 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
         && !!this.branchDraft.city
         && !!this.branchDraft.addressLine.trim()
         && this.branchDraft.deliveryRadiusKm > 0
+        && this.hasBranchLocationCoordinates
         && this.branchDraft.operatingHours.some((hour) => hour.isOpen);
     }
 
     return !!this.branchDraft.managerName.trim() && this.isValidEmail(this.branchDraft.managerContact);
+  }
+
+  onBranchRegionChange(regionCode: string): void {
+    this.branchDraft.region = regionCode;
+
+    const currentCity = this.findSelectedCity();
+    if (currentCity?.regionCode === regionCode) {
+      this.applySelectedMapRange();
+      return;
+    }
+
+    const firstRegionCity = this.cityDirectory.find((city) => city.regionCode === regionCode);
+    if (firstRegionCity) {
+      this.branchDraft.city = firstRegionCity.code;
+      this.applySelectedMapRange();
+      this.setBranchLocation(firstRegionCity.latitude, firstRegionCity.longitude, firstRegionCity.mapZoom || 13);
+      return;
+    }
+
+    this.branchDraft.city = '';
+    const region = this.regionDirectory.find((item) => item.code === regionCode);
+    if (region) {
+      this.applySelectedMapRange();
+      this.setBranchLocation(region.latitude, region.longitude, region.mapZoom || 8);
+    }
+  }
+
+  onBranchCityChange(cityCode: string): void {
+    this.branchDraft.city = cityCode;
+    this.applySelectedMapRange();
+    this.selectBranchCityCenter();
+  }
+
+  selectBranchCityCenter(): void {
+    const city = this.findSelectedCity();
+    if (!city) {
+      return;
+    }
+
+    this.branchDraft.region = city.regionCode || this.branchDraft.region;
+    this.setBranchLocation(city.latitude, city.longitude, city.mapZoom || 13);
+  }
+
+  onBranchCoordinateInputChange(): void {
+    if (!this.hasBranchLocationCoordinates) {
+      this.cdr.markForCheck();
+      return;
+    }
+
+    this.setBranchLocation(
+      Number(this.branchDraft.latitude),
+      Number(this.branchDraft.longitude),
+      Math.max(this.branchLocationLeafletMap?.getZoom() ?? 13, 13)
+    );
+  }
+
+  onBranchDeliveryRadiusChange(): void {
+    this.updateBranchDeliveryRadiusCircle();
+  }
+
+  useCurrentBranchLocation(): void {
+    if (!navigator.geolocation) {
+      this.showFlash('ONBOARDING.MAP.GEO_UNSUPPORTED', 'info');
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        this.ngZone.run(() => {
+          this.setBranchLocation(position.coords.latitude, position.coords.longitude, 15);
+        });
+      },
+      () => {
+        this.ngZone.run(() => {
+          this.showFlash('ONBOARDING.MAP.GEO_FAILED', 'info');
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 0
+      }
+    );
   }
 
   submitBranchWizard(): void {
@@ -620,6 +765,8 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
       region: this.branchDraft.region,
       city: this.branchDraft.city,
       addressLine: this.branchDraft.addressLine,
+      latitude: this.branchDraft.latitude,
+      longitude: this.branchDraft.longitude,
       deliveryRadiusKm: this.branchDraft.deliveryRadiusKm,
       operatingHours: cloneOperatingHours(this.branchDraft.operatingHours),
       inviteMessage: this.branchDraft.inviteMessage
@@ -896,15 +1043,20 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
     this.geographySub = this.geographyService.getRegions().subscribe({
       next: (regions) => {
         this.cdr.markForCheck();
+        this.regionDirectory = regions;
         this.regions = regions.map((region) => this.toRegionOption(region));
 
         forkJoin(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
-      this.cdr.markForCheck();
-          this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
+          this.cdr.markForCheck();
+          this.cityDirectory = cityGroups.flat();
+          this.cities = this.cityDirectory.map((city) => this.toCityOption(city));
+          this.applySelectedCityLocationIfMissing();
         });
       },
       error: () => {
         this.cdr.markForCheck();
+        this.regionDirectory = [];
+        this.cityDirectory = [];
         this.regions = [];
         this.cities = [];
       }
@@ -1089,6 +1241,305 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
     return item.value;
   }
 
+  private ensureBranchLocationMap(): void {
+    const element = this.branchLocationMap?.nativeElement;
+    if (!element) {
+      return;
+    }
+
+    if (this.branchLocationLeafletMap && this.branchLocationMapElement === element) {
+      return;
+    }
+
+    this.destroyBranchLocationMap();
+    this.configureLeafletDefaultIcon();
+
+    const initialView = this.getBranchMapInitialView();
+    this.branchLocationMapElement = element;
+    this.branchLocationLeafletMap = L.map(element, {
+      center: [initialView.lat, initialView.lng],
+      zoom: initialView.zoom,
+      zoomControl: true,
+      scrollWheelZoom: false,
+      attributionControl: true
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap',
+      maxZoom: 19
+    }).addTo(this.branchLocationLeafletMap);
+
+    this.applySelectedMapRange();
+
+    this.branchLocationLeafletMap.on('click', (event: L.LeafletMouseEvent) => {
+      this.ngZone.run(() => {
+        this.setBranchLocation(event.latlng.lat, event.latlng.lng);
+      });
+    });
+
+    if (this.hasBranchLocationCoordinates) {
+      this.upsertBranchLocationMarker(
+        Number(this.branchDraft.latitude),
+        Number(this.branchDraft.longitude)
+      );
+      this.updateBranchDeliveryRadiusCircle();
+    }
+
+    window.setTimeout(() => {
+      this.branchLocationLeafletMap?.invalidateSize();
+    }, 0);
+  }
+
+  private destroyBranchLocationMap(): void {
+    if (!this.branchLocationLeafletMap) {
+      return;
+    }
+
+    this.branchLocationLeafletMap.remove();
+    this.branchLocationLeafletMap = null;
+    this.branchLocationMarker = null;
+    this.branchDeliveryRadiusCircle = null;
+    this.branchLocationMapElement = null;
+  }
+
+  private configureLeafletDefaultIcon(): void {
+    if (StaffBranchesPageComponent.leafletDefaultIconConfigured) {
+      return;
+    }
+
+    L.Marker.prototype.options.icon = L.icon({
+      iconRetinaUrl: 'assets/marker-icon-2x.png',
+      iconUrl: 'assets/marker-icon.png',
+      shadowUrl: 'assets/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+    StaffBranchesPageComponent.leafletDefaultIconConfigured = true;
+  }
+
+  private getBranchMapInitialView(): { lat: number; lng: number; zoom: number } {
+    if (this.hasBranchLocationCoordinates) {
+      return {
+        lat: Number(this.branchDraft.latitude),
+        lng: Number(this.branchDraft.longitude),
+        zoom: 14
+      };
+    }
+
+    const city = this.findSelectedCity();
+    if (city) {
+      return {
+        lat: city.latitude,
+        lng: city.longitude,
+        zoom: city.mapZoom || 13
+      };
+    }
+
+    const region = this.regionDirectory.find((item) => item.code === this.branchDraft.region);
+    if (region) {
+      return {
+        lat: region.latitude,
+        lng: region.longitude,
+        zoom: region.mapZoom || 8
+      };
+    }
+
+    return this.defaultBranchMapView;
+  }
+
+  private getSelectedAreaMapView(): { lat: number; lng: number; zoom: number; rangeKm: number } {
+    const city = this.findSelectedCity();
+    if (city) {
+      const zoom = city.mapZoom || 13;
+
+      return {
+        lat: city.latitude,
+        lng: city.longitude,
+        zoom,
+        rangeKm: this.mapRangeKmForZoom(zoom, 18)
+      };
+    }
+
+    const region = this.regionDirectory.find((item) => item.code === this.branchDraft.region);
+    if (region) {
+      const zoom = region.mapZoom || 8;
+
+      return {
+        lat: region.latitude,
+        lng: region.longitude,
+        zoom,
+        rangeKm: this.mapRangeKmForZoom(zoom, 180)
+      };
+    }
+
+    return {
+      ...this.defaultBranchMapView,
+      rangeKm: 320
+    };
+  }
+
+  private applySelectedMapRange(): void {
+    if (!this.branchLocationLeafletMap) {
+      return;
+    }
+
+    const area = this.getSelectedAreaMapView();
+    const bounds = L.latLng(area.lat, area.lng).toBounds(area.rangeKm * 2000).pad(0.2);
+    this.branchLocationLeafletMap.setMaxBounds(bounds);
+    this.branchLocationLeafletMap.setMinZoom(Math.max(area.zoom - 3, 5));
+    this.branchLocationLeafletMap.setMaxZoom(18);
+  }
+
+  private mapRangeKmForZoom(zoom: number, fallbackKm: number): number {
+    if (!Number.isFinite(zoom)) {
+      return fallbackKm;
+    }
+
+    if (zoom >= 13) {
+      return 12;
+    }
+
+    if (zoom >= 12) {
+      return 22;
+    }
+
+    if (zoom >= 11) {
+      return 40;
+    }
+
+    if (zoom >= 10) {
+      return 70;
+    }
+
+    if (zoom >= 9) {
+      return 120;
+    }
+
+    if (zoom >= 8) {
+      return 220;
+    }
+
+    return 360;
+  }
+
+  private setBranchLocation(lat: number, lng: number, zoom?: number): void {
+    if (!this.isLatitude(lat) || !this.isLongitude(lng)) {
+      return;
+    }
+
+    const nextLat = this.roundCoordinate(lat);
+    const nextLng = this.roundCoordinate(lng);
+    this.branchDraft.latitude = nextLat;
+    this.branchDraft.longitude = nextLng;
+    this.upsertBranchLocationMarker(nextLat, nextLng);
+    this.updateBranchDeliveryRadiusCircle();
+
+    if (this.branchLocationLeafletMap) {
+      const nextZoom = zoom ?? Math.max(this.branchLocationLeafletMap.getZoom(), 13);
+      this.branchLocationLeafletMap.setView([nextLat, nextLng], nextZoom);
+    }
+
+    this.cdr.markForCheck();
+  }
+
+  private upsertBranchLocationMarker(lat: number, lng: number): void {
+    if (!this.branchLocationLeafletMap) {
+      return;
+    }
+
+    if (this.branchLocationMarker) {
+      this.branchLocationMarker.setLatLng([lat, lng]);
+      return;
+    }
+
+    this.branchLocationMarker = L.marker([lat, lng], { draggable: true }).addTo(this.branchLocationLeafletMap);
+    this.branchLocationMarker.on('dragend', () => {
+      const position = this.branchLocationMarker?.getLatLng();
+      if (!position) {
+        return;
+      }
+
+      this.ngZone.run(() => {
+        this.setBranchLocation(position.lat, position.lng);
+      });
+    });
+  }
+
+  private updateBranchDeliveryRadiusCircle(): void {
+    if (!this.branchLocationLeafletMap || !this.hasBranchLocationCoordinates) {
+      this.branchDeliveryRadiusCircle?.remove();
+      this.branchDeliveryRadiusCircle = null;
+      return;
+    }
+
+    const radiusMeters = Number(this.branchDraft.deliveryRadiusKm || 0) * 1000;
+    if (!Number.isFinite(radiusMeters) || radiusMeters <= 0) {
+      this.branchDeliveryRadiusCircle?.remove();
+      this.branchDeliveryRadiusCircle = null;
+      return;
+    }
+
+    const latLng: L.LatLngExpression = [
+      Number(this.branchDraft.latitude),
+      Number(this.branchDraft.longitude)
+    ];
+
+    if (this.branchDeliveryRadiusCircle) {
+      this.branchDeliveryRadiusCircle.setLatLng(latLng);
+      this.branchDeliveryRadiusCircle.setRadius(radiusMeters);
+      return;
+    }
+
+    this.branchDeliveryRadiusCircle = L.circle(latLng, {
+      radius: radiusMeters,
+      color: '#127c8c',
+      fillColor: '#127c8c',
+      fillOpacity: 0.08,
+      weight: 1.5
+    }).addTo(this.branchLocationLeafletMap);
+  }
+
+  private applySelectedCityLocationIfMissing(): void {
+    if (this.hasBranchLocationCoordinates) {
+      return;
+    }
+
+    const city = this.findSelectedCity();
+    if (city) {
+      this.branchDraft.region = city.regionCode || this.branchDraft.region;
+      this.setBranchLocation(city.latitude, city.longitude, city.mapZoom || 13);
+    }
+  }
+
+  private findSelectedCity(): SaudiCityDto | undefined {
+    return this.cityDirectory.find((city) => city.code === this.branchDraft.city);
+  }
+
+  private isLatitude(value: number | string | null | undefined): boolean {
+    if (value === null || value === undefined || value === '') {
+      return false;
+    }
+
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric >= -90 && numeric <= 90;
+  }
+
+  private isLongitude(value: number | string | null | undefined): boolean {
+    if (value === null || value === undefined || value === '') {
+      return false;
+    }
+
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric >= -180 && numeric <= 180;
+  }
+
+  private roundCoordinate(value: number): number {
+    return Number(value.toFixed(6));
+  }
+
   private clearActionQueryParam(view: StaffView): void {
     void this.router.navigate([], {
       relativeTo: this.route,
@@ -1118,6 +1569,8 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, OnDestroy {
       region: 'CENTRAL',
       city: 'RIYADH',
       addressLine: '',
+      latitude: null,
+      longitude: null,
       deliveryRadiusKm: 8,
       operatingHours: defaultOperatingHours(),
       inviteMessage: ''
