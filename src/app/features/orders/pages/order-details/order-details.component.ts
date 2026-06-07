@@ -334,7 +334,7 @@ import { environment } from '../../../../../environments/environment';
 
                 <div class="relative mt-6 ms-2 pb-2">
                   <!-- Gradient Vertical Rail -->
-                  <div class="absolute top-4 bottom-4 start-[1.1rem] w-[2px] bg-gradient-to-b from-teal-500 via-teal-300 to-slate-100" [ngClass]="{'opacity-50': !currentOrder.timeline[0]?.isCompleted}"></div>
+                  <div class="absolute top-4 bottom-4 start-[1.1rem] w-[2px] bg-gradient-to-b from-teal-500 via-teal-300 to-slate-100" [ngClass]="{'opacity-50': !currentOrder.timeline[0].isCompleted}"></div>
                   
                   <article *ngFor="let step of currentOrder.timeline; let i = index; let last = last" class="relative flex items-start gap-5 group" [ngClass]="{'pb-8': !last}">
                     

@@ -272,11 +272,11 @@ interface RowValidationState {
                     </td>
                   </tr>
 
-                  @if (stage === 'done' && resultMap[row.masterProductId]?.errorMessage) {
+                  @if (stage === 'done' && resultMap[row.masterProductId].errorMessage) {
                     <tr class="border-b border-slate-100 bg-rose-50/20">
                       <td colspan="8" class="px-4 py-2">
                         <p class="text-[0.72rem] font-bold text-rose-600">
-                          {{ translateBackendError(resultMap[row.masterProductId].errorMessage!) }}
+                          {{ translateBackendError(resultMap[row.masterProductId].errorMessage ?? '') }}
                         </p>
                       </td>
                     </tr>
