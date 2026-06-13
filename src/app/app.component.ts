@@ -52,7 +52,7 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.splashFallbackTimer = setTimeout(() => this.dismissSplash(), 2500);
+    this.splashFallbackTimer = setTimeout(() => this.dismissSplash(), 1200);
     queueMicrotask(() => this.dismissSplash());
 
     if (this.authService.hasApiSession) {

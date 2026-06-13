@@ -162,7 +162,7 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
 
   currentLang = 'ar';
   activeView: StaffView = 'branches';
-  isFiltersExpanded = true;
+  isFiltersExpanded = false;
 
   branches: BranchVm[] = [];
   employees: EmployeeVm[] = [];
@@ -545,10 +545,13 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
 
   get branchManagerOptions(): Array<{ value: string; label: string }> {
     return this.uniqueOptions(
-      this.branches.map((branch) => ({
-        value: branch.managerName,
-        label: branch.managerName
-      }))
+      this.branches.map((branch) => {
+        const managerName = this.normalizeOptionLabel(branch.managerName);
+        return {
+          value: managerName,
+          label: managerName
+        };
+      })
     );
   }
 
@@ -1594,6 +1597,10 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
     return this.permissionModules.every((module) =>
       this.permissionActions.every((action) => first[module.id][action.id] === second[module.id][action.id])
     );
+  }
+
+  private normalizeOptionLabel(value: string | null | undefined): string {
+    return `${value ?? ''}`.replace(/\s+/g, ' ').trim();
   }
 
   private uniqueOptions(items: Array<{ value: string; label: string }>): Array<{ value: string; label: string }> {

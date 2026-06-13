@@ -23,7 +23,7 @@ export interface SearchableSelectOption<T = any> {
     }
   ],
   template: `
-    <div class="space-y-2 w-full" [ngClass]="customClass">
+    <div class="w-full" [class.space-y-2]="!!label" [ngClass]="customClass">
       <label *ngIf="label" class="form-label-base">
         {{ label | translate }} <span *ngIf="isRequired" class="text-rose-500">*</span>
       </label>
@@ -46,7 +46,7 @@ export interface SearchableSelectOption<T = any> {
         </button>
 
         @if (isOpen && !disabled) {
-          <div class="absolute inset-x-0 top-full z-50 mt-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl origin-top animate-in fade-in zoom-in-95 duration-200">
+          <div class="absolute inset-x-0 top-full z-[120] mt-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl origin-top animate-in fade-in zoom-in-95 duration-200">
             @if (searchable) {
               <div class="relative">
                 <svg class="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,6 +108,11 @@ export interface SearchableSelectOption<T = any> {
     </div>
   `,
   styles: [`
+    :host {
+      display: block;
+      width: 100%;
+    }
+
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   `]

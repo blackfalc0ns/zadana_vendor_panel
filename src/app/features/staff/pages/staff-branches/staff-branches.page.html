@@ -106,7 +106,8 @@
     <app-filter-panel
       [title]="'STAFF_BRANCHES.FILTERS.TITLE'"
       [subtitle]="'STAFF_BRANCHES.FILTERS.SUBTITLE'"
-      class="block mb-6">
+      [allowOverflowVisible]="true"
+      class="relative z-30 mb-6 block">
       <div actions>
         <button
           type="button"
@@ -118,81 +119,81 @@
 
       <div class="contents">
         @if (activeView === 'branches') {
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.SEARCH' | translate }}</span>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.SEARCH' | translate }}</span>
             <input
               type="text"
               [(ngModel)]="branchFilters.search"
               [placeholder]="'STAFF_BRANCHES.SEARCH.BRANCHES' | translate"
               class="h-11 w-full rounded-[16px] border border-slate-200/60 bg-white/60 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/40 focus:bg-white focus:ring-[3px] focus:ring-zadna-primary/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
-          </label>
+          </div>
 
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
-            <app-searchable-select [(ngModel)]="branchFilters.status" [searchable]="false" [options]="branchStatusFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.STATUS'"></app-searchable-select>
-          </label>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
+            <app-searchable-select [(ngModel)]="branchFilters.status" [searchable]="false" [allowClear]="false" triggerClass="rounded-[16px]" [options]="branchStatusFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.STATUS'"></app-searchable-select>
+          </div>
 
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.CITY' | translate }}</span>
-            <app-searchable-select [(ngModel)]="branchFilters.city" [searchable]="false" [options]="branchCityFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.CITY'"></app-searchable-select>
-          </label>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.CITY' | translate }}</span>
+            <app-searchable-select [(ngModel)]="branchFilters.city" [searchable]="false" [allowClear]="false" triggerClass="rounded-[16px]" [options]="branchCityFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.CITY'"></app-searchable-select>
+          </div>
 
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.MANAGER' | translate }}</span>
-            <app-searchable-select [(ngModel)]="branchFilters.manager" [searchable]="false" [options]="branchManagerFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.MANAGER'"></app-searchable-select>
-          </label>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.MANAGER' | translate }}</span>
+            <app-searchable-select [(ngModel)]="branchFilters.manager" [searchable]="false" [allowClear]="false" triggerClass="rounded-[16px]" [options]="branchManagerFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.MANAGER'"></app-searchable-select>
+          </div>
         }
 
         @if (activeView === 'employees') {
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.SEARCH' | translate }}</span>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.SEARCH' | translate }}</span>
             <input
               type="text"
               [(ngModel)]="employeeFilters.search"
               [placeholder]="'STAFF_BRANCHES.SEARCH.EMPLOYEES' | translate"
               class="h-11 w-full rounded-[16px] border border-slate-200/60 bg-white/60 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/40 focus:bg-white focus:ring-[3px] focus:ring-zadna-primary/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
-          </label>
+          </div>
 
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
-            <app-searchable-select [(ngModel)]="employeeFilters.status" [searchable]="false" [options]="employeeStatusFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.STATUS'"></app-searchable-select>
-          </label>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
+            <app-searchable-select [(ngModel)]="employeeFilters.status" [searchable]="false" triggerClass="rounded-[16px]" [options]="employeeStatusFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.STATUS'"></app-searchable-select>
+          </div>
 
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.TEMPLATE' | translate }}</span>
-            <app-searchable-select [(ngModel)]="employeeFilters.roleTemplate" [searchable]="false" [options]="employeeRoleTemplateFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.TEMPLATE'"></app-searchable-select>
-          </label>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.TEMPLATE' | translate }}</span>
+            <app-searchable-select [(ngModel)]="employeeFilters.roleTemplate" [searchable]="false" triggerClass="rounded-[16px]" [options]="employeeRoleTemplateFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.TEMPLATE'"></app-searchable-select>
+          </div>
 
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.BRANCH' | translate }}</span>
-            <app-searchable-select [(ngModel)]="employeeFilters.branchId" [searchable]="false" [options]="mappedActiveBranchOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.BRANCH'"></app-searchable-select>
-          </label>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.BRANCH' | translate }}</span>
+            <app-searchable-select [(ngModel)]="employeeFilters.branchId" [searchable]="false" triggerClass="rounded-[16px]" [options]="mappedActiveBranchOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.BRANCH'"></app-searchable-select>
+          </div>
         }
 
         @if (activeView === 'invitations') {
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.SEARCH' | translate }}</span>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.SEARCH' | translate }}</span>
             <input
               type="text"
               [(ngModel)]="invitationFilters.search"
               [placeholder]="'STAFF_BRANCHES.SEARCH.INVITATIONS' | translate"
               class="h-11 w-full rounded-[16px] border border-slate-200/60 bg-white/60 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/40 focus:bg-white focus:ring-[3px] focus:ring-zadna-primary/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
-          </label>
+          </div>
 
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
-            <app-searchable-select [(ngModel)]="invitationFilters.status" [searchable]="false" [options]="invitationStatusFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.STATUS'"></app-searchable-select>
-          </label>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
+            <app-searchable-select [(ngModel)]="invitationFilters.status" [searchable]="false" triggerClass="rounded-[16px]" [options]="invitationStatusFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.STATUS'"></app-searchable-select>
+          </div>
 
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.TYPE' | translate }}</span>
-            <app-searchable-select [(ngModel)]="invitationFilters.type" [searchable]="false" [options]="invitationTypeFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.TYPE'"></app-searchable-select>
-          </label>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.TYPE' | translate }}</span>
+            <app-searchable-select [(ngModel)]="invitationFilters.type" [searchable]="false" triggerClass="rounded-[16px]" [options]="invitationTypeFilterOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.TYPE'"></app-searchable-select>
+          </div>
 
-          <label class="space-y-2">
-            <span class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.BRANCH' | translate }}</span>
-            <app-searchable-select [(ngModel)]="invitationFilters.branchId" [searchable]="false" [options]="mappedActiveBranchOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.BRANCH'"></app-searchable-select>
-          </label>
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'STAFF_BRANCHES.FILTERS.BRANCH' | translate }}</span>
+            <app-searchable-select [(ngModel)]="invitationFilters.branchId" [searchable]="false" triggerClass="rounded-[16px]" [options]="mappedActiveBranchOptions" [placeholder]="'STAFF_BRANCHES.FILTERS.BRANCH'"></app-searchable-select>
+          </div>
         }
       </div>
     </app-filter-panel>

@@ -1,18 +1,26 @@
 import { inject } from '@angular/core';
 import { HttpErrorResponse } from '@angular/common/http';
-import { CanActivateFn, Router } from '@angular/router';
+import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { catchError, map, of, timeout } from 'rxjs';
 import { VendorProfileService } from '../../../features/settings/services/vendor-profile.service';
 import { VendorAuthService } from '../services/vendor-auth.service';
 
-const PROFILE_GUARD_TIMEOUT_MS = 6000;
+const PROFILE_GUARD_TIMEOUT_MS = 2500;
 
-function resolveAuthenticatedRedirect(profile: { status: string; commercialAccessEnabled?: boolean }, router: Router) {
+function resolveAuthenticatedRedirect(profile: { status: string; commercialAccessEnabled?: boolean }, router: Router): UrlTree {
   return router.createUrlTree([
     profile.status === 'Active' || profile.commercialAccessEnabled
       ? '/dashboard'
       : '/submission-success'
   ]);
+}
+
+function redirectIfAuthenticated(redirect: UrlTree | null, router: Router): void {
+  if (!redirect) {
+    return;
+  }
+
+  void router.navigateByUrl(redirect);
 }
 
 export const vendorGuestGuard: CanActivateFn = () => {
@@ -33,20 +41,23 @@ export const vendorGuestGuard: CanActivateFn = () => {
     return resolveAuthenticatedRedirect(profileService.getProfileSnapshot(), router);
   }
 
-  return profileService.loadProfileForGuard(false).pipe(
+  // Do not block guest routes while the profile API is slow or offline.
+  profileService.loadProfileForGuard(false).pipe(
     timeout({ first: PROFILE_GUARD_TIMEOUT_MS }),
     map((profile) => resolveAuthenticatedRedirect(profile, router)),
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
         authService.clearLocalSession();
-        return of(true);
+        return of(null);
       }
 
       if (profileService.hasCachedProfileSnapshot()) {
         return of(resolveAuthenticatedRedirect(profileService.getProfileSnapshot(), router));
       }
 
-      return of(true);
+      return of(null);
     })
-  );
+  ).subscribe((redirect) => redirectIfAuthenticated(redirect, router));
+
+  return true;
 };

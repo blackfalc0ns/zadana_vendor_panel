@@ -35,14 +35,15 @@ export class AppFilterPanelComponent {
   @Input() translateSubtitle = true;
   @Input() wrapperClass = '';
   @Input() bodyClass = '';
-  @Input() allowOverflowVisible = false;
+  @Input() allowOverflowVisible = true;
 
   get resolvedWrapperClass(): string {
     const overflowClass = this.allowOverflowVisible ? 'overflow-visible' : 'overflow-hidden';
-    return `${overflowClass} rounded-[28px] border border-slate-200/70 bg-white shadow-sm animate-in slide-in-from-top-2 duration-300 ${this.wrapperClass}`.trim();
+    const stackClass = this.allowOverflowVisible ? 'relative z-30' : '';
+    return `${overflowClass} ${stackClass} rounded-[28px] border border-slate-200/70 bg-white shadow-sm animate-in slide-in-from-top-2 duration-300 ${this.wrapperClass}`.trim();
   }
 
   get resolvedBodyClass(): string {
-    return this.bodyClass || 'grid gap-4 px-6 py-5 md:grid-cols-2 xl:grid-cols-4';
+    return this.bodyClass || 'grid gap-4 px-6 py-5 sm:grid-cols-2 lg:grid-cols-4';
   }
 }

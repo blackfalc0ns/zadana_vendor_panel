@@ -70,7 +70,7 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
 
   currentLang = 'ar';
   activeView: SupportCenterView = 'support';
-  isFiltersExpanded = true;
+  isFiltersExpanded = false;
   isCreateTicketModalOpen = false;
   isSubmittingTicket = false;
   isLoadingOrderOptions = false;
@@ -345,6 +345,12 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
 
   setActiveView(viewId: string): void {
     this.activeView = viewId as SupportCenterView;
+    this.cdr.markForCheck();
+  }
+
+  toggleFiltersExpanded(): void {
+    this.isFiltersExpanded = !this.isFiltersExpanded;
+    this.cdr.markForCheck();
   }
 
   resetFilters(): void {
@@ -359,6 +365,7 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
 
     this.currentPages.support = 1;
     this.currentPages.reference = 1;
+    this.cdr.markForCheck();
   }
 
   onPageChange(page: number): void {
