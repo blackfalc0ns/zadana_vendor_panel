@@ -208,6 +208,7 @@
       "SUBMIT": "Submit bulk add",
       "SUBMITTING": "Submitting bulk add...",
       "SUBMIT_ERROR": "Bulk add could not be submitted. Review the data and try again.",
+      "SUBMIT_TIMEOUT": "Bulk add is taking longer than expected. Try again, or refresh the products list in a moment.",
       "VALIDATION_BANNER": "{{count}} row(s) need fixes before submit.",
       "VALIDATION": {
         "COST_NEGATIVE": "Cost price cannot be negative.",

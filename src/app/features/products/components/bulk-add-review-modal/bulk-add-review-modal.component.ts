@@ -3,7 +3,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription, interval, switchMap } from 'rxjs';
+import { Subscription, switchMap, timer } from 'rxjs';
 import {
   BulkVendorProductDraft,
   MasterProduct,
@@ -343,6 +343,7 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
   submitErrorKey: string | null = null;
   copyFeedback = false;
 
+  private readonly maxPollAttempts = 60;
   private rowValidation = new Map<string, RowValidationState>();
 
   defaults = {
@@ -355,6 +356,7 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
   private readonly backendErrorMap: Record<string, string> = {
     'Master product was not found.': 'PRODUCTS.BULK.ERRORS.MASTER_NOT_FOUND',
     'Product already exists in vendor store.': 'PRODUCTS.BULK.ERRORS.ALREADY_EXISTS',
+    'Product already exists in vendor branch.': 'PRODUCTS.BULK.ERRORS.ALREADY_EXISTS',
     'Branch is invalid for this vendor.': 'PRODUCTS.BULK.ERRORS.BRANCH_INVALID',
     'Compare price must be greater than selling price.': 'PRODUCTS.BULK.ERRORS.COMPARE_PRICE_INVALID',
     'Trade price is required.': 'PRODUCTS.BULK.ERRORS.TRADE_REQUIRED',
@@ -570,7 +572,11 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
       next: (operation) => {
         this.cdr.markForCheck();
         this.operation = operation;
-        this.startPolling(operation.id);
+        if (this.isTerminalStatus(operation.status)) {
+          this.loadResultItems(operation.id);
+        } else {
+          this.startPolling(operation.id);
+        }
       },
       error: (error: unknown) => {
         this.cdr.markForCheck();
@@ -582,29 +588,54 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
 
   startPolling(operationId: string): void {
     this.pollSub?.unsubscribe();
-    this.pollSub = interval(2000)
+    let attempts = 0;
+    this.pollSub = timer(0, 2000)
       .pipe(switchMap(() => this.catalogService.getBulkOperation(operationId)))
       .subscribe({
         next: (operation) => {
+          attempts += 1;
           this.cdr.markForCheck();
           this.operation = operation;
-          if (operation.status !== 'Pending' && operation.status !== 'Processing') {
-            this.catalogService.getBulkOperationItems(operationId).subscribe({
-              next: (items) => {
-                this.cdr.markForCheck();
-                this.resultItems = items;
-                this.stage = 'done';
-                this.pollSub?.unsubscribe();
-              }
-            });
+          if (this.isTerminalStatus(operation.status)) {
+            this.loadResultItems(operationId);
+            return;
+          }
+
+          if (attempts >= this.maxPollAttempts) {
+            this.pollSub?.unsubscribe();
+            this.stage = 'review';
+            this.submitErrorKey = 'PRODUCTS.BULK.SUBMIT_TIMEOUT';
+            this.cdr.markForCheck();
           }
         },
         error: () => {
+          this.pollSub?.unsubscribe();
           this.cdr.markForCheck();
           this.stage = 'review';
           this.submitErrorKey = 'PRODUCTS.BULK.SUBMIT_ERROR';
         }
       });
+  }
+
+  private loadResultItems(operationId: string): void {
+    this.catalogService.getBulkOperationItems(operationId).subscribe({
+      next: (items) => {
+        this.cdr.markForCheck();
+        this.resultItems = items;
+        this.stage = 'done';
+        this.pollSub?.unsubscribe();
+      },
+      error: () => {
+        this.pollSub?.unsubscribe();
+        this.stage = 'review';
+        this.submitErrorKey = 'PRODUCTS.BULK.SUBMIT_ERROR';
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  private isTerminalStatus(status: string): boolean {
+    return status !== 'Pending' && status !== 'Processing';
   }
 
   copyErrors(): void {
