@@ -70,6 +70,7 @@ interface VendorProductApi {
   stockQuantity: number;
   isAvailable: boolean;
   status?: string;
+  canEditPrice?: boolean;
   masterProduct: MasterProductApi;
 }
 
@@ -358,7 +359,8 @@ export class CatalogService {
       commissionRate: item.commissionRate ?? null,
       discountPercentage: this.calculateDiscountPercentage(item.sellingPrice, item.compareAtPrice),
       stockQty: item.stockQuantity,
-      isActive: ['active', 'outofstock'].includes((item.status || '').toLowerCase())
+      isActive: ['active', 'outofstock'].includes((item.status || '').toLowerCase()),
+      canEditPrice: item.canEditPrice ?? true
     };
   }
 

@@ -54,6 +54,7 @@ export interface VendorProduct {
   discountPercentage?: number;
   stockQty: number;
   isActive: boolean;
+  canEditPrice?: boolean;
 }
 
 export interface PaginatedList<T> {

@@ -195,12 +195,23 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
                       <p class="text-[0.72rem] font-black leading-relaxed text-amber-800">{{ 'PRODUCTS.TRADE_PRICE_REQUIRED_NOTE' | translate }}</p>
                     </div>
                   }
+                  @if (product.canEditPrice === false) {
+                    <div class="mb-4 flex items-start gap-2.5 rounded-[14px] border border-cyan-200 bg-cyan-50 px-3 py-2.5">
+                      <svg class="mt-0.5 h-3.5 w-3.5 shrink-0 text-cyan-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                      </svg>
+                      <p class="text-[0.72rem] font-black leading-relaxed text-cyan-900">
+                        {{ currentLang === 'ar' ? 'السعر موحد من الفرع الرئيسي. هذا الفرع يقدر يعدل المخزون فقط.' : 'Pricing is controlled by the main branch. This branch can update stock only.' }}
+                      </p>
+                    </div>
+                  }
 
                   <app-product-price-stock-form
                     [form]="productForm"
                     [currentLang]="currentLang"
                     [commissionRate]="product.commissionRate || 0"
-                    [unitName]="(currentLang === 'ar' ? product.unitNameAr : product.unitNameEn) || ''">
+                    [unitName]="(currentLang === 'ar' ? product.unitNameAr : product.unitNameEn) || ''"
+                    [canEditPricing]="product.canEditPrice !== false">
                   </app-product-price-stock-form>
                 </div>
               </section>

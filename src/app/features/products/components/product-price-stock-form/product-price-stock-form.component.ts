@@ -22,36 +22,36 @@ import { TranslateModule } from '@ngx-translate/core';
 
         <div class="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <label class="group block rounded-[14px] border border-slate-200 bg-slate-50/80 p-3 transition-all focus-within:border-zadna-primary/40 focus-within:bg-white focus-within:ring-2 focus-within:ring-zadna-primary/5"
-                 [ngClass]="{ 'border-rose-300': isInvalid('tradePrice'), 'bg-rose-50/40': isInvalid('tradePrice') }">
+                 [ngClass]="{ 'border-rose-300': isInvalid('tradePrice'), 'bg-rose-50/40': isInvalid('tradePrice'), 'opacity-75': !canEditPricing }">
             <span class="mb-1 block text-[0.62rem] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-zadna-primary">
               {{ 'PRODUCTS.TRADE_PRICE' | translate }}
             </span>
             <div class="flex items-end gap-1.5">
-              <input type="number" min="0" step="0.01" formControlName="tradePrice"
+              <input type="number" min="0" step="0.01" formControlName="tradePrice" [readOnly]="!canEditPricing"
                 class="min-w-0 flex-1 bg-transparent text-lg font-black text-slate-900 outline-none placeholder:text-slate-300">
               <span class="pb-0.5 text-[0.65rem] font-black text-slate-400">{{ 'COMMON.EGP' | translate }}</span>
             </div>
           </label>
 
           <label class="group block rounded-[14px] border border-slate-200 bg-slate-50/80 p-3 transition-all focus-within:border-zadna-primary/40 focus-within:bg-white focus-within:ring-2 focus-within:ring-zadna-primary/5"
-                 [ngClass]="{ 'border-rose-300': isInvalid('sellingPrice'), 'bg-rose-50/40': isInvalid('sellingPrice') }">
+                 [ngClass]="{ 'border-rose-300': isInvalid('sellingPrice'), 'bg-rose-50/40': isInvalid('sellingPrice'), 'opacity-75': !canEditPricing }">
             <span class="mb-1 block text-[0.62rem] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-zadna-primary">
               {{ 'PRODUCTS.SELLING_PRICE' | translate }}
             </span>
             <div class="flex items-end gap-1.5">
-              <input type="number" min="0" step="0.01" formControlName="sellingPrice"
+              <input type="number" min="0" step="0.01" formControlName="sellingPrice" [readOnly]="!canEditPricing"
                 class="min-w-0 flex-1 bg-transparent text-lg font-black text-emerald-600 outline-none placeholder:text-slate-300">
               <span class="pb-0.5 text-[0.65rem] font-black text-slate-400">{{ 'COMMON.EGP' | translate }}</span>
             </div>
           </label>
 
           <label class="group block rounded-[14px] border border-slate-200 bg-slate-50/80 p-3 transition-all focus-within:border-zadna-primary/40 focus-within:bg-white focus-within:ring-2 focus-within:ring-zadna-primary/5"
-                 [ngClass]="{ 'border-rose-300': isInvalid('discountPercentage') }">
+                 [ngClass]="{ 'border-rose-300': isInvalid('discountPercentage'), 'opacity-75': !canEditPricing }">
             <span class="mb-1 block text-[0.62rem] font-black uppercase tracking-widest text-slate-400 group-focus-within:text-zadna-primary">
               {{ 'PRODUCTS.DISCOUNT_LABEL' | translate }}
             </span>
             <div class="flex items-end gap-1.5">
-              <input type="number" min="0" max="99" step="0.01" formControlName="discountPercentage"
+              <input type="number" min="0" max="99" step="0.01" formControlName="discountPercentage" [readOnly]="!canEditPricing"
                 class="min-w-0 flex-1 bg-transparent text-lg font-black text-amber-600 outline-none placeholder:text-slate-300">
               <span class="pb-0.5 text-[0.65rem] font-black text-slate-400">%</span>
             </div>
@@ -126,6 +126,7 @@ export class ProductPriceStockFormComponent {
   @Input() unitName: string = '';
   @Input() currentLang: string = 'ar';
   @Input() commissionRate: number | null = 5;
+  @Input() canEditPricing: boolean = true;
 
   isInvalid(controlName: string): boolean {
     const control = this.form?.get(controlName);
