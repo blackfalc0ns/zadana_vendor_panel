@@ -33,6 +33,14 @@
       </a>
 
       @if (branch) {
+        <a
+          routerLink="/products"
+          [queryParams]="{ branchId: branch.id, openSelector: true }"
+          class="group inline-flex min-h-11 items-center gap-3 whitespace-nowrap rounded-[18px] border border-zadna-primary/20 bg-zadna-primary/10 px-4 py-2.5 text-[0.76rem] font-black text-zadna-primary shadow-sm transition hover:-translate-y-0.5 hover:bg-zadna-primary/15">
+          <span class="material-symbols-outlined text-[20px]">inventory_2</span>
+          <span>{{ currentLang === 'ar' ? 'منتجات الفرع' : 'Branch products' }}</span>
+        </a>
+
         <span class="inline-flex rounded-full px-3 py-1.5 text-[0.72rem] font-black"
           [ngClass]="branch.isPrimary ? 'bg-zadna-primary/10 text-zadna-primary' : 'bg-slate-100 text-slate-600'">
           {{ branchTypeKey(branch) | translate }}

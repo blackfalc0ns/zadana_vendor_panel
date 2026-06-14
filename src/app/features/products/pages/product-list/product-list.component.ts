@@ -16,6 +16,7 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
 import { MasterProduct, UnitOption, VendorProduct } from '../../models/catalog.models';
 import { CatalogService } from '../../services/catalog.service';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
+import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -402,6 +403,7 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
     @if (isSelectorModalOpen) {
       <app-master-product-selector-modal
         [initialSearchTerm]="selectorInitialSearch"
+        [branchId]="currentBranchId"
         (close)="isSelectorModalOpen = false; selectorInitialSearch = ''"
         (selected)="onProductSelected($event)"
         (selectedBulk)="onBulkProductsSelected($event)"
@@ -421,6 +423,7 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
       <app-bulk-add-review-modal
         [products]="selectedBulkProducts"
         [currentLang]="currentLang"
+        [branchId]="currentBranchId"
         (close)="isBulkReviewModalOpen = false"
         (completed)="onBulkCompleted()">
       </app-bulk-add-review-modal>
@@ -479,6 +482,7 @@ export class ProductListComponent implements OnInit, OnDestroy {
     private catalogService: CatalogService,
     private translate: TranslateService,
     private route: ActivatedRoute,
+    private vendorAuthService: VendorAuthService,
     private alertModalService: AlertModalService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
@@ -726,12 +730,22 @@ export class ProductListComponent implements OnInit, OnDestroy {
     ];
   }
 
+  get currentBranchId(): string | null {
+    const activeScope = this.vendorAuthService.currentUserSnapshot?.access?.activeScope;
+    if (activeScope?.scopeType === 'VendorBranch') {
+      return activeScope.scopeEntityId?.trim() || null;
+    }
+
+    return this.route.snapshot.queryParamMap.get('branchId')?.trim() || null;
+  }
+
   loadProducts(): void {
     this.isLoading = true;
     this.catalogService.getVendorProducts({
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
-      searchTerm: this.searchTerm
+      searchTerm: this.searchTerm,
+      branchId: this.currentBranchId
     }).subscribe({
       next: (response) => {
         this.cdr.markForCheck();
@@ -828,7 +842,8 @@ export class ProductListComponent implements OnInit, OnDestroy {
         pricingData.sellingPrice,
         pricingData.discountPercentage
       ),
-      stockQty: pricingData.stockQuantity
+      stockQty: pricingData.stockQuantity,
+      branchId: this.currentBranchId
     }).subscribe({
       next: () => {
         this.cdr.markForCheck();

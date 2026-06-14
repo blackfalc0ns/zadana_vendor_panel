@@ -81,6 +81,7 @@ export class CatalogService {
     searchTerm?: string;
     categoryId?: string;
     brandId?: string;
+    branchId?: string | null;
     pageNumber?: number;
     pageSize?: number;
   }): Observable<PaginatedList<MasterProduct>> {
@@ -88,6 +89,7 @@ export class CatalogService {
     if (params.searchTerm) httpParams = httpParams.set('searchTerm', params.searchTerm);
     if (params.categoryId) httpParams = httpParams.set('categoryId', params.categoryId);
     if (params.brandId) httpParams = httpParams.set('brandId', params.brandId);
+    if (params.branchId?.trim()) httpParams = httpParams.set('branchId', params.branchId.trim());
     if (params.pageNumber) httpParams = httpParams.set('pageNumber', (params.pageNumber || 1).toString());
     if (params.pageSize) httpParams = httpParams.set('pageSize', (params.pageSize || 10).toString());
 
@@ -102,11 +104,13 @@ export class CatalogService {
 
   getVendorProducts(params: {
     searchTerm?: string;
+    branchId?: string | null;
     pageNumber?: number;
     pageSize?: number;
   }): Observable<PaginatedList<VendorProduct>> {
     let httpParams = new HttpParams();
-    if (params.searchTerm) httpParams = httpParams.set('searchTerm', params.searchTerm);
+    if (params.searchTerm) httpParams = httpParams.set('search', params.searchTerm);
+    if (params.branchId?.trim()) httpParams = httpParams.set('branchId', params.branchId.trim());
     if (params.pageNumber) httpParams = httpParams.set('pageNumber', (params.pageNumber || 1).toString());
     if (params.pageSize) httpParams = httpParams.set('pageSize', (params.pageSize || 10).toString());
 
@@ -214,7 +218,7 @@ export class CatalogService {
       minOrderQty: 1,
       maxOrderQty: null,
       sku: null,
-      branchId: null
+      branchId: request.branchId || null
     });
   }
 

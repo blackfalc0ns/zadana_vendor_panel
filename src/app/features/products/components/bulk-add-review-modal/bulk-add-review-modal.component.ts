@@ -328,6 +328,7 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
 
   @Input() products: MasterProduct[] = [];
   @Input() currentLang = 'ar';
+  @Input() branchId: string | null = null;
   @Output() close = new EventEmitter<void>();
   @Output() completed = new EventEmitter<void>();
 
@@ -387,7 +388,7 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
       discountPercentage: 0,
       compareAtPrice: null,
       stockQty: 0,
-      branchId: null,
+      branchId: this.branchId || null,
       sku: null,
       minOrderQty: 1,
       maxOrderQty: null,

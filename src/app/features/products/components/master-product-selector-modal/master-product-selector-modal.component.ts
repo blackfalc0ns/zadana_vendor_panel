@@ -307,6 +307,7 @@ import { CatalogService } from '../../services/catalog.service';
 export class MasterProductSelectorModalComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   @Input() initialSearchTerm: string = '';
+  @Input() branchId: string | null = null;
   @ViewChild('categoryScroller') categoryScroller?: ElementRef<HTMLDivElement>;
   @Output() close = new EventEmitter<void>();
   @Output() selected = new EventEmitter<MasterProduct>();
@@ -447,6 +448,7 @@ export class MasterProductSelectorModalComponent implements OnInit {
     this.isLoading = true;
     this.catalogService.getMasterProducts({
       searchTerm: this.searchTerm,
+      branchId: this.branchId,
       pageSize: 1000
     }).subscribe({
       next: (data) => {
