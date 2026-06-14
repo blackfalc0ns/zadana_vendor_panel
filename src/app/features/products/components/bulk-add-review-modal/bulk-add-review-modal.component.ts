@@ -383,10 +383,10 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
       imageUrl: product.imageUrl,
       displaySizeAr: product.displaySizeAr,
       displaySizeEn: product.displaySizeEn,
-      tradePrice: null,
-      sellingPrice: null,
-      discountPercentage: 0,
-      compareAtPrice: null,
+      tradePrice: product.vendorTradePrice ?? null,
+      sellingPrice: product.vendorSellingPrice ?? null,
+      discountPercentage: this.calculateDiscountPercentage(product.vendorSellingPrice, product.vendorCompareAtPrice),
+      compareAtPrice: product.vendorCompareAtPrice ?? null,
       stockQty: 0,
       branchId: this.branchId || null,
       sku: null,
@@ -673,6 +673,14 @@ export class BulkAddReviewModalComponent implements OnInit, OnDestroy {
 
     const translated = this.translate.instant(mapped);
     return translated !== mapped ? translated : message;
+  }
+
+  private calculateDiscountPercentage(sellingPrice?: number | null, compareAtPrice?: number | null): number {
+    if (!sellingPrice || !compareAtPrice || compareAtPrice <= sellingPrice) {
+      return 0;
+    }
+
+    return Math.round(((compareAtPrice - sellingPrice) / compareAtPrice) * 100);
   }
 
   resolveSubmitErrorKey(error: unknown): string {

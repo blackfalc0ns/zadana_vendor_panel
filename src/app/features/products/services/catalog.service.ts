@@ -51,6 +51,10 @@ interface MasterProductApi {
   displaySizeEn?: string | null;
   status?: string;
   isInVendorStore?: boolean;
+  vendorSellingPrice?: number | null;
+  vendorCompareAtPrice?: number | null;
+  vendorCostPrice?: number | null;
+  vendorTradePrice?: number | null;
   images?: MasterProductImageApi[];
 }
 
@@ -316,6 +320,10 @@ export class CatalogService {
       measurementUnitId: item.measurementUnitId || null,
       variantGroupId: item.variantGroupId || undefined,
       isInVendorStore: item.isInVendorStore ?? false,
+      vendorSellingPrice: item.vendorSellingPrice ?? null,
+      vendorCompareAtPrice: item.vendorCompareAtPrice ?? null,
+      vendorCostPrice: item.vendorCostPrice ?? null,
+      vendorTradePrice: item.vendorTradePrice ?? null,
       barcode: item.barcode || undefined,
       slug: item.slug || undefined
     };

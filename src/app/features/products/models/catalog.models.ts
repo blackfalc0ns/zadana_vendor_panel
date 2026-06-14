@@ -19,6 +19,10 @@ export interface MasterProduct {
   measurementValue?: number | null;
   variantGroupId?: string;
   isInVendorStore?: boolean;
+  vendorSellingPrice?: number | null;
+  vendorCompareAtPrice?: number | null;
+  vendorCostPrice?: number | null;
+  vendorTradePrice?: number | null;
   barcode?: string;
   slug?: string;
 }

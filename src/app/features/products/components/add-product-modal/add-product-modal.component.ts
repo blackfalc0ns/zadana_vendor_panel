@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -89,7 +89,7 @@ import { ProductPriceStockFormComponent } from '../product-price-stock-form/prod
     :host { display: contents; }
   `]
 })
-export class AddProductModalComponent {
+export class AddProductModalComponent implements OnChanges {
   @Input() product: MasterProduct | null = null;
   @Input() currentLang: string = 'ar';
   @Output() close = new EventEmitter<void>();
@@ -105,6 +105,28 @@ export class AddProductModalComponent {
       stockQty: [0, [Validators.required, Validators.min(0)]],
       discountPercentage: [0, [Validators.min(0), Validators.max(100)]]
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['product']) {
+      this.applyVendorPricing();
+    }
+  }
+
+  private applyVendorPricing(): void {
+    if (!this.product) {
+      return;
+    }
+
+    const sellingPrice = this.product.vendorSellingPrice ?? null;
+    const compareAtPrice = this.product.vendorCompareAtPrice ?? null;
+
+    this.productForm.patchValue({
+      costPrice: this.product.vendorCostPrice ?? 0,
+      tradePrice: this.product.vendorTradePrice ?? null,
+      sellingPrice,
+      discountPercentage: this.calculateDiscountPercentage(sellingPrice, compareAtPrice)
+    }, { emitEvent: false });
   }
 
   onClose() {
@@ -147,5 +169,13 @@ export class AddProductModalComponent {
         discountPercentage: formValue.discountPercentage
       });
     }
+  }
+
+  private calculateDiscountPercentage(sellingPrice?: number | null, compareAtPrice?: number | null): number {
+    if (!sellingPrice || !compareAtPrice || compareAtPrice <= sellingPrice) {
+      return 0;
+    }
+
+    return Math.round(((compareAtPrice - sellingPrice) / compareAtPrice) * 100);
   }
 }
