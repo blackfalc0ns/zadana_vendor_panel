@@ -670,8 +670,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   get heroMessage(): string {
     return this.currentProfile.commercialAccessEnabled
       ? (this.currentLang === 'ar'
-        ? 'حسابك التجاري مفعل. أي تعديل مهم أو إعادة رفع مستند سيظهر فورًا لفريق الأدمن في مسار المراجعة.'
-        : 'Your commercial account is active. Important edits or document re-uploads appear instantly in the admin review flow.')
+        ? 'حسابك التجاري مفعل. التعديلات الحساسة والمستندات الجديدة يتم إرسالها لموافقة الإدارة قبل اعتمادها.'
+        : 'Your commercial account is active. Sensitive edits and document re-uploads are sent for admin approval before they become official.')
       : (this.currentLang === 'ar'
         ? 'أكمل البيانات والمستندات المطلوبة ثم أرسل الملف للمراجعة. كل تحديث تحفظه هنا يظهر مباشرة لدى الأدمن.'
         : 'Complete the required details and documents, then submit the file for review. Every saved update is visible to admin.');
@@ -956,8 +956,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
         next: () => {
         this.cdr.markForCheck();
           this.pageNotice = this.currentLang === 'ar'
-            ? 'تم رفع المستند وتحديث ملف التاجر، وسيظهر فوراً لدى الأدمن.'
-            : 'Document uploaded and synced to admin for review.';
+            ? 'تم رفع المستند وإرساله للمراجعة. سيظهر كمستند معتمد بعد موافقة الإدارة.'
+            : 'Document uploaded and sent for review. It will become official after admin approval.';
         },
         error: (error) => {
         this.cdr.markForCheck();
@@ -1195,8 +1195,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
         next: () => {
         this.cdr.markForCheck();
           this.pageNotice = this.currentLang === 'ar'
-            ? 'تم حفظ تعديلات الملف وإرسالها للأدمن للمراجعة.'
-            : 'Profile changes were saved and synced to the admin workspace.';
+            ? 'تم حفظ التعديلات العامة. البيانات الحساسة أرسلت للمراجعة وستطبق بعد موافقة الإدارة.'
+            : 'Public changes were saved. Sensitive profile changes were sent for review and will apply after admin approval.';
         },
         error: (error) => {
         this.cdr.markForCheck();
@@ -1295,8 +1295,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
         next: () => {
           this.cdr.markForCheck();
           this.pageNotice = this.currentLang === 'ar'
-            ? 'تم حفظ بيانات التحويل بنجاح.'
-            : 'Banking details were saved successfully.';
+            ? 'تم إرسال بيانات التحويل للمراجعة. سيتم تطبيقها بعد موافقة الإدارة.'
+            : 'Banking details were sent for review and will apply after admin approval.';
         },
         error: (error) => {
           this.cdr.markForCheck();

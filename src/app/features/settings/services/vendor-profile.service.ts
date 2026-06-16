@@ -276,8 +276,7 @@ export class VendorProfileService {
       switchMap(() => this.updateContact(profile)),
       switchMap(() => this.updateLegal(profile)),
       switchMap(() => this.updateBanking(profile)),
-      map((workspace) => this.mapWorkspaceToProfile(workspace)),
-      tap((nextProfile) => this.persistProfile(nextProfile))
+      switchMap(() => this.fetchProfile())
     );
   }
 
@@ -343,11 +342,7 @@ export class VendorProfileService {
 
         return this.updateLegal(nextProfile);
       }),
-      map((workspace) => this.mapWorkspaceToProfile(workspace)),
-      tap((profile) => {
-        this.hasLoaded = true;
-        this.profileSubject.next(profile);
-      })
+      switchMap(() => this.fetchProfile())
     );
   }
 
