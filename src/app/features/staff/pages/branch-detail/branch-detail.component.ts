@@ -1,4 +1,5 @@
 import { CommonModule, NgClass } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -7,7 +8,7 @@ import { SelectOption } from '../../../auth/constants/vendor-onboarding.constant
 import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
-import { BranchStatus, BranchVm, EmployeeVm, InvitationVm } from '../../models/staff-branches.models';
+import { BranchOperatingHourVm, BranchStatus, BranchUpdateInput, BranchVm, EmployeeVm, InvitationVm, cloneOperatingHours } from '../../models/staff-branches.models';
 import { StaffBranchesService } from '../../services/staff-branches.service';
 
 @Component({
@@ -16,6 +17,7 @@ import { StaffBranchesService } from '../../services/staff-branches.service';
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     RouterModule,
     TranslateModule,
     NgClass,
@@ -32,6 +34,11 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
   invitations: InvitationVm[] = [];
   regions: SelectOption[] = [];
   cities: SelectOption[] = [];
+  editDraft: BranchUpdateInput | null = null;
+  isEditingProfile = false;
+  isSavingProfile = false;
+  feedbackMessage = '';
+  feedbackTone: 'success' | 'info' = 'success';
 
   private langSub: Subscription;
   private dataSub?: Subscription;
@@ -76,6 +83,9 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
       this.branch = branch;
       this.employees = employees;
       this.invitations = invitations;
+      if (!this.isEditingProfile) {
+        this.editDraft = this.createEditDraft(branch);
+      }
     });
   }
 
@@ -107,6 +117,21 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
 
   get canArchive(): boolean {
     return !!this.branch && !this.branch.isPrimary && this.branch.status !== 'archived';
+  }
+
+  get canSaveProfile(): boolean {
+    return !!this.editDraft
+      && !!this.editDraft.name.trim()
+      && !!this.editDraft.phone.trim()
+      && !!this.editDraft.managerName.trim()
+      && this.isValidEmail(this.editDraft.managerContact)
+      && !!this.editDraft.region
+      && !!this.editDraft.city
+      && !!this.editDraft.addressLine.trim()
+      && Number(this.editDraft.deliveryRadiusKm) > 0
+      && this.isLatitude(this.editDraft.latitude)
+      && this.isLongitude(this.editDraft.longitude)
+      && this.editDraft.operatingHours.some((hour) => hour.isOpen);
   }
 
   cityLabel(value: string): string {
@@ -227,11 +252,112 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
     }
   }
 
+  beginEditProfile(): void {
+    if (!this.branch) {
+      return;
+    }
+
+    this.editDraft = this.createEditDraft(this.branch);
+    this.isEditingProfile = true;
+    this.feedbackMessage = '';
+  }
+
+  cancelEditProfile(): void {
+    this.isEditingProfile = false;
+    this.editDraft = this.branch ? this.createEditDraft(this.branch) : null;
+    this.feedbackMessage = '';
+  }
+
+  saveProfile(): void {
+    if (!this.branch || !this.editDraft || !this.canSaveProfile) {
+      return;
+    }
+
+    this.isSavingProfile = true;
+    this.staffBranchesService.updateBranch(this.branch.id, this.editDraft).subscribe({
+      next: () => {
+        this.isSavingProfile = false;
+        this.isEditingProfile = false;
+        this.showFeedback(this.currentLang === 'ar' ? 'تم تحديث بروفايل الفرع.' : 'Branch profile updated.', 'success');
+        this.cdr.markForCheck();
+      },
+      error: (error) => {
+        this.isSavingProfile = false;
+        this.showFeedback(error?.error?.message || (this.currentLang === 'ar' ? 'تعذر حفظ بروفايل الفرع.' : 'Unable to save branch profile.'), 'info');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  toggleEditDay(hour: BranchOperatingHourVm, isOpen: boolean): void {
+    hour.isOpen = isOpen;
+  }
+
   updateBranchStatus(status: BranchStatus): void {
     if (!this.branch) {
       return;
     }
 
-    this.staffBranchesService.updateBranchStatus(this.branch.id, status);
+    this.staffBranchesService.updateBranchStatus(this.branch.id, status).subscribe({
+      next: () => {
+        this.showFeedback(this.currentLang === 'ar' ? 'تم تحديث حالة الفرع.' : 'Branch status updated.', 'success');
+        this.cdr.markForCheck();
+      },
+      error: () => {
+        this.showFeedback(this.currentLang === 'ar' ? 'تعذر تحديث حالة الفرع.' : 'Unable to update branch status.', 'info');
+        this.cdr.markForCheck();
+      }
+    });
+  }
+
+  private createEditDraft(branch: BranchVm): BranchUpdateInput {
+    return {
+      name: branch.name,
+      code: branch.code,
+      isPrimary: branch.isPrimary,
+      phone: branch.phone,
+      managerName: branch.managerName,
+      managerContact: branch.managerContact,
+      region: branch.region,
+      city: branch.city,
+      addressLine: branch.addressLine,
+      latitude: branch.latitude,
+      longitude: branch.longitude,
+      deliveryRadiusKm: branch.deliveryRadiusKm,
+      operatingHours: cloneOperatingHours(branch.operatingHours)
+    };
+  }
+
+  private isLatitude(value: number | string | null | undefined): boolean {
+    if (value === null || value === undefined || value === '') {
+      return false;
+    }
+
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric >= -90 && numeric <= 90;
+  }
+
+  private isLongitude(value: number | string | null | undefined): boolean {
+    if (value === null || value === undefined || value === '') {
+      return false;
+    }
+
+    const numeric = Number(value);
+    return Number.isFinite(numeric) && numeric >= -180 && numeric <= 180;
+  }
+
+  private isValidEmail(value: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  }
+
+  private showFeedback(message: string, tone: 'success' | 'info'): void {
+    this.feedbackMessage = message;
+    this.feedbackTone = tone;
+    window.setTimeout(() => {
+      if (this.feedbackMessage === message) {
+        this.feedbackMessage = '';
+        this.cdr.markForCheck();
+      }
+    }, 2800);
   }
 }

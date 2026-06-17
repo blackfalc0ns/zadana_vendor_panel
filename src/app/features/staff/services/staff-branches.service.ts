@@ -5,6 +5,7 @@ import { environment } from '../../../../environments/environment';
 import {
   BranchCreationInput,
   BranchOperatingHourVm,
+  BranchUpdateInput,
   BranchVm,
   EmployeeInviteInput,
   EmployeeStatus,
@@ -280,6 +281,34 @@ export class StaffBranchesService {
           branches: state.branches.filter((branch) => branch.id !== branchId),
           invitations: state.invitations.filter((invitation) => !invitation.branchIds.includes(branchId)),
           employees: state.employees.filter((employee) => !employee.branchIds.includes(branchId))
+        }));
+      })
+    );
+  }
+
+  updateBranch(branchId: string, input: BranchUpdateInput): Observable<BranchVm> {
+    const payload: BranchCreatePayload = {
+      name: input.name.trim(),
+      code: input.code.trim() || this.generateBranchCode(input.name),
+      isPrimary: input.isPrimary,
+      addressLine: input.addressLine.trim(),
+      phone: input.phone.trim(),
+      managerName: input.managerName.trim(),
+      managerContact: input.managerContact.trim(),
+      region: input.region,
+      city: input.city,
+      latitude: this.normalizeCoordinate(input.latitude),
+      longitude: this.normalizeCoordinate(input.longitude),
+      deliveryRadiusKm: input.deliveryRadiusKm,
+      operatingHours: cloneOperatingHours(input.operatingHours)
+    };
+
+    return this.http.put<BranchApiDto>(`${this.branchesUrl}/${branchId}`, payload).pipe(
+      map((response) => this.mapBranch(response)),
+      tap((branch) => {
+        this.setState((state) => ({
+          ...state,
+          branches: state.branches.map((item) => item.id === branch.id ? branch : item)
         }));
       })
     );

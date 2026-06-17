@@ -93,6 +93,8 @@ export interface BranchCreationInput {
   inviteMessage?: string;
 }
 
+export type BranchUpdateInput = Omit<BranchCreationInput, 'inviteMessage'>;
+
 export interface EmployeeInviteInput {
   fullName: string;
   contact: string;
