@@ -118,7 +118,7 @@ export class AlertsCenterService {
   private readonly storageKey = 'vendor_alerts_workspace';
   private readonly apiUrl = `${environment.apiUrl}/vendor/notifications`;
   private readonly hubUrl = `${environment.apiUrl.replace(/\/api\/?$/, '')}/hubs/notifications`;
-  private readonly pollIntervalMs = 15000;
+  private readonly pollIntervalMs = 60000;
   private readonly workspaceSubject = new BehaviorSubject<AlertWorkspaceState>(this.loadWorkspace());
   private readonly serverAlertsSubject = new BehaviorSubject<AlertCenterItemVm[]>([]);
   private readonly realtimeAlertSubject = new Subject<AlertCenterItemVm>();
@@ -733,11 +733,13 @@ export class AlertsCenterService {
 
       this.hubConnection.onreconnecting?.((error) => {
         this.realtimeConnectionStateSubject.next('reconnecting');
+        this.startPolling();
         this.debugLog('warn', 'Vendor notifications realtime hub is reconnecting.', error);
       });
 
       this.hubConnection.onreconnected?.(() => {
         this.realtimeConnectionStateSubject.next('connected');
+        this.stopPolling();
         this.lastLoadErrorSubject.next(null);
         this.debugLog('info', 'Vendor notifications realtime hub reconnected successfully.');
         this.refreshFromServer();
@@ -745,6 +747,7 @@ export class AlertsCenterService {
 
       this.hubConnection.onclose((error) => {
         this.realtimeConnectionStateSubject.next('closed');
+        this.startPolling();
         this.debugLog('warn', 'Vendor notifications realtime hub closed.', error);
         if (this.authService.hasApiSession) {
           void this.reconnectRealtimeWithBackoff();
@@ -755,11 +758,13 @@ export class AlertsCenterService {
     try {
       await this.hubConnection.start();
       this.realtimeConnectionStateSubject.next('connected');
+      this.stopPolling();
       this.lastLoadErrorSubject.next(null);
       this.debugLog('info', 'Vendor notifications realtime hub connected successfully.');
       this.refreshFromServer();
     } catch (error) {
       this.realtimeConnectionStateSubject.next('error');
+      this.startPolling();
       this.lastLoadErrorSubject.next(this.describeError(error));
       console.error('Vendor notifications SignalR connection failed.', error);
       void this.reconnectRealtimeWithBackoff();

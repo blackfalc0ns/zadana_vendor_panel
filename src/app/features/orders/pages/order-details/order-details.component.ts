@@ -536,7 +536,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   private driverLocationSub: Subscription | null = null;
   private statusChangeSub: Subscription | null = null;
   private trackedOrderId: string | null = null;
-  private readonly POLL_INTERVAL_MS = 8000;
+  private readonly POLL_INTERVAL_MS = 60000;
+  private readonly TRACKING_FALLBACK_POLL_INTERVAL_MS = 30000;
 
   constructor(
     private route: ActivatedRoute,
@@ -1016,7 +1017,11 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
       return;
     }
 
-    const pollInterval = this.isTrackingActive() ? 5000 : this.POLL_INTERVAL_MS;
+    // SignalR is the primary update path. Polling remains as a conservative
+    // fallback so functionality survives proxy/WebSocket interruptions.
+    const pollInterval = this.isTrackingActive()
+      ? this.TRACKING_FALLBACK_POLL_INTERVAL_MS
+      : this.POLL_INTERVAL_MS;
     const orderId = this.order.id;
 
     this.pollSub = interval(pollInterval).pipe(
@@ -1083,11 +1088,6 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   private applyRealtimeDriverLocation(payload: OrderTrackingDriverLocation): void {
-    console.log('[OrderTracking][component] applyRealtimeDriverLocation called', {
-      payloadOrderId: payload.orderId,
-      currentOrderId: this.order?.id,
-      match: payload.orderId === this.order?.id
-    });
     if (!this.order || payload.orderId !== this.order.id) {
       return;
     }
@@ -1114,7 +1114,6 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
           recordedAtUtc: payload.recordedAtUtc
         }
       };
-      console.log('[OrderTracking][component] driverLiveLocation updated to', this.order.driverLiveLocation);
     });
   }
 

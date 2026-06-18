@@ -1,6 +1,6 @@
 import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { catchError, switchMap, throwError } from 'rxjs';
+import { catchError, retry, switchMap, throwError, timer } from 'rxjs';
 import { VendorAuthService } from '../services/vendor-auth.service';
 
 export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
@@ -17,6 +17,16 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
     : request;
 
   return next(authorizedRequest).pipe(
+    retry({
+      count: request.method === 'GET' ? 2 : 0,
+      delay: (error: unknown, retryCount: number) => {
+        if (!isTransientReadError(error)) {
+          return throwError(() => error);
+        }
+
+        return timer(250 * (2 ** (retryCount - 1)));
+      }
+    }),
     catchError((error: unknown) => {
       const isUnauthorized = error instanceof HttpErrorResponse && error.status === 401;
       const hasRefreshToken = !!authService.getRefreshToken();
@@ -37,3 +47,12 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
     })
   );
 };
+
+function isTransientReadError(error: unknown): boolean {
+  return error instanceof HttpErrorResponse &&
+    (error.status === 0 ||
+      error.status === 429 ||
+      error.status === 502 ||
+      error.status === 503 ||
+      error.status === 504);
+}
