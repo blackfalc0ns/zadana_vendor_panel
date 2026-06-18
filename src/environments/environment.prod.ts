@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://zadana.runasp.net/api',
+  apiUrl: 'https://api.zadna0.com/api',
   oneSignal: {
     enabled: false,
     appId: 'e557da4e-947b-468b-ab5b-37c552c35dca',
