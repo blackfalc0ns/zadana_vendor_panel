@@ -48,7 +48,10 @@ interface SignalRHubConnection {
 }
 
 interface SignalRHubConnectionBuilder {
-  withUrl(url: string, options: { accessTokenFactory: () => string }): SignalRHubConnectionBuilder;
+  withUrl(url: string, options: {
+    accessTokenFactory: () => string;
+    transport?: number;
+  }): SignalRHubConnectionBuilder;
   withAutomaticReconnect(): SignalRHubConnectionBuilder;
   configureLogging(level: number): SignalRHubConnectionBuilder;
   build(): SignalRHubConnection;
@@ -64,6 +67,9 @@ interface SignalRBrowserSdk {
   LogLevel: {
     Information: number;
     Warning: number;
+  };
+  HttpTransportType: {
+    LongPolling: number;
   };
 }
 
@@ -192,10 +198,15 @@ export class OrderTrackingRealtimeService {
       }
 
       if (!this.hubConnection) {
+        const connectionOptions = {
+          accessTokenFactory: () => this.authService.getToken() ?? '',
+          ...(environment.production
+            ? { transport: signalR.HttpTransportType.LongPolling }
+            : {})
+        };
+
         this.hubConnection = new signalR.HubConnectionBuilder()
-          .withUrl(this.hubUrl, {
-            accessTokenFactory: () => this.authService.getToken() ?? ''
-          })
+          .withUrl(this.hubUrl, connectionOptions)
           .withAutomaticReconnect()
           .configureLogging(environment.production ? signalR.LogLevel.Warning : signalR.LogLevel.Information)
           .build();
