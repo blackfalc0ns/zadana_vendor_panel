@@ -25,6 +25,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private readonly document = inject(DOCUMENT);
   private readonly renderer = inject(Renderer2);
   private routerEventsSub?: Subscription;
+  private alertsRealtimeSub?: Subscription;
   private splashFallbackTimer?: ReturnType<typeof setTimeout>;
   title = 'Zadna Vendor Panel';
   currentLang = 'ar';
@@ -63,12 +64,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.watchRouterEvents();
 
     queueMicrotask(() => {
-      if (!this.authService.hasApiSession) {
-        return;
-      }
-
       this.alertsCenterService.startMonitoring();
-      this.alertsCenterService.getRealtimeAlerts().subscribe((alert: AlertCenterItemVm) => {
+      this.alertsRealtimeSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert: AlertCenterItemVm) => {
         this.cdr.markForCheck();
 
         if (alert.route === '/profile' || alert.route === '/finance' || alert.source === 'profile') {
@@ -81,6 +78,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.routerEventsSub?.unsubscribe();
+    this.alertsRealtimeSub?.unsubscribe();
     if (this.splashFallbackTimer) {
       clearTimeout(this.splashFallbackTimer);
     }

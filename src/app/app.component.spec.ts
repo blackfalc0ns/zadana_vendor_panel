@@ -1,8 +1,9 @@
-﻿import { TestBed } from '@angular/core/testing';
+import { fakeAsync, flushMicrotasks, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { of } from 'rxjs';
 import { TranslateLoader, provideTranslateService } from '@ngx-translate/core';
 import { AppComponent } from './app.component';
+import { AlertsCenterService } from './features/alerts/services/alerts-center.service';
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -42,4 +43,16 @@ describe('AppComponent', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     expect(compiled.querySelector('router-outlet')).not.toBeNull();
   });
+
+  it('should start alerts monitoring before a vendor signs in', fakeAsync(() => {
+    const alertsCenterService = TestBed.inject(AlertsCenterService);
+    const startMonitoringSpy = spyOn(alertsCenterService, 'startMonitoring');
+    const fixture = TestBed.createComponent(AppComponent);
+
+    fixture.detectChanges();
+    flushMicrotasks();
+
+    expect(startMonitoringSpy).toHaveBeenCalledTimes(1);
+    fixture.destroy();
+  }));
 });
