@@ -11,6 +11,8 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppCategorySelectorComponent } from '../../../../shared/components/ui/category-selector/category-selector.component';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
+import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
+import { ImageUploadPhase } from '../../../../shared/utils/image-upload-optimizer';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -23,7 +25,8 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
     TranslateModule,
     AppPageHeaderComponent,
     AppButtonComponent,
-    AppCategorySelectorComponent
+    AppCategorySelectorComponent,
+    UploadProgressComponent
   ],
   template: `
     <div class="space-y-6 animate-fade-in pb-12">
@@ -142,6 +145,11 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
                 </label>
               }
             </div>
+            @if (isSubmitting && productImageFile) {
+              <div class="mt-4 rounded-2xl border border-cyan-100 bg-cyan-50/60 p-4 text-start">
+                <app-upload-progress [progress]="uploadProgress" [phase]="uploadPhase"></app-upload-progress>
+              </div>
+            }
           </div>
 
           <!-- Actions -->
@@ -172,6 +180,8 @@ export class ProductSubmissionComponent implements OnInit {
   categories: Category[] = [];
   isSubmitting = false;
   productImageFile: File | null = null;
+  uploadProgress = 0;
+  uploadPhase: ImageUploadPhase = 'preparing';
 
   constructor(
     private fb: FormBuilder,
@@ -226,9 +236,15 @@ export class ProductSubmissionComponent implements OnInit {
     if (this.productForm.invalid) return;
 
     this.isSubmitting = true;
+    this.uploadProgress = 0;
+    this.uploadPhase = 'preparing';
 
     const upload$ = this.productImageFile
-      ? this.catalogService.uploadFile(this.productImageFile, 'uploads/catalog/product-requests')
+      ? this.catalogService.uploadFile(this.productImageFile, 'uploads/catalog/product-requests', (progress) => {
+          this.uploadProgress = progress.percent;
+          this.uploadPhase = progress.phase;
+          this.cdr.markForCheck();
+        })
       : of<string | null>(null);
 
     upload$.pipe(

@@ -1,10 +1,10 @@
 import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { forkJoin, map, of, switchMap } from 'rxjs';
+import { filter, forkJoin, from, map, of, switchMap, tap } from 'rxjs';
 import * as L from 'leaflet';
 
 import {
@@ -32,7 +32,14 @@ import { VendorProfile } from '../../../settings/models/vendor-profile.models';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 import { VendorReviewItem } from '../../../settings/models/vendor-profile.models';
 import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
+import {
+  optimizeImageForUpload,
+  shouldOptimizeImageForUpload,
+  ImageUploadPhase,
+  ImageUploadProgress
+} from '../../../../shared/utils/image-upload-optimizer';
 import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
+import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -49,13 +56,17 @@ import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-ph
     AppSelectComponent,
     AppCardComponent,
     AppBadgeComponent,
-    AppSectionHeaderComponent
+    AppSectionHeaderComponent,
+    UploadProgressComponent
   ],
   templateUrl: './onboarding.component.html',
   styleUrls: ['./onboarding.component.scss']
 })
 export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
+  uploadProgress = 0;
+  uploadPhase: ImageUploadPhase = 'preparing';
+  private readonly uploadProgressByKey = new Map<string, number>();
   readonly logoPath = 'assets/images/logo/zadana-mark.svg';
   readonly stepItems: OnboardingStepItem[] = [
     {
@@ -596,16 +607,17 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isSubmitting = true;
+    this.resetUploadProgress();
     const step1 = this.getStepGroup(1).getRawValue();
     const step2 = this.getStepGroup(2).getRawValue();
     const step3 = this.getStepGroup(3).getRawValue();
     const step4 = this.getStepGroup(4).getRawValue();
 
     forkJoin({
-      logoUrl: this.storeLogo ? this.uploadFile(this.storeLogo, 'uploads/vendors/logos') : of<string | null>(null),
-      commercialRegisterDocumentUrl: this.crDocument ? this.uploadFile(this.crDocument, 'uploads/vendors/commercial-register') : of<string | null>(null),
-      taxDocumentUrl: this.taxDocument ? this.uploadFile(this.taxDocument, 'uploads/vendors/tax-certificates') : of<string | null>(null),
-      licenseDocumentUrl: this.licenseDocument ? this.uploadFile(this.licenseDocument, 'uploads/vendors/licenses') : of<string | null>(null)
+      logoUrl: this.storeLogo ? this.uploadFile(this.storeLogo, 'uploads/vendors/logos', this.trackUpload('logo')) : of<string | null>(null),
+      commercialRegisterDocumentUrl: this.crDocument ? this.uploadFile(this.crDocument, 'uploads/vendors/commercial-register', this.trackUpload('commercial')) : of<string | null>(null),
+      taxDocumentUrl: this.taxDocument ? this.uploadFile(this.taxDocument, 'uploads/vendors/tax-certificates', this.trackUpload('tax')) : of<string | null>(null),
+      licenseDocumentUrl: this.licenseDocument ? this.uploadFile(this.licenseDocument, 'uploads/vendors/licenses', this.trackUpload('license')) : of<string | null>(null)
     }).pipe(
       map(({ logoUrl, commercialRegisterDocumentUrl, taxDocumentUrl, licenseDocumentUrl }) => {
         const payload: RegisterVendorPayload = {
@@ -1173,16 +1185,17 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
     }
 
     this.isSubmitting = true;
+    this.resetUploadProgress();
     const step1 = this.getStepGroup(1).getRawValue();
     const step2 = this.getStepGroup(2).getRawValue();
     const step3 = this.getStepGroup(3).getRawValue();
     const step4 = this.getStepGroup(4).getRawValue();
 
     forkJoin({
-      logoUrl: this.storeLogo ? this.uploadFile(this.storeLogo, 'uploads/vendors/logos') : of<string | null>(null),
-      commercialRegisterDocumentUrl: this.crDocument ? this.uploadFile(this.crDocument, 'uploads/vendors/commercial-register') : of<string | null>(null),
-      taxDocumentUrl: this.taxDocument ? this.uploadFile(this.taxDocument, 'uploads/vendors/tax-certificates') : of<string | null>(null),
-      licenseDocumentUrl: this.licenseDocument ? this.uploadFile(this.licenseDocument, 'uploads/vendors/licenses') : of<string | null>(null)
+      logoUrl: this.storeLogo ? this.uploadFile(this.storeLogo, 'uploads/vendors/logos', this.trackUpload('logo')) : of<string | null>(null),
+      commercialRegisterDocumentUrl: this.crDocument ? this.uploadFile(this.crDocument, 'uploads/vendors/commercial-register', this.trackUpload('commercial')) : of<string | null>(null),
+      taxDocumentUrl: this.taxDocument ? this.uploadFile(this.taxDocument, 'uploads/vendors/tax-certificates', this.trackUpload('tax')) : of<string | null>(null),
+      licenseDocumentUrl: this.licenseDocument ? this.uploadFile(this.licenseDocument, 'uploads/vendors/licenses', this.trackUpload('license')) : of<string | null>(null)
     }).pipe(
       map(({ logoUrl, commercialRegisterDocumentUrl, taxDocumentUrl, licenseDocumentUrl }) => {
         const nextProfile = {
@@ -1295,14 +1308,69 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private uploadFile(file: File, directory: string) {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('directory', directory);
+  private uploadFile(
+    file: File,
+    directory: string,
+    onProgress?: (progress: ImageUploadProgress) => void
+  ) {
+    onProgress?.({ percent: 3, phase: 'preparing' });
+    const preparedFile$ = shouldOptimizeImageForUpload(file)
+      ? from(optimizeImageForUpload(file))
+      : of(file);
 
-    return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData).pipe(
+    return preparedFile$.pipe(
+      switchMap((preparedFile) => {
+        onProgress?.({ percent: 15, phase: 'uploading' });
+        const formData = new FormData();
+        formData.append('file', preparedFile);
+        formData.append('directory', directory);
+        return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData, {
+          observe: 'events',
+          reportProgress: true
+        }).pipe(
+          tap((event) => {
+            if (event.type === HttpEventType.UploadProgress) {
+              const uploadPercent = event.total ? event.loaded / event.total : 0;
+              onProgress?.({
+                percent: Math.min(99, 15 + Math.round(uploadPercent * 84)),
+                phase: 'uploading'
+              });
+            }
+          }),
+          filter((event): event is HttpResponse<{ url: string }> =>
+            event.type === HttpEventType.Response),
+          map((event) => {
+            onProgress?.({ percent: 100, phase: 'uploading' });
+            return event.body ?? { url: '' };
+          })
+        );
+      }),
       map((response) => response.url)
     );
+  }
+
+  get pendingUploadFileCount(): number {
+    return [this.storeLogo, this.crDocument, this.taxDocument, this.licenseDocument]
+      .filter(Boolean).length;
+  }
+
+  private resetUploadProgress(): void {
+    this.uploadProgressByKey.clear();
+    this.uploadProgress = 0;
+    this.uploadPhase = 'preparing';
+  }
+
+  private trackUpload(key: string): (progress: ImageUploadProgress) => void {
+    return (progress) => {
+      this.uploadProgressByKey.set(key, progress.percent);
+      const total = Array.from(this.uploadProgressByKey.values())
+        .reduce((sum, value) => sum + value, 0);
+      this.uploadProgress = this.pendingUploadFileCount
+        ? Math.round(total / this.pendingUploadFileCount)
+        : 100;
+      this.uploadPhase = progress.phase;
+      this.cdr.markForCheck();
+    };
   }
 
   private syncRejectedReviewItems(profile: VendorProfile): void {

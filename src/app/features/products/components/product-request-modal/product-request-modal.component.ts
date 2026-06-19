@@ -8,13 +8,15 @@ import { forkJoin, map, of, switchMap } from 'rxjs';
 import { environment } from '../../../../../environments/environment';
 import { BrandOption, Category, UnitOption } from '../../models/catalog.models';
 import { CatalogService } from '../../services/catalog.service';
+import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
+import { ImageUploadPhase } from '../../../../shared/utils/image-upload-optimizer';
 
 type CategoryLevelKey = 'activity' | 'sub_activity' | 'category' | 'sub_category';
 type CategoryRequestKind = 'category' | 'sub_category';
 @Component({
   selector: 'app-product-request-modal',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, SearchableSelectComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TranslateModule, SearchableSelectComponent, UploadProgressComponent],
   template: `
     <div class="fixed inset-0 z-[110] flex items-center justify-center bg-slate-900/60 p-4 backdrop-blur-md">
       <div class="w-full max-w-4xl overflow-hidden rounded-[32px] bg-white shadow-2xl" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
@@ -118,6 +120,12 @@ type CategoryRequestKind = 'category' | 'sub_category';
                 </label>
               }
             </div>
+
+            @if (isSubmitting && uploadFileCount > 0) {
+              <div class="rounded-2xl border border-cyan-100 bg-cyan-50/60 p-4">
+                <app-upload-progress [progress]="uploadProgress" [phase]="uploadPhase"></app-upload-progress>
+              </div>
+            }
 
             <div class="flex items-center gap-4 pt-4">
               <button type="button" (click)="onClose()" class="flex-1 rounded-2xl border border-slate-200 py-3.5 text-[0.82rem] font-black text-slate-500">{{ 'COMMON.CANCEL' | translate }}</button>
@@ -369,6 +377,9 @@ export class ProductRequestModalComponent implements OnInit {
   brandImageFile: File | null = null;
   categoryImageFile: File | null = null;
   productImageFile: File | null = null;
+  uploadProgress = 0;
+  uploadPhase: ImageUploadPhase = 'preparing';
+  private readonly fileProgress = new Map<string, number>();
   readonly categoryRequestKindOptions: CategoryRequestKind[] = ['category', 'sub_category'];
 
   constructor(
@@ -661,19 +672,22 @@ export class ProductRequestModalComponent implements OnInit {
     }
 
     this.isSubmitting = true;
+    this.fileProgress.clear();
+    this.uploadProgress = 0;
+    this.uploadPhase = 'preparing';
     const formValue = this.requestForm.getRawValue();
     const brandDraft = this.brandDraftForm.getRawValue();
     const categoryDraft = this.categoryDraftForm.getRawValue();
 
     forkJoin({
       brandLogoUrl: brandDraft.isNew && this.brandImageFile
-        ? this.catalogService.uploadFile(this.brandImageFile, 'uploads/catalog/brand-requests')
+        ? this.catalogService.uploadFile(this.brandImageFile, 'uploads/catalog/brand-requests', this.trackUpload('brand'))
         : of<string | null>(null),
       categoryImageUrl: categoryDraft.isNew && this.categoryImageFile
-        ? this.catalogService.uploadFile(this.categoryImageFile, 'uploads/catalog/category-requests')
+        ? this.catalogService.uploadFile(this.categoryImageFile, 'uploads/catalog/category-requests', this.trackUpload('category'))
         : of<string | null>(null),
       productImageUrl: this.productImageFile
-        ? this.catalogService.uploadFile(this.productImageFile, 'uploads/catalog/product-requests')
+        ? this.catalogService.uploadFile(this.productImageFile, 'uploads/catalog/product-requests', this.trackUpload('product'))
         : of<string | null>(null)
     }).pipe(
       map(({ brandLogoUrl, categoryImageUrl, productImageUrl }) => ({
@@ -756,6 +770,25 @@ export class ProductRequestModalComponent implements OnInit {
 
   removeProductImage(): void {
     this.productImageFile = null;
+  }
+
+  get uploadFileCount(): number {
+    return [
+      this.brandDraftForm.get('isNew')?.value && this.brandImageFile,
+      this.categoryDraftForm.get('isNew')?.value && this.categoryImageFile,
+      this.productImageFile
+    ].filter(Boolean).length;
+  }
+
+  private trackUpload(key: string): (progress: { percent: number; phase: ImageUploadPhase }) => void {
+    return (progress) => {
+      this.fileProgress.set(key, progress.percent);
+      const values = Array.from(this.fileProgress.values());
+      this.uploadProgress = values.length
+        ? Math.round(values.reduce((total, value) => total + value, 0) / this.uploadFileCount)
+        : 0;
+      this.uploadPhase = progress.phase;
+    };
   }
 
   onRequestKindChanged(): void {

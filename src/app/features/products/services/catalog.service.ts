@@ -1,8 +1,13 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { HttpClient, HttpEventType, HttpParams, HttpResponse } from '@angular/common/http';
+import { Observable, from, of } from 'rxjs';
+import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
+import {
+  optimizeImageForUpload,
+  shouldOptimizeImageForUpload,
+  ImageUploadProgress
+} from '../../../shared/utils/image-upload-optimizer';
 import {
   BulkVendorProductDraft,
   BrandOption,
@@ -160,12 +165,43 @@ export class CatalogService {
     return this.http.post<void>(`${this.baseUrl}/product-requests`, this.normalizeProductRequestPayload(data));
   }
 
-  uploadFile(file: File, directory: string): Observable<string> {
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('directory', directory);
+  uploadFile(
+    file: File,
+    directory: string,
+    onProgress?: (progress: ImageUploadProgress) => void
+  ): Observable<string> {
+    onProgress?.({ percent: 3, phase: 'preparing' });
+    const preparedFile$ = shouldOptimizeImageForUpload(file)
+      ? from(optimizeImageForUpload(file))
+      : of(file);
 
-    return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData).pipe(
+    return preparedFile$.pipe(
+      switchMap((preparedFile) => {
+        onProgress?.({ percent: 15, phase: 'uploading' });
+        const formData = new FormData();
+        formData.append('file', preparedFile);
+        formData.append('directory', directory);
+        return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData, {
+          observe: 'events',
+          reportProgress: true
+        }).pipe(
+          tap((event) => {
+            if (event.type === HttpEventType.UploadProgress) {
+              const uploadPercent = event.total ? event.loaded / event.total : 0;
+              onProgress?.({
+                percent: Math.min(99, 15 + Math.round(uploadPercent * 84)),
+                phase: 'uploading'
+              });
+            }
+          }),
+          filter((event): event is HttpResponse<{ url: string }> =>
+            event.type === HttpEventType.Response),
+          map((event) => {
+            onProgress?.({ percent: 100, phase: 'uploading' });
+            return event.body ?? { url: '' };
+          })
+        );
+      }),
       map(response => response.url)
     );
   }
