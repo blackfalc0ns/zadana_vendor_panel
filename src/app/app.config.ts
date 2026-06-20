@@ -1,4 +1,4 @@
-import { APP_INITIALIZER, ApplicationConfig, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
+import { APP_INITIALIZER, ApplicationConfig, ErrorHandler, importProvidersFrom, provideZoneChangeDetection } from '@angular/core';
 import { provideRouter, withInMemoryScrolling } from '@angular/router';
 import { provideHttpClient, HttpClient, withInterceptors } from '@angular/common/http';
 import { TranslateLoader, TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -9,6 +9,7 @@ import { DialogModule } from '@angular/cdk/dialog';
 
 import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
+import { ChunkLoadErrorHandler } from './core/services/chunk-load-error-handler';
 
 const TRANSLATION_ASSET_VERSION = '2026-06-07-branch-map-1';
 
@@ -78,6 +79,10 @@ export const appConfig: ApplicationConfig = {
     ),
     provideHttpClient(withInterceptors([vendorAuthInterceptor])),
     provideAnimations(),
+    {
+      provide: ErrorHandler,
+      useClass: ChunkLoadErrorHandler
+    },
     importProvidersFrom(
       DialogModule,
       TranslateModule.forRoot({

@@ -20,6 +20,15 @@ type OneSignalSdk = {
     isPushSupported(): boolean;
     requestPermission(): Promise<void>;
   };
+  User?: {
+    PushSubscription?: {
+      id?: string | null;
+      token?: string | null;
+      optedIn?: boolean;
+      optIn?: () => Promise<void>;
+      addEventListener?: (event: 'change', listener: () => void) => void;
+    };
+  };
 };
 
 declare global {
@@ -33,10 +42,13 @@ declare global {
 })
 export class VendorWebPushService implements OnDestroy {
   private static readonly sdkScriptId = 'onesignal-web-sdk';
+  private static readonly browserDeviceIdKey = 'vendor_onesignal_browser_device_id';
   private readonly authSubscription = new Subscription();
   private readonly promptPrefix = 'vendor_onesignal_prompted_';
+  private readonly devicesUrl = `${environment.apiUrl}/notifications/devices`;
   private sdkPromise?: Promise<OneSignalSdk | null>;
   private lastExternalId: string | null = null;
+  private lastRegisteredSubscriptionState: string | null = null;
   private initialized = false;
   private sdkUnavailableLogged = false;
 
@@ -92,13 +104,23 @@ export class VendorWebPushService implements OnDestroy {
         await sdk.login(user.id);
       });
       this.lastExternalId = user.id;
+      this.lastRegisteredSubscriptionState = null;
     }
 
     if (environment.oneSignal.autoPrompt) {
       await this.promptForPermissionOnce(user.id);
     }
 
-    await this.triggerLoginTestNotificationIfPending(user);
+    if (this.resolveBrowserNotificationPermission() === 'granted') {
+      await this.runDeferred(async (sdk) => {
+        await sdk.User?.PushSubscription?.optIn?.();
+      });
+    }
+
+    const registered = await this.registerCurrentSubscription(oneSignal, user.id);
+    if (registered) {
+      await this.triggerLoginTestNotificationIfPending(user);
+    }
   }
 
   private async promptForPermissionOnce(externalId: string): Promise<void> {
@@ -146,6 +168,20 @@ export class VendorWebPushService implements OnDestroy {
             await oneSignal.init({
               appId: environment.oneSignal.appId,
               allowLocalhostAsSecureOrigin: this.isLocalhost()
+            });
+            oneSignal.User?.PushSubscription?.addEventListener?.('change', () => {
+              const currentUser = this.authService.currentUserSnapshot;
+              if (!currentUser?.id || !this.authService.hasApiSession) {
+                return;
+              }
+
+              void this.registerCurrentSubscription(oneSignal, currentUser.id).then((registered) => {
+                if (registered) {
+                  return this.triggerLoginTestNotificationIfPending(currentUser);
+                }
+
+                return undefined;
+              });
             });
             resolve(oneSignal);
           } catch (error) {
@@ -216,6 +252,61 @@ export class VendorWebPushService implements OnDestroy {
     }
 
     return view.Notification.permission;
+  }
+
+  private async registerCurrentSubscription(oneSignal: OneSignalSdk, userId: string): Promise<boolean> {
+    const subscription = oneSignal.User?.PushSubscription;
+    const subscriptionId = subscription?.id?.trim() || null;
+    const optedIn = subscription?.optedIn !== false;
+
+    if (!subscriptionId) {
+      return false;
+    }
+
+    const registrationState = `${subscriptionId}:${optedIn}`;
+    if (this.lastRegisteredSubscriptionState === registrationState) {
+      return optedIn;
+    }
+
+    try {
+      await firstValueFrom(this.http.post(`${this.devicesUrl}/register`, {
+        deviceToken: subscriptionId,
+        oneSignalSubscriptionId: subscriptionId,
+        platform: 'web',
+        deviceId: this.getBrowserDeviceId(),
+        deviceName: this.document.defaultView?.navigator.userAgent?.slice(0, 120) ?? 'Vendor browser',
+        appVersion: 'vendor-panel',
+        locale: this.document.documentElement.lang || localStorage.getItem('lang') || 'ar',
+        notificationsEnabled: optedIn,
+        dispatchPushEnabled: true,
+        assignmentPushEnabled: true,
+        supportPushEnabled: true,
+        walletPushEnabled: true,
+        accountPushEnabled: true
+      }));
+
+      this.lastRegisteredSubscriptionState = registrationState;
+      return optedIn;
+    } catch (error) {
+      this.lastRegisteredSubscriptionState = null;
+      if (!environment.production) {
+        console.warn('OneSignal vendor device registration failed.', error);
+      }
+      return false;
+    }
+  }
+
+  private getBrowserDeviceId(): string {
+    const existing = localStorage.getItem(VendorWebPushService.browserDeviceIdKey);
+    if (existing) {
+      return existing;
+    }
+
+    const generated = this.document.defaultView?.crypto?.randomUUID?.()
+      ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    const deviceId = `vendor-web-${generated}`;
+    localStorage.setItem(VendorWebPushService.browserDeviceIdKey, deviceId);
+    return deviceId;
   }
 
   private async triggerLoginTestNotificationIfPending(user: VendorCurrentUser): Promise<void> {

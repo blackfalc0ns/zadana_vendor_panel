@@ -2,6 +2,24 @@
   command = "npm run build"
   publish = "dist/vendor-panel/browser"
 
+# HTML and client-side routes must always revalidate so they cannot keep
+# referencing hashed chunks from an older atomic deploy.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
+# Angular production assets are content-hashed and safe to cache forever.
+[[headers]]
+  for = "/*.js"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/*.css"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
