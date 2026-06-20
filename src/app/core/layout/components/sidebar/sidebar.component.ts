@@ -257,6 +257,15 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
       category: 'operations'
     },
     {
+      icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />',
+      label: 'SIDEBAR.SUPPORT',
+      description: 'SIDEBAR.SUPPORT_DESC',
+      route: '/support',
+      exact: true,
+      permissions: ['vendor_support.view'],
+      category: 'operations'
+    },
+    {
       icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />',
       label: 'SIDEBAR.PRODUCTS',
       description: 'SIDEBAR.PRODUCTS_DESC',

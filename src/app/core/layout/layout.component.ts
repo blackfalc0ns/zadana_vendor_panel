@@ -7,7 +7,6 @@ import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { VendorProfileService } from '../../features/settings/services/vendor-profile.service';
 import { VendorAuthService } from '../auth/services/vendor-auth.service';
-import { VendorAccessService } from '../auth/services/vendor-access.service';
 import { VendorProfile } from '../../features/settings/models/vendor-profile.models';
 import { repairUtf8Mojibake, resolveLocalizedMessage } from '../../shared/utils/text-normalization.util';
 
@@ -37,8 +36,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
     private readonly translate: TranslateService,
     private readonly router: Router,
     private readonly profileService: VendorProfileService,
-    private readonly authService: VendorAuthService,
-    private readonly accessService: VendorAccessService
+    private readonly authService: VendorAuthService
   ) {
     this.activationProfile = this.profileService.getProfileSnapshot();
     this.applyProfilePresentation(this.activationProfile);
@@ -178,10 +176,6 @@ export class LayoutComponent implements OnInit, OnDestroy {
 
   localizeMessage(message?: string | null): string {
     return resolveLocalizedMessage(message, this.currentLang);
-  }
-
-  get canAccessSupport(): boolean {
-    return this.accessService.hasPermission('vendor_support.view');
   }
 
   private updateHtmlAttributes(lang: string): void {
