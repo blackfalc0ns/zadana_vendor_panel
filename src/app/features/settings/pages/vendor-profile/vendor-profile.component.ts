@@ -11,6 +11,7 @@ import { VENDOR_NOTIFICATION_SOUND_OPTIONS } from '../../../../core/notification
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
 import { VendorLegalDocumentType, VendorProfileService } from '../../services/vendor-profile.service';
 import { ProfileSectionNavItem, ProfileWorkspaceWindow, ProfileWorkspaceWindowId } from './vendor-profile.view-models';
+import { findReviewItemByCode, findReviewItemForField, PROFILE_DOCUMENT_REVIEW_CODES } from '../../utils/vendor-profile-review.utils';
 import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
 import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
@@ -150,7 +151,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
             [isSubmittingReview]="isSubmittingReview"
             [isStoreOffline]="currentProfile.storeManualMode === 'offline'"
             [isStoreAvailabilitySaving]="isSavingStoreAvailability"
-            [saveDisabled]="profileForm.invalid || isSaving"
+            [saveDisabled]="activeSectionSaveDisabled"
             [submitDisabled]="submitReviewDisabled"
             [submitReviewLabel]="submitReviewLabel"
             (save)="saveProfile()"
@@ -176,7 +177,11 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
             [regionOptions]="regionOptions"
             [cityOptions]="cityOptions"
             [fieldClass]="fieldClassFn"
-            [textareaClass]="textareaClassFn" />
+            [textareaClass]="textareaClassFn"
+            [reviewItems]="currentProfile.reviewItems"
+            [getFieldReviewItem]="fieldReviewItemFn"
+            [reviewItemStatusLabel]="reviewItemStatusLabelFn"
+            [reviewItemStatusBadgeClasses]="fieldReviewBadgeClassesFn" />
 
           <app-profile-review-window
             *ngIf="isWindowActive('review')"
@@ -244,7 +249,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
             [showSave]="activeWindowId !== 'timeline'"
             [showSubmit]="activeWindowId === 'review'"
             [showTimelinePreview]="activeWindowId !== 'timeline'"
-            [saveDisabled]="profileForm.invalid || isSaving"
+            [saveDisabled]="activeSectionSaveDisabled"
             [submitDisabled]="submitReviewDisabled"
             [isSaving]="isSaving"
             [isSubmittingReview]="isSubmittingReview"
@@ -307,6 +312,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
   readonly reviewItemStatusBadgeClassesOptionalFn = (item?: VendorReviewItem) =>
     this.reviewItemStatusBadgeClasses(item ?? this.emptyReviewItem('pending'));
   readonly timelineToneDotClassesFn = (entry: VendorReviewAuditEntry) => this.timelineToneDotClasses(entry);
+  readonly fieldReviewItemFn = (field: string) => this.getFieldReviewItem(field);
+  readonly fieldReviewBadgeClassesFn = (field: string) => this.fieldReviewBadgeClasses(field);
   readonly formatReviewDateFn = (value?: string | null) => this.formatReviewDate(value);
 
   buildFormOptions(options: any[]): SearchableSelectOption[] {
@@ -1161,6 +1168,56 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       .replace(/\s+/g, ' ');
   }
 
+  saveProfile(): void {
+    if (!this.isActiveSectionValid()) {
+      this.markActiveSectionTouched();
+      this.pageNotice = '';
+      this.pageError = this.translate.instant('SETTINGS_PROFILE.MESSAGES.SAVE_INVALID');
+      return;
+    }
+
+    this.isSaving = true;
+    this.pageNotice = '';
+    this.pageError = '';
+    const profile = this.buildProfileFromForm();
+
+    const save$ = (() => {
+      switch (this.activeTab) {
+        case 'store-section':
+          return this.profileService.saveStoreSection(profile);
+        case 'owner-section':
+          return this.profileService.saveOwnerSection(profile);
+        case 'contact-section':
+          return this.profileService.saveContactSection(profile);
+        default:
+          return this.profileService.saveStoreSection(profile);
+      }
+    })();
+
+    save$
+      .pipe(finalize(() => {
+        this.isSaving = false;
+        this.cdr.markForCheck();
+      }))
+      .subscribe({
+        next: () => {
+          const messageKey = this.activeTab === 'owner-section'
+            ? 'SETTINGS_PROFILE.MESSAGES.SAVE_OWNER_PENDING'
+            : this.activeTab === 'contact-section'
+              ? 'SETTINGS_PROFILE.MESSAGES.SAVE_CONTACT_SUCCESS'
+              : 'SETTINGS_PROFILE.MESSAGES.SAVE_STORE_SUCCESS';
+          this.pageNotice = this.translate.instant(messageKey);
+        },
+        error: (error) => {
+          console.error('Failed to save vendor profile section.', error);
+          this.pageError = this.resolveErrorMessage(
+            error,
+            this.translate.instant('SETTINGS_PROFILE.MESSAGES.SAVE_FAILED')
+          );
+        }
+      });
+  }
+
   private reconcileLookupSelections(): void {
     this.profileForm.patchValue({
       businessType: this.normalizeBusinessType(this.profileForm.get('businessType')?.value),
@@ -1170,45 +1227,51 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     }, { emitEvent: false });
   }
 
-  saveProfile(): void {
-    if (this.profileForm.invalid) {
-      this.profileForm.markAllAsTouched();
-      this.pageNotice = '';
-      this.pageError = this.currentLang === 'ar'
-        ? 'راجع الحقول المطلوبة قبل حفظ ملف التاجر.'
-        : 'Please review the required fields before saving the vendor profile.';
-      return;
+  get activeSectionSaveDisabled(): boolean {
+    return this.isSaving || !this.isActiveSectionValid();
+  }
+
+  getFieldReviewItem(fieldName: string): VendorReviewItem | undefined {
+    return findReviewItemForField(this.currentProfile.reviewItems, fieldName);
+  }
+
+  fieldReviewBadgeClasses(fieldName: string): string {
+    const item = this.getFieldReviewItem(fieldName);
+    return item ? this.reviewItemStatusBadgeClasses(item) : 'bg-slate-100 text-slate-600';
+  }
+
+  private isActiveSectionValid(): boolean {
+    if (this.activeWindowId === 'timeline') {
+      return false;
     }
 
-    this.isSaving = true;
-    this.pageNotice = '';
-    this.pageError = '';
-    const value = {
+    const section = this.sectionNavItems.find((item) => item.id === this.activeTab);
+    if (!section) {
+      return this.profileForm.valid;
+    }
+
+    if (section.kind === 'hours') {
+      return true;
+    }
+
+    return (section.fields ?? []).every((fieldName) => {
+      const control = this.profileForm.get(fieldName);
+      return !control || control.valid;
+    });
+  }
+
+  private buildProfileFromForm(): VendorProfile {
+    return {
       ...this.profileService.getProfileSnapshot(),
       ...this.profileForm.getRawValue()
     } as VendorProfile;
-    this.profileService.saveProfile(value)
-      .pipe(finalize(() => {
-        this.isSaving = false;
-      }))
-      .subscribe({
-        next: () => {
-        this.cdr.markForCheck();
-          this.pageNotice = this.currentLang === 'ar'
-            ? 'تم حفظ التعديلات العامة. البيانات الحساسة أرسلت للمراجعة وستطبق بعد موافقة الإدارة.'
-            : 'Public changes were saved. Sensitive profile changes were sent for review and will apply after admin approval.';
-        },
-        error: (error) => {
-        this.cdr.markForCheck();
-          console.error('Failed to save vendor profile.', error);
-          this.pageError = this.resolveErrorMessage(
-            error,
-            this.currentLang === 'ar'
-              ? 'تعذر حفظ تعديلات الملف الآن.'
-              : 'Unable to save profile changes right now.'
-          );
-        }
-      });
+  }
+
+  private markActiveSectionTouched(): void {
+    const section = this.sectionNavItems.find((item) => item.id === this.activeTab);
+    (section?.fields ?? []).forEach((fieldName) => {
+      this.profileForm.get(fieldName)?.markAsTouched();
+    });
   }
 
   saveOperatingHoursSection(): void {
@@ -1722,9 +1785,9 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
     return typeof value === 'boolean' ? value : !!String(value || '').trim();
   }
 
-  private findReviewItem(code: string): VendorReviewItem | undefined {
-    const normalizedCode = code.toLowerCase();
-    return this.currentProfile.reviewItems.find((item) => item.code.toLowerCase() === normalizedCode);
+  private findReviewItem(documentKey: string): VendorReviewItem | undefined {
+    const code = PROFILE_DOCUMENT_REVIEW_CODES[documentKey];
+    return code ? findReviewItemByCode(this.currentProfile.reviewItems, code) : undefined;
   }
 
   private legalDocumentRank(document: LegalDocumentCard): number {

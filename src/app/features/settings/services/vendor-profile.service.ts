@@ -242,6 +242,27 @@ export class VendorProfileService {
     return request$ as Observable<VendorProfile>;
   }
 
+  saveStoreSection(profile: VendorProfile): Observable<VendorProfile> {
+    return this.updateStore(profile).pipe(
+      switchMap(() => this.fetchProfile()),
+      tap((next) => this.persistProfile(next))
+    );
+  }
+
+  saveOwnerSection(profile: VendorProfile): Observable<VendorProfile> {
+    return this.updateOwner(profile).pipe(
+      switchMap(() => this.fetchProfile()),
+      tap((next) => this.persistProfile(next))
+    );
+  }
+
+  saveContactSection(profile: VendorProfile): Observable<VendorProfile> {
+    return this.updateContact(profile).pipe(
+      switchMap(() => this.fetchProfile()),
+      tap((next) => this.persistProfile(next))
+    );
+  }
+
   saveBankingSection(profile: VendorProfile): Observable<VendorProfile> {
     return this.updateBanking(profile).pipe(
       switchMap(() => this.fetchProfile()),
@@ -355,12 +376,7 @@ export class VendorProfileService {
       contactPhone: profile.supportPhone,
       descriptionAr: profile.descriptionAr,
       descriptionEn: profile.descriptionEn,
-      logoUrl: profile.logoUrl || null,
-      ...(profile.commercialRegisterDocumentUrl ? { commercialRegisterDocumentUrl: profile.commercialRegisterDocumentUrl } : {}),
-      region: profile.region,
-      city: profile.city,
-      nationalAddress: profile.nationalAddress,
-      commercialRegistrationNumber: profile.commercialRegistrationNumber
+      logoUrl: profile.logoUrl || null
     }).pipe(map((response) => this.unwrap(response)));
   }
 
