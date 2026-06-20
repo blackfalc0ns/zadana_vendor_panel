@@ -3,8 +3,8 @@ export const environment = {
   apiUrl: 'https://api.zadna0.com/api',
   realtimeEnabled: false,
   oneSignal: {
-    enabled: false,
-    appId: 'e557da4e-947b-468b-ab5b-37c552c35dca',
+    enabled: true,
+    appId: 'a0a2059e-f011-464d-abe1-7b3de71f72ab',
     autoPrompt: true
   }
 };
