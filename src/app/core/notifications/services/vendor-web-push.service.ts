@@ -9,6 +9,11 @@ import { VendorAuthService } from '../../auth/services/vendor-auth.service';
 type OneSignalInitOptions = {
   appId: string;
   allowLocalhostAsSecureOrigin?: boolean;
+  serviceWorkerPath?: string;
+  serviceWorkerUpdaterPath?: string;
+  serviceWorkerParam?: {
+    scope: string;
+  };
 };
 
 type OneSignalSdk = {
@@ -43,6 +48,8 @@ declare global {
 export class VendorWebPushService implements OnDestroy {
   private static readonly sdkScriptId = 'onesignal-web-sdk';
   private static readonly browserDeviceIdKey = 'vendor_onesignal_browser_device_id';
+  private static readonly subscriptionReadyAttempts = 10;
+  private static readonly subscriptionReadyDelayMs = 500;
   private readonly authSubscription = new Subscription();
   private readonly promptPrefix = 'vendor_onesignal_prompted_';
   private readonly devicesUrl = `${environment.apiUrl}/notifications/devices`;
@@ -117,7 +124,7 @@ export class VendorWebPushService implements OnDestroy {
       });
     }
 
-    const registered = await this.registerCurrentSubscription(oneSignal, user.id);
+    const registered = await this.waitForActiveSubscription(oneSignal, user.id);
     if (registered) {
       await this.triggerLoginTestNotificationIfPending(user);
     }
@@ -167,7 +174,12 @@ export class VendorWebPushService implements OnDestroy {
           try {
             await oneSignal.init({
               appId: environment.oneSignal.appId,
-              allowLocalhostAsSecureOrigin: this.isLocalhost()
+              allowLocalhostAsSecureOrigin: this.isLocalhost(),
+              serviceWorkerPath: 'OneSignalSDKWorker.js',
+              serviceWorkerUpdaterPath: 'OneSignalSDKUpdaterWorker.js',
+              serviceWorkerParam: {
+                scope: '/'
+              }
             });
             oneSignal.User?.PushSubscription?.addEventListener?.('change', () => {
               const currentUser = this.authService.currentUserSnapshot;
@@ -295,6 +307,30 @@ export class VendorWebPushService implements OnDestroy {
       }
       return false;
     }
+  }
+
+  private async waitForActiveSubscription(oneSignal: OneSignalSdk, userId: string): Promise<boolean> {
+    for (let attempt = 0; attempt < VendorWebPushService.subscriptionReadyAttempts; attempt += 1) {
+      if (await this.registerCurrentSubscription(oneSignal, userId)) {
+        return true;
+      }
+
+      if (this.resolveBrowserNotificationPermission() !== 'granted') {
+        return false;
+      }
+
+      await this.delay(VendorWebPushService.subscriptionReadyDelayMs);
+    }
+
+    if (!environment.production) {
+      console.warn('OneSignal vendor subscription did not become active after opt-in.');
+    }
+
+    return false;
+  }
+
+  private delay(milliseconds: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, milliseconds));
   }
 
   private getBrowserDeviceId(): string {
