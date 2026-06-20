@@ -41,6 +41,7 @@ export class VendorFinanceDashboardComponent implements OnInit {
   ledgerPage: VendorFinanceLedgerPage | null = null;
   isLoading = true;
   currentPeriod: VendorFinancePeriod = 'month';
+  selectedBranchId: string | null = null;
   currentLang = this.translate.currentLang || 'ar';
   readonly ledgerPageSize = 10;
 
@@ -103,26 +104,37 @@ export class VendorFinanceDashboardComponent implements OnInit {
       this.currentPeriod = period;
     }
 
+    const branchId = this.route.snapshot.queryParamMap.get('branchId');
+    this.selectedBranchId = branchId?.trim() || null;
+
     this.route.queryParamMap
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((params) => {
         const nextPeriod = params.get('period');
+        const nextBranchId = params.get('branchId')?.trim() || null;
+        let shouldReload = false;
+
         if (
-          nextPeriod !== 'today'
-          && nextPeriod !== 'week'
-          && nextPeriod !== 'month'
-          && nextPeriod !== 'quarter'
+          nextPeriod === 'today'
+          || nextPeriod === 'week'
+          || nextPeriod === 'month'
+          || nextPeriod === 'quarter'
         ) {
-          return;
+          if (this.currentPeriod !== nextPeriod) {
+            this.currentPeriod = nextPeriod;
+            shouldReload = true;
+          }
         }
 
-        if (this.currentPeriod === nextPeriod) {
-          return;
+        if (this.selectedBranchId !== nextBranchId) {
+          this.selectedBranchId = nextBranchId;
+          shouldReload = true;
         }
 
-        this.currentPeriod = nextPeriod;
-        this.ledgerPage = null;
-        this.loadData();
+        if (shouldReload) {
+          this.ledgerPage = null;
+          this.loadData();
+        }
       });
 
     this.loadData();
@@ -135,14 +147,53 @@ export class VendorFinanceDashboardComponent implements OnInit {
 
     this.currentPeriod = period;
     this.ledgerPage = null;
-    this.syncPeriodQueryParam();
+    this.syncQueryParams();
     this.loadData();
   }
 
-  private syncPeriodQueryParam(): void {
+  setBranch(branchId: string | null): void {
+    const normalized = branchId?.trim() || null;
+    if (this.selectedBranchId === normalized) {
+      return;
+    }
+
+    this.selectedBranchId = normalized;
+    this.ledgerPage = null;
+    this.syncQueryParams();
+    this.loadData();
+  }
+
+  get canSelectBranch(): boolean {
+    return !!this.snapshot?.branchScope?.canSelectBranch;
+  }
+
+  get branchOptions() {
+    return this.snapshot?.branchScope?.branches ?? [];
+  }
+
+  get branchSections() {
+    return this.snapshot?.branchSections ?? [];
+  }
+
+  get showBranchBreakdown(): boolean {
+    return this.canSelectBranch && !this.selectedBranchId && this.branchSections.length > 0;
+  }
+
+  get showWalletScopeHint(): boolean {
+    return this.canSelectBranch && !this.selectedBranchId;
+  }
+
+  isBranchSelected(branchId: string | null): boolean {
+    return (this.selectedBranchId ?? null) === (branchId ?? null);
+  }
+
+  private syncQueryParams(): void {
     void this.router.navigate([], {
       relativeTo: this.route,
-      queryParams: { period: this.currentPeriod },
+      queryParams: {
+        period: this.currentPeriod,
+        branchId: this.selectedBranchId || null
+      },
       queryParamsHandling: 'merge',
       replaceUrl: false
     });
@@ -150,9 +201,14 @@ export class VendorFinanceDashboardComponent implements OnInit {
 
   private loadData(): void {
     this.isLoading = true;
-    this.financeService.getSnapshot(this.currentPeriod).subscribe((snapshot) => {
+    this.financeService.getSnapshot(this.currentPeriod, this.selectedBranchId).subscribe((snapshot) => {
       this.cdr.markForCheck();
       this.snapshot = snapshot;
+      if (snapshot.branchScope?.selectedBranchId !== undefined) {
+        this.selectedBranchId = snapshot.branchScope.selectedBranchId ?? null;
+      } else if (!snapshot.branchScope?.canSelectBranch && snapshot.branchScope?.branches.length === 1) {
+        this.selectedBranchId = snapshot.branchScope.branches[0]?.id ?? null;
+      }
       this.isLoading = false;
       this.updateChartData();
     });
@@ -161,7 +217,7 @@ export class VendorFinanceDashboardComponent implements OnInit {
   }
 
   loadLedgerPage(page: number): void {
-    this.financeService.getLedger(this.currentPeriod, page, this.ledgerPageSize).subscribe((ledgerPage) => {
+    this.financeService.getLedger(this.currentPeriod, page, this.ledgerPageSize, this.selectedBranchId).subscribe((ledgerPage) => {
       this.cdr.markForCheck();
       this.ledgerPage = ledgerPage;
     });
@@ -339,11 +395,6 @@ export class VendorFinanceDashboardComponent implements OnInit {
     return this.translate.instant(`VENDOR_FINANCE.PERIODS.${period.toUpperCase()}`);
   }
 
-  private translateLabel(key: string, fallback: string): string {
-    const translated = this.translate.instant(key);
-    return translated === key ? fallback : translated;
-  }
-
   getSalesDatasetLabel(): string {
     return this.translate.instant('VENDOR_FINANCE.CHART.SALES');
   }
@@ -354,37 +405,14 @@ export class VendorFinanceDashboardComponent implements OnInit {
 
   private getMonthLabel(label: string): string {
     const key = label.slice(0, 3).toUpperCase();
-    const monthLabels: Record<string, { ar: string; en: string }> = {
-      JAN: { ar: 'يناير', en: 'Jan' },
-      FEB: { ar: 'فبراير', en: 'Feb' },
-      MAR: { ar: 'مارس', en: 'Mar' },
-      APR: { ar: 'أبريل', en: 'Apr' },
-      MAY: { ar: 'مايو', en: 'May' },
-      JUN: { ar: 'يونيو', en: 'Jun' },
-      JUL: { ar: 'يوليو', en: 'Jul' },
-      AUG: { ar: 'أغسطس', en: 'Aug' },
-      SEP: { ar: 'سبتمبر', en: 'Sep' },
-      OCT: { ar: 'أكتوبر', en: 'Oct' },
-      NOV: { ar: 'نوفمبر', en: 'Nov' },
-      DEC: { ar: 'ديسمبر', en: 'Dec' }
-    };
-
-    return monthLabels[key]?.[this.currentLang === 'ar' ? 'ar' : 'en'] ?? label;
+    const translated = this.translate.instant(`VENDOR_FINANCE.MONTHS.${key}`);
+    return translated === `VENDOR_FINANCE.MONTHS.${key}` ? label : translated;
   }
 
   private getDayLabel(label: string): string {
     const key = label.slice(0, 3).toUpperCase();
-    const dayLabels: Record<string, { ar: string; en: string }> = {
-      MON: { ar: 'الاثنين', en: 'Mon' },
-      TUE: { ar: 'الثلاثاء', en: 'Tue' },
-      WED: { ar: 'الأربعاء', en: 'Wed' },
-      THU: { ar: 'الخميس', en: 'Thu' },
-      FRI: { ar: 'الجمعة', en: 'Fri' },
-      SAT: { ar: 'السبت', en: 'Sat' },
-      SUN: { ar: 'الأحد', en: 'Sun' }
-    };
-
-    return dayLabels[key]?.[this.currentLang === 'ar' ? 'ar' : 'en'] ?? label;
+    const translated = this.translate.instant(`VENDOR_FINANCE.DAYS.${key}`);
+    return translated === `VENDOR_FINANCE.DAYS.${key}` ? label : translated;
   }
 
   private isMonthLabel(label: string): boolean {
@@ -458,15 +486,12 @@ export class VendorFinanceDashboardComponent implements OnInit {
   }
 
   getLedgerDescription(entry: VendorLedgerEntry): string {
-    if (entry.reference === 'OrderRevenue') {
-      return this.currentLang === 'ar' ? 'تمت إضافة ربح الطلب' : 'Order revenue added';
+    const localized = this.currentLang === 'ar' ? entry.titleAr : entry.titleEn;
+    if (localized?.trim()) {
+      return localized;
     }
 
-    if (entry.reference === 'VendorRecovery') {
-      return this.currentLang === 'ar' ? 'تم خصم استرداد التاجر' : 'Vendor recovery deducted';
-    }
-
-    return this.currentLang === 'ar' ? entry.titleAr : entry.titleEn;
+    return this.translate.instant(this.getLedgerLabel(entry));
   }
 
   getPayoutMethodLabel(method?: string | null): string {
@@ -496,33 +521,8 @@ export class VendorFinanceDashboardComponent implements OnInit {
   }
 
   getKpiLabel(kpi: VendorFinanceSnapshot['kpis'][number]): string {
-    if (this.currentLang === 'ar') {
-      switch (kpi.id) {
-        case 'gross-sales':
-          return 'إجمالي المبيعات';
-        case 'vendor-profit':
-          return 'ربح التاجر';
-        case 'platform-fees':
-          return 'عمولة المنصة';
-        case 'vendor-net':
-          return 'صافي مستحق التاجر';
-        default:
-          return this.translateLabel(kpi.labelKey, kpi.id);
-      }
-    }
-
-    switch (kpi.id) {
-      case 'gross-sales':
-        return 'Gross sales';
-      case 'vendor-profit':
-        return 'Vendor profit';
-      case 'platform-fees':
-        return 'Platform commission';
-      case 'vendor-net':
-        return 'Vendor net';
-      default:
-        return this.translateLabel(kpi.labelKey, kpi.id);
-    }
+    const translated = this.translate.instant(kpi.labelKey);
+    return translated === kpi.labelKey ? kpi.id : translated;
   }
 
   private formatReferenceFallback(reference: string): string {

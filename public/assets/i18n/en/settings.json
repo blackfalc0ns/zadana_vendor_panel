@@ -647,7 +647,15 @@
       "VIEW_REPORTS": "View Reports",
       "DOWNLOAD_STATEMENT": "Download Statement",
       "REQUEST_PAYOUT": "Request Payout",
+      "REVIEW_ORDERS": "Review orders",
       "PAYOUT_SUCCESS_MSG": "Payout request submitted successfully and is pending review"
+    },
+    "BRANCHES": {
+      "TITLE": "Financial breakdown by branch",
+      "ALL": "All branches",
+      "PRIMARY": "Primary branch",
+      "ORDERS": "{{count}} orders",
+      "SCOPE_HINT": "Wallet balance reflects the entire store. Branch figures show sales attributed to each branch for the selected period."
     },
     "LIFECYCLE_MODES": {
       "PerOrderDirectPayout": "Per Order",
@@ -703,13 +711,18 @@
         "VENDOR_RECOVERY": "Vendor Recovery"
       },
       "COMMISSION": "Commission",
+      "SALE": "Sales",
       "PAYOUT": "Payout",
       "FEE": "Fee",
       "REFUND": "Refund"
     },
     "ALERTS": {
       "TITLE": "Action Center",
-      "EMPTY": "All caught up. No new alerts."
+      "EMPTY": "All caught up. No new alerts.",
+      "PAYOUT_TITLE": "Pending settlements",
+      "PAYOUT_BODY": "You have amounts waiting to be settled. Review recent batches or download your statement.",
+      "HOLD_TITLE": "No available balance",
+      "HOLD_BODY": "Available balance is zero or on hold. Review orders or pending holds."
     },
     "MONTHS": {
       "JAN": "Jan",

@@ -51,6 +51,29 @@ export interface VendorFinanceAlert {
   actionLabelKey: string;
 }
 
+export interface VendorFinanceBranchOption {
+  id: string;
+  name: string;
+  isPrimary: boolean;
+}
+
+export interface VendorFinanceBranchScope {
+  canSelectBranch: boolean;
+  selectedBranchId?: string | null;
+  branches: VendorFinanceBranchOption[];
+}
+
+export interface VendorFinanceBranchSection {
+  branchId: string;
+  branchName: string;
+  isPrimary: boolean;
+  grossSales: number;
+  vendorProfit: number;
+  platformFees: number;
+  vendorNet: number;
+  ordersCount: number;
+}
+
 export interface VendorFinanceSnapshot {
   availableBalance: number;
   pendingSettlement: number;
@@ -63,4 +86,6 @@ export interface VendorFinanceSnapshot {
   settlements: VendorSettlement[];
   ledger: VendorLedgerEntry[];
   alerts: VendorFinanceAlert[];
+  branchScope?: VendorFinanceBranchScope;
+  branchSections?: VendorFinanceBranchSection[];
 }

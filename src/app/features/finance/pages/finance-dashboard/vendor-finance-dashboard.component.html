@@ -16,6 +16,34 @@
     </div>
   </app-page-header>
 
+  @if (canSelectBranch && snapshot) {
+    <div class="mb-4 flex flex-wrap items-center gap-2">
+      <button
+        type="button"
+        (click)="setBranch(null)"
+        class="rounded-[12px] px-3 py-1.5 text-[0.68rem] font-black transition-all duration-300 border"
+        [ngClass]="isBranchSelected(null)
+          ? 'bg-zadna-primary text-white border-zadna-primary shadow-sm'
+          : 'bg-white text-slate-500 border-slate-200 hover:border-zadna-primary/30'">
+        {{ 'VENDOR_FINANCE.BRANCHES.ALL' | translate }}
+      </button>
+      @for (branch of branchOptions; track branch.id) {
+        <button
+          type="button"
+          (click)="setBranch(branch.id)"
+          class="rounded-[12px] px-3 py-1.5 text-[0.68rem] font-black transition-all duration-300 border"
+          [ngClass]="isBranchSelected(branch.id)
+            ? 'bg-zadna-primary text-white border-zadna-primary shadow-sm'
+            : 'bg-white text-slate-500 border-slate-200 hover:border-zadna-primary/30'">
+          {{ branch.name }}
+          @if (branch.isPrimary) {
+            <span class="ms-1 opacity-80">({{ 'VENDOR_FINANCE.BRANCHES.PRIMARY' | translate }})</span>
+          }
+        </button>
+      }
+    </div>
+  }
+
   <div class="space-y-4 sm:space-y-5 animate-in slide-in-from-bottom-8 duration-700 fill-mode-both">
 
     <!-- Skeleton Loading State -->
@@ -63,6 +91,12 @@
     }
 
     @if (snapshot) {
+    @if (showWalletScopeHint) {
+      <div class="rounded-[16px] border border-sky-100 bg-sky-50/70 px-4 py-3 text-[0.72rem] font-bold text-sky-800">
+        {{ 'VENDOR_FINANCE.BRANCHES.SCOPE_HINT' | translate }}
+      </div>
+    }
+
     <!-- Bento Grid Top Row (Metrics) -->
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
       <!-- Available Balance (Primary Card) -->
@@ -131,6 +165,53 @@
         </div>
       </div>
     </div>
+
+    @if (showBranchBreakdown) {
+      <div class="rounded-[24px] border border-slate-100 bg-white shadow-sm shadow-slate-200/40 overflow-hidden">
+        <div class="border-b border-slate-50 px-5 py-4">
+          <h2 class="text-[0.75rem] font-black uppercase tracking-widest text-slate-800">
+            {{ 'VENDOR_FINANCE.BRANCHES.TITLE' | translate }}
+          </h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 p-4">
+          @for (section of branchSections; track section.branchId) {
+            <button
+              type="button"
+              (click)="setBranch(section.branchId)"
+              class="rounded-[18px] border border-slate-100 bg-slate-50/40 p-4 text-start transition-all hover:-translate-y-0.5 hover:border-zadna-primary/20 hover:bg-white hover:shadow-sm">
+              <div class="mb-3 flex items-center justify-between gap-2">
+                <span class="text-sm font-black text-slate-800">{{ section.branchName }}</span>
+                @if (section.isPrimary) {
+                  <span class="rounded-full bg-zadna-primary/10 px-2 py-0.5 text-[0.58rem] font-black text-zadna-primary">
+                    {{ 'VENDOR_FINANCE.BRANCHES.PRIMARY' | translate }}
+                  </span>
+                }
+              </div>
+              <div class="grid grid-cols-2 gap-2 text-[0.68rem]">
+                <div>
+                  <span class="block text-slate-400 font-bold">{{ 'VENDOR_FINANCE.KPIS.GROSS_SALES' | translate }}</span>
+                  <span class="font-black text-slate-800">{{ formatCurrency(section.grossSales) }}</span>
+                </div>
+                <div>
+                  <span class="block text-slate-400 font-bold">{{ 'VENDOR_FINANCE.KPIS.VENDOR_NET' | translate }}</span>
+                  <span class="font-black text-emerald-700">{{ formatCurrency(section.vendorNet) }}</span>
+                </div>
+                <div>
+                  <span class="block text-slate-400 font-bold">{{ 'VENDOR_FINANCE.KPIS.PLATFORM_FEES' | translate }}</span>
+                  <span class="font-black text-amber-700">{{ formatCurrency(section.platformFees) }}</span>
+                </div>
+                <div>
+                  <span class="block text-slate-400 font-bold">{{ 'COMMON.TOTAL' | translate }}</span>
+                  <span class="font-black text-slate-700">
+                    {{ 'VENDOR_FINANCE.BRANCHES.ORDERS' | translate:{ count: section.ordersCount } }}
+                  </span>
+                </div>
+              </div>
+            </button>
+          }
+        </div>
+      </div>
+    }
 
     <!-- Main Content Area: Chart & Alerts -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
@@ -347,7 +428,7 @@
           <table class="w-full text-start">
             <thead>
               <tr class="bg-slate-50/80 text-[0.6rem] font-black uppercase tracking-widest text-slate-400">
-                <th class="px-4 py-3 text-start font-black">Batch ID</th>
+                <th class="px-4 py-3 text-start font-black">{{ 'VENDOR_FINANCE.SETTLEMENTS.BATCH_ID' | translate }}</th>
                 <th class="px-4 py-3 text-start font-black">{{ 'COMMON.STATUS' | translate }}</th>
                 <th class="px-4 py-3 text-start font-black">{{ 'COMMON.DATE' | translate }}</th>
                 <th class="px-4 py-3 text-end font-black">{{ 'COMMON.TOTAL' | translate }}</th>
