@@ -21,6 +21,17 @@ import { StaffBranchesService } from '../../../staff/services/staff-branches.ser
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 import { VendorAccessScope, VendorCurrentUser } from '../../../../core/auth/models/vendor-auth.models';
 import { looksLikeUtf8Mojibake, repairUtf8Mojibake } from '../../../../shared/utils/text-normalization.util';
+import {
+  normalizeVendorDisputeStatus,
+  normalizeVendorDisputeType
+} from '../../../disputes/utils/vendor-dispute-display.utils';
+import {
+  resolveVendorLedgerDefaultKey,
+  resolveVendorLedgerMemo,
+  resolveVendorLedgerReferenceKey,
+  resolveVendorOrderStatusKey,
+  resolveVendorSettlementStatusKey
+} from '../../utils/vendor-dashboard-i18n.utils';
 
 Chart.register(...registerables);
 
@@ -920,6 +931,44 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     return item.comment.length > 120 ? `${item.comment.slice(0, 120).trim()}...` : item.comment;
   }
 
+  translateOrderStatus(status: string): string {
+    const key = resolveVendorOrderStatusKey(status);
+    const translated = this.translate.instant(key);
+    return translated === key ? status : translated;
+  }
+
+  translateSettlementStatus(status: string): string {
+    const key = resolveVendorSettlementStatusKey(status);
+    const translated = this.translate.instant(key);
+    return translated === key ? status : translated;
+  }
+
+  translateLedgerLabel(label: string): string {
+    const memo = resolveVendorLedgerMemo(label);
+    if (memo) {
+      const translated = this.translate.instant(memo.key, memo.params);
+      return translated === memo.key ? label : translated;
+    }
+
+    const defaultKey = resolveVendorLedgerDefaultKey(label);
+    if (defaultKey) {
+      const translated = this.translate.instant(defaultKey);
+      return translated === defaultKey ? label : translated;
+    }
+
+    return label;
+  }
+
+  translateLedgerReference(reference: string): string {
+    const key = resolveVendorLedgerReferenceKey(reference);
+    if (!key) {
+      return reference;
+    }
+
+    const translated = this.translate.instant(key);
+    return translated === key ? reference : translated;
+  }
+
   private formatTrendLabel(label: string): string {
     const trimmed = label.trim();
     const localized = this.localizeTrendLabel(trimmed);
@@ -1013,9 +1062,9 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
       case 'ledger':
         return this.translate.instant(`DASHBOARD.LEDGER_TYPES.${key.toUpperCase()}`);
       case 'dispute-status':
-        return this.translate.instant(`VENDOR_DISPUTES.STATUS.${key.toUpperCase()}`);
+        return this.translate.instant(`VENDOR_DISPUTES.STATUS.${normalizeVendorDisputeStatus(key).toUpperCase()}`);
       case 'dispute-type':
-        return this.translate.instant(`VENDOR_DISPUTES.TYPE.${key.toUpperCase()}`);
+        return this.translate.instant(`VENDOR_DISPUTES.TYPE.${normalizeVendorDisputeType(key).toUpperCase()}`);
       case 'branch-status':
         return key === 'active'
           ? this.translate.instant('COMMON.STATUS_ACTIVE')
@@ -1034,20 +1083,9 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
   }
 
   private orderStatusLabel(key: string): string {
-    const map: Record<string, string> = {
-      PendingVendorAcceptance: 'ORDERS.STATUS_NEW',
-      Placed: 'ORDERS.STATUS_NEW',
-      Accepted: 'ORDERS.STATUS_CONFIRMED',
-      Preparing: 'ORDERS.STATUS_IN_PROGRESS',
-      ReadyForPickup: 'ORDERS.STATUS_READY',
-      DriverAssignmentInProgress: 'ORDERS.STATUS_READY',
-      DriverAssigned: 'ORDERS.STATUS_READY',
-      Delivered: 'ORDERS.STATUS_COMPLETED',
-      Cancelled: 'ORDERS.STATUS_CANCELLED',
-      VendorRejected: 'ORDERS.STATUS_CANCELLED'
-    };
-
-    return this.translate.instant(map[key] ?? 'COMMON.STATUS');
+    const translationKey = resolveVendorOrderStatusKey(key);
+    const translated = this.translate.instant(translationKey);
+    return translated === translationKey ? this.fallbackGenericLabel(key) : translated;
   }
 
   private weekdayLabel(dayIndex: number): string {

@@ -152,6 +152,41 @@
       "REFUNDS": "مرتجعات",
       "ADJUSTMENTS": "تعديلات"
     },
+    "LEDGER_REFERENCE": {
+      "ORDER": "طلب",
+      "ORDER_REVENUE": "إيراد طلب",
+      "VENDOR_RECOVERY": "استرداد المتجر",
+      "PAYOUT": "تحويل",
+      "SETTLEMENT": "تسوية"
+    },
+    "LEDGER_DEFAULTS": {
+      "ORDER_REVENUE": "إيراد طلب",
+      "PAYOUT_HOLD": "حجز للتحويل",
+      "PAYOUT_HOLD_RELEASE": "فك حجز التحويل",
+      "VENDOR_PAYOUT": "تحويل بنكي",
+      "REFUND": "استرجاع",
+      "WALLET_ADJUSTMENT": "تسوية مالية",
+      "WALLET_CREDIT": "إضافة للمحفظة",
+      "WALLET_DEBIT": "خصم من المحفظة",
+      "SETTLEMENT": "تسوية",
+      "CASH_COLLECTED": "تحصيل نقدي"
+    },
+    "LEDGER_MEMOS": {
+      "PAYOUT_PAID": "تم دفع التسوية {{id}}",
+      "PLATFORM_CASH_PAYOUT": "تسوية نقدية للمنصة {{id}}",
+      "COD_RECEIVABLE": "ذمم COD متوقعة للطلب {{order}}",
+      "CUSTOMER_ADVANCE_CLEARING": "تسوية سلفة العميل للطلب {{order}}",
+      "REVENUE_RECONCILIATION_DELTA": "فرق مطابقة الإيرادات للطلب {{order}}",
+      "GATEWAY_RECEIVABLE": "ذمم بوابة الدفع عند التحصيل للطلب {{order}}",
+      "CUSTOMER_ADVANCE_RECOGNISED": "اعتراف بسلفة العميل للطلب {{order}}",
+      "COD_CASH_COLLECTED": "تحصيل نقدي COD للطلب {{order}}",
+      "CUSTOMER_ADVANCE_CLEARED": "تصفية سلفة العميل للطلب {{order}}",
+      "VENDOR_PAYABLE": "مستحقات المتجر للطلب {{order}}",
+      "DRIVER_PAYABLE": "مستحقات المندوب للطلب {{order}}",
+      "PLATFORM_REVENUE": "إيرادات المنصة للطلب {{order}}",
+      "TAX_PAYABLE": "ضريبة مستحقة للطلب {{order}}",
+      "DRIVER_WITHDRAWAL_APPROVED": "تم اعتماد سحب المندوب للتحويل"
+    },
     "SALES": {
       "GROSS_SALES": "إجمالي المبيعات",
       "PAID_SALES": "المبيعات المحصلة",

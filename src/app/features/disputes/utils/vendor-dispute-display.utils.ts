@@ -12,12 +12,36 @@ export interface VendorDisputeDisplayState {
   displayStatusClass: string;
 }
 
+function compactDisputeToken(value: string): string {
+  return value.trim().replace(/_/g, '').toLowerCase();
+}
+
 export function normalizeVendorDisputeType(value: VendorDisputeType | string): string {
-  return value.trim().toLowerCase();
+  const compact = compactDisputeToken(value);
+
+  switch (compact) {
+    case 'returnrequest':
+      return 'return_request';
+    case 'driverreport':
+      return 'driver_report';
+    case 'driverdispute':
+      return 'driver_dispute';
+    default:
+      return value.trim().toLowerCase();
+  }
 }
 
 export function normalizeVendorDisputeStatus(value: VendorDisputeStatus | string): string {
-  return value.trim().toLowerCase();
+  const compact = compactDisputeToken(value);
+
+  switch (compact) {
+    case 'inreview':
+      return 'in_review';
+    case 'awaitingcustomerevidence':
+      return 'awaiting_customer_evidence';
+    default:
+      return value.trim().toLowerCase();
+  }
 }
 
 export function normalizeVendorDisputePriority(value: VendorDisputePriority | string): string {

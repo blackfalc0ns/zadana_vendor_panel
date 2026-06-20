@@ -152,6 +152,41 @@
       "REFUNDS": "Refunds",
       "ADJUSTMENTS": "Adjustments"
     },
+    "LEDGER_REFERENCE": {
+      "ORDER": "Order",
+      "ORDER_REVENUE": "Order revenue",
+      "VENDOR_RECOVERY": "Vendor recovery",
+      "PAYOUT": "Payout",
+      "SETTLEMENT": "Settlement"
+    },
+    "LEDGER_DEFAULTS": {
+      "ORDER_REVENUE": "Order revenue",
+      "PAYOUT_HOLD": "Payout hold",
+      "PAYOUT_HOLD_RELEASE": "Payout hold release",
+      "VENDOR_PAYOUT": "Vendor payout",
+      "REFUND": "Refund",
+      "WALLET_ADJUSTMENT": "Wallet adjustment",
+      "WALLET_CREDIT": "Wallet credit",
+      "WALLET_DEBIT": "Wallet debit",
+      "SETTLEMENT": "Settlement",
+      "CASH_COLLECTED": "Cash collected"
+    },
+    "LEDGER_MEMOS": {
+      "PAYOUT_PAID": "Payout paid {{id}}",
+      "PLATFORM_CASH_PAYOUT": "Platform cash payout {{id}}",
+      "COD_RECEIVABLE": "Expected COD receivable for order {{order}}",
+      "CUSTOMER_ADVANCE_CLEARING": "Expected customer advance clearing for order {{order}}",
+      "REVENUE_RECONCILIATION_DELTA": "Revenue reconciliation delta for order {{order}}",
+      "GATEWAY_RECEIVABLE": "Gateway receivable on payment captured for order {{order}}",
+      "CUSTOMER_ADVANCE_RECOGNISED": "Customer advance recognised for order {{order}}",
+      "COD_CASH_COLLECTED": "COD cash collected for order {{order}}",
+      "CUSTOMER_ADVANCE_CLEARED": "Customer advance cleared for order {{order}}",
+      "VENDOR_PAYABLE": "Vendor payable for order {{order}}",
+      "DRIVER_PAYABLE": "Driver payable for order {{order}}",
+      "PLATFORM_REVENUE": "Platform revenue for order {{order}}",
+      "TAX_PAYABLE": "Tax payable for order {{order}}",
+      "DRIVER_WITHDRAWAL_APPROVED": "Driver withdrawal approved for transfer"
+    },
     "SALES": {
       "GROSS_SALES": "Gross sales",
       "PAID_SALES": "Paid sales",
