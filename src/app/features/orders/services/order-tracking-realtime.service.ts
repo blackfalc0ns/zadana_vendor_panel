@@ -121,7 +121,8 @@ export class OrderTrackingRealtimeService {
   }
 
   async subscribe(orderId: string): Promise<void> {
-    if (!orderId) {
+    if (!orderId || !environment.realtimeEnabled) {
+      this.connectionState$.next('idle');
       return;
     }
 
@@ -172,6 +173,11 @@ export class OrderTrackingRealtimeService {
   }
 
   private async ensureConnection(): Promise<void> {
+    if (!environment.realtimeEnabled) {
+      this.connectionState$.next('idle');
+      return;
+    }
+
     if (this.connectionPromise) {
       return this.connectionPromise;
     }

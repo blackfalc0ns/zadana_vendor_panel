@@ -186,7 +186,11 @@ export class AlertsCenterService {
         this.requestBrowserNotificationPermission();
         this.startPolling();
         this.refreshFromServer();
-        void this.ensureRealtimeConnection();
+        if (environment.realtimeEnabled) {
+          void this.ensureRealtimeConnection();
+        } else {
+          this.realtimeConnectionStateSubject.next('idle');
+        }
       });
   }
 
@@ -693,6 +697,12 @@ export class AlertsCenterService {
   }
 
   private async ensureRealtimeConnection(): Promise<void> {
+    if (!environment.realtimeEnabled) {
+      this.realtimeConnectionStateSubject.next('idle');
+      this.startPolling();
+      return;
+    }
+
     const token = this.authService.getToken();
     if (!token) {
       this.debugLog('warn', 'Skipping vendor notifications realtime connection because no access token is available.');
@@ -783,7 +793,7 @@ export class AlertsCenterService {
   }
 
   private async reconnectRealtimeWithBackoff(): Promise<void> {
-    if (this.reconnectingRealtime || !this.authService.hasApiSession) {
+    if (!environment.realtimeEnabled || this.reconnectingRealtime || !this.authService.hasApiSession) {
       return;
     }
 
