@@ -86,6 +86,11 @@ export class LoginComponent implements OnInit, OnDestroy {
     this.routeParamsSub?.unsubscribe();
     this.routeParamsSub = this.route.queryParamMap.subscribe((params) => {
       this.isVerifyEmailMode = this.router.url.startsWith('/verify-email');
+
+      if (params.get('reason') === 'session-expired') {
+        this.errorMessage = this.translate.instant('LOGIN.ERR_SESSION_EXPIRED');
+      }
+
       if (!this.isVerifyEmailMode) {
         this.cdr.markForCheck();
         return;

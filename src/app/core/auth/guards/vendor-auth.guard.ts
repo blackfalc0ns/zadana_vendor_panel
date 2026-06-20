@@ -13,7 +13,12 @@ export const vendorAuthGuard: CanActivateFn = () => {
   const router = inject(Router);
 
   if (!authService.hasApiSession) {
-    return router.createUrlTree(['/login']);
+    const queryParams: Record<string, string> = {};
+    if (authService.requiresFreshLogin) {
+      queryParams['reason'] = 'session-expired';
+    }
+
+    return router.createUrlTree(['/login'], { queryParams });
   }
 
   if (authService.isVendorStaffSession) {
@@ -31,8 +36,8 @@ export const vendorAuthGuard: CanActivateFn = () => {
     }),
     catchError((error: unknown) => {
       if (error instanceof HttpErrorResponse && (error.status === 401 || error.status === 403)) {
-        authService.clearLocalSession();
-        return of(router.createUrlTree(['/login']));
+        authService.forceLogoutForExpiredSession();
+        return of(router.createUrlTree(['/login'], { queryParams: { reason: 'session-expired' } }));
       }
 
       const cachedProfile = profileService.getProfileSnapshot();

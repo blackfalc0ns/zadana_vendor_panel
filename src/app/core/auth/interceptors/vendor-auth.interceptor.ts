@@ -3,6 +3,10 @@ import { inject } from '@angular/core';
 import { catchError, retry, switchMap, throwError, timer } from 'rxjs';
 import { VendorAuthService } from '../services/vendor-auth.service';
 
+const VENDOR_AUTH_LOGIN_PATH = '/vendors/auth/login';
+const VENDOR_AUTH_REFRESH_PATH = '/vendors/auth/refresh-token';
+const VENDOR_AUTH_LOGOUT_PATH = '/vendors/auth/logout';
+
 export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
   const authService = inject(VendorAuthService);
   const skipAuth = request.headers.has('X-Skip-Auth');
@@ -29,9 +33,17 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
     }),
     catchError((error: unknown) => {
       const isUnauthorized = error instanceof HttpErrorResponse && error.status === 401;
-      const hasRefreshToken = !!authService.getRefreshToken();
+      const isVendorAuthRequest = request.url.includes(VENDOR_AUTH_LOGIN_PATH)
+        || request.url.includes(VENDOR_AUTH_REFRESH_PATH)
+        || request.url.includes(VENDOR_AUTH_LOGOUT_PATH);
 
-      if (!isUnauthorized || !hasRefreshToken) {
+      if (!isUnauthorized || isVendorAuthRequest) {
+        return throwError(() => error);
+      }
+
+      const hasRefreshToken = !!authService.getRefreshToken();
+      if (!hasRefreshToken) {
+        authService.forceLogoutForExpiredSession();
         return throwError(() => error);
       }
 
@@ -40,7 +52,7 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
           setHeaders: { Authorization: `Bearer ${newToken}` }
         }))),
         catchError((refreshError) => {
-          authService.logoutLocally();
+          authService.forceLogoutForExpiredSession();
           return throwError(() => refreshError);
         })
       );

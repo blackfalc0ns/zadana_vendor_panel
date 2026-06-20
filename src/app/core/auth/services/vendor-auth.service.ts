@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, NgZone } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { BehaviorSubject, Observable, catchError, finalize, firstValueFrom, map, of, shareReplay, tap, throwError } from 'rxjs';
@@ -10,12 +10,24 @@ import {
   VendorRegisterDraft
 } from '../models/vendor-auth.models';
 
+const IDLE_TIMEOUT_MS = 10 * 60 * 60 * 1000; // 10 hours
+const IDLE_ACTIVITY_EVENTS: ReadonlyArray<keyof WindowEventMap> = [
+  'mousemove',
+  'mousedown',
+  'keydown',
+  'touchstart',
+  'scroll'
+];
+
 @Injectable({
   providedIn: 'root'
 })
 export class VendorAuthService {
   private static readonly loginNotificationTestPendingKey = 'vendor_notification_test_pending_user_id';
   private static readonly registrationDraftTtlMs = 24 * 60 * 60 * 1000;
+  private static readonly lastActivityStorageKey = 'vendor_last_activity';
+  private static readonly loginRequiredStorageKey = 'vendor_login_required';
+
   private readonly apiUrl = `${environment.apiUrl}/vendors/auth`;
   private readonly registerUrl = `${environment.apiUrl}/vendors/register`;
   private readonly accessTokenKey = 'vendor_access_token';
@@ -26,16 +38,39 @@ export class VendorAuthService {
 
   private readonly currentUserSubject = new BehaviorSubject<VendorCurrentUser | null>(this.readStoredUser());
   private refreshRequest$?: Observable<string>;
+  private idleTimerHandle: ReturnType<typeof setTimeout> | null = null;
+  private idleListenersBound = false;
+  private sessionExpiryRedirectPending = false;
 
   readonly currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(
     private readonly http: HttpClient,
+    private readonly ngZone: NgZone,
     private readonly router: Router
   ) {}
 
   get hasApiSession(): boolean {
-    return !!this.getAccessToken();
+    const token = this.getAccessToken();
+    if (!token) {
+      return false;
+    }
+
+    if (this.isTokenExpired(token)) {
+      this.forceLogoutForExpiredSession();
+      return false;
+    }
+
+    if (this.isIdleTimedOut()) {
+      this.forceLogoutForExpiredSession();
+      return false;
+    }
+
+    return true;
+  }
+
+  get requiresFreshLogin(): boolean {
+    return this.safeLocalGet(VendorAuthService.loginRequiredStorageKey) === '1';
   }
 
   get isAuthenticatedSnapshot(): boolean {
@@ -76,11 +111,22 @@ export class VendorAuthService {
       return Promise.resolve();
     }
 
+    if (this.isTokenExpired(accessToken)) {
+      this.forceLogoutForExpiredSession();
+      return Promise.resolve();
+    }
+
+    if (this.requiresFreshLogin) {
+      this.clearPersistedSession();
+      return Promise.resolve();
+    }
+
     return firstValueFrom(
       this.bootstrapCurrentUser().pipe(
         map(() => void 0),
+        tap(() => this.startIdleWatchdog()),
         catchError(() => {
-          this.logoutLocally();
+          this.forceLogoutForExpiredSession();
           return of(void 0);
         })
       )
@@ -179,7 +225,7 @@ export class VendorAuthService {
       tap((user) => this.persistUser(user)),
       catchError((err) => {
         if (err.status === 401 || err.status === 403) {
-          this.logoutLocally();
+          this.forceLogoutForExpiredSession();
         }
         return of(null);
       })
@@ -208,6 +254,12 @@ export class VendorAuthService {
           throw new Error('Refresh token response did not include a new access token.');
         }
       }),
+      catchError((err) => {
+        if (err.status === 401 || err.status === 403) {
+          this.forceLogoutForExpiredSession();
+        }
+        return throwError(() => err);
+      }),
       finalize(() => {
         this.refreshRequest$ = undefined;
       }),
@@ -231,6 +283,7 @@ export class VendorAuthService {
   }
 
   logoutLocally(): void {
+    this.clearLoginRequired();
     this.clearPersistedSession();
     if (this.router.url.startsWith('/submission-success')) {
       return;
@@ -239,8 +292,18 @@ export class VendorAuthService {
     void this.router.navigate(['/login']);
   }
 
+  forceLogoutForExpiredSession(): void {
+    this.markLoginRequired();
+    this.clearPersistedSession();
+    this.redirectToLoginForExpiredSession();
+  }
+
   clearLocalSession(): void {
     this.clearPersistedSession();
+  }
+
+  touchActivity(): void {
+    this.safeLocalSet(VendorAuthService.lastActivityStorageKey, Date.now().toString());
   }
 
   saveRegistrationDraft(draft: VendorRegisterDraft): void {
@@ -297,6 +360,9 @@ export class VendorAuthService {
   }
 
   private persistSession(response: VendorAuthResponse): void {
+    this.clearLoginRequired();
+    this.sessionExpiryRedirectPending = false;
+
     if (response.tokens?.accessToken) {
       localStorage.setItem(this.accessTokenKey, response.tokens.accessToken);
     }
@@ -308,6 +374,9 @@ export class VendorAuthService {
     if (response.user) {
       this.persistUser(response.user);
     }
+
+    this.touchActivity();
+    this.startIdleWatchdog();
   }
 
   private persistUser(user: VendorCurrentUser): void {
@@ -356,6 +425,142 @@ export class VendorAuthService {
     localStorage.removeItem(this.refreshTokenKey);
     localStorage.removeItem(this.userKey);
     localStorage.removeItem('vendor_workspace_name');
+    this.safeLocalRemove(VendorAuthService.lastActivityStorageKey);
+    this.stopIdleWatchdog();
     this.currentUserSubject.next(null);
+  }
+
+  private redirectToLoginForExpiredSession(): void {
+    if (this.router.url.startsWith('/submission-success')) {
+      return;
+    }
+
+    if (!this.router.navigated || this.sessionExpiryRedirectPending) {
+      return;
+    }
+
+    const currentUrl = this.router.url;
+    if (!currentUrl || currentUrl.startsWith('/login')) {
+      return;
+    }
+
+    this.sessionExpiryRedirectPending = true;
+
+    this.ngZone.run(() => {
+      void this.router.navigate(['/login'], {
+        queryParams: { reason: 'session-expired' },
+        replaceUrl: true
+      }).finally(() => {
+        this.sessionExpiryRedirectPending = false;
+      });
+    });
+  }
+
+  private isTokenExpired(token: string): boolean {
+    try {
+      const base64Url = token.split('.')[1];
+      const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+      const jsonPayload = decodeURIComponent(atob(base64).split('').map((char) => {
+        return '%' + ('00' + char.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+
+      const payload = JSON.parse(jsonPayload);
+      return payload.exp ? (payload.exp * 1000) <= Date.now() : false;
+    } catch {
+      return true;
+    }
+  }
+
+  private isIdleTimedOut(): boolean {
+    const raw = this.safeLocalGet(VendorAuthService.lastActivityStorageKey);
+    if (!raw) {
+      this.touchActivity();
+      return false;
+    }
+
+    const last = Number(raw);
+    if (!Number.isFinite(last)) {
+      this.touchActivity();
+      return false;
+    }
+
+    return Date.now() - last > IDLE_TIMEOUT_MS;
+  }
+
+  private startIdleWatchdog(): void {
+    if (this.idleListenersBound || typeof window === 'undefined') {
+      return;
+    }
+
+    this.idleListenersBound = true;
+    this.touchActivity();
+
+    const handleActivity = () => this.touchActivity();
+
+    this.ngZone.runOutsideAngular(() => {
+      for (const eventName of IDLE_ACTIVITY_EVENTS) {
+        window.addEventListener(eventName, handleActivity, { passive: true });
+      }
+
+      if (typeof document !== 'undefined') {
+        document.addEventListener('visibilitychange', handleActivity, { passive: true });
+      }
+
+      const tick = () => {
+        const token = this.getAccessToken();
+        if (!token) {
+          this.stopIdleWatchdog();
+          return;
+        }
+
+        if (this.isTokenExpired(token) || this.isIdleTimedOut()) {
+          this.ngZone.run(() => this.forceLogoutForExpiredSession());
+          return;
+        }
+
+        this.idleTimerHandle = setTimeout(tick, 60_000);
+      };
+
+      this.idleTimerHandle = setTimeout(tick, 60_000);
+    });
+  }
+
+  private stopIdleWatchdog(): void {
+    if (this.idleTimerHandle) {
+      clearTimeout(this.idleTimerHandle);
+      this.idleTimerHandle = null;
+    }
+  }
+
+  private markLoginRequired(): void {
+    this.safeLocalSet(VendorAuthService.loginRequiredStorageKey, '1');
+  }
+
+  private clearLoginRequired(): void {
+    this.safeLocalRemove(VendorAuthService.loginRequiredStorageKey);
+  }
+
+  private safeLocalGet(key: string): string | null {
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
+  }
+
+  private safeLocalSet(key: string, value: string): void {
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // ignore
+    }
+  }
+
+  private safeLocalRemove(key: string): void {
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // ignore
+    }
   }
 }
