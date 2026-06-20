@@ -257,7 +257,8 @@ export class VendorWebPushService implements OnDestroy {
   private async registerCurrentSubscription(oneSignal: OneSignalSdk, userId: string): Promise<boolean> {
     const subscription = oneSignal.User?.PushSubscription;
     const subscriptionId = subscription?.id?.trim() || null;
-    const optedIn = subscription?.optedIn !== false;
+    const browserPermission = this.resolveBrowserNotificationPermission();
+    const optedIn = subscription?.optedIn === true && browserPermission === 'granted';
 
     if (!subscriptionId) {
       return false;
