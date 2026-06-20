@@ -44,15 +44,6 @@ export interface VendorDashboardUrgentOrder {
   reasonKey: string;
 }
 
-export interface VendorDashboardReviewListItem {
-  id: string;
-  customerName: string;
-  rating: number;
-  comment: string;
-  createdAtUtc: string;
-  needsAttention: boolean;
-}
-
 export interface VendorDashboardSettlementListItem {
   id: string;
   code: string;
@@ -167,19 +158,6 @@ export interface VendorDashboardOffersSection {
   promotionCandidates: VendorDashboardRankedItem[];
 }
 
-export interface VendorDashboardReviewsSection {
-  averageRating: number;
-  totalReviews: number;
-  lowRatingCount: number;
-  pendingReplies: number;
-  hiddenReviews: number;
-  ratingDistribution: VendorDashboardBreakdownSlice[];
-  reviewsTrend: VendorDashboardTrendPoint[];
-  replyBreakdown: VendorDashboardBreakdownSlice[];
-  lowRatingUnreplied: VendorDashboardReviewListItem[];
-  recentHighlights: VendorDashboardReviewListItem[];
-}
-
 export interface VendorDashboardFinanceSection {
   availableBalance: number;
   pendingSettlement: number;
@@ -226,7 +204,6 @@ export interface VendorDashboardOverview {
   salesSection: VendorDashboardSalesSectionEnvelope;
   inventorySection: VendorDashboardInventorySection;
   offersSection: VendorDashboardOffersSection;
-  reviewsSection: VendorDashboardReviewsSection;
   financeSection: VendorDashboardFinanceSection;
   disputesSection: VendorDashboardDisputesSection;
   staffSection: VendorDashboardStaffSection;

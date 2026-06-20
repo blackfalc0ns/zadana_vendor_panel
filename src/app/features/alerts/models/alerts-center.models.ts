@@ -5,7 +5,6 @@ export type AlertSource =
   | 'finance'
   | 'support'
   | 'staff'
-  | 'reviews'
   | 'profile';
 
 export type AlertSeverity = 'info' | 'warning' | 'critical';

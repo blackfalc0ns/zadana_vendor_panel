@@ -13,8 +13,7 @@ import {
   VendorDashboardBreakdownSlice,
   VendorDashboardDualTrendPoint,
   VendorDashboardOverview,
-  VendorDashboardRankedItem,
-  VendorDashboardReviewListItem
+  VendorDashboardRankedItem
 } from '../../models/vendor-dashboard.models';
 import { VendorDashboardService } from '../../services/vendor-dashboard.service';
 import { StaffBranchesService } from '../../../staff/services/staff-branches.service';
@@ -41,7 +40,6 @@ type DashboardTabId =
   | 'sales'
   | 'inventory'
   | 'offers'
-  | 'reviews'
   | 'finance'
   | 'risk'
   | 'staff';
@@ -68,7 +66,6 @@ const DASHBOARD_TAB_IDS: DashboardTabId[] = [
   'sales',
   'inventory',
   'offers',
-  'reviews',
   'finance',
   'risk',
   'staff'
@@ -106,7 +103,6 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     { id: 'sales', labelKey: 'DASHBOARD.SECTION_NAV.SALES' },
     { id: 'inventory', labelKey: 'DASHBOARD.SECTION_NAV.INVENTORY' },
     { id: 'offers', labelKey: 'DASHBOARD.SECTION_NAV.OFFERS' },
-    { id: 'reviews', labelKey: 'DASHBOARD.SECTION_NAV.REVIEWS' },
     { id: 'finance', labelKey: 'DASHBOARD.SECTION_NAV.FINANCE' },
     { id: 'risk', labelKey: 'DASHBOARD.SECTION_NAV.RISK' },
     { id: 'staff', labelKey: 'DASHBOARD.SECTION_NAV.STAFF' }
@@ -473,20 +469,6 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     ];
   }
 
-  get reviewsCards(): DashboardMetricCard[] {
-    if (!this.overview) {
-      return [];
-    }
-
-    return [
-      { labelKey: 'DASHBOARD.REVIEWS.AVERAGE_RATING', value: this.overview.reviewsSection.averageRating, format: 'rating' },
-      { labelKey: 'DASHBOARD.REVIEWS.TOTAL_REVIEWS', value: this.overview.reviewsSection.totalReviews, format: 'number' },
-      { labelKey: 'DASHBOARD.REVIEWS.LOW_RATING_COUNT', value: this.overview.reviewsSection.lowRatingCount, format: 'number' },
-      { labelKey: 'DASHBOARD.REVIEWS.PENDING_REPLIES', value: this.overview.reviewsSection.pendingReplies, format: 'number' },
-      { labelKey: 'DASHBOARD.REVIEWS.HIDDEN_REVIEWS', value: this.overview.reviewsSection.hiddenReviews, format: 'number' }
-    ];
-  }
-
   get financeCards(): DashboardMetricCard[] {
     if (!this.overview) {
       return [];
@@ -722,8 +704,6 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
       inventoryCatalogGrowth: this.emptyLineChart(),
       offersByType: this.emptyDoughnutChart(),
       discountBands: this.emptyBarChart(),
-      reviewsTrend: this.emptyLineChart(),
-      replyBreakdown: this.emptyDoughnutChart(),
       financeSalesVsPayouts: this.emptyBarChart(),
       financeSettlements: this.emptyDoughnutChart(),
       disputeStatus: this.emptyDoughnutChart(),
@@ -757,8 +737,6 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     this.charts.inventoryCatalogGrowth = this.buildLineChart(ov.inventorySection.catalogGrowth, 'DASHBOARD.CHARTS.PRODUCTS');
     this.charts.offersByType = this.buildDoughnutChart(ov.offersSection.offersByType, 'offer-types');
     this.charts.discountBands = this.buildBarChart(ov.offersSection.discountBands, 'discount-bands');
-    this.charts.reviewsTrend = this.buildLineChart(ov.reviewsSection.reviewsTrend, 'DASHBOARD.CHARTS.REVIEWS');
-    this.charts.replyBreakdown = this.buildDoughnutChart(ov.reviewsSection.replyBreakdown, 'reply-breakdown');
     this.charts.financeSalesVsPayouts = this.buildDualAxisChart(
       ov.financeSection.salesVsPayoutsTrend,
       'DASHBOARD.CHARTS.SALES',
@@ -915,20 +893,12 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
     return Math.round((branch.revenue / totalRevenue) * 100);
   }
 
-  getRoundedRating(): number {
-    return Math.round(this.overview?.reviewsSection?.averageRating ?? 0);
-  }
-
   formatDate(value: string): string {
     return this.safeDateTransform(value, 'MMM d, y');
   }
 
   formatDateTime(value: string): string {
     return this.safeDateTransform(value, 'MMM d, y, h:mm a');
-  }
-
-  shortComment(item: VendorDashboardReviewListItem): string {
-    return item.comment.length > 120 ? `${item.comment.slice(0, 120).trim()}...` : item.comment;
   }
 
   translateOrderStatus(status: string): string {

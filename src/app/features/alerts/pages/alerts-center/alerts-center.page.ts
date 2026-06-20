@@ -293,7 +293,7 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   get sourceOptions(): AlertSource[] {
-    return ['orders', 'products', 'offers', 'finance', 'support', 'staff', 'reviews', 'profile'];
+    return ['orders', 'products', 'offers', 'finance', 'support', 'staff', 'profile'];
   }
 
   setActiveQuickView(view: string): void {
@@ -392,8 +392,6 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
         return 'support_agent';
       case 'staff':
         return 'groups';
-      case 'reviews':
-        return 'reviews';
       default:
         return 'storefront';
     }
@@ -413,8 +411,6 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
         return 'ALERTS_CENTER.SOURCES.SUPPORT';
       case 'staff':
         return 'ALERTS_CENTER.SOURCES.STAFF';
-      case 'reviews':
-        return 'ALERTS_CENTER.SOURCES.REVIEWS';
       default:
         return 'ALERTS_CENTER.SOURCES.PROFILE';
     }
@@ -445,8 +441,6 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
         return 'border-amber-200 bg-amber-50 text-amber-700';
       case 'staff':
         return 'border-indigo-200 bg-indigo-50 text-indigo-700';
-      case 'reviews':
-        return 'border-rose-200 bg-rose-50 text-rose-700';
       default:
         return 'border-slate-200 bg-slate-100 text-slate-700';
     }

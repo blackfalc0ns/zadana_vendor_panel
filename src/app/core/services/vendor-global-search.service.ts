@@ -122,16 +122,6 @@ export class VendorGlobalSearchService {
       keywords: ['alerts', 'notifications', 'warn', 'تنبيهات', 'اشعارات', 'إشعارات']
     },
     {
-      id: 'reviews',
-      route: '/reviews',
-      icon: 'rate_review',
-      titleAr: 'التقييمات وآراء العملاء',
-      titleEn: 'Reviews & Feedback',
-      subtitleAr: 'متابعة تقييمات العملاء لمنتجاتك والرد عليها',
-      subtitleEn: 'Track customer reviews of your products and reply',
-      keywords: ['reviews', 'ratings', 'feedback', 'تقييمات', 'مراجعات', 'اراء', 'آراء']
-    },
-    {
       id: 'disputes',
       route: '/disputes',
       icon: 'gavel',

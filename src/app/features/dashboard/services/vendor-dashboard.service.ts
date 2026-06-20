@@ -20,8 +20,6 @@ interface DashboardOverviewApiResponse {
   InventorySection?: VendorDashboardOverview['inventorySection'];
   offersSection?: VendorDashboardOverview['offersSection'];
   OffersSection?: VendorDashboardOverview['offersSection'];
-  reviewsSection?: VendorDashboardOverview['reviewsSection'];
-  ReviewsSection?: VendorDashboardOverview['reviewsSection'];
   financeSection?: VendorDashboardOverview['financeSection'];
   FinanceSection?: VendorDashboardOverview['financeSection'];
   disputesSection?: VendorDashboardOverview['disputesSection'];
@@ -113,7 +111,6 @@ export class VendorDashboardService {
       salesSection: this.pickSection(source.salesSection, source.SalesSection, this.emptySalesSection()),
       inventorySection: this.pickSection(source.inventorySection, source.InventorySection, this.emptyInventorySection()),
       offersSection: this.pickSection(source.offersSection, source.OffersSection, this.emptyOffersSection()),
-      reviewsSection: this.pickSection(source.reviewsSection, source.ReviewsSection, this.emptyReviewsSection()),
       financeSection: this.normalizeFinanceSection(this.pickSection(source.financeSection, source.FinanceSection, this.emptyFinanceSection())),
       disputesSection: this.pickSection(source.disputesSection, source.DisputesSection, this.emptyDisputesSection()),
       staffSection: this.pickSection(source.staffSection, source.StaffSection, this.emptyStaffSection()),
@@ -219,21 +216,6 @@ export class VendorDashboardService {
       linkedProductsByType: [],
       expiringOffersList: [],
       promotionCandidates: []
-    };
-  }
-
-  private emptyReviewsSection(): VendorDashboardOverview['reviewsSection'] {
-    return {
-      averageRating: 0,
-      totalReviews: 0,
-      lowRatingCount: 0,
-      pendingReplies: 0,
-      hiddenReviews: 0,
-      ratingDistribution: [],
-      reviewsTrend: [],
-      replyBreakdown: [],
-      lowRatingUnreplied: [],
-      recentHighlights: []
     };
   }
 

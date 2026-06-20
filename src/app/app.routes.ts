@@ -99,12 +99,6 @@ export const routes: Routes = [
         loadComponent: () => import('./features/alerts/pages/alerts-center/alerts-center.page').then(m => m.AlertsCenterPageComponent)
       },
       {
-        path: 'reviews',
-        canActivate: [VendorHasPermissionGuard],
-        data: { permission: 'vendor_reviews.view' },
-        loadComponent: () => import('./features/reviews/pages/reviews-center/reviews-center.page').then(m => m.ReviewsCenterPageComponent)
-      },
-      {
         path: 'orders',
         canActivate: [VendorHasPermissionGuard],
         data: { permission: 'vendor_orders.view' },

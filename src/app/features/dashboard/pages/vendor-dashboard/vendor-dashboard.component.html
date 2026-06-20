@@ -295,37 +295,6 @@
               </div>
             </div>
 
-            <!-- Actionable Reviews Quick View -->
-            <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm overflow-hidden flex flex-col h-full border-l-[3px] border-l-sky-500 md:col-span-2 xl:col-span-1">
-               <div class="px-5 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
-                <div class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-sky-500 text-[18px]">forum</span>
-                  <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.SECTIONS.LOW_RATING_UNREPLIED' | translate }}</h3>
-                </div>
-                <a routerLink="/reviews" class="text-xs font-bold text-zadna-primary hover:underline">{{ 'COMMON.OPEN' | translate }}</a>
-              </div>
-              <div class="p-2 flex-1">
-                @if (ov.reviewsSection.lowRatingUnreplied.length === 0) {
-                  <div class="h-full flex flex-col items-center justify-center p-6 text-slate-400">
-                    <span class="material-symbols-outlined text-2xl mb-2 opacity-50">task_alt</span>
-                    <span class="text-xs font-semibold">{{ 'DASHBOARD.EMPTY.NO_PENDING_REVIEWS' | translate }}</span>
-                  </div>
-                } @else {
-                  <div class="flex flex-col gap-1">
-                    @for (review of ov.reviewsSection.lowRatingUnreplied.slice(0, 3); track review.id) {
-                      <a routerLink="/reviews" class="flex items-start justify-between p-3 rounded-xl hover:bg-slate-50">
-                        <div class="pr-3">
-                          <strong class="text-xs text-slate-800">{{ review.customerName }}</strong>
-                          <p class="text-[0.65rem] text-slate-500 mt-1 line-clamp-1">{{ shortComment(review) }}</p>
-                        </div>
-                        <span class="flex items-center gap-0.5 text-[0.65rem] font-bold bg-amber-50 text-amber-700 px-1.5 py-0.5 rounded shrink-0">{{ review.rating }}<span class="material-symbols-outlined text-[10px]">star</span></span>
-                      </a>
-                    }
-                  </div>
-                }
-              </div>
-            </div>
-
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -630,7 +599,7 @@
           </div>
         </section>
 
-        <!-- ================= OTHER SECTIONS (OFFERS, REVIEWS, FINANCE, RISK, STAFF) ================= -->
+        <!-- ================= OTHER SECTIONS (OFFERS, FINANCE, RISK, STAFF) ================= -->
         <!-- Offers -->
         <section *ngIf="shouldRenderTab('offers')" id="offers" class="dashboard-panel" [class.hidden]="activeTabId !== 'offers'">
           <app-panel-header [title]="'DASHBOARD.SECTIONS.OFFERS'" [subtitle]="'DASHBOARD.SECTIONS.OFFERS_HINT'"></app-panel-header>
@@ -668,62 +637,6 @@
                <div class="p-2 flex flex-col gap-1">
                  @for (item of ov.offersSection.promotionCandidates; track item.id) {
                     <a [routerLink]="['/products', item.id]" class="flex justify-between items-center p-3 rounded-xl hover:bg-slate-50"><strong class="text-sm truncate pr-4">{{ labelForRankedItem(item) }}</strong><span class="text-xs bg-slate-100 px-2 py-1 rounded">{{ item.metric }}</span></a>
-                 }
-               </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Reviews -->
-        <section *ngIf="shouldRenderTab('reviews')" id="reviews" class="dashboard-panel" [class.hidden]="activeTabId !== 'reviews'">
-          <app-panel-header [title]="'DASHBOARD.SECTIONS.REVIEWS'" [subtitle]="'DASHBOARD.SECTIONS.REVIEWS_HINT'"></app-panel-header>
-           <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
-            @for (card of reviewsCards; track card.labelKey) {
-              <div class="bg-white p-4 rounded-[16px] border border-slate-100 shadow-sm flex flex-col text-center justify-center h-24">
-                <span class="text-[0.65rem] font-bold text-slate-400 uppercase tracking-wider mb-1 line-clamp-1">{{ card.labelKey | translate }}</span>
-                <span class="text-2xl font-black text-slate-800 flex items-center justify-center gap-1">
-                  {{ formatMetricValue(card) }}
-                  @if (card.format === 'rating') {<span class="material-symbols-outlined text-[20px] text-amber-400">star</span>}
-                </span>
-              </div>
-            }
-          </div>
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-             <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm col-span-1 lg:col-span-2">
-                <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.REVIEWS_TREND' | translate }}</h3></div>
-                <div class="h-[250px]"><canvas baseChart [data]="charts.reviewsTrend" [options]="barChartOptions" [type]="'line'"></canvas></div>
-             </div>
-              <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm col-span-1 lg:col-span-1">
-                <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.REPLY_BREAKDOWN' | translate }}</h3></div>
-                <div class="h-[250px]"><canvas baseChart [data]="charts.replyBreakdown" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
-             </div>
-          </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm overflow-hidden">
-               <div class="px-5 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50"><h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.SECTIONS.LOW_RATING_UNREPLIED' | translate }}</h3></div>
-               <div class="p-2 flex flex-col gap-1">
-                 @for (review of ov.reviewsSection.lowRatingUnreplied; track review.id) {
-                    <a routerLink="/reviews" class="flex items-start justify-between p-3 rounded-xl hover:bg-slate-50">
-                      <div class="pr-3">
-                        <strong class="text-sm">{{ review.customerName }}</strong>
-                        <p class="text-xs text-slate-500 mt-1 line-clamp-1">{{ shortComment(review) }}</p>
-                      </div>
-                      <span class="flex items-center gap-1 text-xs font-bold bg-amber-50 text-amber-700 px-2 py-1 rounded shrink-0">{{ review.rating }}<span class="material-symbols-outlined text-[12px]">star</span></span>
-                    </a>
-                 }
-               </div>
-            </div>
-             <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm overflow-hidden">
-               <div class="px-5 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50"><h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.SECTIONS.RECENT_HIGHLIGHTS' | translate }}</h3></div>
-               <div class="p-2 flex flex-col gap-1">
-                 @for (review of ov.reviewsSection.recentHighlights; track review.id) {
-                    <a routerLink="/reviews" class="flex items-start justify-between p-3 rounded-xl hover:bg-slate-50">
-                      <div class="pr-3">
-                        <strong class="text-sm">{{ review.customerName }}</strong>
-                        <p class="text-xs text-slate-500 mt-1 line-clamp-1">{{ shortComment(review) }}</p>
-                      </div>
-                      <span class="text-[0.65rem] text-slate-400 shrink-0">{{ formatDate(review.createdAtUtc) }}</span>
-                    </a>
                  }
                </div>
             </div>

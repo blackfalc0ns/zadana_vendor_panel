@@ -242,8 +242,6 @@ export class HeaderComponent implements OnInit {
         return 'ALERTS_CENTER.SOURCES.SUPPORT';
       case 'staff':
         return 'ALERTS_CENTER.SOURCES.STAFF';
-      case 'reviews':
-        return 'ALERTS_CENTER.SOURCES.REVIEWS';
       default:
         return 'ALERTS_CENTER.SOURCES.PROFILE';
     }
