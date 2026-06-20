@@ -312,21 +312,40 @@ export class AlertsCenterService {
   }
 
   private mapNotification(item: NotificationItemApiModel): AlertCenterItemVm {
-    const route = this.resolveRoute(item.type, item.referenceId, item.dataObject, item.data);
+    const rawRoute = this.resolveRoute(item.type, item.referenceId, item.dataObject, item.data);
+    const parsedRoute = this.parseRouteWithQuery(rawRoute);
     const localizedContent = this.resolveLocalizedNotificationContent(item);
+    const profileSectionRoute = this.resolveProfileSectionRoute(item.type);
 
     return {
       id: item.id,
-      source: this.resolveSource(item.type, route),
+      source: this.resolveSource(item.type, parsedRoute.route),
       severity: this.resolveSeverity(item.type),
       title: localizedContent.title,
       summary: localizedContent.summary,
       createdAt: item.createdAtUtc,
-      route,
-      routeQuery: undefined,
+      route: profileSectionRoute?.route ?? parsedRoute.route,
+      routeQuery: profileSectionRoute?.routeQuery ?? parsedRoute.routeQuery,
       count: undefined,
       entityId: item.referenceId ?? undefined,
       state: item.isRead ? 'read' : 'unread'
+    };
+  }
+
+  private parseRouteWithQuery(route: string): { route: string; routeQuery?: Record<string, string> } {
+    if (!route.includes('?')) {
+      return { route };
+    }
+
+    const [path, query = ''] = route.split('?', 2);
+    const routeQuery: Record<string, string> = {};
+    new URLSearchParams(query).forEach((value, key) => {
+      routeQuery[key] = value;
+    });
+
+    return {
+      route: path || '/alerts',
+      routeQuery: Object.keys(routeQuery).length ? routeQuery : undefined
     };
   }
 
@@ -367,7 +386,8 @@ export class AlertsCenterService {
       return defaultContent;
     }
 
-    const localizedSummary = this.getVendorAuditSummary(auditType.kind);
+    const localizedSummary = this.getVendorAuditSummary(auditType.kind)
+      ?? this.getProfileSectionAuditSummary(auditType.kind);
     if (!localizedSummary) {
       return defaultContent;
     }
@@ -447,6 +467,16 @@ export class AlertsCenterService {
         return {
           ar: 'تم إرسال الملف التجاري للمراجعة.',
           en: 'The vendor profile was submitted for review.'
+        };
+      case 'profile-field-approved':
+        return {
+          ar: 'تم اعتماد أحد عناصر ملف التاجر.',
+          en: 'A vendor profile item was approved.'
+        };
+      case 'profile-field-rejected':
+        return {
+          ar: 'تم طلب تعديل على أحد عناصر ملف التاجر.',
+          en: 'Changes were requested for a vendor profile item.'
         };
       case 'notification-settings-updated':
         return {
@@ -909,11 +939,81 @@ export class AlertsCenterService {
       return '/finance';
     }
 
+    if (type?.toLowerCase().includes('vendor_profile')) {
+      return '/profile';
+    }
+
     if (this.isDisputeNotification(type)) {
       return '/disputes';
     }
 
+    const profileSectionRoute = this.resolveProfileSectionRoute(type);
+    if (profileSectionRoute) {
+      return profileSectionRoute.route;
+    }
+
     return '/alerts';
+  }
+
+  private resolveProfileSectionRoute(type?: string | null): { route: string; routeQuery: Record<string, string> } | null {
+    const auditType = this.parseVendorAuditType(type);
+    const sectionAudit = this.parseProfileSectionAuditKind(auditType?.kind ?? type);
+    if (!sectionAudit) {
+      return null;
+    }
+
+    return {
+      route: '/profile',
+      routeQuery: { tab: `${sectionAudit.section}-section` }
+    };
+  }
+
+  private parseProfileSectionAuditKind(kind?: string | null): { section: string; decision: 'approved' | 'rejected' } | null {
+    if (!kind) {
+      return null;
+    }
+
+    const match = /^profile-section-(store|owner|contact|legal|banking)-(approved|rejected)$/.exec(kind.trim().toLowerCase());
+    if (!match) {
+      return null;
+    }
+
+    return {
+      section: match[1],
+      decision: match[2] as 'approved' | 'rejected'
+    };
+  }
+
+  private getProfileSectionAuditSummary(kind: string): { ar: string; en: string } | null {
+    const sectionAudit = this.parseProfileSectionAuditKind(kind);
+    if (!sectionAudit) {
+      return null;
+    }
+
+    const labels: Record<string, { ar: string; en: string }> = {
+      store: { ar: 'بيانات المتجر', en: 'Store profile' },
+      owner: { ar: 'بيانات المالك', en: 'Owner details' },
+      contact: { ar: 'بيانات التواصل', en: 'Contact details' },
+      legal: { ar: 'البيانات القانونية', en: 'Legal & compliance' },
+      banking: { ar: 'البيانات البنكية', en: 'Banking details' }
+    };
+
+    const label = labels[sectionAudit.section];
+    if (!label) {
+      return null;
+    }
+
+    if (sectionAudit.decision === 'approved') {
+      return {
+        ar: `تم اعتماد قسم ${label.ar}.`,
+        en: `${label.en} section was approved.`
+      };
+    }
+
+    return {
+      ar: `تم طلب تعديلات على قسم ${label.ar}.`,
+      en: `Changes were requested for the ${label.en} section.`
+    };
   }
 
   private extractTargetUrl(data?: Record<string, unknown> | null): string | null {
