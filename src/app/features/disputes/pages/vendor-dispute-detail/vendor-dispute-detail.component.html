@@ -161,11 +161,11 @@
                       authorBubbleClass(message.authorRole),
                       isOwnMessage(message.authorRole) ? 'rounded-tl-[0.35rem]' : 'rounded-tr-[0.35rem]'
                     ]">
-                    <p class="text-[0.78rem] font-black text-slate-900">{{ message.title }}</p>
+                    <p class="text-[0.78rem] font-black text-slate-900">{{ translateActivityTitle(message.action, message.title) }}</p>
 
                     @if (message.body) {
                       <p class="mt-1.5 whitespace-pre-wrap text-[0.76rem] font-bold leading-6 text-slate-600">
-                        {{ message.body }}
+                        {{ translateActivityNote(message, dispute) }}
                       </p>
                     }
 
@@ -215,7 +215,7 @@
                     <div class="min-w-0 flex-1 rounded-[1.1rem] border border-slate-200/70 bg-white/85 p-3 shadow-sm">
                       <div class="flex flex-col gap-1 sm:flex-row sm:items-start sm:justify-between">
                         <div class="min-w-0">
-                          <p class="text-[0.76rem] font-black text-slate-900">{{ activity.title }}</p>
+                          <p class="text-[0.76rem] font-black text-slate-900">{{ translateActivityTitle(activity.action, activity.title) }}</p>
                           <p class="mt-1 text-[0.62rem] font-black uppercase tracking-[0.08em] text-slate-400">
                             {{ authorRoleLabel(activity.actorRole) }}
                           </p>
@@ -225,7 +225,7 @@
                       </div>
 
                       @if (activity.note) {
-                        <p class="mt-2 text-[0.74rem] font-bold leading-6 text-slate-600">{{ activity.note }}</p>
+                        <p class="mt-2 text-[0.74rem] font-bold leading-6 text-slate-600">{{ translateActivityNote(activity, dispute) }}</p>
                       }
                     </div>
                   </div>
@@ -272,7 +272,7 @@
 
             <div class="flex flex-col gap-1">
               <span class="text-[0.68rem] font-bold text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.QUEUE' | translate }}</span>
-              <span class="text-[0.8rem] font-black text-slate-900">{{ dispute.queue }}</span>
+              <span class="text-[0.8rem] font-black text-slate-900">{{ translateQueue(dispute.queue, dispute.queueLabel) }}</span>
             </div>
 
             <div class="flex flex-col gap-1">
@@ -332,7 +332,7 @@
             @if (dispute.refundMethod) {
               <div class="rounded-[1rem] border border-slate-200/70 bg-white/85 px-3 py-2.5">
                 <p class="text-[0.68rem] font-bold text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.REFUND_METHOD' | translate }}</p>
-                <p class="mt-1 text-[0.78rem] font-black text-slate-900">{{ refundMethodLabel(dispute.refundMethod) }}</p>
+                <p class="mt-1 text-[0.78rem] font-black text-slate-900">{{ refundMethodLabel(dispute.refundMethod, dispute.refundMethodLabel) }}</p>
               </div>
             }
 
@@ -355,7 +355,7 @@
                 @if (dispute.costBearer) {
                   <div class="rounded-[1rem] border border-slate-200/70 bg-white/85 px-3 py-2.5">
                     <p class="text-[0.68rem] font-bold text-slate-400">{{ 'VENDOR_DISPUTES.DETAIL.COST_BEARER' | translate }}</p>
-                    <p class="mt-1 text-[0.78rem] font-black text-slate-900">{{ costBearerLabel(dispute.costBearer) }}</p>
+                    <p class="mt-1 text-[0.78rem] font-black text-slate-900">{{ costBearerLabel(dispute.costBearer, dispute.costBearerLabel) }}</p>
                   </div>
                 }
               </div>
@@ -418,7 +418,7 @@
               <div class="mt-2 flex flex-wrap gap-1.5">
                 @for (participant of dispute.participants; track participant.role) {
                   <span class="inline-flex rounded-full border border-slate-200 bg-white px-2.5 py-1 text-[0.64rem] font-black text-slate-700">
-                    {{ participantLabel(participant.role) | translate }}
+                    {{ participantLabel(participant.role) }}
                   </span>
                 }
               </div>
@@ -432,14 +432,14 @@
             @if (dispute.customerVisibleNote) {
               <div class="rounded-[1rem] border border-slate-200/70 bg-white/80 p-3">
                 <p class="text-[0.68rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.CUSTOMER_NOTE' | translate }}</p>
-                <p class="mt-1.5 text-[0.74rem] font-bold leading-6 text-slate-700">{{ dispute.customerVisibleNote }}</p>
+                <p class="mt-1.5 text-[0.74rem] font-bold leading-6 text-slate-700">{{ translateCustomerNote(dispute) }}</p>
               </div>
             }
 
             @if (dispute.decisionNotes) {
               <div class="rounded-[1rem] border border-slate-200/70 bg-white/80 p-3">
                 <p class="text-[0.68rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.DECISION_NOTES' | translate }}</p>
-                <p class="mt-1.5 text-[0.74rem] font-bold leading-6 text-slate-700">{{ dispute.decisionNotes }}</p>
+                <p class="mt-1.5 text-[0.74rem] font-bold leading-6 text-slate-700">{{ translateDecisionNotes(dispute) }}</p>
               </div>
             }
 
@@ -458,7 +458,7 @@
                 @if (dispute.reasonCode) {
                   <div class="rounded-[1rem] border border-slate-200/70 bg-white/80 p-3">
                     <p class="text-[0.68rem] font-black text-slate-500">{{ 'VENDOR_DISPUTES.DETAIL.REASON_CODE' | translate }}</p>
-                    <p class="mt-1 text-[0.74rem] font-black text-slate-900">{{ dispute.reasonCode }}</p>
+                    <p class="mt-1 text-[0.74rem] font-black text-slate-900">{{ translateReasonCode(dispute.reasonCode, dispute.type, dispute.reasonLabel) }}</p>
                   </div>
                 }
 

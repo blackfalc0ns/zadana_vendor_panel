@@ -23,6 +23,7 @@ interface VendorOrderCaseListItemApi {
   status: string;
   priority: string;
   reasonCode: string | null;
+  reasonLabel?: string | null;
   message: string;
   vendorResponse: string | null;
   vendorRespondedAt: string | null;
@@ -39,12 +40,16 @@ interface VendorOrderCaseListItemApi {
 
 interface VendorOrderCaseDetailApi extends VendorOrderCaseListItemApi {
   queue: string;
+  reasonLabel?: string | null;
   decisionNotes: string | null;
   refundMethod: string | null;
+  refundMethodLabel?: string | null;
   couponCode: string | null;
   couponExpiresAtUtc: string | null;
   couponRedeemed: boolean;
   costBearer: string | null;
+  costBearerLabel?: string | null;
+  queueLabel?: string | null;
   closedAt: string | null;
   participants: Array<{
     role: string;
@@ -155,6 +160,7 @@ export class VendorDisputesService {
       status: this.normalizeStatus(item.status),
       priority: this.normalizePriority(item.priority),
       reasonCode: item.reasonCode,
+      reasonLabel: item.reasonLabel ?? null,
       message: item.message,
       vendorResponse: item.vendorResponse,
       vendorRespondedAt: item.vendorRespondedAt,
@@ -174,12 +180,15 @@ export class VendorDisputesService {
     return {
       ...this.mapListItem(item),
       queue: item.queue,
+      queueLabel: item.queueLabel ?? null,
       decisionNotes: item.decisionNotes,
       refundMethod: this.normalizeNullableToken(item.refundMethod),
+      refundMethodLabel: item.refundMethodLabel ?? null,
       couponCode: item.couponCode,
       couponExpiresAtUtc: item.couponExpiresAtUtc,
       couponRedeemed: item.couponRedeemed,
       costBearer: this.normalizeNullableToken(item.costBearer),
+      costBearerLabel: item.costBearerLabel ?? null,
       closedAt: item.closedAt,
       participants: item.participants.map((participant) => ({ ...participant })),
       allowedActions: [...item.allowedActions],

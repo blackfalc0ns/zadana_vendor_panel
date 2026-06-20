@@ -22,6 +22,7 @@ export interface VendorDisputeListItemVm {
   status: VendorDisputeStatus | string;
   priority: VendorDisputePriority | string;
   reasonCode: string | null;
+  reasonLabel: string | null;
   message: string;
   vendorResponse: string | null;
   vendorRespondedAt: string | null;
@@ -72,12 +73,15 @@ export interface VendorDisputeParticipantVm {
 
 export interface VendorDisputeDetailVm extends VendorDisputeListItemVm {
   queue: string;
+  queueLabel: string | null;
   decisionNotes: string | null;
   refundMethod: string | null;
+  refundMethodLabel: string | null;
   couponCode: string | null;
   couponExpiresAtUtc: string | null;
   couponRedeemed: boolean;
   costBearer: string | null;
+  costBearerLabel: string | null;
   closedAt: string | null;
   participants: VendorDisputeParticipantVm[];
   allowedActions: string[];

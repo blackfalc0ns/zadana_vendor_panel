@@ -14,13 +14,26 @@ import {
 } from '../../models/vendor-disputes.models';
 import { VendorDisputesService } from '../../services/vendor-disputes.service';
 import {
-  getVendorDisputeCompensationLabel,
   getVendorDisputeDisplayState,
-  getVendorDisputeSettlementLabel,
   normalizeVendorDisputePriority,
   normalizeVendorDisputeStatus,
   normalizeVendorDisputeType
 } from '../../utils/vendor-dispute-display.utils';
+import {
+  resolveVendorDisputeActivityNoteKey,
+  resolveVendorDisputeActivityTitleKey,
+  resolveVendorDisputeCompensationKey,
+  resolveVendorDisputeCostBearerKey,
+  resolveVendorDisputeCustomerNoteKey,
+  resolveVendorDisputeDecisionNoteKey,
+  resolveVendorDisputeQueueKey,
+  resolveVendorDisputeReasonCodeKey,
+  resolveVendorDisputeRefundMethodKey,
+  resolveVendorDisputeRoleKey,
+  resolveVendorDisputeSettlementKey,
+  resolveVendorDisputeWaitingOnKey,
+  shouldLocalizeDisputeText
+} from '../../utils/vendor-dispute-i18n.utils';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -110,6 +123,9 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
       this.cdr.markForCheck();
       this.currentLang = event.lang;
       this.flashMessage = '';
+      if (this.dispute) {
+        this.loadDispute(this.dispute.id);
+      }
     });
   }
 
@@ -124,15 +140,13 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
       next: (res) => {
         this.cdr.markForCheck();
         this.isUploadingFile = false;
-        this.flashMessage = this.translate.currentLang === 'ar' ? 'تم رفع المرفق بنجاح.' : 'Attachment uploaded successfully.';
+        this.flashMessage = this.translate.instant('VENDOR_DISPUTES.DETAIL.UPLOAD_SUCCESS');
         this.loadDispute(this.dispute!.id);
       },
       error: (err) => {
         this.cdr.markForCheck();
         this.isUploadingFile = false;
-        this.flashMessage = this.translate.currentLang === 'ar' 
-          ? 'فشل رفع المرفق. تأكد من حجم ونوع الملف (PDF أو صورة).' 
-          : 'Failed to upload attachment. Check file size/type (PDF or image).';
+        this.flashMessage = this.translate.instant('VENDOR_DISPUTES.DETAIL.UPLOAD_FAILED');
         console.error(err);
       }
     });
@@ -245,48 +259,128 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
   }
 
   participantLabel(role: string): string {
-    return `VENDOR_DISPUTES.PARTICIPANTS.${role.trim().toUpperCase()}`;
+    return this.translateRole(role);
   }
 
-  isOwnMessage(authorRole: string): boolean {
-    return authorRole.trim().toLowerCase() === 'vendor';
+  waitingOnKey(role: string): string {
+    return resolveVendorDisputeWaitingOnKey(role);
   }
 
-  settlementLabel(value: string | null): string {
-    return getVendorDisputeSettlementLabel(value, this.currentLang);
+  translateRole(role: string): string {
+    const key = resolveVendorDisputeRoleKey(role);
+    return this.translateWithFallback(key, role);
   }
 
-  shouldShowWaitingOn(dispute: VendorDisputeDetailVm): boolean {
-    const status = this.normalizeStatus(dispute.status);
-    return status !== 'resolved' && status !== 'rejected' && this.normalizeRole(dispute.waitingOnRole).length > 0;
-  }
-
-  compensationLabel(value: string | null): string {
-    return getVendorDisputeCompensationLabel(value, this.currentLang);
-  }
-
-  refundMethodLabel(value: string | null): string {
-    switch ((value || '').toLowerCase()) {
-      case 'same_method':
-        return this.currentLang === 'ar' ? 'نفس وسيلة الدفع' : 'Same payment method';
-      case 'coupon':
-        return this.currentLang === 'ar' ? 'كوبون تعويضي' : 'Compensation coupon';
-      default:
-        return value ?? (this.currentLang === 'ar' ? 'غير محدد' : 'Not set');
+  translateQueue(queue: string, label?: string | null): string {
+    if (label?.trim()) {
+      return label.trim();
     }
+
+    const key = resolveVendorDisputeQueueKey(queue);
+    return this.translateWithFallback(key, queue);
   }
 
-  costBearerLabel(value: string | null): string {
-    switch ((value || '').toLowerCase()) {
-      case 'vendor':
-        return this.currentLang === 'ar' ? 'المتجر' : 'Vendor';
-      case 'platform':
-        return this.currentLang === 'ar' ? 'المنصة' : 'Platform';
-      case 'shared':
-        return this.currentLang === 'ar' ? 'مشترك' : 'Shared';
-      default:
-        return value ?? (this.currentLang === 'ar' ? 'غير محدد' : 'Not set');
+  translateReasonCode(code: string | null, type?: string, label?: string | null): string {
+    if (label?.trim()) {
+      return label.trim();
     }
+
+    if (!code?.trim()) {
+      return '';
+    }
+
+    const key = resolveVendorDisputeReasonCodeKey(type ?? 'complaint', code);
+    return this.translateWithFallback(key, code);
+  }
+
+  translateActivityTitle(action: string, fallback: string): string {
+    const key = resolveVendorDisputeActivityTitleKey(action);
+    return this.translateWithFallback(key, fallback);
+  }
+
+  translateActivityNote(
+    activity: { action: string; messageType?: string; note?: string | null; body?: string | null },
+    dispute: VendorDisputeDetailVm
+  ): string {
+    const raw = (activity.note ?? activity.body ?? '').trim();
+    if (!raw) {
+      return '';
+    }
+
+    if (!shouldLocalizeDisputeText(raw, this.currentLang)) {
+      return raw;
+    }
+
+    const key = resolveVendorDisputeActivityNoteKey(activity, dispute);
+    return this.translateWithFallback(key, raw, { orderNumber: dispute.orderNumber });
+  }
+
+  translateCustomerNote(dispute: VendorDisputeDetailVm): string {
+    const raw = dispute.customerVisibleNote?.trim() ?? '';
+    if (!raw) {
+      return '';
+    }
+
+    if (!shouldLocalizeDisputeText(raw, this.currentLang)) {
+      return raw;
+    }
+
+    const key = resolveVendorDisputeCustomerNoteKey(dispute);
+    return this.translateWithFallback(key, raw);
+  }
+
+  translateDecisionNotes(dispute: VendorDisputeDetailVm): string {
+    const raw = dispute.decisionNotes?.trim() ?? '';
+    if (!raw) {
+      return '';
+    }
+
+    if (!shouldLocalizeDisputeText(raw, this.currentLang)) {
+      return raw;
+    }
+
+    const key = resolveVendorDisputeDecisionNoteKey(dispute);
+    return this.translateWithFallback(key, raw);
+  }
+
+  settlementLabel(value: string | null, label?: string | null): string {
+    if (label?.trim()) {
+      return label.trim();
+    }
+
+    const key = resolveVendorDisputeSettlementKey(value);
+    return this.translateWithFallback(key, value ?? this.translate.instant('VENDOR_DISPUTES.SETTLEMENT_STATUS.PENDING_REVIEW'));
+  }
+
+  compensationLabel(value: string | null, label?: string | null): string {
+    if (label?.trim()) {
+      return label.trim();
+    }
+
+    const key = resolveVendorDisputeCompensationKey(value);
+    return this.translateWithFallback(key, value ?? this.translate.instant('VENDOR_DISPUTES.COMPENSATION_TYPES.PENDING'));
+  }
+
+  refundMethodLabel(value: string | null, label?: string | null): string {
+    if (label?.trim()) {
+      return label.trim();
+    }
+
+    const key = resolveVendorDisputeRefundMethodKey(value);
+    return this.translateWithFallback(key, value ?? this.translate.instant('COMMON.NOT_SET'));
+  }
+
+  costBearerLabel(value: string | null, label?: string | null): string {
+    if (label?.trim()) {
+      return label.trim();
+    }
+
+    const key = resolveVendorDisputeCostBearerKey(value);
+    return this.translateWithFallback(key, value ?? this.translate.instant('COMMON.NOT_SET'));
+  }
+
+  authorRoleLabel(role: string): string {
+    return this.translateRole(role);
   }
 
   submitResponse(): void {
@@ -321,22 +415,13 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
     window.print();
   }
 
-  authorRoleLabel(role: string): string {
-    switch (this.normalizeRole(role)) {
-      case 'vendor':
-        return this.currentLang === 'ar' ? 'التاجر' : 'Vendor';
-      case 'customer':
-        return this.currentLang === 'ar' ? 'العميل' : 'Customer';
-      case 'support':
-      case 'admin':
-        return this.currentLang === 'ar' ? 'الدعم' : 'Support';
-      case 'driver':
-        return this.currentLang === 'ar' ? 'المندوب' : 'Driver';
-      case 'system':
-        return this.currentLang === 'ar' ? 'النظام' : 'System';
-      default:
-        return role;
-    }
+  isOwnMessage(authorRole: string): boolean {
+    return authorRole.trim().toLowerCase() === 'vendor';
+  }
+
+  shouldShowWaitingOn(dispute: VendorDisputeDetailVm): boolean {
+    const status = this.normalizeStatus(dispute.status);
+    return status !== 'resolved' && status !== 'rejected' && this.normalizeRole(dispute.waitingOnRole).length > 0;
   }
 
   authorInitial(role: string): string {
@@ -446,5 +531,14 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
 
   closeImage(): void {
     this.selectedImage = null;
+  }
+
+  private translateWithFallback(key: string | null, fallback: string, params?: Record<string, string>): string {
+    if (!key) {
+      return fallback;
+    }
+
+    const translated = this.translate.instant(key, params);
+    return translated === key ? fallback : translated;
   }
 }

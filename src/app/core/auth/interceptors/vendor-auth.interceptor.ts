@@ -16,8 +16,15 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
   }
 
   const accessToken = authService.getAccessToken();
-  const authorizedRequest = accessToken
-    ? request.clone({ setHeaders: { Authorization: `Bearer ${accessToken}` } })
+  const language = localStorage.getItem('vendor_lang') || localStorage.getItem('lang') || 'ar';
+  const headers: Record<string, string> = { 'Accept-Language': language };
+
+  if (accessToken) {
+    headers['Authorization'] = `Bearer ${accessToken}`;
+  }
+
+  const authorizedRequest = accessToken || language
+    ? request.clone({ setHeaders: headers })
     : request;
 
   return next(authorizedRequest).pipe(
@@ -49,7 +56,10 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
 
       return authService.refreshSession().pipe(
         switchMap((newToken) => next(request.clone({
-          setHeaders: { Authorization: `Bearer ${newToken}` }
+          setHeaders: {
+            Authorization: `Bearer ${newToken}`,
+            'Accept-Language': language
+          }
         }))),
         catchError((refreshError) => {
           authService.forceLogoutForExpiredSession();

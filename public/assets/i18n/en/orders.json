@@ -370,7 +370,118 @@
     "PARTICIPANTS": {
       "CUSTOMER": "Customer",
       "VENDOR": "Vendor",
-      "DRIVER": "Driver"
+      "DRIVER": "Driver",
+      "ADMIN": "Admin",
+      "SUPPORT": "Support"
+    },
+    "QUEUE": {
+      "SUPPORT": "Customer support",
+      "FINANCE": "Finance",
+      "OPERATIONS": "Operations",
+      "RISK": "Risk",
+      "LEGAL": "Legal",
+      "DRIVER_OPS": "Driver operations"
+    },
+    "SETTLEMENT_STATUS": {
+      "PENDING_REVIEW": "Pending review",
+      "PENDING_REVIEW_ALT": "Awaiting review",
+      "REJECTED": "Rejected",
+      "APPROVED": "Approved, awaiting settlement",
+      "CASH_REFUNDED": "Cash refunded",
+      "COUPON_ISSUED": "Coupon issued",
+      "COUPON_REDEEMED": "Coupon redeemed"
+    },
+    "COMPENSATION_TYPES": {
+      "PENDING": "Pending decision",
+      "CASH_REFUND": "Cash compensation",
+      "COUPON_COMPENSATION": "Coupon compensation"
+    },
+    "REFUND_METHOD": {
+      "WALLET": "Wallet",
+      "BANK": "Bank transfer",
+      "CARD": "Card",
+      "CASH": "Cash",
+      "COUPON": "Coupon"
+    },
+    "COST_BEARER": {
+      "VENDOR": "Vendor",
+      "PLATFORM": "Platform",
+      "DRIVER": "Driver",
+      "CUSTOMER": "Customer"
+    },
+    "ACTIVITY": {
+      "SUBMITTED": {
+        "TITLE": "Case opened",
+        "NOTE": "We received the support case for order #{{orderNumber}} and it is now under review."
+      },
+      "REQUEST_EVIDENCE": {
+        "TITLE": "More evidence requested",
+        "NOTE": "We need additional information or evidence to continue reviewing the case for order #{{orderNumber}}."
+      },
+      "APPROVED": {
+        "TITLE": "Case approved",
+        "NOTE": "Your return request has been approved. You will be notified when the financial processing begins."
+      },
+      "REJECTED": {
+        "TITLE": "Case rejected",
+        "NOTE": "The support case linked to order #{{orderNumber}} has been rejected."
+      },
+      "RESOLVED": {
+        "TITLE": "Case resolved",
+        "NOTE": "The support case linked to order #{{orderNumber}} has been resolved and closed."
+      },
+      "ESCALATED": {
+        "TITLE": "Case escalated",
+        "NOTE": "The support case linked to order #{{orderNumber}} was escalated to a specialized team."
+      },
+      "ADMIN_MESSAGE": {
+        "TITLE": "Admin update",
+        "NOTE": "Support shared an update on this case."
+      },
+      "VENDOR_RESPONSE": {
+        "TITLE": "Vendor replied"
+      },
+      "CUSTOMER_RESPONSE": {
+        "TITLE": "Customer replied"
+      },
+      "DRIVER_RESPONSE": {
+        "TITLE": "Driver replied"
+      },
+      "DECISION": {
+        "NOTE": "A final decision was recorded for this case."
+      },
+      "PUBLIC_NOTE": {
+        "NOTE": "A public note was added to this case."
+      }
+    },
+    "REASONS": {
+      "COMPLAINT": {
+        "LATE_DELIVERY": "Late delivery",
+        "MISSING_ITEMS": "Missing items",
+        "WRONG_ITEMS": "Wrong items",
+        "POOR_QUALITY": "Poor quality",
+        "DRIVER_BEHAVIOR": "Driver behavior",
+        "OTHER": "Other"
+      },
+      "RETURN_REQUEST": {
+        "DEFECTIVE": "Defective product",
+        "NOT_AS_DESCRIBED": "Not as described",
+        "WRONG_SIZE": "Wrong size",
+        "CHANGED_MIND": "Changed mind",
+        "OTHER": "Other"
+      },
+      "DRIVER_REPORT": {
+        "WRONG_ADDRESS": "Wrong address",
+        "CUSTOMER_UNAVAILABLE": "Customer unavailable",
+        "DAMAGED_PACKAGE": "Damaged package",
+        "VEHICLE_ISSUE": "Vehicle issue",
+        "OTHER": "Other"
+      },
+      "DRIVER_DISPUTE": {
+        "PAYOUT_DISPUTE": "Payout dispute",
+        "INCORRECT_DEDUCTION": "Incorrect deduction",
+        "OTHER": "Other"
+      }
     },
     "EMPTY": {
       "TITLE": "No disputes found",

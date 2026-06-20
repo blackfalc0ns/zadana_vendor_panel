@@ -370,7 +370,118 @@
     "PARTICIPANTS": {
       "CUSTOMER": "العميل",
       "VENDOR": "التاجر",
-      "DRIVER": "المندوب"
+      "DRIVER": "المندوب",
+      "ADMIN": "الإدارة",
+      "SUPPORT": "الدعم"
+    },
+    "QUEUE": {
+      "SUPPORT": "دعم العملاء",
+      "FINANCE": "المالية",
+      "OPERATIONS": "التشغيل",
+      "RISK": "المخاطر",
+      "LEGAL": "القانونية",
+      "DRIVER_OPS": "عمليات المناديب"
+    },
+    "SETTLEMENT_STATUS": {
+      "PENDING_REVIEW": "بانتظار المراجعة",
+      "PENDING_REVIEW_ALT": "بانتظار المراجعة",
+      "REJECTED": "مرفوض",
+      "APPROVED": "معتمد بانتظار التسوية",
+      "CASH_REFUNDED": "تم رد المبلغ",
+      "COUPON_ISSUED": "تم إصدار كوبون",
+      "COUPON_REDEEMED": "تم استخدام الكوبون"
+    },
+    "COMPENSATION_TYPES": {
+      "PENDING": "قيد التحديد",
+      "CASH_REFUND": "تعويض نقدي",
+      "COUPON_COMPENSATION": "تعويض بكوبون"
+    },
+    "REFUND_METHOD": {
+      "WALLET": "المحفظة",
+      "BANK": "تحويل بنكي",
+      "CARD": "البطاقة",
+      "CASH": "نقدًا",
+      "COUPON": "كوبون"
+    },
+    "COST_BEARER": {
+      "VENDOR": "التاجر",
+      "PLATFORM": "المنصة",
+      "DRIVER": "المندوب",
+      "CUSTOMER": "العميل"
+    },
+    "ACTIVITY": {
+      "SUBMITTED": {
+        "TITLE": "تم فتح الحالة",
+        "NOTE": "تم استلام الحالة المرتبطة بالطلب رقم {{orderNumber}} وهي الآن قيد المراجعة."
+      },
+      "REQUEST_EVIDENCE": {
+        "TITLE": "طلب معلومات إضافية",
+        "NOTE": "نحتاج إلى معلومات أو أدلة إضافية لمتابعة مراجعة الحالة الخاصة بالطلب رقم {{orderNumber}}."
+      },
+      "APPROVED": {
+        "TITLE": "تمت الموافقة",
+        "NOTE": "تمت الموافقة على طلب الاسترجاع وسيتم إشعارك عند بدء المعالجة المالية."
+      },
+      "REJECTED": {
+        "TITLE": "تم الرفض",
+        "NOTE": "تم رفض الحالة الخاصة بالطلب رقم {{orderNumber}}."
+      },
+      "RESOLVED": {
+        "TITLE": "تم الحل",
+        "NOTE": "تم إغلاق الحالة الخاصة بالطلب رقم {{orderNumber}} بعد معالجتها."
+      },
+      "ESCALATED": {
+        "TITLE": "تم التصعيد",
+        "NOTE": "تم تصعيد الحالة الخاصة بالطلب رقم {{orderNumber}} إلى فريق مختص."
+      },
+      "ADMIN_MESSAGE": {
+        "TITLE": "رسالة من الإدارة",
+        "NOTE": "شارك فريق الدعم تحديثًا على هذه الحالة."
+      },
+      "VENDOR_RESPONSE": {
+        "TITLE": "رد التاجر"
+      },
+      "CUSTOMER_RESPONSE": {
+        "TITLE": "رد العميل"
+      },
+      "DRIVER_RESPONSE": {
+        "TITLE": "رد المندوب"
+      },
+      "DECISION": {
+        "NOTE": "تم تسجيل قرار نهائي لهذه الحالة."
+      },
+      "PUBLIC_NOTE": {
+        "NOTE": "أُضيفت ملاحظة عامة إلى هذه الحالة."
+      }
+    },
+    "REASONS": {
+      "COMPLAINT": {
+        "LATE_DELIVERY": "تأخر التوصيل",
+        "MISSING_ITEMS": "عناصر مفقودة",
+        "WRONG_ITEMS": "عناصر خاطئة",
+        "POOR_QUALITY": "جودة سيئة",
+        "DRIVER_BEHAVIOR": "سلوك المندوب",
+        "OTHER": "أخرى"
+      },
+      "RETURN_REQUEST": {
+        "DEFECTIVE": "منتج معيب",
+        "NOT_AS_DESCRIBED": "غير مطابق للوصف",
+        "WRONG_SIZE": "المقاس خاطئ",
+        "CHANGED_MIND": "غيرت رأيي",
+        "OTHER": "أخرى"
+      },
+      "DRIVER_REPORT": {
+        "WRONG_ADDRESS": "العنوان خاطئ",
+        "CUSTOMER_UNAVAILABLE": "العميل غير متاح",
+        "DAMAGED_PACKAGE": "الشحنة تالفة",
+        "VEHICLE_ISSUE": "مشكلة في المركبة",
+        "OTHER": "أخرى"
+      },
+      "DRIVER_DISPUTE": {
+        "PAYOUT_DISPUTE": "نزاع مالي",
+        "INCORRECT_DEDUCTION": "خصم غير صحيح",
+        "OTHER": "أخرى"
+      }
     },
     "EMPTY": {
       "TITLE": "لا توجد نزاعات",
