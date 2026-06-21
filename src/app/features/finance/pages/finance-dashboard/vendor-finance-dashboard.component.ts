@@ -314,7 +314,7 @@ export class VendorFinanceDashboardComponent implements OnInit {
       return '-';
     }
 
-    return new Date(value).toLocaleDateString(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+    return new Date(value).toLocaleDateString(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh',
       day: 'numeric',
       month: 'short',
       year: 'numeric'

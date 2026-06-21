@@ -458,7 +458,7 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   formatDateTime(dateText: string): string {
-    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh',
       year: 'numeric',
       month: 'short',
       day: 'numeric',
@@ -522,15 +522,22 @@ export class AlertsCenterPageComponent implements OnInit, DoCheck, OnDestroy {
     }
 
     const now = new Date();
-    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const startOfYesterday = new Date(startOfToday);
-    startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+    const saudiDateKey = (value: Date): string =>
+      new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'Asia/Riyadh',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+      }).format(value);
+    const todayKey = saudiDateKey(now);
+    const alertDateKey = saudiDateKey(date);
 
-    if (date >= startOfToday) {
+    if (alertDateKey === todayKey) {
       return 'today';
     }
 
-    if (date >= startOfYesterday) {
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    if (alertDateKey === saudiDateKey(yesterday)) {
       return 'yesterday';
     }
 

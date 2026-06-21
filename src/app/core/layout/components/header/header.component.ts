@@ -263,7 +263,7 @@ export class HeaderComponent implements OnInit {
   }
 
   formatDateTime(dateText: string): string {
-    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh',
       month: 'short',
       day: 'numeric',
       hour: 'numeric',

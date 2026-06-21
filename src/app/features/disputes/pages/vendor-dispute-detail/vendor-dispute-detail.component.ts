@@ -187,7 +187,7 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
   }
 
   formatDate(value: string): string {
-    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh',
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -195,7 +195,7 @@ export class VendorDisputeDetailComponent implements OnInit, OnDestroy {
   }
 
   formatDateTime(value: string): string {
-    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh',
       year: 'numeric',
       month: 'short',
       day: 'numeric',

@@ -430,7 +430,7 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   formatDate(dateText: string): string {
-    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh',
       year: 'numeric',
       month: 'short',
       day: 'numeric'
@@ -438,7 +438,7 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
   }
 
   formatDateTime(dateText: string): string {
-    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh',
       year: 'numeric',
       month: 'short',
       day: 'numeric',

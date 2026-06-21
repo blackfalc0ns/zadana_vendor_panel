@@ -145,7 +145,7 @@ export class VendorDisputesListComponent implements OnInit, OnDestroy {
   }
 
   formatDateTime(value: string): string {
-    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh',
       year: 'numeric',
       month: 'short',
       day: 'numeric',

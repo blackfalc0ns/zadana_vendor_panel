@@ -1698,7 +1698,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
       return '-';
     }
 
-    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', {
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh',
       day: '2-digit',
       month: 'short',
       hour: '2-digit',

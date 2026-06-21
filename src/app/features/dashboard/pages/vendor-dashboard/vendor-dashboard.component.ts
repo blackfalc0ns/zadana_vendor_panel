@@ -958,14 +958,14 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
       .findIndex((month) => month.toLowerCase() === label.toLowerCase());
     if (monthIndex >= 0) {
       const monthDate = new Date(Date.UTC(2026, monthIndex, 1));
-      return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { month: 'short' }).format(monthDate);
+      return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh', month: 'short' }).format(monthDate);
     }
 
     const weekdayIndex = VendorDashboardComponent.EN_WEEKDAY_ABBREVS
       .findIndex((weekday) => weekday.toLowerCase() === label.toLowerCase());
     if (weekdayIndex >= 0) {
       const weekdayDate = new Date(Date.UTC(2026, 0, 4 + weekdayIndex));
-      return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'short' }).format(weekdayDate);
+      return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh', weekday: 'short' }).format(weekdayDate);
     }
 
     const weekMatch = label.match(/^W(\d+)$/i);
@@ -1060,6 +1060,6 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
 
   private weekdayLabel(dayIndex: number): string {
     const weekday = new Date(Date.UTC(2026, 4, 3 + dayIndex));
-    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { weekday: 'short' }).format(weekday);
+    return new Intl.DateTimeFormat(this.currentLang === 'ar' ? 'ar-EG' : 'en-US', { timeZone: 'Asia/Riyadh', weekday: 'short' }).format(weekday);
   }
 }
