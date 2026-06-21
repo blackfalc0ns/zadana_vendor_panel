@@ -90,41 +90,92 @@
       "PENDING_STEP": "Not reached yet",
       "STEPS": {
         "NEW": {
+          "TITLE": "New order",
           "DESCRIPTION": "The order was received from the customer and is waiting for your review."
         },
         "CONFIRMED": {
+          "TITLE": "Confirmed",
           "DESCRIPTION": "The order was accepted and moved into preparation."
         },
         "IN_PROGRESS": {
+          "TITLE": "Preparing",
           "DESCRIPTION": "Items are being prepared and packed in the store."
         },
         "READY_FOR_PICKUP": {
+          "TITLE": "Ready for pickup",
           "DESCRIPTION": "The order is ready and waiting for the courier to arrive."
         },
         "DRIVER_ASSIGNMENT_IN_PROGRESS": {
+          "TITLE": "Finding a driver",
           "DESCRIPTION": "The system is searching for the nearest available courier."
         },
         "DRIVER_ASSIGNED": {
+          "TITLE": "Driver assigned",
           "DESCRIPTION": "A courier was assigned and will head to the store for pickup."
         },
         "PICKED_UP": {
+          "TITLE": "Picked up from store",
           "DESCRIPTION": "The courier picked up the order from the store."
         },
         "OUT_FOR_DELIVERY": {
+          "TITLE": "On the way",
           "DESCRIPTION": "The courier is on the way to the customer address."
         },
         "DELIVERED": {
+          "TITLE": "Delivered",
           "DESCRIPTION": "The order was delivered to the customer successfully."
         },
+        "COMPLETED": {
+          "TITLE": "Completed",
+          "DESCRIPTION": "The order was completed successfully."
+        },
         "CANCELLED": {
+          "TITLE": "Cancelled",
           "DESCRIPTION": "The order was cancelled and delivery was stopped."
         },
+        "RETURNED": {
+          "TITLE": "Returned",
+          "DESCRIPTION": "The order was returned."
+        },
         "DELIVERY_FAILED": {
+          "TITLE": "Delivery failed",
           "DESCRIPTION": "Delivery could not be completed and needs follow-up."
         },
         "REFUNDED": {
+          "TITLE": "Refunded",
           "DESCRIPTION": "The order amount was refunded to the customer."
         }
+      },
+      "NOTES": {
+        "AUTO_DISPATCH_STARTED": "Automatic driver search started",
+        "DRIVER_ACCEPTED_OFFER": "Driver accepted the delivery offer",
+        "DRIVER_ASSIGNED_VIA_DISPATCH": "Driver assigned via dispatch",
+        "DRIVER_ASSIGNED_BY_ADMIN": "Driver assigned by admin",
+        "VENDOR_CONFIRMED_PICKUP": "Vendor confirmed pickup handoff via OTP",
+        "DRIVER_VERIFIED_PICKUP": "Driver verified pickup OTP",
+        "DRIVER_ON_THE_WAY": "Driver is on the way",
+        "DRIVER_VERIFIED_DELIVERY": "Driver verified delivery OTP",
+        "COD_SELECTED": "Cash on delivery selected",
+        "AWAITING_VENDOR": "Awaiting vendor response",
+        "VENDOR_ACCEPTED": "Vendor accepted the order",
+        "VENDOR_PREPARING": "Vendor started preparing",
+        "READY_FOR_PICKUP": "Order is ready for pickup",
+        "SEARCHING_DRIVERS": "Searching for drivers",
+        "NO_DRIVERS": "No drivers available",
+        "OFFER_SENT": "Delivery offer sent",
+        "DRIVER_REJECTED": "Driver rejected delivery offer",
+        "CANCELLED_BY_ADMIN": "Cancelled by admin",
+        "CANCELLED_BY_CUSTOMER": "Cancelled by customer",
+        "ORDER_PLACED": "Order placed",
+        "ORDER_CONFIRMED": "Order confirmed",
+        "ORDER_PICKED_UP": "Order picked up",
+        "ORDER_DELIVERED": "Order delivered",
+        "PICKUP_CONFIRMED_EARLY": "Pickup confirmed before customer arrival",
+        "AWAITING_BANK_TRANSFER": "Awaiting automatic bank transfer confirmation",
+        "BANK_TRANSFER_UPLOADED": "Bank transfer proof uploaded",
+        "BANK_TRANSFER_CONFIRMED": "Bank transfer confirmed",
+        "DISPATCH_PENDING": "Dispatch pending",
+        "CUSTOMER_CANCELLATION": "Customer cancellation reason"
       }
     },
     "DETAIL_CUSTOMER": "Customer Data",

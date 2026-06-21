@@ -350,7 +350,8 @@ import { environment } from '../../../../../environments/environment';
                              'bg-white border-teal-500 text-teal-600 ring-4 ring-teal-50': isActiveTimelineStep(i),
                              'bg-slate-50 border-slate-200 text-slate-300': !step.isCompleted
                            }">
-                        <span class="material-symbols-outlined text-[18px] transition-transform" [ngClass]="{'scale-110': isActiveTimelineStep(i)}">
+                        <span class="material-symbols-outlined text-[18px] transition-transform" [ngClass]="{'scale-110': isActiveTimelineStep(i)}"
+                          [style.fontVariationSettings]="getTimelineIconVariation(step, i)">
                           {{ timelineIcon(step) }}
                         </span>
                       </div>
@@ -364,7 +365,7 @@ import { environment } from '../../../../../environments/environment';
                            'text-slate-700': step.isCompleted && !isActiveTimelineStep(i),
                            'text-slate-400': !step.isCompleted
                          }">
-                        {{ currentLang === 'ar' ? step.labelAr : step.labelEn }}
+                        {{ timelineStepTitleKey(step) | translate }}
                       </p>
 
                       <p class="mt-1 text-[0.75rem] font-medium leading-5 transition-colors"
@@ -836,6 +837,10 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     return translations[lowerType] || type;
   }
 
+  timelineStepTitleKey(step: OrderTimelineEntry): string {
+    return `ORDERS.TIMELINE.STEPS.${step.status}.TITLE`;
+  }
+
   timelineStepDescriptionKey(step: OrderTimelineEntry): string {
     return `ORDERS.TIMELINE.STEPS.${step.status}.DESCRIPTION`;
   }
@@ -850,7 +855,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
       DRIVER_ASSIGNED: 'delivery_truck_speed',
       PICKED_UP: 'move_to_inbox',
       OUT_FOR_DELIVERY: 'local_shipping',
-      DELIVERED: 'home',
+      DELIVERED: 'check_circle',
       COMPLETED: 'check_circle',
       CANCELLED: 'close',
       RETURNED: 'undo',
@@ -859,6 +864,20 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
     };
 
     return icons[step.status] || 'radio_button_checked';
+  }
+
+  timelineIconFilled(step: OrderTimelineEntry, index: number): boolean {
+    if (step.status === 'DELIVERED' || step.status === 'COMPLETED') {
+      return step.isCompleted;
+    }
+
+    return this.isActiveTimelineStep(index);
+  }
+
+  getTimelineIconVariation(step: OrderTimelineEntry, index: number): string {
+    return this.timelineIconFilled(step, index)
+      ? "'FILL' 1, 'wght' 600"
+      : "'FILL' 0, 'wght' 400";
   }
 
   timelineNodeClass(step: OrderTimelineEntry, index: number): string[] {
@@ -896,30 +915,58 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
   }
 
   translateTimelineNote(note: string): string {
-    if (!note || this.currentLang !== 'ar') {
-      return note;
+    if (!note?.trim()) {
+      return '';
     }
 
-    const cleanNote = note.trim().replace(/^\.+/, '').trim();
+    const normalized = note.trim().replace(/\.+$/, '');
+    if (normalized.toLowerCase().startsWith('customer cancellation reason:')) {
+      return normalized;
+    }
 
-    const translations: Record<string, string> = {
-      'Cash on delivery selected': 'تم اختيار الدفع عند الاستلام',
-      'Awaiting vendor response': 'في انتظار رد المتجر',
-      'Vendor accepted the order': 'تم قبول الطلب من قبل المتجر',
-      'Vendor started preparing': 'بدأ المتجر في تجهيز الطلب',
-      'Order is ready for pickup': 'الطلب جاهز للاستلام',
-      'Auto-dispatch started': 'بدأ البحث التلقائي عن مندوب',
-      'Driver accepted delivery offer': 'تم قبول عرض التوصيل من قبل المندوب',
-      'Vendor confirmed pickup handoff via OTP': 'تم تأكيد تسليم الطلب للمندوب عبر الرمز',
-      'Driver is on the way': 'المندوب في الطريق إليك',
-      'Driver verified delivery OTP': 'تم التحقق من رمز التوصيل بنجاح',
-      'Order placed': 'تم إنشاء الطلب بنجاح',
-      'Order confirmed': 'تم تأكيد الطلب',
-      'Order picked up': 'تم استلام الطلب من قبل المندوب',
-      'Order delivered': 'تم توصيل الطلب بنجاح'
-    };
+    const key = this.resolveTimelineNoteKey(normalized);
+    if (key) {
+      const translated = this.translate.instant(key);
+      return translated !== key ? translated : normalized;
+    }
 
-    return translations[cleanNote] || note;
+    return normalized;
+  }
+
+  private resolveTimelineNoteKey(note: string): string | null {
+    const normalized = note.trim().toLowerCase();
+    const entries: Array<{ match: string; key: string }> = [
+      { match: 'auto-dispatch started', key: 'ORDERS.TIMELINE.NOTES.AUTO_DISPATCH_STARTED' },
+      { match: 'driver accepted delivery offer', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ACCEPTED_OFFER' },
+      { match: 'driver assigned via dispatch', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ASSIGNED_VIA_DISPATCH' },
+      { match: 'driver assigned by admin', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ASSIGNED_BY_ADMIN' },
+      { match: 'vendor confirmed pickup handoff via otp', key: 'ORDERS.TIMELINE.NOTES.VENDOR_CONFIRMED_PICKUP' },
+      { match: 'driver verified pickup otp', key: 'ORDERS.TIMELINE.NOTES.DRIVER_VERIFIED_PICKUP' },
+      { match: 'driver is on the way', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ON_THE_WAY' },
+      { match: 'driver verified delivery otp', key: 'ORDERS.TIMELINE.NOTES.DRIVER_VERIFIED_DELIVERY' },
+      { match: 'cash on delivery selected', key: 'ORDERS.TIMELINE.NOTES.COD_SELECTED' },
+      { match: 'awaiting vendor response', key: 'ORDERS.TIMELINE.NOTES.AWAITING_VENDOR' },
+      { match: 'vendor accepted the order', key: 'ORDERS.TIMELINE.NOTES.VENDOR_ACCEPTED' },
+      { match: 'vendor started preparing', key: 'ORDERS.TIMELINE.NOTES.VENDOR_PREPARING' },
+      { match: 'order is ready for pickup', key: 'ORDERS.TIMELINE.NOTES.READY_FOR_PICKUP' },
+      { match: 'searching for drivers', key: 'ORDERS.TIMELINE.NOTES.SEARCHING_DRIVERS' },
+      { match: 'no drivers available', key: 'ORDERS.TIMELINE.NOTES.NO_DRIVERS' },
+      { match: 'delivery offer sent', key: 'ORDERS.TIMELINE.NOTES.OFFER_SENT' },
+      { match: 'driver rejected delivery offer', key: 'ORDERS.TIMELINE.NOTES.DRIVER_REJECTED' },
+      { match: 'cancelled by admin', key: 'ORDERS.TIMELINE.NOTES.CANCELLED_BY_ADMIN' },
+      { match: 'cancelled by customer', key: 'ORDERS.TIMELINE.NOTES.CANCELLED_BY_CUSTOMER' },
+      { match: 'order placed', key: 'ORDERS.TIMELINE.NOTES.ORDER_PLACED' },
+      { match: 'order confirmed', key: 'ORDERS.TIMELINE.NOTES.ORDER_CONFIRMED' },
+      { match: 'order picked up', key: 'ORDERS.TIMELINE.NOTES.ORDER_PICKED_UP' },
+      { match: 'order delivered', key: 'ORDERS.TIMELINE.NOTES.ORDER_DELIVERED' },
+      { match: 'pickup confirmed before customer arrival', key: 'ORDERS.TIMELINE.NOTES.PICKUP_CONFIRMED_EARLY' },
+      { match: 'awaiting automatic bank transfer confirmation', key: 'ORDERS.TIMELINE.NOTES.AWAITING_BANK_TRANSFER' },
+      { match: 'bank transfer proof uploaded', key: 'ORDERS.TIMELINE.NOTES.BANK_TRANSFER_UPLOADED' },
+      { match: 'bank transfer confirmed by', key: 'ORDERS.TIMELINE.NOTES.BANK_TRANSFER_CONFIRMED' }
+    ];
+
+    const matched = entries.find((entry) => normalized === entry.match || normalized.startsWith(`${entry.match} `));
+    return matched?.key ?? null;
   }
 
   private timelineStatusClass(status: OrderStatus): string {

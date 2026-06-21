@@ -90,41 +90,92 @@
       "PENDING_STEP": "لم تصل بعد إلى هذه المرحلة",
       "STEPS": {
         "NEW": {
+          "TITLE": "طلب جديد",
           "DESCRIPTION": "تم استلام الطلب من العميل وينتظر مراجعتك وتأكيدك."
         },
         "CONFIRMED": {
+          "TITLE": "تم التأكيد",
           "DESCRIPTION": "تم قبول الطلب وبدأ مسار التجهيز داخل المتجر."
         },
         "IN_PROGRESS": {
+          "TITLE": "قيد التجهيز",
           "DESCRIPTION": "يجري تجهيز المنتجات وتعبئة الطلب حالياً."
         },
         "READY_FOR_PICKUP": {
+          "TITLE": "جاهز للاستلام",
           "DESCRIPTION": "الطلب جاهز للاستلام وينتظر وصول المندوب."
         },
         "DRIVER_ASSIGNMENT_IN_PROGRESS": {
+          "TITLE": "جاري البحث عن مندوب",
           "DESCRIPTION": "النظام يبحث عن أقرب مندوب متاح للتوصيل."
         },
         "DRIVER_ASSIGNED": {
+          "TITLE": "تم تعيين مندوب",
           "DESCRIPTION": "تم تعيين مندوب وسيتوجه إلى المتجر لاستلام الطلب."
         },
         "PICKED_UP": {
+          "TITLE": "تم الاستلام من المتجر",
           "DESCRIPTION": "استلم المندوب الطلب من المتجر وغادر نحو العميل."
         },
         "OUT_FOR_DELIVERY": {
+          "TITLE": "في الطريق",
           "DESCRIPTION": "المندوب في الطريق إلى عنوان العميل."
         },
         "DELIVERED": {
+          "TITLE": "تم التوصيل",
           "DESCRIPTION": "تم تسليم الطلب للعميل بنجاح."
         },
+        "COMPLETED": {
+          "TITLE": "مكتمل",
+          "DESCRIPTION": "اكتمل الطلب بنجاح."
+        },
         "CANCELLED": {
+          "TITLE": "ملغي",
           "DESCRIPTION": "تم إلغاء الطلب وإيقاف مسار التوصيل."
         },
+        "RETURNED": {
+          "TITLE": "مرتجع",
+          "DESCRIPTION": "تم إرجاع الطلب."
+        },
         "DELIVERY_FAILED": {
+          "TITLE": "فشل التوصيل",
           "DESCRIPTION": "تعذّر إتمام التوصيل ويحتاج متابعة من فريق الدعم."
         },
         "REFUNDED": {
+          "TITLE": "تم الاسترداد",
           "DESCRIPTION": "تم استرداد قيمة الطلب للعميل."
         }
+      },
+      "NOTES": {
+        "AUTO_DISPATCH_STARTED": "بدأ البحث التلقائي عن مندوب",
+        "DRIVER_ACCEPTED_OFFER": "وافق المندوب على عرض التوصيل",
+        "DRIVER_ASSIGNED_VIA_DISPATCH": "تم تعيين المندوب عبر التوجيه",
+        "DRIVER_ASSIGNED_BY_ADMIN": "تم تعيين المندوب من قبل الإدارة",
+        "VENDOR_CONFIRMED_PICKUP": "تم تأكيد تسليم الطلب للمندوب عبر الرمز",
+        "DRIVER_VERIFIED_PICKUP": "تحقق المندوب من رمز الاستلام",
+        "DRIVER_ON_THE_WAY": "المندوب في الطريق إليك",
+        "DRIVER_VERIFIED_DELIVERY": "تم التحقق من رمز التوصيل بنجاح",
+        "COD_SELECTED": "تم اختيار الدفع عند الاستلام",
+        "AWAITING_VENDOR": "في انتظار رد المتجر",
+        "VENDOR_ACCEPTED": "تم قبول الطلب من قبل المتجر",
+        "VENDOR_PREPARING": "بدأ المتجر في تجهيز الطلب",
+        "READY_FOR_PICKUP": "الطلب جاهز للاستلام",
+        "SEARCHING_DRIVERS": "جاري البحث عن مندوبين",
+        "NO_DRIVERS": "لا يوجد مندوبين متاحين",
+        "OFFER_SENT": "تم إرسال عرض التوصيل",
+        "DRIVER_REJECTED": "رفض المندوب عرض التوصيل",
+        "CANCELLED_BY_ADMIN": "تم الإلغاء من قبل الإدارة",
+        "CANCELLED_BY_CUSTOMER": "تم الإلغاء من قبل العميل",
+        "ORDER_PLACED": "تم إنشاء الطلب بنجاح",
+        "ORDER_CONFIRMED": "تم تأكيد الطلب",
+        "ORDER_PICKED_UP": "تم استلام الطلب من قبل المندوب",
+        "ORDER_DELIVERED": "تم توصيل الطلب بنجاح",
+        "PICKUP_CONFIRMED_EARLY": "تم تأكيد الاستلام قبل الوصول للعميل",
+        "AWAITING_BANK_TRANSFER": "بانتظار تأكيد التحويل البنكي التلقائي",
+        "BANK_TRANSFER_UPLOADED": "تم رفع إثبات التحويل البنكي",
+        "BANK_TRANSFER_CONFIRMED": "تم تأكيد التحويل البنكي",
+        "DISPATCH_PENDING": "التوجيه معلّق",
+        "CUSTOMER_CANCELLATION": "سبب إلغاء العميل"
       }
     },
     "DETAIL_CUSTOMER": "بيانات العميل",
