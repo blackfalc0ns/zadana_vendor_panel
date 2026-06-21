@@ -1,8 +1,9 @@
-import { Component, Inject, PLATFORM_ID, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Inject, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { finalize, timeout } from 'rxjs';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
@@ -26,6 +27,7 @@ export class ForgotPasswordComponent {
     private router: Router,
     private translate: TranslateService,
     private authService: VendorAuthService,
+    private cdr: ChangeDetectorRef,
     @Inject(PLATFORM_ID) private platformId: Object
   ) {
     this.forgotForm = this.fb.group({
@@ -65,16 +67,20 @@ export class ForgotPasswordComponent {
     this.isLoading = true;
     const identifier = this.forgotForm.get('email')?.value as string;
 
-    this.authService.forgotPassword(identifier).subscribe({
-      next: (message) => {
+    this.authService.forgotPassword(identifier).pipe(
+      timeout(45000),
+      finalize(() => {
         this.isLoading = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (message) => {
         this.successMessage = message;
         void this.router.navigate(['/reset-password'], {
           queryParams: { identifier }
         });
       },
       error: (error) => {
-        this.isLoading = false;
         this.errorMessage = error?.error?.detail
           || error?.error?.message
           || error?.message
