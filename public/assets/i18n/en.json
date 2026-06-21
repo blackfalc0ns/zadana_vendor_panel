@@ -1,4 +1,4 @@
-﻿{
+{
   "COMMON": {
     "SEARCH": "Search...",
     "SAVE": "Save",
@@ -1293,6 +1293,7 @@
     "CARD_TITLE": "Forgot Password",
     "CARD_DESC": "We will send you a password reset link to your email.",
     "BTN_SUBMIT": "Send Reset Link",
+    "SENDING": "Sending...",
     "BTN_BACK": "Back to Login",
     "ERRORS": {
       "INVALID_EMAIL": "Please enter a valid email address.",
@@ -1320,7 +1321,11 @@
   },
   "RESET_PASSWORD_PAGE": {
     "EYEBROW": "Reset Password",
+    "HERO_TITLE_1": "Create a new",
+    "HERO_TITLE_2": "password securely",
+    "HERO_DESC": "Enter the verification code sent to your email and set a strong password to restore access to your store account.",
     "TITLE": "Enter the OTP and your new password",
+    "CARD_DESC": "Check your email for the 4-digit verification code.",
     "FIELDS": {
       "EMAIL": "Email",
       "OTP": "OTP Code",
@@ -1328,8 +1333,13 @@
       "CONFIRM_PASSWORD": "Confirm Password"
     },
     "SUBMIT": "Update Password",
+    "SENDING": "Updating...",
+    "BTN_BACK": "Back to Login",
     "ERRORS": {
       "INVALID_FORM": "Please complete the form correctly.",
+      "INVALID_OTP": "Enter the 4-digit verification code.",
+      "PASSWORD_MIN": "Password must be at least 8 characters.",
+      "PASSWORD_MISMATCH": "Passwords do not match.",
       "RESET_FAILED": "Unable to reset the password right now."
     }
   },

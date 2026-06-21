@@ -1,8 +1,9 @@
-import { CommonModule } from '@angular/common';
-import { Component, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
+import { Component, Inject, OnInit, PLATFORM_ID, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { finalize, timeout } from 'rxjs';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
@@ -16,6 +17,7 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
 export class ResetPasswordComponent implements OnInit {
   private readonly cdr = inject(ChangeDetectorRef);
   isLoading = false;
+  submitted = false;
   errorMessage = '';
   successMessage = '';
   showPassword = false;
@@ -27,7 +29,8 @@ export class ResetPasswordComponent implements OnInit {
     private readonly route: ActivatedRoute,
     private readonly router: Router,
     private readonly translate: TranslateService,
-    private readonly authService: VendorAuthService
+    private readonly authService: VendorAuthService,
+    @Inject(PLATFORM_ID) private readonly platformId: Object
   ) {
     this.form = this.fb.group({
       identifier: ['', [Validators.required, Validators.email]],
@@ -38,52 +41,100 @@ export class ResetPasswordComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      const savedLang = localStorage.getItem('lang') || localStorage.getItem('vendor_lang') || 'ar';
+      this.translate.use(savedLang);
+      this.applyDocumentLanguage(savedLang);
+      this.dismissAppSplash();
+    }
+
     const identifier = this.route.snapshot.queryParamMap.get('identifier');
     if (identifier) {
       this.form.patchValue({ identifier });
     }
   }
 
-  get isRTL(): boolean {
-    return (this.translate.currentLang || 'ar') === 'ar';
+  switchLanguage(lang: string): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    this.translate.use(lang);
+    localStorage.setItem('lang', lang);
+    localStorage.setItem('vendor_lang', lang);
+    this.applyDocumentLanguage(lang);
+    this.cdr.markForCheck();
   }
 
   togglePassword(): void {
     this.showPassword = !this.showPassword;
+    this.cdr.markForCheck();
   }
 
   toggleConfirmPassword(): void {
     this.showConfirmPassword = !this.showConfirmPassword;
+    this.cdr.markForCheck();
   }
 
   submit(): void {
+    this.submitted = true;
     this.errorMessage = '';
     this.successMessage = '';
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();
-      this.errorMessage = this.translate.instant('RESET_PASSWORD_PAGE.ERRORS.INVALID_FORM');
+      this.cdr.markForCheck();
       return;
     }
 
     const { identifier, otpCode, newPassword } = this.form.getRawValue();
     this.isLoading = true;
+    this.cdr.markForCheck();
 
-    this.authService.resetPassword(identifier || '', otpCode || '', newPassword || '').subscribe({
-      next: (message) => {
-        this.cdr.markForCheck();
+    this.authService.resetPassword(identifier || '', otpCode || '', newPassword || '').pipe(
+      timeout(45000),
+      finalize(() => {
         this.isLoading = false;
+        this.cdr.markForCheck();
+      })
+    ).subscribe({
+      next: (message) => {
         this.successMessage = message;
         void this.router.navigate(['/login']);
       },
       error: (error) => {
-        this.cdr.markForCheck();
-        this.isLoading = false;
         this.errorMessage = error?.error?.detail
           || error?.error?.message
           || error?.message
           || this.translate.instant('RESET_PASSWORD_PAGE.ERRORS.RESET_FAILED');
+        this.cdr.markForCheck();
       }
+    });
+  }
+
+  get isRTL(): boolean {
+    return this.translate.currentLang === 'ar';
+  }
+
+  private applyDocumentLanguage(lang: string): void {
+    if (!isPlatformBrowser(this.platformId)) {
+      return;
+    }
+
+    document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    document.documentElement.lang = lang;
+  }
+
+  private dismissAppSplash(): void {
+    queueMicrotask(() => {
+      const splash = document.getElementById('app-loader');
+      if (!splash || splash.dataset['dismissed'] === 'true') {
+        return;
+      }
+
+      splash.dataset['dismissed'] = 'true';
+      splash.style.opacity = '0';
+      setTimeout(() => splash.remove(), 450);
     });
   }
 
