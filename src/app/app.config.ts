@@ -6,6 +6,7 @@ import { firstValueFrom, Observable, forkJoin, of } from 'rxjs';
 import { catchError, map, switchMap, tap } from 'rxjs/operators';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { DialogModule } from '@angular/cdk/dialog';
+import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 
 import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
@@ -79,6 +80,10 @@ export const appConfig: ApplicationConfig = {
     ),
     provideHttpClient(withInterceptors([vendorAuthInterceptor])),
     provideAnimations(),
+    {
+      provide: DATE_PIPE_DEFAULT_OPTIONS,
+      useValue: { timezone: '+0300' }
+    },
     {
       provide: ErrorHandler,
       useClass: ChunkLoadErrorHandler
