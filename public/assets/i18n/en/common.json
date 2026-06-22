@@ -48,6 +48,12 @@
     "ACTIVE": "Active",
     "CONTINUE": "Continue",
     "ERROR_OCCURRED": "An unexpected error occurred.",
+    "API_ERRORS": {
+      "UNKNOWN": "An unexpected error occurred. Please try again.",
+      "NETWORK": "Could not reach the server. Check your connection and try again.",
+      "UNAUTHORIZED": "You are not allowed to perform this action.",
+      "CONFLICT": "The operation could not be completed because of a data conflict."
+    },
     "STATUS_ACTIVE": "Active",
     "STATUS_INACTIVE": "Inactive",
     "FILTERS": "Filters",

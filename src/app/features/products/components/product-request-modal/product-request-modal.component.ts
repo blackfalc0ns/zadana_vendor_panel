@@ -9,6 +9,7 @@ import { CatalogService } from '../../services/catalog.service';
 import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
 import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/utils/image-upload-optimizer';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
+import { describeApiError } from '../../../../shared/utils/api-error.util';
 
 type CategoryLevelKey = 'activity' | 'sub_activity' | 'category' | 'sub_category';
 type CategoryRequestKind = 'category' | 'sub_category';
@@ -863,11 +864,14 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
         );
         this.submitted.emit();
       },
-      error: () => {
+      error: (error) => {
         this.isSubmitting = false;
         void this.alertModalService.showAlert(
-          this.translate.instant('COMMON.ERROR_OCCURRED'),
-          'COMMON.ERROR',
+          describeApiError(error, this.translate, {
+            fallbackKey: 'PRODUCTS.REQUEST_SUBMIT_FAILED',
+            codePrefix: 'PRODUCTS.ERROR_CODES'
+          }),
+          'PRODUCTS.REQUEST_SUBMIT_FAILED_TITLE',
           'danger'
         );
       }

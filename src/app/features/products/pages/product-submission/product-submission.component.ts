@@ -11,6 +11,7 @@ import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
 import { AppCategorySelectorComponent } from '../../../../shared/components/ui/category-selector/category-selector.component';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
+import { describeApiError } from '../../../../shared/utils/api-error.util';
 import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
 import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/utils/image-upload-optimizer';
 
@@ -31,8 +32,8 @@ import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/uti
   template: `
     <div class="space-y-6 animate-fade-in pb-12">
       <app-page-header
-        [title]="'CATALOG.SUBMIT_NEW_PRODUCT' | translate"
-        [description]="'CATALOG.SUBMIT_NEW_PRODUCT_DESC' | translate"
+        [title]="'PRODUCTS.SUBMIT_NEW_PRODUCT' | translate"
+        [description]="'PRODUCTS.SUBMIT_NEW_PRODUCT_DESC' | translate"
         [showBack]="true"
         backLink="/products">
       </app-page-header>
@@ -44,34 +45,34 @@ import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/uti
           <div class="bg-white rounded-[2rem] border border-slate-200/60 p-8 shadow-sm">
             <h3 class="text-sm font-black text-slate-800 mb-6 flex items-center gap-2">
               <span class="w-2 h-6 bg-zadna-primary rounded-full"></span>
-              {{ 'CATALOG.BASIC_INFO' | translate }}
+              {{ 'PRODUCTS.BASIC_INFO' | translate }}
             </h3>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
               <!-- Name Ar -->
               <div class="flex flex-col gap-2">
                 <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider ltr:ml-1 rtl:mr-1">
-                  {{ 'CATALOG.PRODUCT_NAME_AR' | translate }} *
+                  {{ 'PRODUCTS.PRODUCT_NAME_AR' | translate }} *
                 </label>
                 <input type="text" formControlName="productNameAr"
                   class="h-12 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-zadna-primary/20 focus:border-zadna-primary transition-all outline-none"
-                  [placeholder]="'CATALOG.PRODUCT_NAME_AR_PLACEHOLDER' | translate">
+                  [placeholder]="'PRODUCTS.PRODUCT_NAME_AR_PLACEHOLDER' | translate">
               </div>
 
               <!-- Name En -->
               <div class="flex flex-col gap-2">
                 <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider ltr:ml-1 rtl:mr-1">
-                  {{ 'CATALOG.PRODUCT_NAME_EN' | translate }} *
+                  {{ 'PRODUCTS.PRODUCT_NAME_EN' | translate }} *
                 </label>
                 <input type="text" formControlName="productNameEn"
                   class="h-12 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-zadna-primary/20 focus:border-zadna-primary transition-all outline-none"
-                  [placeholder]="'CATALOG.PRODUCT_NAME_EN_PLACEHOLDER' | translate">
+                  [placeholder]="'PRODUCTS.PRODUCT_NAME_EN_PLACEHOLDER' | translate">
               </div>
 
               <!-- Description Ar -->
               <div class="flex flex-col gap-2 md:col-span-2">
                 <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider ltr:ml-1 rtl:mr-1">
-                  {{ 'CATALOG.DESCRIPTION_AR' | translate }}
+                  {{ 'PRODUCTS.DESCRIPTION_AR' | translate }}
                 </label>
                 <textarea formControlName="descriptionAr" rows="3"
                   class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-zadna-primary/20 focus:border-zadna-primary transition-all outline-none resize-none"></textarea>
@@ -80,7 +81,7 @@ import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/uti
               <!-- Description En -->
               <div class="flex flex-col gap-2 md:col-span-2">
                 <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider ltr:ml-1 rtl:mr-1">
-                  {{ 'CATALOG.DESCRIPTION_EN' | translate }}
+                  {{ 'PRODUCTS.DESCRIPTION_EN' | translate }}
                 </label>
                 <textarea formControlName="descriptionEn" rows="3"
                   class="p-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-zadna-primary/20 focus:border-zadna-primary transition-all outline-none resize-none"></textarea>
@@ -92,14 +93,14 @@ import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/uti
           <div class="bg-white rounded-[2rem] border border-slate-200/60 p-8 shadow-sm">
             <h3 class="text-sm font-black text-slate-800 mb-6 flex items-center gap-2">
               <span class="w-2 h-6 bg-zadna-primary rounded-full"></span>
-              {{ 'CATALOG.CLASSIFICATION' | translate }}
+              {{ 'PRODUCTS.CLASSIFICATION' | translate }}
             </h3>
 
             <div class="space-y-6">
               <!-- Hierarchical Category Selector -->
               <div class="flex flex-col gap-2">
                 <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider ltr:ml-1 rtl:mr-1">
-                  {{ 'CATALOG.SELECT_CATEGORY_HIERARCHY' | translate }} *
+                  {{ 'PRODUCTS.SELECT_CATEGORY_HIERARCHY' | translate }} *
                 </label>
                 <app-category-selector
                   [categories]="categories"
@@ -111,11 +112,11 @@ import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/uti
               <!-- Suggested Brand -->
               <div class="flex flex-col gap-2">
                 <label class="text-[11px] font-black text-slate-400 uppercase tracking-wider ltr:ml-1 rtl:mr-1">
-                  {{ 'CATALOG.SUGGESTED_BRAND' | translate }}
+                  {{ 'PRODUCTS.SUGGESTED_BRAND' | translate }}
                 </label>
                 <input type="text" formControlName="suggestedBrandName"
                   class="h-12 px-4 bg-slate-50 border border-slate-200 rounded-2xl text-sm font-bold text-slate-700 focus:ring-2 focus:ring-zadna-primary/20 focus:border-zadna-primary transition-all outline-none"
-                  [placeholder]="'CATALOG.BRAND_NAME_PLACEHOLDER' | translate">
+                  [placeholder]="'PRODUCTS.BRAND_NAME_PLACEHOLDER' | translate">
               </div>
             </div>
           </div>
@@ -123,7 +124,7 @@ import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/uti
           <div class="bg-white rounded-[2rem] border border-slate-200/60 p-8 shadow-sm">
             <h3 class="text-sm font-black text-slate-800 mb-6 flex items-center gap-2">
               <span class="w-2 h-6 bg-zadna-primary rounded-full"></span>
-              {{ 'CATALOG.IMAGE' | translate }}
+              {{ 'PRODUCTS.IMAGE' | translate }}
             </h3>
 
             <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/30 p-6 text-center relative hover:bg-slate-50/60 transition-all">
@@ -165,7 +166,7 @@ import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/uti
               variant="primary"
               [disabled]="productForm.invalid || isSubmitting"
               [isLoading]="isSubmitting">
-              {{ 'CATALOG.SUBMIT_REQUEST' | translate }}
+              {{ 'PRODUCTS.SUBMIT_REQUEST' | translate }}
             </app-button>
           </div>
 
@@ -277,13 +278,20 @@ export class ProductSubmissionComponent implements OnInit {
       next: () => {
         this.cdr.markForCheck();
         this.isSubmitting = false;
-        void this.alertModalService.showAlert(this.translate.instant('CATALOG.REQUEST_SUBMITTED_SUCCESS'), 'COMMON.SUCCESS', 'success');
+        void this.alertModalService.showAlert(this.translate.instant('PRODUCTS.REQUEST_SUBMITTED_SUCCESS'), 'COMMON.SUCCESS', 'success');
         this.router.navigate(['/products']);
       },
-      error: () => {
+      error: (error) => {
         this.cdr.markForCheck();
         this.isSubmitting = false;
-        void this.alertModalService.showAlert(this.translate.instant('COMMON.ERROR_OCCURRED'), 'COMMON.ERROR', 'danger');
+        void this.alertModalService.showAlert(
+          describeApiError(error, this.translate, {
+            fallbackKey: 'PRODUCTS.REQUEST_SUBMIT_FAILED',
+            codePrefix: 'PRODUCTS.ERROR_CODES'
+          }),
+          'PRODUCTS.REQUEST_SUBMIT_FAILED_TITLE',
+          'danger'
+        );
       }
     });
   }

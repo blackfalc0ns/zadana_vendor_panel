@@ -12,7 +12,7 @@ import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
 import { ChunkLoadErrorHandler } from './core/services/chunk-load-error-handler';
 
-const TRANSLATION_ASSET_VERSION = '2026-06-20-vendor-finance-i18n-1';
+const TRANSLATION_ASSET_VERSION = '2026-06-22-vendor-product-request-i18n-1';
 
 // Custom Loader to guarantee compatibility and fix "0 arguments" error
 export class CustomTranslateLoader implements TranslateLoader {
