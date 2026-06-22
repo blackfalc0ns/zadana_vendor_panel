@@ -2,7 +2,8 @@ import { Injectable, inject } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRouteSnapshot, NavigationEnd, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
-import { filter, startWith, take } from 'rxjs';
+import { filter } from 'rxjs';
+import { buildLocalizedPageTitle } from '../utils/page-title-i18n.util';
 import { resolveVendorPageTitleKey } from '../utils/vendor-page-title.config';
 
 @Injectable({ providedIn: 'root' })
@@ -15,16 +16,14 @@ export class VendorPageTitleService {
 
   constructor() {
     this.router.events
-      .pipe(
-        filter((event): event is NavigationEnd => event instanceof NavigationEnd),
-        startWith(null)
-      )
+      .pipe(filter((event): event is NavigationEnd => event instanceof NavigationEnd))
       .subscribe(() => {
         this.customTitleKey = null;
         this.applyTitle();
       });
 
     this.translate.onLangChange.subscribe(() => this.applyTitle());
+    this.translate.onTranslationChange.subscribe(() => this.applyTitle());
   }
 
   /** Override the tab title until the next navigation. */
@@ -41,15 +40,13 @@ export class VendorPageTitleService {
 
     this.translate
       .get([titleKey, 'PAGE_TITLES.BRAND', 'PAGE_TITLES.DEFAULT'])
-      .pipe(take(1))
       .subscribe((translations) => {
-        const pageTitle = translations[titleKey];
-        const brand = translations['PAGE_TITLES.BRAND'];
-        const fallback = translations['PAGE_TITLES.DEFAULT'];
-        const resolvedPageTitle =
-          pageTitle && pageTitle !== titleKey ? pageTitle : fallback;
+        const resolvedTitle = buildLocalizedPageTitle(titleKey, translations);
+        if (!resolvedTitle) {
+          return;
+        }
 
-        this.title.setTitle(`${resolvedPageTitle} | ${brand}`);
+        this.title.setTitle(resolvedTitle);
       });
   }
 
