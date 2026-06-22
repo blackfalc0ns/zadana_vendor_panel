@@ -411,7 +411,12 @@ export class CatalogService {
           categoryId: data.product.categoryId || null,
           brandId: data.product.brandId || null,
           unitId: data.product.unitId || null,
-          imageUrl: data.product.imageUrl || data.product.images?.[0]?.url || null
+          packageTypeId: data.product.packageTypeId || null,
+          measurementValue: data.product.measurementValue ?? null,
+          imageUrl: data.product.imageUrl || data.product.imageUrls?.[0] || null,
+          imageUrls: data.product.imageUrls?.length
+            ? data.product.imageUrls
+            : (data.product.imageUrl ? [data.product.imageUrl] : null)
         },
         requestedBrand: data.requestedBrand || null,
         requestedCategory: data.requestedCategory

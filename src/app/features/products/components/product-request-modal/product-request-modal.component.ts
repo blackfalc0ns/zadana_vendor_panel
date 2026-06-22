@@ -67,9 +67,31 @@ type CategoryRequestKind = 'category' | 'sub_category';
               </div>
             </div>
 
-            <div class="grid grid-cols-1 gap-6">
+            <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
               <div class="space-y-2">
-                <label class="text-[0.72rem] font-black uppercase text-slate-500">{{ 'PRODUCTS.UNIT' | translate }} *</label>
+                <label class="text-[0.72rem] font-black uppercase text-slate-500">{{ 'PRODUCTS.FILTERS.PACKAGE_TYPE' | translate }}</label>
+                <app-searchable-select
+                  formControlName="packageTypeId"
+                  [options]="packageTypeOptions"
+                  [placeholder]="currentLang === 'ar' ? 'اختر نوع العبوة' : 'Select package type'"
+                  [searchPlaceholder]="'COMMON.SEARCH'"
+                  [noResultsText]="'COMMON.NO_RESULTS'">
+                </app-searchable-select>
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[0.72rem] font-black uppercase text-slate-500">{{ 'PRODUCTS.FILTERS.SIZE_VALUE' | translate }}</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  formControlName="measurementValue"
+                  class="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none"
+                  [placeholder]="currentLang === 'ar' ? 'مثال: 1.5' : 'Example: 1.5'">
+              </div>
+
+              <div class="space-y-2">
+                <label class="text-[0.72rem] font-black uppercase text-slate-500">{{ 'PRODUCTS.FILTERS.MEASUREMENT_UNIT' | translate }} *</label>
                 <app-searchable-select
                   formControlName="unitId"
                   [options]="measurementUnitOptions"
@@ -82,6 +104,13 @@ type CategoryRequestKind = 'category' | 'sub_category';
                 }
               </div>
             </div>
+
+            @if (sizePreview) {
+              <div class="rounded-2xl border border-teal-100 bg-teal-50/50 px-4 py-3">
+                <p class="text-[0.68rem] font-black uppercase tracking-widest text-teal-600">{{ 'PRODUCTS.SIZE_PREVIEW' | translate }}</p>
+                <p class="mt-1 text-[0.85rem] font-black text-teal-900">{{ sizePreview }}</p>
+              </div>
+            }
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -115,27 +144,43 @@ type CategoryRequestKind = 'category' | 'sub_category';
               </div>
             </div>
 
-            <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/30 p-6 text-center relative hover:bg-slate-50/60 transition-all">
+            <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="mb-4 flex items-center justify-between gap-3">
+                <div>
+                  <p class="text-[0.72rem] font-black uppercase text-slate-500">{{ 'PRODUCTS.PRODUCT_IMAGES' | translate }}</p>
+                  <p class="mt-1 text-[0.68rem] font-bold text-slate-400">{{ 'PRODUCTS.PRODUCT_IMAGES_HINT' | translate }}</p>
+                </div>
+                @if (productImageItems.length < maxProductImages) {
+                  <label class="cursor-pointer rounded-xl border border-slate-200 px-3 py-2 text-[0.72rem] font-black text-zadna-primary">
+                    {{ 'PRODUCTS.ADD_IMAGE' | translate }}
+                    <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple class="hidden" (change)="onProductImagesSelected($event)">
+                  </label>
+                }
+              </div>
+
               @if (isOptimizingProductImage) {
                 <p class="text-[0.75rem] font-black text-slate-600">{{ 'PRODUCTS.IMAGE_OPTIMIZING' | translate }}</p>
-              } @else if (productImageFile) {
-                <div class="flex items-center justify-between gap-4 px-4">
-                  <div class="flex items-center gap-3">
-                    <img [src]="productImagePreviewUrl" class="h-10 w-10 rounded-lg object-cover bg-white border">
-                    <div class="text-start">
-                      <span class="block text-[0.75rem] font-bold text-slate-600 truncate max-w-[200px]">{{ productImageFile.name }}</span>
-                      <span class="block text-[0.62rem] font-bold text-slate-400">{{ 'PRODUCTS.IMAGE_FORMATS' | translate }}</span>
+              } @else if (productImageItems.length) {
+                <div class="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+                  @for (item of productImageItems; track item.id; let index = $index) {
+                    <div class="group relative overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                      <img [src]="item.previewUrl" class="h-28 w-full object-cover" alt="">
+                      <div class="absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 bg-slate-900/70 px-2 py-1.5">
+                        <span class="truncate text-[0.62rem] font-black uppercase tracking-widest text-white">
+                          {{ index === 0 ? ('PRODUCTS.PRIMARY_IMAGE' | translate) : ('PRODUCTS.IMAGE' | translate) + ' ' + (index + 1) }}
+                        </span>
+                        <button type="button" (click)="removeProductImage(item.id)" class="text-[0.62rem] font-black text-rose-300">
+                          {{ 'PRODUCTS.REMOVE_IMAGE' | translate }}
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                  <button type="button" (click)="removeProductImage()" class="text-[0.72rem] font-black text-rose-500">
-                    {{ 'PRODUCTS.REMOVE_IMAGE' | translate }}
-                  </button>
+                  }
                 </div>
               } @else {
-                <label class="block w-full h-full cursor-pointer">
+                <label class="block cursor-pointer rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/30 p-6 text-center transition-all hover:bg-slate-50/60">
                   <p class="text-[0.75rem] font-black text-slate-600">{{ 'PRODUCTS.UPLOAD_PHOTO' | translate }}</p>
                   <p class="text-[0.65rem] font-bold text-slate-400">{{ 'COMMON.OPTIONAL' | translate }} · {{ 'PRODUCTS.IMAGE_FORMATS' | translate }}</p>
-                  <input type="file" accept=".jpg,.jpeg,.png,.webp" class="hidden" (change)="onProductImageSelected($event)">
+                  <input type="file" accept=".jpg,.jpeg,.png,.webp" multiple class="hidden" (change)="onProductImagesSelected($event)">
                 </label>
               }
             </div>
@@ -395,8 +440,8 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
   selectedCategoryMeta = '';
   brandImageFile: File | null = null;
   categoryImageFile: File | null = null;
-  productImageFile: File | null = null;
-  productImagePreviewUrl = '';
+  productImageItems: Array<{ id: string; file: File; previewUrl: string }> = [];
+  readonly maxProductImages = 5;
   brandImagePreviewUrl = '';
   categoryImagePreviewUrl = '';
   isOptimizingProductImage = false;
@@ -424,6 +469,8 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
       descriptionEn: [''],
       brandId: [''],
       categoryId: ['', Validators.required],
+      packageTypeId: [''],
+      measurementValue: [null],
       unitId: ['', Validators.required]
     });
 
@@ -464,7 +511,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.revokePreviewUrl('product');
+    this.clearProductImages();
     this.revokePreviewUrl('brand');
     this.revokePreviewUrl('category');
   }
@@ -546,6 +593,32 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
       const unit = this.units.find((item) => item.id === option.value);
       return unit?.kind === 'Measurement';
     });
+  }
+
+  get packageTypeOptions(): SearchableSelectOption[] {
+    return this.unitOptions.filter((option) => {
+      const unit = this.units.find((item) => item.id === option.value);
+      return unit?.kind === 'Packaging';
+    });
+  }
+
+  get sizePreview(): string {
+    const packageTypeId = this.requestForm.get('packageTypeId')?.value as string | null;
+    const measurementValue = this.requestForm.get('measurementValue')?.value;
+    const unitId = this.requestForm.get('unitId')?.value as string | null;
+    const packageType = packageTypeId ? this.units.find((unit) => unit.id === packageTypeId) : null;
+    const measurementUnit = unitId ? this.units.find((unit) => unit.id === unitId) : null;
+    const packageLabel = packageType
+      ? (this.currentLang === 'ar' ? packageType.nameAr : packageType.nameEn)
+      : '';
+    const unitLabel = measurementUnit
+      ? (this.currentLang === 'ar' ? measurementUnit.nameAr : measurementUnit.nameEn)
+      : '';
+    const valueLabel = measurementValue !== null && measurementValue !== undefined && `${measurementValue}`.trim() !== ''
+      ? `${measurementValue}`
+      : '';
+
+    return [packageLabel, valueLabel, unitLabel].filter(Boolean).join(' ').trim();
   }
 
   get requiresActivitySelection(): boolean {
@@ -730,11 +803,19 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
       categoryImageUrl: categoryDraft.isNew && this.categoryImageFile
         ? this.catalogService.uploadFile(this.categoryImageFile, 'uploads/catalog/category-requests', this.trackUpload('category'))
         : of<string | null>(null),
-      productImageUrl: this.productImageFile
-        ? this.catalogService.uploadFile(this.productImageFile, 'uploads/catalog/product-requests', this.trackUpload('product'))
-        : of<string | null>(null)
+      productImageUrls: this.productImageItems.length
+        ? forkJoin(
+            this.productImageItems.map((item, index) =>
+              this.catalogService.uploadFile(
+                item.file,
+                'uploads/catalog/product-requests',
+                this.trackUpload(`product-${index}`)
+              )
+            )
+          )
+        : of<string[]>([])
     }).pipe(
-      map(({ brandLogoUrl, categoryImageUrl, productImageUrl }) => ({
+      map(({ brandLogoUrl, categoryImageUrl, productImageUrls }) => ({
         product: {
           nameAr: formValue.nameAr,
           nameEn: formValue.nameEn,
@@ -742,9 +823,13 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
           descriptionEn: formValue.descriptionEn || '',
           categoryId: categoryDraft.isNew ? null : formValue.categoryId || null,
           brandId: brandDraft.isNew ? null : formValue.brandId || null,
+          packageTypeId: formValue.packageTypeId || null,
+          measurementValue: formValue.measurementValue !== null && formValue.measurementValue !== undefined && `${formValue.measurementValue}`.trim() !== ''
+            ? Number(formValue.measurementValue)
+            : null,
           unitId: formValue.unitId || null,
-          imageUrl: productImageUrl,
-          images: []
+          imageUrl: productImageUrls[0] || null,
+          imageUrls: productImageUrls
         },
         requestedBrand: brandDraft.isNew
           ? {
@@ -827,27 +912,48 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
     }
   }
 
-  async onProductImageSelected(event: Event): Promise<void> {
+  async onProductImagesSelected(event: Event): Promise<void> {
     const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
-    if (!file) {
+    const files = Array.from(input.files ?? []);
+    input.value = '';
+
+    if (!files.length) {
       return;
     }
 
-    input.value = '';
+    const remainingSlots = this.maxProductImages - this.productImageItems.length;
+    if (remainingSlots <= 0) {
+      return;
+    }
+
     this.isOptimizingProductImage = true;
     try {
-      const prepared = await optimizeImageForUpload(file, 0);
-      this.productImageFile = prepared;
-      this.setPreviewUrl('product', prepared);
+      for (const file of files.slice(0, remainingSlots)) {
+        const prepared = await optimizeImageForUpload(file, 0);
+        this.productImageItems.push({
+          id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          file: prepared,
+          previewUrl: URL.createObjectURL(prepared)
+        });
+      }
     } finally {
       this.isOptimizingProductImage = false;
     }
   }
 
-  removeProductImage(): void {
-    this.productImageFile = null;
-    this.revokePreviewUrl('product');
+  removeProductImage(itemId: string): void {
+    const index = this.productImageItems.findIndex((item) => item.id === itemId);
+    if (index === -1) {
+      return;
+    }
+
+    URL.revokeObjectURL(this.productImageItems[index].previewUrl);
+    this.productImageItems.splice(index, 1);
+  }
+
+  private clearProductImages(): void {
+    this.productImageItems.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+    this.productImageItems = [];
   }
 
   removeBrandImage(): void {
@@ -866,7 +972,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
     return [
       this.brandDraftForm.get('isNew')?.value && this.brandImageFile,
       this.categoryDraftForm.get('isNew')?.value && this.categoryImageFile,
-      this.productImageFile
+      ...this.productImageItems.map(() => true)
     ].filter(Boolean).length;
   }
 
@@ -980,14 +1086,9 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
     return !!this.requestForm.get('categoryId')?.value;
   }
 
-  private setPreviewUrl(kind: 'product' | 'brand' | 'category', file: File): void {
+  private setPreviewUrl(kind: 'brand' | 'category', file: File): void {
     this.revokePreviewUrl(kind);
     const previewUrl = URL.createObjectURL(file);
-
-    if (kind === 'product') {
-      this.productImagePreviewUrl = previewUrl;
-      return;
-    }
 
     if (kind === 'brand') {
       this.brandImagePreviewUrl = previewUrl;
@@ -997,13 +1098,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
     this.categoryImagePreviewUrl = previewUrl;
   }
 
-  private revokePreviewUrl(kind: 'product' | 'brand' | 'category'): void {
-    if (kind === 'product' && this.productImagePreviewUrl) {
-      URL.revokeObjectURL(this.productImagePreviewUrl);
-      this.productImagePreviewUrl = '';
-      return;
-    }
-
+  private revokePreviewUrl(kind: 'brand' | 'category'): void {
     if (kind === 'brand' && this.brandImagePreviewUrl) {
       URL.revokeObjectURL(this.brandImagePreviewUrl);
       this.brandImagePreviewUrl = '';

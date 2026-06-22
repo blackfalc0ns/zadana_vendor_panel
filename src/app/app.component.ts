@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { VendorAuthService } from './core/auth/services/vendor-auth.service';
 import { AlertsCenterService } from './features/alerts/services/alerts-center.service';
 import { VendorWebPushService } from './core/notifications/services/vendor-web-push.service';
+import { VendorPageTitleService } from './core/services/vendor-page-title.service';
 import { VendorProfileService } from './features/settings/services/vendor-profile.service';
 import { ToastContainerComponent } from './shared/components/ui/feedback/toast-container/toast-container.component';
 import { ConfirmDialogHostComponent } from './shared/components/ui/overlay/confirm-dialog-host/confirm-dialog-host.component';
@@ -35,7 +36,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private readonly authService: VendorAuthService,
     private readonly alertsCenterService: AlertsCenterService,
     private readonly vendorProfileService: VendorProfileService,
-    private readonly vendorWebPushService: VendorWebPushService
+    private readonly vendorWebPushService: VendorWebPushService,
+    _vendorPageTitle: VendorPageTitleService
   ) {
     const savedLang = localStorage.getItem('lang') || 'ar';
 
