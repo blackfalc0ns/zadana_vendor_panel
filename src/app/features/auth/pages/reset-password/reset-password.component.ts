@@ -3,7 +3,7 @@ import { Component, Inject, OnInit, PLATFORM_ID, ChangeDetectionStrategy, Change
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { finalize, timeout } from 'rxjs';
+import { finalize, switchMap, timeout } from 'rxjs';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 
 @Component({
@@ -91,7 +91,10 @@ export class ResetPasswordComponent implements OnInit {
     this.isLoading = true;
     this.cdr.markForCheck();
 
-    this.authService.resetPassword(identifier || '', otpCode || '', newPassword || '').pipe(
+    this.authService.verifyPasswordResetOtp(identifier || '', otpCode || '').pipe(
+      switchMap((verification) =>
+        this.authService.resetPassword(identifier || '', verification.resetToken, newPassword || '')
+      ),
       timeout(45000),
       finalize(() => {
         this.isLoading = false;

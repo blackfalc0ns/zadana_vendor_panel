@@ -181,10 +181,18 @@ export class VendorAuthService {
     ).pipe(map((response) => response.message || 'Password reset OTP sent.'));
   }
 
-  resetPassword(identifier: string, otpCode: string, newPassword: string): Observable<string> {
+  verifyPasswordResetOtp(identifier: string, otpCode: string): Observable<{ resetToken: string; expiresInSeconds: number; message?: string }> {
+    return this.http.post<{ resetToken: string; expiresInSeconds: number; message?: string }>(
+      `${this.apiUrl}/verify-reset-otp`,
+      { identifier, otpCode },
+      { headers: this.createSkipAuthHeaders() }
+    );
+  }
+
+  resetPassword(identifier: string, resetToken: string, newPassword: string): Observable<string> {
     return this.http.post<{ message?: string }>(
       `${this.apiUrl}/reset-password`,
-      { identifier, otpCode, newPassword },
+      { identifier, resetToken, newPassword },
       { headers: this.createSkipAuthHeaders() }
     ).pipe(map((response) => response.message || 'Password reset successful.'));
   }
