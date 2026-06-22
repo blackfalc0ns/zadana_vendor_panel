@@ -757,6 +757,12 @@
     "CATEGORY_L3": "Level 3 Category",
     "SELECTED_PATH": "Selected Path",
     "REQUEST_SUBMITTED_SUCCESS": "Product request submitted successfully, it will be reviewed by admin.",
+    "FIELD_REQUIRED": "This field is required",
+    "NAME_MIN_LENGTH": "Name must be at least 3 characters",
+    "CATEGORY_SELECTION_REQUIRED": "Please select a category or create a new one from the category dialog",
+    "UNIT_SELECTION_REQUIRED": "Please select a measurement unit",
+    "IMAGE_FORMATS": "JPG, PNG, WEBP",
+    "IMAGE_OPTIMIZING": "Preparing image...",
     "BRAND_NAME_PLACEHOLDER": "Enter suggested brand name..."
   },
   "OFFERS": {

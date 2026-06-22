@@ -1,15 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { HttpClient } from '@angular/common/http';
-import { Component, ElementRef, EventEmitter, HostListener, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { forkJoin, map, of, switchMap } from 'rxjs';
-import { environment } from '../../../../../environments/environment';
 import { BrandOption, Category, UnitOption } from '../../models/catalog.models';
 import { CatalogService } from '../../services/catalog.service';
 import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
-import { ImageUploadPhase } from '../../../../shared/utils/image-upload-optimizer';
+import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/utils/image-upload-optimizer';
+import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 
 type CategoryLevelKey = 'activity' | 'sub_activity' | 'category' | 'sub_category';
 type CategoryRequestKind = 'category' | 'sub_category';
@@ -48,7 +47,10 @@ type CategoryRequestKind = 'category' | 'sub_category';
                   <span class="h-1.5 w-1.5 rounded-full bg-zadna-primary"></span>
                   {{ 'COMMON.ARABIC_DATA' | translate }}
                 </h4>
-                <input type="text" formControlName="nameAr" class="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NAME_AR' | translate">
+                <input type="text" formControlName="nameAr" class="h-11 w-full rounded-xl border bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [class.border-rose-300]="requestForm.get('nameAr')?.invalid && requestForm.get('nameAr')?.touched" [class.border-slate-200]="!(requestForm.get('nameAr')?.invalid && requestForm.get('nameAr')?.touched)" [placeholder]="'PRODUCTS.NAME_AR' | translate">
+                @if (requestForm.get('nameAr')?.invalid && requestForm.get('nameAr')?.touched) {
+                  <p class="text-[0.68rem] font-bold text-rose-500">{{ requestForm.get('nameAr')?.errors?.['required'] ? ('PRODUCTS.FIELD_REQUIRED' | translate) : ('PRODUCTS.NAME_MIN_LENGTH' | translate) }}</p>
+                }
                 <textarea formControlName="descriptionAr" rows="3" class="w-full resize-none rounded-xl border border-slate-200 bg-white p-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.DESCRIPTION_AR' | translate"></textarea>
               </div>
 
@@ -57,19 +59,28 @@ type CategoryRequestKind = 'category' | 'sub_category';
                   <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
                   {{ 'COMMON.ENGLISH_DATA' | translate }}
                 </h4>
-                <input type="text" formControlName="nameEn" class="h-11 w-full rounded-xl border border-slate-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NAME_EN' | translate">
+                <input type="text" formControlName="nameEn" class="h-11 w-full rounded-xl border bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [class.border-rose-300]="requestForm.get('nameEn')?.invalid && requestForm.get('nameEn')?.touched" [class.border-slate-200]="!(requestForm.get('nameEn')?.invalid && requestForm.get('nameEn')?.touched)" [placeholder]="'PRODUCTS.NAME_EN' | translate">
+                @if (requestForm.get('nameEn')?.invalid && requestForm.get('nameEn')?.touched) {
+                  <p class="text-[0.68rem] font-bold text-rose-500">{{ requestForm.get('nameEn')?.errors?.['required'] ? ('PRODUCTS.FIELD_REQUIRED' | translate) : ('PRODUCTS.NAME_MIN_LENGTH' | translate) }}</p>
+                }
                 <textarea formControlName="descriptionEn" rows="3" class="w-full resize-none rounded-xl border border-slate-200 bg-white p-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.DESCRIPTION_EN' | translate"></textarea>
               </div>
             </div>
 
             <div class="grid grid-cols-1 gap-6">
-              <app-searchable-select
-                formControlName="unitId"
-                [options]="measurementUnitOptions"
-                [placeholder]="currentLang === 'ar' ? 'اختر وحدة المقاس' : 'Select measurement unit'"
-                [searchPlaceholder]="'COMMON.SEARCH'"
-                [noResultsText]="'COMMON.NO_RESULTS'">
-              </app-searchable-select>
+              <div class="space-y-2">
+                <label class="text-[0.72rem] font-black uppercase text-slate-500">{{ 'PRODUCTS.UNIT' | translate }} *</label>
+                <app-searchable-select
+                  formControlName="unitId"
+                  [options]="measurementUnitOptions"
+                  [placeholder]="currentLang === 'ar' ? 'اختر وحدة المقاس' : 'Select measurement unit'"
+                  [searchPlaceholder]="'COMMON.SEARCH'"
+                  [noResultsText]="'COMMON.NO_RESULTS'">
+                </app-searchable-select>
+                @if (requestForm.get('unitId')?.invalid && requestForm.get('unitId')?.touched) {
+                  <p class="text-[0.68rem] font-bold text-rose-500">{{ 'PRODUCTS.UNIT_SELECTION_REQUIRED' | translate }}</p>
+                }
+              </div>
             </div>
 
             <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -85,13 +96,16 @@ type CategoryRequestKind = 'category' | 'sub_category';
                 </div>
               </div>
 
-              <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <div class="rounded-2xl border bg-white p-4 shadow-sm" [class.border-rose-300]="showCategorySelectionError" [class.border-slate-200]="!showCategorySelectionError">
                 <div class="flex items-start justify-between gap-3">
                   <div>
-                    <p class="text-[0.72rem] font-black uppercase text-slate-500">{{ 'PRODUCTS.CATEGORY' | translate }}</p>
+                    <p class="text-[0.72rem] font-black uppercase text-slate-500">{{ 'PRODUCTS.CATEGORY' | translate }} *</p>
                     <p class="mt-1 text-[0.82rem] font-bold text-slate-900">{{ selectedCategoryLabel || ('COMMON.SELECT_CATEGORY' | translate) }}</p>
                     @if (selectedCategoryMeta) {
                       <p class="mt-1 text-[0.68rem] font-bold text-slate-400">{{ selectedCategoryMeta }}</p>
+                    }
+                    @if (showCategorySelectionError) {
+                      <p class="mt-1 text-[0.68rem] font-bold text-rose-500">{{ 'PRODUCTS.CATEGORY_SELECTION_REQUIRED' | translate }}</p>
                     }
                   </div>
                   <button type="button" (click)="isCategoryModalOpen = true" class="rounded-xl border border-slate-200 px-3 py-2 text-[0.72rem] font-black text-zadna-primary">
@@ -102,11 +116,16 @@ type CategoryRequestKind = 'category' | 'sub_category';
             </div>
 
             <div class="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/30 p-6 text-center relative hover:bg-slate-50/60 transition-all">
-              @if (productImageFile) {
+              @if (isOptimizingProductImage) {
+                <p class="text-[0.75rem] font-black text-slate-600">{{ 'PRODUCTS.IMAGE_OPTIMIZING' | translate }}</p>
+              } @else if (productImageFile) {
                 <div class="flex items-center justify-between gap-4 px-4">
                   <div class="flex items-center gap-3">
-                    <img [src]="getProductImageUrlPreview()" class="h-10 w-10 rounded-lg object-cover bg-white border">
-                    <span class="text-[0.75rem] font-bold text-slate-600 truncate max-w-[200px]">{{ productImageFile.name }}</span>
+                    <img [src]="productImagePreviewUrl" class="h-10 w-10 rounded-lg object-cover bg-white border">
+                    <div class="text-start">
+                      <span class="block text-[0.75rem] font-bold text-slate-600 truncate max-w-[200px]">{{ productImageFile.name }}</span>
+                      <span class="block text-[0.62rem] font-bold text-slate-400">{{ 'PRODUCTS.IMAGE_FORMATS' | translate }}</span>
+                    </div>
                   </div>
                   <button type="button" (click)="removeProductImage()" class="text-[0.72rem] font-black text-rose-500">
                     {{ 'PRODUCTS.REMOVE_IMAGE' | translate }}
@@ -115,8 +134,8 @@ type CategoryRequestKind = 'category' | 'sub_category';
               } @else {
                 <label class="block w-full h-full cursor-pointer">
                   <p class="text-[0.75rem] font-black text-slate-600">{{ 'PRODUCTS.UPLOAD_PHOTO' | translate }}</p>
-                  <p class="text-[0.65rem] font-bold text-slate-400">{{ 'COMMON.OPTIONAL' | translate }}</p>
-                  <input type="file" accept="image/*" class="hidden" (change)="onProductImageSelected($event)">
+                  <p class="text-[0.65rem] font-bold text-slate-400">{{ 'COMMON.OPTIONAL' | translate }} · {{ 'PRODUCTS.IMAGE_FORMATS' | translate }}</p>
+                  <input type="file" accept=".jpg,.jpeg,.png,.webp" class="hidden" (change)="onProductImageSelected($event)">
                 </label>
               }
             </div>
@@ -198,14 +217,14 @@ type CategoryRequestKind = 'category' | 'sub_category';
                     </div>
                     <label class="cursor-pointer rounded-xl border border-amber-200 px-3 py-2 text-[0.72rem] font-black text-amber-700">
                       {{ 'PRODUCTS.UPLOAD_IMAGE' | translate }}
-                      <input type="file" accept="image/*" class="hidden" (change)="onBrandImageSelected($event)">
+                      <input type="file" accept=".jpg,.jpeg,.png,.webp" class="hidden" (change)="onBrandImageSelected($event)">
                     </label>
                   </div>
 
-                  @if (brandDraftForm.get('logoUrl')?.value) {
+                  @if (brandImagePreviewUrl) {
                     <div class="mt-4 flex items-center gap-3">
-                      <img [src]="brandDraftForm.get('logoUrl')?.value" class="h-14 w-14 rounded-2xl border border-amber-100 bg-slate-50 object-cover">
-                      <button type="button" (click)="brandDraftForm.patchValue({ logoUrl: '' })" class="text-[0.72rem] font-black text-rose-500">
+                      <img [src]="brandImagePreviewUrl" class="h-14 w-14 rounded-2xl border border-amber-100 bg-slate-50 object-cover">
+                      <button type="button" (click)="removeBrandImage()" class="text-[0.72rem] font-black text-rose-500">
                         {{ 'PRODUCTS.REMOVE_IMAGE' | translate }}
                       </button>
                     </div>
@@ -324,14 +343,14 @@ type CategoryRequestKind = 'category' | 'sub_category';
                     </div>
                     <label class="cursor-pointer rounded-xl border border-cyan-200 px-3 py-2 text-[0.72rem] font-black text-cyan-700">
                       {{ 'PRODUCTS.UPLOAD_IMAGE' | translate }}
-                      <input type="file" accept="image/*" class="hidden" (change)="onCategoryImageSelected($event)">
+                      <input type="file" accept=".jpg,.jpeg,.png,.webp" class="hidden" (change)="onCategoryImageSelected($event)">
                     </label>
                   </div>
 
-                  @if (categoryDraftForm.get('imageUrl')?.value) {
+                  @if (categoryImagePreviewUrl) {
                     <div class="mt-4 flex items-center gap-3">
-                      <img [src]="categoryDraftForm.get('imageUrl')?.value" class="h-14 w-14 rounded-2xl border border-cyan-100 bg-slate-50 object-cover">
-                      <button type="button" (click)="categoryDraftForm.patchValue({ imageUrl: '' })" class="text-[0.72rem] font-black text-rose-500">
+                      <img [src]="categoryImagePreviewUrl" class="h-14 w-14 rounded-2xl border border-cyan-100 bg-slate-50 object-cover">
+                      <button type="button" (click)="removeCategoryImage()" class="text-[0.72rem] font-black text-rose-500">
                         {{ 'PRODUCTS.REMOVE_IMAGE' | translate }}
                       </button>
                     </div>
@@ -355,7 +374,7 @@ type CategoryRequestKind = 'category' | 'sub_category';
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   `]
 })
-export class ProductRequestModalComponent implements OnInit {
+export class ProductRequestModalComponent implements OnInit, OnDestroy {
   @Input() initialName = '';
   @Output() close = new EventEmitter<void>();
   @Output() submitted = new EventEmitter<void>();
@@ -377,6 +396,13 @@ export class ProductRequestModalComponent implements OnInit {
   brandImageFile: File | null = null;
   categoryImageFile: File | null = null;
   productImageFile: File | null = null;
+  productImagePreviewUrl = '';
+  brandImagePreviewUrl = '';
+  categoryImagePreviewUrl = '';
+  isOptimizingProductImage = false;
+  isOptimizingBrandImage = false;
+  isOptimizingCategoryImage = false;
+  showCategorySelectionError = false;
   uploadProgress = 0;
   uploadPhase: ImageUploadPhase = 'preparing';
   private readonly fileProgress = new Map<string, number>();
@@ -384,8 +410,8 @@ export class ProductRequestModalComponent implements OnInit {
 
   constructor(
     private readonly fb: FormBuilder,
-    private readonly http: HttpClient,
     private readonly catalogService: CatalogService,
+    private readonly alertModalService: AlertModalService,
     public readonly translate: TranslateService
   ) {
     this.currentLang = this.translate.currentLang || 'ar';
@@ -435,6 +461,12 @@ export class ProductRequestModalComponent implements OnInit {
     this.requestForm.get('categoryId')?.valueChanges.subscribe(categoryId => this.syncBrandWithCategorySelection(categoryId || null));
 
     this.loadData();
+  }
+
+  ngOnDestroy(): void {
+    this.revokePreviewUrl('product');
+    this.revokePreviewUrl('brand');
+    this.revokePreviewUrl('category');
   }
 
   get unitOptions(): SearchableSelectOption[] {
@@ -560,7 +592,7 @@ export class ProductRequestModalComponent implements OnInit {
   toggleBrandDraftMode(): void {
     const next = !this.brandDraftForm.get('isNew')?.value;
     this.brandDraftForm.patchValue({ isNew: next, brandId: '', categoryId: '', logoUrl: '' });
-    this.brandImageFile = null;
+    this.removeBrandImage();
     this.applyBrandDraftValidators(next);
   }
 
@@ -576,7 +608,7 @@ export class ProductRequestModalComponent implements OnInit {
       displayOrder: 1,
       imageUrl: ''
     });
-    this.categoryImageFile = null;
+    this.removeCategoryImage();
     this.applyCategoryDraftValidators(next);
     this.syncCategorySelectionValidator(next);
   }
@@ -607,7 +639,7 @@ export class ProductRequestModalComponent implements OnInit {
       this.requestForm.patchValue({ brandId });
       this.selectedBrandLabel = this.currentLang === 'ar' ? brand.nameAr : brand.nameEn;
       this.brandDraftForm.patchValue({ categoryId: '', nameAr: '', nameEn: '', logoUrl: '' });
-      this.brandImageFile = null;
+      this.removeBrandImage();
     }
 
     this.closeBrandModal();
@@ -627,6 +659,7 @@ export class ProductRequestModalComponent implements OnInit {
       const previewPath = this.buildRequestedCategoryPathPreview();
 
       this.requestForm.patchValue({ categoryId: '' });
+      this.syncCategorySelectionValidator(true);
       this.selectedCategoryLabel = this.currentLang === 'ar'
         ? this.categoryDraftForm.get('nameAr')?.value
         : this.categoryDraftForm.get('nameEn')?.value;
@@ -635,6 +668,7 @@ export class ProductRequestModalComponent implements OnInit {
         previewPath ? `${this.translate.instant('PRODUCTS.CATEGORY_PLACEMENT_PREVIEW')}: ${previewPath}` : '',
         `${this.translate.instant('PRODUCTS.DISPLAY_ORDER')}: ${order}`
       ].filter(Boolean).join(' • ');
+      this.showCategorySelectionError = false;
     } else {
       const categoryId = this.categoryDraftForm.get('categoryId')?.value;
       const category = this.flatCategories.find(item => item.id === categoryId);
@@ -657,9 +691,10 @@ export class ProductRequestModalComponent implements OnInit {
         displayOrder: 1,
         imageUrl: ''
       });
-      this.categoryImageFile = null;
+      this.removeCategoryImage();
       this.syncCategorySelectionValidator(false);
       this.syncBrandWithCategorySelection(categoryId);
+      this.showCategorySelectionError = false;
     }
 
     this.closeCategoryModal();
@@ -667,7 +702,16 @@ export class ProductRequestModalComponent implements OnInit {
 
   onSubmit(event: Event): void {
     event.preventDefault();
-    if (this.requestForm.invalid) {
+    this.showCategorySelectionError = !this.isCategoryResolved();
+
+    if (!this.canSubmitRequest()) {
+      this.requestForm.markAllAsTouched();
+      if (this.categoryDraftForm.get('isNew')?.value) {
+        this.categoryDraftForm.markAllAsTouched();
+      }
+      if (this.brandDraftForm.get('isNew')?.value) {
+        this.brandDraftForm.markAllAsTouched();
+      }
       return;
     }
 
@@ -727,49 +771,95 @@ export class ProductRequestModalComponent implements OnInit {
     ).subscribe({
       next: () => {
         this.isSubmitting = false;
+        void this.alertModalService.showAlert(
+          this.translate.instant('PRODUCTS.REQUEST_SUBMITTED_SUCCESS'),
+          'COMMON.SUCCESS',
+          'success'
+        );
         this.submitted.emit();
       },
       error: () => {
         this.isSubmitting = false;
+        void this.alertModalService.showAlert(
+          this.translate.instant('COMMON.ERROR_OCCURRED'),
+          'COMMON.ERROR',
+          'danger'
+        );
       }
     });
   }
 
-  onBrandImageSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
+  async onBrandImageSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) {
       return;
     }
 
-    this.brandImageFile = file;
-    this.brandDraftForm.patchValue({ logoUrl: URL.createObjectURL(file) });
+    input.value = '';
+    this.isOptimizingBrandImage = true;
+    try {
+      const prepared = await optimizeImageForUpload(file, 0);
+      this.brandImageFile = prepared;
+      this.setPreviewUrl('brand', prepared);
+      this.brandDraftForm.patchValue({ logoUrl: this.brandImagePreviewUrl });
+    } finally {
+      this.isOptimizingBrandImage = false;
+    }
   }
 
-  onCategoryImageSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
+  async onCategoryImageSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) {
       return;
     }
 
-    this.categoryImageFile = file;
-    this.categoryDraftForm.patchValue({ imageUrl: URL.createObjectURL(file) });
+    input.value = '';
+    this.isOptimizingCategoryImage = true;
+    try {
+      const prepared = await optimizeImageForUpload(file, 0);
+      this.categoryImageFile = prepared;
+      this.setPreviewUrl('category', prepared);
+      this.categoryDraftForm.patchValue({ imageUrl: this.categoryImagePreviewUrl });
+    } finally {
+      this.isOptimizingCategoryImage = false;
+    }
   }
 
-  onProductImageSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
+  async onProductImageSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) {
       return;
     }
 
-    this.productImageFile = file;
-  }
-
-  getProductImageUrlPreview(): string {
-    return this.productImageFile ? URL.createObjectURL(this.productImageFile) : '';
+    input.value = '';
+    this.isOptimizingProductImage = true;
+    try {
+      const prepared = await optimizeImageForUpload(file, 0);
+      this.productImageFile = prepared;
+      this.setPreviewUrl('product', prepared);
+    } finally {
+      this.isOptimizingProductImage = false;
+    }
   }
 
   removeProductImage(): void {
     this.productImageFile = null;
+    this.revokePreviewUrl('product');
+  }
+
+  removeBrandImage(): void {
+    this.brandImageFile = null;
+    this.revokePreviewUrl('brand');
+    this.brandDraftForm.patchValue({ logoUrl: '' });
+  }
+
+  removeCategoryImage(): void {
+    this.categoryImageFile = null;
+    this.revokePreviewUrl('category');
+    this.categoryDraftForm.patchValue({ imageUrl: '' });
   }
 
   get uploadFileCount(): number {
@@ -856,25 +946,74 @@ export class ProductRequestModalComponent implements OnInit {
   }
 
   get isSubmitDisabled(): boolean {
-    const isNewCategory = !!this.categoryDraftForm.get('isNew')?.value;
-    const isNewBrand = !!this.brandDraftForm.get('isNew')?.value;
+    return this.isSubmitting || !this.canSubmitRequest();
+  }
 
-    if (this.isSubmitting || this.requestForm.invalid) {
-      return true;
+  private canSubmitRequest(): boolean {
+    if (this.requestForm.invalid) {
+      return false;
     }
 
-    if (isNewCategory && this.categoryDraftForm.invalid) {
-      return true;
+    if (!this.isCategoryResolved()) {
+      return false;
     }
 
-    if (isNewBrand
+    if (this.categoryDraftForm.get('isNew')?.value && this.categoryDraftForm.invalid) {
+      return false;
+    }
+
+    if (this.brandDraftForm.get('isNew')?.value
       && (this.brandDraftForm.get('categoryId')?.invalid
         || this.brandDraftForm.get('nameAr')?.invalid
         || this.brandDraftForm.get('nameEn')?.invalid)) {
-      return true;
+      return false;
     }
 
-    return false;
+    return true;
+  }
+
+  private isCategoryResolved(): boolean {
+    if (this.categoryDraftForm.get('isNew')?.value) {
+      return !this.categoryDraftForm.invalid;
+    }
+
+    return !!this.requestForm.get('categoryId')?.value;
+  }
+
+  private setPreviewUrl(kind: 'product' | 'brand' | 'category', file: File): void {
+    this.revokePreviewUrl(kind);
+    const previewUrl = URL.createObjectURL(file);
+
+    if (kind === 'product') {
+      this.productImagePreviewUrl = previewUrl;
+      return;
+    }
+
+    if (kind === 'brand') {
+      this.brandImagePreviewUrl = previewUrl;
+      return;
+    }
+
+    this.categoryImagePreviewUrl = previewUrl;
+  }
+
+  private revokePreviewUrl(kind: 'product' | 'brand' | 'category'): void {
+    if (kind === 'product' && this.productImagePreviewUrl) {
+      URL.revokeObjectURL(this.productImagePreviewUrl);
+      this.productImagePreviewUrl = '';
+      return;
+    }
+
+    if (kind === 'brand' && this.brandImagePreviewUrl) {
+      URL.revokeObjectURL(this.brandImagePreviewUrl);
+      this.brandImagePreviewUrl = '';
+      return;
+    }
+
+    if (kind === 'category' && this.categoryImagePreviewUrl) {
+      URL.revokeObjectURL(this.categoryImagePreviewUrl);
+      this.categoryImagePreviewUrl = '';
+    }
   }
 
   private applyBrandDraftValidators(isNew: boolean): void {

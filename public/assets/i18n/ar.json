@@ -757,6 +757,12 @@
     "CATEGORY_L3": "تصنيف المستوى الثالث",
     "SELECTED_PATH": "المسار المختار",
     "REQUEST_SUBMITTED_SUCCESS": "تم إرسال طلب إضافة المنتج بنجاح، سيتم مراجعته من قبل الإدارة.",
+    "FIELD_REQUIRED": "هذا الحقل مطلوب",
+    "NAME_MIN_LENGTH": "يجب أن يكون الاسم 3 أحرف على الأقل",
+    "CATEGORY_SELECTION_REQUIRED": "يرجى اختيار تصنيف أو إنشاء تصنيف جديد من نافذة التصنيف",
+    "UNIT_SELECTION_REQUIRED": "يرجى اختيار وحدة المقاس",
+    "IMAGE_FORMATS": "JPG, PNG, WEBP",
+    "IMAGE_OPTIMIZING": "جاري تحضير الصورة...",
     "BRAND_NAME_PLACEHOLDER": "أدخل اسم العلامة التجارية المقترحة..."
   },
   "OFFERS": {

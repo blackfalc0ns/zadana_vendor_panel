@@ -12,7 +12,7 @@ import { AppButtonComponent } from '../../../../shared/components/ui/button/butt
 import { AppCategorySelectorComponent } from '../../../../shared/components/ui/category-selector/category-selector.component';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
-import { ImageUploadPhase } from '../../../../shared/utils/image-upload-optimizer';
+import { ImageUploadPhase, optimizeImageForUpload } from '../../../../shared/utils/image-upload-optimizer';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -130,7 +130,7 @@ import { ImageUploadPhase } from '../../../../shared/utils/image-upload-optimize
               @if (productImageFile) {
                 <div class="flex items-center justify-between gap-4 px-4">
                   <div class="flex items-center gap-3">
-                    <img [src]="getProductImageUrlPreview()" class="h-10 w-10 rounded-lg object-cover bg-white border">
+                    <img [src]="productImagePreviewUrl" class="h-10 w-10 rounded-lg object-cover bg-white border">
                     <span class="text-[0.75rem] font-bold text-slate-600 truncate max-w-[200px]">{{ productImageFile.name }}</span>
                   </div>
                   <button type="button" (click)="removeProductImage()" class="text-[0.72rem] font-black text-rose-500">
@@ -141,7 +141,7 @@ import { ImageUploadPhase } from '../../../../shared/utils/image-upload-optimize
                 <label class="block w-full h-full cursor-pointer">
                   <p class="text-[0.75rem] font-black text-slate-600">{{ 'PRODUCTS.UPLOAD_PHOTO' | translate }}</p>
                   <p class="text-[0.65rem] font-bold text-slate-400">{{ 'COMMON.OPTIONAL' | translate }}</p>
-                  <input type="file" accept="image/*" class="hidden" (change)="onProductImageSelected($event)">
+                  <input type="file" accept=".jpg,.jpeg,.png,.webp" class="hidden" (change)="onProductImageSelected($event)">
                 </label>
               }
             </div>
@@ -180,6 +180,8 @@ export class ProductSubmissionComponent implements OnInit {
   categories: Category[] = [];
   isSubmitting = false;
   productImageFile: File | null = null;
+  productImagePreviewUrl = '';
+  isOptimizingProductImage = false;
   uploadProgress = 0;
   uploadPhase: ImageUploadPhase = 'preparing';
 
@@ -216,20 +218,36 @@ export class ProductSubmissionComponent implements OnInit {
     this.productForm.patchValue({ categoryId: id });
   }
 
-  onProductImageSelected(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
+  async onProductImageSelected(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
     if (!file) {
       return;
     }
-    this.productImageFile = file;
-  }
 
-  getProductImageUrlPreview(): string {
-    return this.productImageFile ? URL.createObjectURL(this.productImageFile) : '';
+    input.value = '';
+    this.isOptimizingProductImage = true;
+    this.cdr.markForCheck();
+    try {
+      const prepared = await optimizeImageForUpload(file, 0);
+      this.productImageFile = prepared;
+      if (this.productImagePreviewUrl) {
+        URL.revokeObjectURL(this.productImagePreviewUrl);
+      }
+      this.productImagePreviewUrl = URL.createObjectURL(prepared);
+    } finally {
+      this.isOptimizingProductImage = false;
+      this.cdr.markForCheck();
+    }
   }
 
   removeProductImage(): void {
     this.productImageFile = null;
+    if (this.productImagePreviewUrl) {
+      URL.revokeObjectURL(this.productImagePreviewUrl);
+      this.productImagePreviewUrl = '';
+    }
+    this.cdr.markForCheck();
   }
 
   onSubmit(): void {

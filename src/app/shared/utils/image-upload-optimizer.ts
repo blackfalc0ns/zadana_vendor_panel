@@ -16,14 +16,20 @@ export interface ImageUploadProgress {
   phase: ImageUploadPhase;
 }
 
-export function shouldOptimizeImageForUpload(file: File): boolean {
-  return file.size >= MIN_OPTIMIZATION_BYTES &&
+export function shouldOptimizeImageForUpload(
+  file: File,
+  minBytes: number = MIN_OPTIMIZATION_BYTES
+): boolean {
+  return file.size >= minBytes &&
     OPTIMIZABLE_IMAGE_TYPES.has(file.type.toLowerCase()) &&
     typeof createImageBitmap === 'function';
 }
 
-export async function optimizeImageForUpload(file: File): Promise<File> {
-  if (!shouldOptimizeImageForUpload(file)) {
+export async function optimizeImageForUpload(
+  file: File,
+  minBytes: number = MIN_OPTIMIZATION_BYTES
+): Promise<File> {
+  if (!shouldOptimizeImageForUpload(file, minBytes)) {
     return file;
   }
 
