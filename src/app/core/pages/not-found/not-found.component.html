@@ -2,6 +2,37 @@
   class="relative min-h-screen w-full flex flex-col items-center justify-center bg-zadna-bgLight px-4 py-12 sm:px-6 lg:px-8 overflow-hidden font-sans selection:bg-zadna-primary selection:text-white"
   [dir]="translate.currentLang === 'ar' ? 'rtl' : 'ltr'">
 
+  <!-- ================= STYLE BLOCK FOR CUSTOM ANIMATIONS ================= -->
+  <style>
+    @keyframes float {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-20px) rotate(3deg);
+      }
+    }
+
+    @keyframes shadow {
+      0%, 100% {
+        transform: translateX(-50%) scale(1);
+        opacity: 0.15;
+      }
+      50% {
+        transform: translateX(-50%) scale(0.75);
+        opacity: 0.07;
+      }
+    }
+
+    .animate-float-sphere {
+      animation: float 5s ease-in-out infinite;
+    }
+
+    .animate-shadow-sphere {
+      animation: shadow 5s ease-in-out infinite;
+    }
+  </style>
+
   <!-- ================= BACKGROUND ARTEFACTS ================= -->
   <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
     <!-- Gradient Overlay -->
@@ -38,38 +69,57 @@
   </div>
 
   <!-- ================= MAIN CARD ================= -->
-  <div class="relative z-10 w-full max-w-[580px] mx-auto">
+  <div class="relative z-10 w-full max-w-[620px] mx-auto">
     <!-- Decorative Glows behind Card -->
     <div class="absolute -top-12 -right-12 w-48 h-48 bg-zadna-accent/10 rounded-full blur-2xl opacity-50"></div>
     <div class="absolute -bottom-12 -left-12 w-48 h-48 bg-zadna-primary/10 rounded-full blur-2xl opacity-50"></div>
 
-    <div class="bg-white/80 backdrop-blur-2xl border border-white rounded-[2rem] p-8 sm:p-12 text-center shadow-[0_30px_70px_-15px_rgba(18,124,140,0.18)] relative overflow-hidden">
+    <div class="bg-white/85 backdrop-blur-2xl border border-white rounded-[2.5rem] p-8 sm:p-14 text-center shadow-[0_35px_80px_-15px_rgba(18,124,140,0.2)] relative overflow-hidden">
       <!-- Top Highlight Gradient Line -->
       <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-zadna-primary via-zadna-accent to-zadna-primary"></div>
 
-      <!-- Brand Logo -->
-      <div class="flex flex-col items-center mb-6">
-        <div class="w-full h-16 relative flex items-center justify-center group cursor-default">
-          <div class="absolute inset-0 bg-zadna-primary/5 rounded-full blur-xl scale-75 group-hover:scale-110 transition-transform duration-700"></div>
-          <img src="assets/images/logo/zadana-mark.svg" alt="Zadana Logo"
-            class="w-full h-full object-contain filter drop-shadow-[0_6px_12px_rgba(18,124,140,0.15)] z-10 transition-transform duration-500 hover:scale-105"
-            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-          <div class="absolute inset-0 hidden items-center justify-center text-zadna-primary" style="display: none;">
-            <span class="text-xl font-black tracking-wider text-zadna-primary">ZADANA</span>
-          </div>
-        </div>
-      </div>
+      <!-- ================= 404 ARTWORK WITH 3D SPHERE ================= -->
+      <div class="flex items-center justify-center gap-4 sm:gap-8 select-none my-6 relative">
+        
+        <!-- Left "4" -->
+        <span class="text-[110px] sm:text-[150px] md:text-[180px] font-black leading-none text-slate-800 tracking-tighter drop-shadow-[0_10px_15px_rgba(0,0,0,0.15)]">
+          4
+        </span>
 
-      <!-- Massive 404 Text -->
-      <div class="relative inline-block mb-2">
-        <span class="absolute -inset-1 bg-gradient-to-r from-zadna-primary to-zadna-accent rounded-lg blur opacity-15"></span>
-        <h1 class="relative bg-gradient-to-br from-zadna-primary via-zadna-primaryDark to-zadna-accent bg-clip-text text-8xl font-black leading-none tracking-tight text-transparent sm:text-9xl">
-          404
-        </h1>
+        <!-- Middle "0" (3D Brand Sphere) -->
+        <div class="relative w-28 h-28 sm:w-36 sm:h-36 md:w-44 md:h-44 flex items-center justify-center">
+          
+          <!-- The 3D Sphere -->
+          <div class="animate-float-sphere w-full h-full rounded-full flex items-center justify-center relative overflow-hidden"
+               style="background: radial-gradient(circle at 35% 35%, #ffffff 0%, #b2ebf2 15%, #127C8C 50%, #085a65 85%, #03363d 100%); 
+                      box-shadow: inset -15px -15px 40px rgba(0,0,0,0.55), inset 15px 15px 30px rgba(255,255,255,0.25), 0 20px 40px rgba(18,124,140,0.35);">
+            
+            <!-- Glossy Highlight Curve -->
+            <div class="absolute top-1 left-4 right-4 h-[35%] rounded-t-full bg-gradient-to-b from-white/30 to-transparent pointer-events-none"></div>
+
+            <!-- Inner Logo Container (Glass Effect) -->
+            <div class="w-[70%] h-[70%] rounded-full bg-white/10 backdrop-blur-[2px] border border-white/25 flex items-center justify-center shadow-inner p-3">
+              <img src="assets/images/logo/zadana-mark.svg" alt="Zadana Logo" 
+                   class="w-full h-full object-contain filter drop-shadow-[0_4px_8px_rgba(0,0,0,0.3)]"
+                   onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+              <div class="absolute inset-0 hidden items-center justify-center text-white font-black text-lg tracking-wider" style="display: none;">
+                ZADANA
+              </div>
+            </div>
+          </div>
+
+          <!-- 3D Shadow underneath the sphere -->
+          <div class="animate-shadow-sphere absolute -bottom-3 left-1/2 -translate-x-1/2 w-[85%] h-4 bg-slate-950/20 rounded-full blur-md"></div>
+        </div>
+
+        <!-- Right "4" -->
+        <span class="text-[110px] sm:text-[150px] md:text-[180px] font-black leading-none text-slate-800 tracking-tighter drop-shadow-[0_10px_15px_rgba(0,0,0,0.15)]">
+          4
+        </span>
       </div>
 
       <!-- Error Title -->
-      <h2 class="text-2xl font-black text-zadna-bgDark sm:text-3xl tracking-tight mt-4">
+      <h2 class="text-2xl font-black text-zadna-bgDark sm:text-3xl tracking-tight mt-6">
         {{ 'NOT_FOUND.TITLE' | translate }}
       </h2>
 
