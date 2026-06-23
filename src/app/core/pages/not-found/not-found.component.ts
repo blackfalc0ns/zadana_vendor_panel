@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VendorAuthService } from '../../auth/services/vendor-auth.service';
 
 @Component({
@@ -16,6 +16,7 @@ export class NotFoundComponent {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly authService = inject(VendorAuthService);
+  public readonly translate = inject(TranslateService);
 
   readonly embedded = this.route.snapshot.data['embedded'] !== false;
   readonly attemptedPath = this.resolveAttemptedPath();
@@ -28,6 +29,10 @@ export class NotFoundComponent {
     }
 
     return currentPath;
+  }
+
+  switchLanguage(lang: string): void {
+    this.translate.use(lang);
   }
 
   goHome(): void {

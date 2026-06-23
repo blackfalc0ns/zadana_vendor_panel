@@ -181,30 +181,16 @@ export const routes: Routes = [
         canActivate: [VendorHasPermissionGuard],
         data: { permission: 'vendor_profile.view' },
         loadComponent: () => import('./features/settings/pages/vendor-profile/vendor-profile.component').then(m => m.VendorProfileComponent)
-      },
-      {
-        path: 'not-found',
-        loadComponent: () => import('./core/pages/not-found/not-found.component').then(m => m.NotFoundComponent),
-        data: { embedded: true }
-      },
-      {
-        path: '**',
-        loadComponent: () => import('./core/pages/not-found/not-found.component').then(m => m.NotFoundComponent),
-        data: { embedded: true }
       }
     ]
   },
-
   {
     path: 'not-found',
     loadComponent: () => import('./core/pages/not-found/not-found.component').then(m => m.NotFoundComponent),
     data: { embedded: false }
   },
-
-  // --- Fallback ---
   {
     path: '**',
-    loadComponent: () => import('./core/pages/not-found/not-found.component').then(m => m.NotFoundComponent),
-    data: { embedded: false }
+    redirectTo: 'not-found'
   }
 ];
