@@ -272,5 +272,13 @@
       "RESTORED": "The alert was restored from the archive.",
       "ALL_READ": "All alerts were marked as read."
     }
+  },
+  "NOT_FOUND": {
+    "TITLE": "Page Not Found",
+    "MESSAGE": "The page you requested does not exist, was moved, or is temporarily unavailable. Check the address or return to the dashboard.",
+    "PATH_LABEL": "Requested path",
+    "GO_DASHBOARD": "Back to Dashboard",
+    "GO_BACK": "Go Back",
+    "GO_LOGIN": "Sign In"
   }
 }
