@@ -55,6 +55,14 @@
     "AMOUNT": "Amount",
     "TOTAL": "Total"
   },
+  "NOT_FOUND": {
+    "TITLE": "Page Not Found",
+    "MESSAGE": "The page you requested does not exist, was moved, or is temporarily unavailable. Check the address or return to your workspace.",
+    "PATH_LABEL": "Requested path",
+    "GO_DASHBOARD": "Back to Dashboard",
+    "GO_LOGIN": "Back to Login",
+    "GO_BACK": "Go Back"
+  },
   "SIDEBAR": {
     "APP_NAME": "Zadana",
     "APP_SUBTITLE": "Vendor Workspace",
