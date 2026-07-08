@@ -263,7 +263,7 @@ import { environment } from '../../../../../environments/environment';
  </p>
  <p class="tracking-empty-copy">
  {{ currentLang === 'ar'
-                          ? 'راح نعرض الخريطة الحقيقية فقط عند وصول إحداثيات المتجر أو العميل أو السائق من النظام.'
+                          ? 'راح نعرض الخريطة الحقيقية فقط عند وصول إحداثيات المتجر أو العميل أو المندوب من النظام.'
                           : 'The real map will appear only when store, customer, or driver coordinates are received from the system.' }}
  </p>
  <div class="tracking-empty-note">

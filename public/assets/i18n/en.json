@@ -102,7 +102,8 @@
     "CAT_OVERVIEW": "Overview",
     "CAT_OPERATIONS": "Access",
     "CAT_CATALOG": "Catalog",
-    "CAT_MANAGEMENT": "Management"
+    "CAT_MANAGEMENT": "Management",
+    "DEFAULT": "Vendor Dashboard"
   },
   "PAGE_TITLES": {
     "BRAND": "Zadana Vendor Portal",
@@ -544,6 +545,10 @@
       "EMPTY_DESC": "Click anywhere on the map to set latitude and longitude.",
       "GEO_UNSUPPORTED": "Your browser does not support location access.",
       "GEO_FAILED": "Could not read your current location. Allow location access or select from the map."
+    },
+    "LOCATION": {
+      "EMPTY_TITLE": "No location selected",
+      "GEO_FAILED": "Could not read your current location. Allow location access or select from the map."
     }
   },
   "FORGOT_PASSWORD_PAGE": {
@@ -877,7 +882,8 @@
     },
     "TABLES": {
       "SALES": "sales"
-    }
+    },
+    "EMPTY_STATE": "There is not enough data to display right now."
   },
   "PRODUCTS": {
     "LIST_TITLE": "Product Management",
@@ -1536,7 +1542,11 @@
     "SYNCHRONIZE_HANDOFF": "Synchronize the physical handoff by entering the 4-digit cryptographic security code provided to the carrier.",
     "AUTHORIZE_HANDOVER": "Authorize Handover",
     "CARRIER_SYNTHESIS": "Carrier Synthesis",
-    "LOGISTICS_ORCHESTRATION": "Orchestrating logistics network to secure the optimal delivery carrier."
+    "LOGISTICS_ORCHESTRATION": "Orchestrating logistics network to secure the optimal delivery carrier.",
+    "STATUS": {
+      "IN_PROGRESS": "Preparing",
+      "REFUNDED": "Refunded"
+    }
   },
   "SUPPORT_CENTER": {
     "TITLE": "Support & Reference Center",
@@ -1894,7 +1904,11 @@
       "REPLY_PLACEHOLDER": "Write your response, explanation, or evidence summary here...",
       "RESPONSE_SENT": "Your response was sent successfully.",
       "RESPONSE_FAILED": "Unable to send your response right now.",
-      "CLOSED_BANNER": "This dispute is currently closed. Additional messages or attachments cannot be sent."
+      "CLOSED_BANNER": "This dispute is currently closed. Additional messages or attachments cannot be sent.",
+      "REASON_CODE": "Reason code",
+      "REFUND_METHOD": "Refund method",
+      "COST_BEARER": "Cost bearer",
+      "CLOSED_AT": "Closed at"
     }
   },
   "SETTINGS_PROFILE": {
@@ -2645,5 +2659,8 @@
       "SAT": "Sat",
       "SUN": "Sun"
     }
+  },
+  "FORGOT_PASSWORD": {
+    "PORTAL_TITLE": "Vendor Portal"
   }
 }

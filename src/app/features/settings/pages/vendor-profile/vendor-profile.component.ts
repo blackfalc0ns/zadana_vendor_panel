@@ -678,7 +678,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  ? 'حسابك التجاري مفعل. التعديلات الحساسة والمستندات الجديدة نرسلها لموافقة الإدارة قبل اعتمادها.'
  : 'Your commercial account is active. Sensitive edits and document re-uploads are sent for admin approval before they become official.')
  : (this.currentLang === 'ar'
- ? 'أكمل البيانات والمستندات المطلوبة ثم أرسل الملف للمراجعة. كل تحديث تحفظه هنا يظهر مباشرة لدى الأدمن.'
+ ? 'أكمل البيانات والمستندات المطلوبة ثم أرسل الملف للمراجعة. كل تحديث تحفظه هنا يظهر مباشرة لدى المشرف.'
  : 'Complete the required details and documents, then submit the file for review. Every saved update is visible to admin.');
  }
 
@@ -719,7 +719,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  }
 
  return this.currentLang === 'ar'
- ? 'تقدر تعدّل، لكن أي تحديث مهم أو إعادة رفع ملف بيظهر للأدمن كبند يحتاج مراجعة جديدة.'
+ ? 'تقدر تعدّل، لكن أي تحديث مهم أو إعادة رفع ملف بيظهر للمشرف كبند يحتاج مراجعة جديدة.'
  : 'You can still edit, but important updates or file re-uploads will be visible to admin as items needing review.';
  }
 
@@ -849,7 +849,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  inputId: 'profileCommercialDocInput',
  titleAr: 'السجل التجاري',
  titleEn: 'Commercial registration',
- hintAr: 'ملف PDF رسمي للسجل التجاري. يظهر للأدمن مباشرة بعد الرفع.',
+ hintAr: 'ملف PDF رسمي للسجل التجاري. يظهر للمشرف مباشرة بعد الرفع.',
  hintEn: 'Official commercial registration PDF. Admin sees it immediately after upload.',
  url: this.currentProfile.commercialRegisterDocumentUrl,
  uploaded:!!this.currentProfile.commercialRegisterDocumentUrl,
@@ -1489,7 +1489,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  next: () => {
  this.cdr.markForCheck();
  this.pageNotice = this.currentLang === 'ar'
- ? 'أرسلنا ملف التاجر للمراجعة وبيظهر فورًا لدى الأدمن.'
+ ? 'أرسلنا ملف التاجر للمراجعة وبيظهر فورًا لدى المشرف.'
  : 'The vendor profile was submitted for review and is visible to admin.';
  },
  error: (error) => {

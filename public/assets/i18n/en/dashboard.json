@@ -272,6 +272,7 @@
     },
     "TABLES": {
       "SALES": "sales"
-    }
+    },
+    "EMPTY_STATE": "There is not enough data to display right now."
   }
 }

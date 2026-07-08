@@ -1,4 +1,4 @@
-﻿{
+{
   "COMMON": {
     "SEARCH": "Search...",
     "SAVE": "Save",
@@ -102,7 +102,8 @@
     "CAT_OVERVIEW": "Overview",
     "CAT_OPERATIONS": "Access",
     "CAT_CATALOG": "Catalog",
-    "CAT_MANAGEMENT": "Management"
+    "CAT_MANAGEMENT": "Management",
+    "DEFAULT": "Vendor Dashboard"
   },
   "PAGE_TITLES": {
     "BRAND": "Zadana Vendor Portal",
