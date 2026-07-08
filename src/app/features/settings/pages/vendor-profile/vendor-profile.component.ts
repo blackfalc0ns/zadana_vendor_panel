@@ -719,7 +719,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  }
 
  return this.currentLang === 'ar'
- ? 'تقدر تعدّل، لكن أي تحديث مهم أو إعادة رفع ملف سيظهر للأدمن كبند يحتاج مراجعة جديدة.'
+ ? 'تقدر تعدّل، لكن أي تحديث مهم أو إعادة رفع ملف بيظهر للأدمن كبند يحتاج مراجعة جديدة.'
  : 'You can still edit, but important updates or file re-uploads will be visible to admin as items needing review.';
  }
 
@@ -959,7 +959,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  next: () => {
  this.cdr.markForCheck();
  this.pageNotice = this.currentLang === 'ar'
- ? 'تم رفع المستند وإرساله للمراجعة. سيظهر كمستند معتمد بعد موافقة الإدارة.'
+ ? 'تم رفع المستند وإرساله للمراجعة. بيظهر كمستند معتمد بعد موافقة الإدارة.'
  : 'Document uploaded and sent for review. It will become official after admin approval.';
  },
  error: (error) => {

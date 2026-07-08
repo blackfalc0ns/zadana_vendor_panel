@@ -97,7 +97,7 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
  {{ 'COMMON.CANCEL' | translate }}
  </app-button>
  <app-button [disabled]="form.invalid || isSaving" (btnClick)="submit()">
- {{ isSaving ? (currentLang === 'ar' ? 'جارٍ الحفظ...' : 'Saving...') : ('OFFERS.CREATE.SAVE_COUPON' | translate) }}
+ {{ isSaving ? (currentLang === 'ar' ? 'نحفظ...' : 'Saving...') : ('OFFERS.CREATE.SAVE_COUPON' | translate) }}
  </app-button>
  </div>
  </div>

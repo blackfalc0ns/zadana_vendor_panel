@@ -229,7 +229,7 @@ import { environment } from '../../../../../environments/environment';
  <p class="section-copy">
  {{ hasTrackableMapData()
                         ? (currentLang === 'ar' ? 'المندوب في الطريق إلى المتجر. تقدر تتابع موقعه مباشرة حتى تسليم الطلب للمندوب.' : 'The courier is heading to the store. Track their location live until the handoff is complete.')
-                        : (currentLang === 'ar' ? 'سيظهر موقع المندوب على الخريطة فور توفر إحداثياته.' : 'The courier location will appear on the map as soon as coordinates are available.') }}
+                        : (currentLang === 'ar' ? 'بيظهر موقع المندوب على الخريطة فور توفر إحداثياته.' : 'The courier location will appear on the map as soon as coordinates are available.') }}
  </p>
  </div>
 
@@ -267,7 +267,7 @@ import { environment } from '../../../../../environments/environment';
                           : 'The real map will appear only when store, customer, or driver coordinates are received from the system.' }}
  </p>
  <div class="tracking-empty-note">
- {{ currentLang === 'ar' ? 'لا يتم عرض أي مسار أو خريطة تجريبية.' : 'No mock route or fake map is shown.' }}
+ {{ currentLang === 'ar' ? 'ما نعرض أي مسار أو خريطة تجريبية.' : 'No mock route or fake map is shown.' }}
  </div>
  </div>
  </ng-template>
@@ -461,10 +461,10 @@ import { environment } from '../../../../../environments/environment';
  <span class="material-symbols-outlined text-[22px]">{{ isDispatchInProgress() ? 'search' : 'delivery_truck_speed' }}</span>
  </div>
  <p class="mt-3 text-[0.82rem] font-extrabold text-[#004953]">
- {{ isDispatchInProgress() ? (currentLang === 'ar' ? 'جارٍ البحث عن مندوب' : 'Searching for a courier') : (currentLang === 'ar' ? 'لم يتم تعيين مندوب بعد' : 'No courier assigned yet') }}
+ {{ isDispatchInProgress() ? (currentLang === 'ar' ? 'نبحث عن مندوب' : 'Searching for a courier') : (currentLang === 'ar' ? 'لسه ما تعيّن مندوب' : 'No courier assigned yet') }}
  </p>
  <p class="mt-1.5 text-[0.7rem] leading-5 text-[#6f797b]">
- {{ currentLang === 'ar' ? 'سيظهر ملف المندوب هنا فور قبول مهمة التوصيل.' : 'The courier profile will appear here once a delivery task is accepted.' }}
+ {{ currentLang === 'ar' ? 'بيظهر ملف المندوب هنا فور قبول مهمة التوصيل.' : 'The courier profile will appear here once a delivery task is accepted.' }}
  </p>
  </div>
  </ng-template>
@@ -1026,7 +1026,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  this.stopPolling();
  this.stopRealtimeTracking();
  this.loadErrorMessage = this.currentLang === 'ar'
- ? 'ما لقينا الطلب المطلوب أو أنك لا تملك صلاحية الوصول إليه.'
+ ? 'ما لقينا الطلب المطلوب أو ما عندك صلاحية الوصول له.'
  : 'The requested order was not found or you do not have access to it.';
  return;
  }

@@ -146,7 +146,7 @@ export class LayoutComponent implements OnInit, OnDestroy {
  case 'awaitingsubmission':
  return this.currentLang === 'ar' ? 'بانتظار الإرسال للمراجعة' : 'Awaiting submission';
  case 'submitted':
- return this.currentLang === 'ar' ? 'تم الإرسال للمراجعة' : 'Submitted for review';
+ return this.currentLang === 'ar' ? 'انرسل للمراجعة' : 'Submitted for review';
  case 'underreview':
  return this.currentLang === 'ar' ? 'تحت المراجعة' : 'Under review';
  case 'changesrequested':

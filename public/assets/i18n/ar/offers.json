@@ -131,7 +131,7 @@
     "CLEARANCE_OFFERS_HINT": "منتجات قليلة المخزون تحتاج دفعًا أسرع.",
     "TOTAL_SAVINGS": "التوفير للعميل",
     "TOTAL_SAVINGS_HINT": "إجمالي الفرق بين السعرين بـ {{currency}} لكل وحدة.",
-    "SAVINGS_PER_UNIT": "توفير {{amount}} ج.م. في الوحدة",
+    "SAVINGS_PER_UNIT": "توفير {{amount}} ر.س في الوحدة",
     "SAVINGS_LABEL": "قيمة التوفير",
     "STOCK_STATUS": "المخزون: {{count}}",
     "EDIT_OFFER": "تعديل العرض",
