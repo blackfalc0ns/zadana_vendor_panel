@@ -464,12 +464,12 @@ export class AlertsCenterService {
  };
  case 'profile-field-approved':
  return {
- ar: 'تم اعتماد أحد عناصر ملف التاجر.',
+ ar: 'اعتمدنا أحد عناصر ملف التاجر.',
  en: 'A vendor profile item was approved.'
  };
  case 'profile-field-rejected':
  return {
- ar: 'تم طلب تعديل على أحد عناصر ملف التاجر.',
+ ar: 'طلبنا تعديل على أحد عناصر ملف التاجر.',
  en: 'Changes were requested for a vendor profile item.'
  };
  case 'notification-settings-updated':
@@ -489,7 +489,7 @@ export class AlertsCenterService {
  };
  case 'login-unlocked':
  return {
- ar: 'تم فتح تسجيل الدخول واستعادة الوصول إلى الحساب.',
+ ar: 'فتحنا تسجيل الدخول ورجعنا الوصول للحساب.',
  en: 'Login was unlocked and account access was restored.'
  };
  default:
@@ -981,7 +981,7 @@ export class AlertsCenterService {
 
  if (sectionAudit.decision === 'approved') {
  return {
- ar: `تم اعتماد قسم ${label.ar}.`,
+ ar: `اعتمدنا قسم ${label.ar}.`,
  en: `${label.en} section was approved.`
  };
  }

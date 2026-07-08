@@ -165,7 +165,7 @@ export class VerifyEmailComponent implements OnInit {
  next: () => {
  this.cdr.markForCheck();
  this.isLoading = false;
- this.successMessage = this.isRTL ? 'تم تفعيل البريد الإلكتروني بنجاح.' : 'Email verified successfully.';
+ this.successMessage = this.isRTL ? 'فعّلنا البريد الإلكتروني بنجاح.' : 'Email verified successfully.';
  void this.router.navigate(['/submission-success']);
  },
  error: (error) => {

@@ -115,7 +115,7 @@
       "CONFIRMED": "مؤكد",
       "PREPARING": "تحت التجهيز",
       "READY": "جاهز",
-      "DELIVERED": "تم التسليم",
+      "DELIVERED": "مسلّم",
       "CANCELLED": "ملغي"
     },
     "STOCK_HEALTH": {
@@ -131,7 +131,7 @@
       "CAMPAIGNS": "حملات"
     },
     "REPLY_BREAKDOWN": {
-      "REPLIED": "تم الرد",
+      "REPLIED": "ردّينا",
       "PENDING": "بانتظار الرد"
     },
     "SETTLEMENT_STATUS": {
@@ -172,7 +172,7 @@
       "CASH_COLLECTED": "تحصيل نقدي"
     },
     "LEDGER_MEMOS": {
-      "PAYOUT_PAID": "تم دفع التسوية {{id}}",
+      "PAYOUT_PAID": "دفعنا التسوية {{id}}",
       "PLATFORM_CASH_PAYOUT": "تسوية نقدية للمنصة {{id}}",
       "COD_RECEIVABLE": "ذمم COD متوقعة للطلب {{order}}",
       "CUSTOMER_ADVANCE_CLEARING": "تسوية سلفة العميل للطلب {{order}}",
@@ -185,7 +185,7 @@
       "DRIVER_PAYABLE": "مستحقات المندوب للطلب {{order}}",
       "PLATFORM_REVENUE": "إيرادات المنصة للطلب {{order}}",
       "TAX_PAYABLE": "ضريبة مستحقة للطلب {{order}}",
-      "DRIVER_WITHDRAWAL_APPROVED": "تم اعتماد سحب المندوب للتحويل"
+      "DRIVER_WITHDRAWAL_APPROVED": "اعتمدنا سحب المندوب للتحويل"
     },
     "SALES": {
       "GROSS_SALES": "إجمالي المبيعات",

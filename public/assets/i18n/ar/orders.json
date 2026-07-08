@@ -63,20 +63,20 @@
     "STATUS_PENDING_BANK_CONFIRMATION": "بانتظار تأكيد التحويل",
     "STATUS_PENDING_VENDOR_ACCEPTANCE": "بانتظار قبول المتجر",
     "STATUS_VENDOR_REJECTED": "مرفوض من المتجر",
-    "STATUS_CONFIRMED": "تم التأكيد",
+    "STATUS_CONFIRMED": "مؤكد",
     "STATUS_IN_PROGRESS": "تحت التجهيز",
     "STATUS_READY": "جاهز للتسليم",
     "STATUS_READY_FOR_PICKUP": "جاهز للاستلام",
-    "STATUS_PICKED_UP": "تم الاستلام من المتجر",
+    "STATUS_PICKED_UP": "مستلم من المتجر",
     "STATUS_OUT_FOR_DELIVERY": "في الطريق للعميل",
-    "STATUS_DRIVER_ASSIGNED": "تم تعيين مندوب",
+    "STATUS_DRIVER_ASSIGNED": "مُعيّن له مندوب",
     "STATUS_DRIVER_ASSIGNMENT_IN_PROGRESS": "نبحث عن مندوب",
-    "STATUS_DELIVERED": "تم التسليم",
+    "STATUS_DELIVERED": "مسلّم",
     "STATUS_COMPLETED": "مكتمل",
     "STATUS_CANCELLED": "ملغي",
     "STATUS_RETURNED": "مرتجع",
     "STATUS_DELIVERY_FAILED": "فشل التوصيل",
-    "STATUS_REFUNDED": "تم الاسترجاع",
+    "STATUS_REFUNDED": "مسترجع",
     "TAB_ALL": "الكل",
     "TAB_NEW": "جديدة",
     "TAB_PREPARING": "قيد التحضير",
@@ -94,7 +94,7 @@
           "DESCRIPTION": "استلمنا الطلب من العميل وينتظر مراجعتك وتأكيدك."
         },
         "CONFIRMED": {
-          "TITLE": "تم التأكيد",
+          "TITLE": "مؤكد",
           "DESCRIPTION": "انقبل الطلب وبدأ مسار التجهيز داخل المتجر."
         },
         "IN_PROGRESS": {
@@ -110,11 +110,11 @@
           "DESCRIPTION": "النظام يبحث عن أقرب مندوب متاح للتوصيل."
         },
         "DRIVER_ASSIGNED": {
-          "TITLE": "تم تعيين مندوب",
+          "TITLE": "عيّنا مندوب",
           "DESCRIPTION": "تعيّن مندوب وبيتوجه إلى المتجر لاستلام الطلب."
         },
         "PICKED_UP": {
-          "TITLE": "تم الاستلام من المتجر",
+          "TITLE": "استلمه المندوب من المتجر",
           "DESCRIPTION": "استلم المندوب الطلب من المتجر وغادر نحو العميل."
         },
         "OUT_FOR_DELIVERY": {
@@ -122,7 +122,7 @@
           "DESCRIPTION": "المندوب في الطريق إلى عنوان العميل."
         },
         "DELIVERED": {
-          "TITLE": "تم التوصيل",
+          "TITLE": "مسلّم",
           "DESCRIPTION": "تسلّم العميل الطلب بنجاح."
         },
         "COMPLETED": {
@@ -142,20 +142,20 @@
           "DESCRIPTION": "ما اكتمل التوصيل ويحتاج متابعة من فريق الدعم."
         },
         "REFUNDED": {
-          "TITLE": "تم الاسترجاع",
+          "TITLE": "مسترجع",
           "DESCRIPTION": "استرجعنا قيمة الطلب للعميل."
         }
       },
       "NOTES": {
         "AUTO_DISPATCH_STARTED": "بدأ البحث التلقائي عن مندوب",
         "DRIVER_ACCEPTED_OFFER": "وافق المندوب على عرض التوصيل",
-        "DRIVER_ASSIGNED_VIA_DISPATCH": "تم تعيين المندوب عبر التوجيه",
-        "DRIVER_ASSIGNED_BY_ADMIN": "تم تعيين المندوب من قبل الإدارة",
-        "VENDOR_CONFIRMED_PICKUP": "تم تأكيد تسليم الطلب للمندوب عبر الرمز",
+        "DRIVER_ASSIGNED_VIA_DISPATCH": "عيّنا المندوب عبر التوجيه",
+        "DRIVER_ASSIGNED_BY_ADMIN": "عيّنت الإدارة المندوب",
+        "VENDOR_CONFIRMED_PICKUP": "أكدنا تسليم الطلب للمندوب عبر الرمز",
         "DRIVER_VERIFIED_PICKUP": "تحقق المندوب من رمز الاستلام",
         "DRIVER_ON_THE_WAY": "المندوب في الطريق إليك",
-        "DRIVER_VERIFIED_DELIVERY": "تم التحقق من رمز التوصيل بنجاح",
-        "COD_SELECTED": "تم اختيار الدفع عند الاستلام",
+        "DRIVER_VERIFIED_DELIVERY": "تحقق المندوب من رمز التوصيل بنجاح",
+        "COD_SELECTED": "اختار العميل الدفع عند الاستلام",
         "AWAITING_VENDOR": "في انتظار رد المتجر",
         "VENDOR_ACCEPTED": "انقبل الطلب من المتجر",
         "VENDOR_PREPARING": "بدأ المتجر في تجهيز الطلب",
@@ -164,16 +164,16 @@
         "NO_DRIVERS": "ما فيه مندوبين متوفرين",
         "OFFER_SENT": "انرسل عرض التوصيل",
         "DRIVER_REJECTED": "رفض المندوب عرض التوصيل",
-        "CANCELLED_BY_ADMIN": "تم الإلغاء من قبل الإدارة",
-        "CANCELLED_BY_CUSTOMER": "تم الإلغاء من قبل العميل",
+        "CANCELLED_BY_ADMIN": "ألغته الإدارة",
+        "CANCELLED_BY_CUSTOMER": "ألغاه العميل",
         "ORDER_PLACED": "أنشأنا الطلب بنجاح",
-        "ORDER_CONFIRMED": "تم تأكيد الطلب",
+        "ORDER_CONFIRMED": "أكدنا الطلب",
         "ORDER_PICKED_UP": "استلم المندوب الطلب",
-        "ORDER_DELIVERED": "تم توصيل الطلب بنجاح",
-        "PICKUP_CONFIRMED_EARLY": "تم تأكيد الاستلام قبل الوصول للعميل",
+        "ORDER_DELIVERED": "سلّمنا الطلب بنجاح",
+        "PICKUP_CONFIRMED_EARLY": "تأكد الاستلام قبل الوصول للعميل",
         "AWAITING_BANK_TRANSFER": "بانتظار تأكيد التحويل البنكي التلقائي",
-        "BANK_TRANSFER_UPLOADED": "تم رفع إثبات التحويل البنكي",
-        "BANK_TRANSFER_CONFIRMED": "تم تأكيد التحويل البنكي",
+        "BANK_TRANSFER_UPLOADED": "انرفع إثبات التحويل البنكي",
+        "BANK_TRANSFER_CONFIRMED": "أكدنا التحويل البنكي",
         "DISPATCH_PENDING": "التوجيه معلّق",
         "CUSTOMER_CANCELLATION": "سبب إلغاء العميل"
       }
@@ -198,7 +198,7 @@
     "DRIVER_VEHICLE": "نوع المركبة",
     "DRIVER_PLATE": "رقم اللوحة",
     "ESTIMATED_DELIVERY": "الوقت المتوقع",
-    "DRIVER_NOT_ASSIGNED": "لسه ما تعيّن مندوب",
+    "DRIVER_NOT_ASSIGNED": "للحين ما تعيّن مندوب",
     "PAYLOAD_COMPONENTS": "{{count}} مكونات الشحنة",
     "DIGITAL_MANIFEST": "البيان الرقمي",
     "QUANTITY_LABEL": "الكمية",
@@ -212,7 +212,7 @@
     "LOGISTICS_ORCHESTRATION": "نحلّل الحين الشبكة اللوجستية عشان نخصص أقرب مندوب متاح.",
     "STATUS": {
       "IN_PROGRESS": "تحت التجهيز",
-      "REFUNDED": "تم الاسترجاع"
+      "REFUNDED": "مسترجع"
     }
   },
   "SUPPORT_CENTER": {
@@ -265,7 +265,7 @@
       "OPEN": "مفتوحة",
       "IN_PROGRESS": "تحت المعالجة",
       "WAITING_VENDOR": "بانتظار التاجر",
-      "RESOLVED": "تم الحل"
+      "RESOLVED": "محلولة"
     },
     "PRIORITIES": {
       "LOW": "منخفضة",
@@ -319,7 +319,7 @@
       "COMPOSER_SUBTITLE": "أرسل تحديثًا واضحًا أو أرفق التوضيح المطلوب لاستكمال المعالجة.",
       "MESSAGE_FIELD": "الرسالة",
       "MESSAGE_PLACEHOLDER": "اكتب ردك أو التوضيح الذي تريد إضافته إلى التذكرة",
-      "CLOSED_BANNER": "أغلقنا هذه التذكرة. إذا لسه تواجه المشكلة، افتح تذكرة دعم جديدة."
+      "CLOSED_BANNER": "أغلقنا هذه التذكرة. إذا للحين تواجه المشكلة، افتح تذكرة دعم جديدة."
     },
     "REFERENCE": {
       "READ_TIME": "{{count}} دقائق قراءة",
@@ -367,7 +367,7 @@
     "SUMMARY": {
       "TOTAL": "إجمالي القضايا",
       "OPEN": "القضايا المفتوحة",
-      "RESPONDED": "تم الرد عليها",
+      "RESPONDED": "ردّينا عليها",
       "WAITING": "بانتظار ردك"
     },
     "FILTERS": {
@@ -442,9 +442,9 @@
       "PENDING_REVIEW_ALT": "بانتظار المراجعة",
       "REJECTED": "مرفوض",
       "APPROVED": "معتمد بانتظار التسوية",
-      "CASH_REFUNDED": "تم رد المبلغ",
-      "COUPON_ISSUED": "تم إصدار كوبون",
-      "COUPON_REDEEMED": "تم استخدام الكوبون"
+      "CASH_REFUNDED": "رجعنا المبلغ",
+      "COUPON_ISSUED": "أصدرنا كوبون",
+      "COUPON_REDEEMED": "الكوبون مستخدم"
     },
     "COMPENSATION_TYPES": {
       "PENDING": "قيد التحديد",
@@ -466,7 +466,7 @@
     },
     "ACTIVITY": {
       "SUBMITTED": {
-        "TITLE": "تم فتح الحالة",
+        "TITLE": "فتحنا الحالة",
         "NOTE": "استلمنا الحالة المرتبطة بالطلب رقم {{orderNumber}} وهي الحين تحت المراجعة."
       },
       "REQUEST_EVIDENCE": {
@@ -478,15 +478,15 @@
         "NOTE": "وافقنا على طلب الاسترجاع، وراح نبلغك عند بدء المعالجة المالية."
       },
       "REJECTED": {
-        "TITLE": "تم الرفض",
+        "TITLE": "انرفضت",
         "NOTE": "رفضنا الحالة الخاصة بالطلب رقم {{orderNumber}}."
       },
       "RESOLVED": {
-        "TITLE": "تم الحل",
+        "TITLE": "محلولة",
         "NOTE": "أغلقنا الحالة الخاصة بالطلب رقم {{orderNumber}} بعد معالجتها."
       },
       "ESCALATED": {
-        "TITLE": "تم التصعيد",
+        "TITLE": "تصعّدت",
         "NOTE": "صعّدنا الحالة الخاصة بالطلب رقم {{orderNumber}} إلى فريق مختص."
       },
       "ADMIN_MESSAGE": {

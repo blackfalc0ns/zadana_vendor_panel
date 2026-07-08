@@ -747,19 +747,19 @@ export class OrdersService {
  private getStatusLabel(status: OrderStatus): { ar: string; en: string } {
  const labels: Record<OrderStatus, { ar: string; en: string }> = {
  NEW: { ar: 'طلب جديد', en: 'New order' },
- CONFIRMED: { ar: 'تم التأكيد', en: 'Confirmed' },
+ CONFIRMED: { ar: 'مؤكد', en: 'Confirmed' },
  IN_PROGRESS: { ar: 'تحت التجهيز', en: 'Preparing' },
  READY_FOR_PICKUP: { ar: 'جاهز للاستلام', en: 'Ready for pickup' },
   DRIVER_ASSIGNMENT_IN_PROGRESS: { ar: 'نبحث عن مندوب', en: 'Finding a driver' },
- DRIVER_ASSIGNED: { ar: 'تم تعيين مندوب', en: 'Driver assigned' },
- PICKED_UP: { ar: 'تم الاستلام من المتجر', en: 'Picked up' },
+ DRIVER_ASSIGNED: { ar: 'مُعيّن له مندوب', en: 'Driver assigned' },
+ PICKED_UP: { ar: 'مستلم من المتجر', en: 'Picked up' },
  OUT_FOR_DELIVERY: { ar: 'في الطريق', en: 'On the way' },
- DELIVERED: { ar: 'تم التوصيل', en: 'Delivered' },
+ DELIVERED: { ar: 'مسلّم', en: 'Delivered' },
  COMPLETED: { ar: 'مكتمل', en: 'Completed' },
  CANCELLED: { ar: 'ملغي', en: 'Cancelled' },
  RETURNED: { ar: 'مرتجع', en: 'Returned' },
  DELIVERY_FAILED: { ar: 'فشل التوصيل', en: 'Delivery failed' },
- REFUNDED: { ar: 'تم الاسترجاع', en: 'Refunded' }
+ REFUNDED: { ar: 'مسترجع', en: 'Refunded' }
  };
 
  return labels[status];

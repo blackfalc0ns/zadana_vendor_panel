@@ -123,22 +123,22 @@ export function getVendorDisputeDisplayTypeMetaLabel(dispute: VendorDisputeLike,
  case 'coupon_redeemed':
  return isArabic ? 'أُغلقت بعد استخدام الكوبون' : 'Closed after coupon redemption';
  case 'coupon_issued':
- return isArabic ? 'تم إصدار كوبون التعويض للعميل' : 'A compensation coupon was issued to the customer';
+ return isArabic ? 'أصدرنا كوبون التعويض للعميل' : 'A compensation coupon was issued to the customer';
  case 'cash_refunded':
- return isArabic ? 'تم رد المبلغ للعميل' : 'The customer refund was completed';
+ return isArabic ? 'رجّعنا المبلغ للعميل' : 'The customer refund was completed';
  case 'approved':
- return isArabic ? 'تم اعتماد الطلب وينتظر إتمام التسوية' : 'The request was approved and is awaiting settlement completion';
+ return isArabic ? 'اعتمدنا الطلب وهو بانتظار إتمام التسوية' : 'The request was approved and is awaiting settlement completion';
  case 'rejected':
       return isArabic ? 'انرفض طلب الإرجاع' : 'The return request was rejected';
  }
 
  if (status === 'approved') {
  if (compensationType === 'coupon_compensation') {
- return isArabic ? 'تم اعتماد تعويض العميل بكوبون' : 'Customer compensation was approved as a coupon';
+ return isArabic ? 'اعتمدنا تعويض العميل بكوبون' : 'Customer compensation was approved as a coupon';
  }
 
  if (compensationType === 'cash_refund') {
- return isArabic ? 'تم اعتماد رد المبلغ للعميل' : 'Customer cash refund was approved';
+ return isArabic ? 'اعتمدنا رد المبلغ للعميل' : 'Customer cash refund was approved';
  }
 
       return isArabic ? 'انقبل الطلب ونكمل الإجراء' : 'Approved and awaiting final completion';
@@ -190,15 +190,15 @@ export function getVendorDisputeSettlementLabel(value: string | null, language: 
 
  switch ((value || '').toLowerCase()) {
  case 'cash_refunded':
- return isArabic ? 'تم رد المبلغ' : 'Cash refunded';
+ return isArabic ? 'رجعنا المبلغ' : 'Cash refunded';
  case 'coupon_issued':
- return isArabic ? 'تم إصدار كوبون' : 'Coupon issued';
+ return isArabic ? 'أصدرنا كوبون' : 'Coupon issued';
  case 'coupon_redeemed':
- return isArabic ? 'تم استخدام الكوبون' : 'Coupon redeemed';
+ return isArabic ? 'استخدم العميل الكوبون' : 'Coupon redeemed';
  case 'approved':
  return isArabic ? 'اعتماد بانتظار التسوية' : 'Approved, awaiting settlement';
  case 'rejected':
- return isArabic ? 'تم الرفض' : 'Rejected';
+ return isArabic ? 'انرفضت' : 'Rejected';
  default:
  return isArabic ? 'بانتظار المراجعة' : 'Pending review';
  }

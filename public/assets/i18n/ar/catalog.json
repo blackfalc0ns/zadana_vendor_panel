@@ -69,7 +69,7 @@
     "REQUESTS_EMPTY_DESC": "إذا أرسلت طلب منتج أو علامة تجارية أو تصنيف جديد، بيظهر هنا مباشرة.",
     "REQUESTS_UNNAMED_PRODUCT": "طلب بدون اسم",
     "REQUESTS_NO_CONTEXT": "ما فيه تفاصيل إضافية",
-    "REQUESTS_UNREVIEWED": "لسه ما انراجعت",
+    "REQUESTS_UNREVIEWED": "للحين ما انراجعت",
     "REQUEST_TYPE_PRODUCT": "منتج",
     "REQUEST_TYPE_BRAND": "علامة تجارية",
     "REQUEST_TYPE_CATEGORY": "تصنيف",
@@ -155,7 +155,7 @@
     "STOCK_ACTION_LOW": "المخزون بدأ يقل. أعد التعبئة قريبًا حتى لا يؤدي الخصم التلقائي عند الاستلام إلى نفاد المنتج.",
     "STOCK_ACTION_OUT": "هذا المنتج نافد بالفعل. أعد التخزين أولًا قبل إعادة تفعيله أو الترويج له.",
     "STOCK_ACTION_TITLE": "الخطوة المقترحة الحين",
-    "STOCK_AUTOMATION_BODY": "المخزون الحين يتحرك مع دورة الطلب الفعلية. نخصم الكمية عند استلام المندوب للطلب، ونرجعها تلقائيًا إذا فشل التسليم أو تم رد الطلب.",
+    "STOCK_AUTOMATION_BODY": "المخزون الحين يتحرك مع دورة الطلب الفعلية. نخصم الكمية عند استلام المندوب للطلب، ونرجعها تلقائيًا إذا فشل التسليم أو انرد الطلب.",
     "STOCK_AUTOMATION_TITLE": "أتمتة المخزون المباشرة",
     "STOCK_HEALTH_HEALTHY": "مخزون جيد",
     "STOCK_HEALTH_LOW": "مراقبة مخزون منخفض",
@@ -195,8 +195,8 @@
     "CLASSIFICATION": "التصنيف والعلامة التجارية",
     "SUGGESTED_BRAND": "العلامة التجارية المقترحة",
     "ERROR_CODES": {
-      "PRODUCT_REQUEST_BRAND_CONFLICT": "اختر علامة تجارية موجودة أو اطلب علامة جديدة، وليس الاثنين معًا.",
-      "PRODUCT_REQUEST_CATEGORY_CONFLICT": "اختر تصنيفًا موجودًا أو اطلب تصنيفًا جديدًا، وليس الاثنين معًا.",
+      "PRODUCT_REQUEST_BRAND_CONFLICT": "اختر علامة تجارية موجودة أو اطلب علامة جديدة، مو الاثنين معًا.",
+      "PRODUCT_REQUEST_CATEGORY_CONFLICT": "اختر تصنيفًا موجودًا أو اطلب تصنيفًا جديدًا، مو الاثنين معًا.",
       "BRAND_CATEGORY_MISMATCH": "العلامة التجارية المختارة لا تنتمي للتصنيف المحدد.",
       "INVALID_MEASUREMENT_VALUE": "قيمة الحجم لازم تكون أكبر من صفر.",
       "PRODUCT_REQUEST_ALREADY_PENDING": "يوجد طلب منتج مطابق تحت المراجعة بالفعل.",
@@ -247,10 +247,10 @@
         "TITLE": "نتيجة الإضافة الجماعية",
         "SUCCEEDED": "نجح",
         "FAILED": "فشل",
-        "SKIPPED": "تم التخطي",
+        "SKIPPED": "متخطّى",
         "COPY_ERRORS": "نسخ الأخطاء",
         "REFRESH_LIST": "تحديث القائمة",
-        "COPIED": "تم نسخ الأخطاء.",
+        "COPIED": "نسخنا الأخطاء.",
         "PROGRESS": "{{processed}} من {{total}}"
       },
       "STATUS": {
@@ -260,7 +260,7 @@
         "CompletedWithErrors": "مكتمل مع أخطاء",
         "Failed": "فشل",
         "Succeeded": "نجح",
-        "Skipped": "تم التخطي"
+        "Skipped": "متخطّى"
       },
       "ERRORS": {
         "MASTER_NOT_FOUND": "المنتج الرئيسي غير موجود.",

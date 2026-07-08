@@ -145,7 +145,7 @@ export class OffersService {
  endsAt: new Date(Date.now() + (7 + index) * 24 * 60 * 60 * 1000).toISOString().slice(0, 10),
  headlineAr: 'حملة مخصصة لتحسين مبيعات القسم',
  headlineEn: 'Focused campaign to lift category sales',
- noteAr: 'تم اقتراحها بناءً على المنتجات المتاحة داخل القسم.',
+ noteAr: 'اقترحناها بناءً على المنتجات المتاحة داخل القسم.',
  noteEn: 'Suggested from currently available products in this category.'
  };
  });
