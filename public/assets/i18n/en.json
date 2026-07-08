@@ -28,6 +28,7 @@
     "OPEN": "Open",
     "CLOSE": "Close",
     "WELCOME": "Welcome",
+    "PHONE_LOCAL_PLACEHOLDER": "05X XXX XXXX",
     "READY_TODAY": "Ready for today",
     "OPERATIONAL_PRIORITIES": "Operational Priorities",
     "BRAND_GENERAL": "General Brand",
@@ -47,6 +48,12 @@
     "ACTIVE": "Active",
     "CONTINUE": "Continue",
     "ERROR_OCCURRED": "An unexpected error occurred.",
+    "API_ERRORS": {
+      "UNKNOWN": "An unexpected error occurred. Please try again.",
+      "NETWORK": "Could not reach the server. Check your connection and try again.",
+      "UNAUTHORIZED": "You are not allowed to perform this action.",
+      "CONFLICT": "The operation could not be completed because of a data conflict."
+    },
     "STATUS_ACTIVE": "Active",
     "STATUS_INACTIVE": "Inactive",
     "FILTERS": "Filters",
@@ -60,17 +67,17 @@
     "APP_SUBTITLE": "Vendor Workspace",
     "DASHBOARD": "Dashboard",
     "DASHBOARD_DESC": "Performance indicators & operational pulse",
-    "PRODUCTS": "Product Management",
-    "PRODUCTS_DESC": "Manage products, stock & pricing",
+    "PRODUCTS": "Products / Catalog",
+    "PRODUCTS_DESC": "Manage products, stock and prices",
     "ORDERS": "Order Management",
-    "ORDERS_DESC": "Track orders, shipping & delivery",
+    "ORDERS_DESC": "Track orders, shipping and delivery",
     "OFFERS": "Offers & Discounts",
-    "OFFERS_DESC": "Create discounts & promo offers",
+    "OFFERS_DESC": "Create discounts and promotional offers",
     "FINANCE": "My Wallet",
-    "FINANCE_DESC": "Accounts, earnings & settlements",
+    "FINANCE_DESC": "Accounts, earnings and financial settlements",
     "BRANCHES": "Branches",
     "STAFF_BRANCHES": "Staff & Branches",
-    "STAFF_BRANCHES_DESC": "Manage staff permissions & branches",
+    "STAFF_BRANCHES_DESC": "Manage staff permissions and branches",
     "REVIEWS": "Reviews",
     "REVIEWS_DESC": "Review customer ratings & feedback",
     "SETTINGS": "Settings",
@@ -84,7 +91,7 @@
     "SUPPORT": "Support",
     "SUPPORT_DESC": "Support tickets and help from the Zadana team",
     "ALERTS": "Alerts",
-    "VERIFIED_VENDOR": "Verified Coupony Vendor",
+    "VERIFIED_VENDOR": "Verified Zadana Vendor",
     "STORE_SETUP": "Store Setup",
     "STORE_SETUP_TITLE": "Complete your store setup to start selling",
     "CONTINUE_SETUP": "Continue Setup",
@@ -93,12 +100,12 @@
     "WORKSPACE_LABEL": "Workspace",
     "NAVIGATION_TITLE": "Navigation",
     "CAT_OVERVIEW": "Overview",
-    "CAT_OPERATIONS": "Operations & Orders",
-    "CAT_CATALOG": "Products & Marketing",
-    "CAT_MANAGEMENT": "Reports & Management"
+    "CAT_OPERATIONS": "Access",
+    "CAT_CATALOG": "Catalog",
+    "CAT_MANAGEMENT": "Management"
   },
   "PAGE_TITLES": {
-    "BRAND": "Zadana",
+    "BRAND": "Zadana Vendor Portal",
     "DEFAULT": "Vendor Portal",
     "LOGIN": "Sign In",
     "REGISTER": "Create Account",
@@ -130,238 +137,149 @@
     "SUPPORT_REFERENCE_DETAIL": "Reference Details",
     "PROFILE": "Settings"
   },
-  "DASHBOARD": {
-    "TITLE": "Vendor command center",
-    "SUBTITLE": "Operational, commercial, quality, and finance visibility in one place",
-    "LAST_UPDATED": "Last updated",
-    "REFRESH": "Refresh",
-    "ERROR": "Unable to load dashboard data right now.",
-    "PERIODS": {
-      "today": "Today",
-      "7d": "Last 7 days",
-      "30d": "Last 30 days",
-      "90d": "Last 90 days"
-    },
-    "SECTION_NAV": {
-      "OVERVIEW": "Overview",
-      "OPERATIONS": "Operations",
-      "SALES": "Sales",
-      "INVENTORY": "Inventory",
-      "OFFERS": "Offers",
-      "REVIEWS": "Reviews",
-      "FINANCE": "Finance",
-      "RISK": "Risk",
-      "STAFF": "Staff"
-    },
-    "DOMAIN": {
-      "OPERATIONS": "Operations",
-      "INVENTORY": "Inventory",
-      "FINANCE": "Finance",
-      "REVIEWS": "Reviews",
-      "RISK": "Risk"
-    },
-    "CONTEXT": {
-      "CURRENT_BRANCH": "Current branch",
-      "CURRENT_ROLE": "Account type",
-      "UNKNOWN_BRANCH": "Unassigned"
-    },
-    "HERO": {
-      "PENDING_ORDERS": "Pending orders",
-      "LATE_ORDERS": "Late orders",
-      "READY_FOR_PICKUP": "Ready for pickup",
-      "DRIVER_ISSUES": "Driver issues",
-      "OPEN_DISPUTES": "Open disputes",
-      "LOW_STOCK": "Critical stock"
-    },
-    "SECTIONS": {
-      "OVERVIEW": "Overview",
-      "OVERVIEW_HINT": "Comprehensive summary of operational and financial performance.",
-      "OPERATIONS": "Operational command center",
-      "OPERATIONS_HINT": "What needs action right now across orders and fulfillment.",
-      "SALES": "Sales and commercial performance",
-      "SALES_HINT": "Revenue, order quality, category performance, and weak spots.",
-      "INVENTORY": "Inventory and catalog",
-      "INVENTORY_HINT": "Stock health, catalog movement, and products that need intervention.",
-      "OFFERS": "Offers and merchandising",
-      "OFFERS_HINT": "Live promotions, discount bands, and promotion candidates.",
-      "REVIEWS": "Reviews and customer quality",
-      "REVIEWS_HINT": "Customer sentiment, reply pressure, and quality feedback.",
-      "FINANCE": "Wallet summary",
-      "FINANCE_HINT": "Cash posture, settlements, payouts, and ledger activity.",
-      "RISK": "Disputes and risk",
-      "RISK_HINT": "Cases that may hurt service quality or profitability.",
-      "STAFF": "Staff and branches",
-      "STAFF_HINT": "Light branch summary for operational coverage.",
-      "URGENT_ORDERS": "Urgent orders",
-      "LATEST_ALERTS": "Latest operational alerts",
-      "TOP_PRODUCTS": "Top products",
-      "UNDERPERFORMING_PRODUCTS": "Underperforming products",
-      "CRITICAL_STOCK": "Critical stock watchlist",
-      "NO_MOVEMENT_PRODUCTS": "Products with no movement",
-      "EXPIRING_OFFERS": "Expiring offers",
-      "PROMOTION_CANDIDATES": "Promotion candidates",
-      "LOW_RATING_UNREPLIED": "Low-rating reviews without reply",
-      "RECENT_HIGHLIGHTS": "Recent review highlights",
-      "BRANCH_REVENUE": "Branch revenue",
-      "RECENT_SETTLEMENTS": "Recent settlements",
-      "RECENT_LEDGER": "Recent ledger activity",
-      "AWAITING_ACTION": "Cases awaiting vendor action",
-      "RECENT_ESCALATIONS": "Recent escalations"
-    },
-    "CHARTS": {
-      "COUNT": "Count",
-      "SALES": "Sales",
+  "HEADER": {
+    "OPEN_MENU": "Open Menu",
+    "CLOSE_MENU": "Close menu",
+    "NOTIFICATIONS": "Notifications",
+    "PROFILE": "Profile",
+    "SEARCH": "Search in system...",
+    "ACTIVE_ACCOUNT": "Active Account",
+    "PENDING_ACTIVATION": "Pending activation",
+    "UNDER_REVIEW": "Under review",
+    "CHANGES_REQUESTED": "Changes requested",
+    "ACCOUNT_SUSPENDED": "Account suspended",
+    "VENDOR_DASHBOARD": "Vendor Dashboard",
+    "SEARCH_PLACEHOLDER": "Search in Coupony..."
+  },
+  "HEADER_SEARCH": {
+    "TITLE": "Global Search",
+    "PLACEHOLDER": "Search in Coupony (orders, products, catalog...)",
+    "MIN_QUERY": "Type at least {{count}} characters to search.",
+    "SEARCHING": "Searching vendor panel...",
+    "NO_RESULTS": "No matching results found.",
+    "GROUPS": {
+      "NAVIGATION": "Pages",
       "ORDERS": "Orders",
-      "SALES_TREND": "Sales trend",
-      "PAYOUTS": "Payouts",
+      "PRODUCTS": "My Products",
+      "MASTER_PRODUCTS": "Product Catalog"
+    }
+  },
+  "PAGINATION": {
+    "PREVIOUS": "Previous",
+    "NEXT": "Next",
+    "PAGE_INFO": "Page {{current}} of {{total}}",
+    "TOTAL_PRODUCTS": "Total: {{count}} products",
+    "TOTAL_ITEMS": "Total: {{count}} items",
+    "TOTAL_ORDERS": "Total: {{count}} orders"
+  },
+  "ALERTS_CENTER": {
+    "TITLE": "Alerts Center",
+    "SUBTITLE": "Track operational alerts derived from orders, products, finance, support, and the rest of the vendor workspace.",
+    "ACTIONS": {
+      "MARK_ALL_READ": "Mark all as read",
+      "MARK_READ": "Mark as read",
+      "MARK_UNREAD": "Mark as unread",
+      "ARCHIVE": "Archive",
+      "RESTORE": "Restore",
+      "OPEN": "Open",
+      "VIEW_ALL": "View all alerts"
+    },
+    "SUMMARY": {
+      "UNREAD": "Unread",
+      "UNREAD_HINT": "Items that still have not been reviewed in the alerts center.",
+      "CRITICAL": "Critical",
+      "CRITICAL_HINT": "Alerts that need immediate intervention.",
+      "NEEDS_ACTION": "Needs action",
+      "NEEDS_ACTION_HINT": "Alerts with warning or operational weight.",
+      "ARCHIVED": "Archived",
+      "ARCHIVED_HINT": "Alerts you kept for later reference."
+    },
+    "QUICK_TABS": {
+      "ALL": "All",
+      "UNREAD": "Unread",
+      "CRITICAL": "Critical",
+      "ARCHIVED": "Archived"
+    },
+    "SECTION_TITLE": "Alerts log",
+    "SECTION_SUBTITLE": "Track sources, severity, and state, then open the related page directly from the alert.",
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Refine alerts by source, severity, and state from one place.",
+      "RESET": "Reset",
+      "SEARCH": "Search",
+      "SOURCE": "Source",
+      "SEVERITY": "Severity",
+      "STATE": "State",
+      "ALL_SOURCES": "All sources",
+      "ALL_SEVERITY": "All severity levels",
+      "ALL_STATES": "All states"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "Search alert titles and summaries"
+    },
+    "TABLE": {
+      "ALERT": "Alert",
+      "SOURCE": "Source",
+      "SEVERITY": "Severity",
+      "STATE": "State",
+      "TIME": "Time"
+    },
+    "SOURCES": {
+      "ORDERS": "Orders",
       "PRODUCTS": "Products",
+      "OFFERS": "Offers",
+      "FINANCE": "Finance",
+      "SUPPORT": "Support",
+      "STAFF": "Branches & staff",
       "REVIEWS": "Reviews",
-      "DISPUTES": "Disputes",
-      "ORDERS_TREND": "Orders trend",
-      "ORDER_STATUS_BREAKDOWN": "Order status breakdown",
-      "ORDER_FUNNEL": "Order funnel",
-      "SALES_VS_ORDERS": "Sales vs orders",
-      "WEEKDAY_PERFORMANCE": "Weekday performance",
-      "TOP_CATEGORIES": "Top categories",
-      "STOCK_HEALTH": "Stock health distribution",
-      "INVENTORY_RISK": "Inventory risk list",
-      "CATALOG_GROWTH": "Catalog growth",
-      "OFFERS_BY_TYPE": "Offers by type",
-      "DISCOUNT_BANDS": "Discount bands",
-      "OFFER_LINKED_PRODUCTS": "Offer-linked products",
-      "RATING_DISTRIBUTION": "Rating distribution",
-      "REVIEWS_TREND": "Reviews trend",
-      "REPLY_BREAKDOWN": "Reply breakdown",
-      "SALES_VS_PAYOUTS": "Sales vs payouts",
-      "SETTLEMENT_STATUS": "Settlement status",
-      "LEDGER_BREAKDOWN": "Ledger breakdown",
-      "DISPUTES_BY_STATUS": "Disputes by status",
-      "DISPUTES_BY_TYPE": "Disputes by type",
-      "DISPUTES_TREND": "Disputes trend",
-      "BRANCH_STATUS": "Branch status",
-      "STAFF_ROLE_DISTRIBUTION": "Staff role distribution"
+      "PROFILE": "Store profile"
     },
-    "FUNNEL": {
-      "NEW": "New",
-      "CONFIRMED": "Confirmed",
-      "PREPARING": "Preparing",
-      "READY": "Ready",
-      "DELIVERED": "Delivered",
-      "CANCELLED": "Cancelled"
+    "SEVERITY": {
+      "INFO": "Info",
+      "WARNING": "Warning",
+      "CRITICAL": "Critical"
     },
-    "STOCK_HEALTH": {
-      "HEALTHY": "Healthy",
-      "LOW": "Low",
-      "OUT": "Out of stock"
+    "STATE": {
+      "UNREAD": "Unread",
+      "READ": "Read",
+      "ARCHIVED": "Archived"
     },
-    "OFFER_TYPES": {
-      "DIRECT": "Direct offers",
-      "COUPONS": "Coupons",
-      "CATEGORY_CAMPAIGNS": "Category campaigns",
-      "CLEARANCE": "Clearance",
-      "CAMPAIGNS": "Campaigns"
-    },
-    "REPLY_BREAKDOWN": {
-      "REPLIED": "Replied",
-      "PENDING": "Pending"
-    },
-    "SETTLEMENT_STATUS": {
-      "PAID": "Paid",
-      "PROCESSING": "Processing",
-      "SCHEDULED": "Scheduled"
-    },
-    "LEDGER_TYPES": {
-      "SALES": "Sales",
-      "FEES": "Fees",
-      "PAYOUTS": "Payouts",
-      "REFUNDS": "Refunds"
-    },
-    "SALES": {
-      "GROSS_SALES": "Gross sales",
-      "PAID_SALES": "Paid sales",
-      "ORDERS_COUNT": "Orders",
-      "AVERAGE_ORDER_VALUE": "Average order value",
-      "CANCELLATION_RATE": "Cancellation rate",
-      "REFUND_RATE": "Refund rate",
-      "LOST_REVENUE": "Lost Revenue"
-    },
-    "INVENTORY": {
-      "ACTIVE_PRODUCTS": "Active products",
-      "OUT_OF_STOCK": "Out of stock",
-      "LOW_STOCK": "Low stock",
-      "INACTIVE_PRODUCTS": "Inactive products",
-      "PRODUCTS_WITH_OFFERS": "Products with offers",
-      "CRITICAL_STOCK_NOTE": "Immediate replenishment recommended",
-      "NO_MOVEMENT": "No movement in selected period",
-      "IDLE_CAPITAL": "Idle Capital"
-    },
-    "OFFERS": {
-      "ACTIVE_OFFERS": "Active offers",
-      "CLEARANCE_ITEMS": "Clearance items",
-      "EXPIRING_OFFERS": "Expiring offers",
-      "OFFER_COVERAGE": "Offer coverage",
-      "EXPIRING_HINT": "Offer value currently exposed",
-      "PROMOTION_HINT": "Candidate for promotional push"
-    },
-    "REVIEWS": {
-      "AVERAGE_RATING": "Average rating",
-      "TOTAL_REVIEWS": "Total reviews",
-      "LOW_RATING_COUNT": "Low ratings",
-      "PENDING_REPLIES": "Pending replies",
-      "HIDDEN_REVIEWS": "Hidden reviews"
-    },
-    "FINANCE": {
-      "AVAILABLE_BALANCE": "Available balance",
-      "PENDING_SETTLEMENT": "Pending settlement",
-      "NET_SALES": "Net sales",
-      "FEES": "Fees",
-      "PAYOUTS_PAID": "Payouts paid",
-      "HOLD_AMOUNT": "Hold amount",
-      "NEXT_SETTLEMENT": "Next settlement",
-      "LIFECYCLE_MODE": "Lifecycle mode",
-      "BRANCH_REVENUE_HINT": "Paid revenue is broken down by branch so you can distinguish branch performance clearly.",
-      "BRANCH_ORDERS": "Orders",
-      "AVG_ORDER_VALUE": "Avg order value"
-    },
-    "DISPUTES": {
-      "OPEN": "Open disputes",
-      "HIGH_PRIORITY": "High priority",
-      "REFUND_REQUESTS": "Refund requests",
-      "AWAITING_VENDOR_RESPONSE": "Awaiting vendor response"
-    },
-    "STAFF": {
-      "ACTIVE_BRANCHES": "Active branches",
-      "ACTIVE_STAFF": "Active staff",
-      "PENDING_INVITATIONS": "Pending invitations",
-      "BRANCHES_NEEDING_COVERAGE": "Branches needing coverage"
-    },
-    "ALERTS": {
-      "LATE_ORDERS_TITLE": "Late orders need attention",
-      "LATE_ORDERS_BODY": "Some orders have exceeded the expected preparation window.",
-      "LOW_STOCK_TITLE": "Critical stock needs replenishment",
-      "LOW_STOCK_BODY": "A group of products is running at a risky stock level.",
-      "DISPUTES_TITLE": "Cases are waiting for vendor response",
-      "DISPUTES_BODY": "There are disputes that require immediate vendor follow-up.",
-      "REVIEWS_TITLE": "Customer reviews need replies",
-      "REVIEWS_BODY": "Unreplied low-rating reviews may affect trust and conversion.",
-      "LARGE_SETTLEMENT_TITLE": "Pending settlement in cycle",
-      "LARGE_SETTLEMENT_BODY": "Settlement funds are still in process and should be reviewed."
+    "POPOVER": {
+      "SUBTITLE": "Highest current priorities that are not archived",
+      "EMPTY_TITLE": "No new alerts",
+      "EMPTY_SUBTITLE": "Any new alert will show up here as soon as it is generated."
     },
     "EMPTY": {
-      "NO_ALERTS": "No active alerts right now.",
-      "NO_URGENT_ORDERS": "No urgent orders at the moment.",
-      "NO_CRITICAL_STOCK": "No products with critical stock right now.",
-      "NO_PENDING_REVIEWS": "No low-rating reviews waiting for a reply.",
-      "NO_STAFF_DISTRIBUTION": "No staff distribution data is available yet."
+      "TITLE": "No matching alerts",
+      "SUBTITLE": "Try adjusting the filters or revisit when the operational data changes."
     },
-    "OPERATIONS": {
-      "PREP_EFFICIENCY": "Prep Efficiency (SLA)",
-      "AVG_PREP_TIME": "Avg Prep Time",
-      "MINUTES": "minutes"
+    "LOAD_ERROR": "Could not load alerts. Check your connection and try again.",
+    "DATE_GROUPS": {
+      "TODAY": "Today",
+      "YESTERDAY": "Yesterday",
+      "EARLIER": "Earlier"
     },
-    "TABLES": {
-      "SALES": "sales"
+    "REALTIME": {
+      "CONNECTED": "Live connected",
+      "CONNECTING": "Connecting...",
+      "ERROR": "Live connection error",
+      "OFFLINE": "Live offline"
+    },
+    "FEEDBACK": {
+      "MARKED_READ": "The alert was marked as read.",
+      "MARKED_UNREAD": "The alert was marked as unread again.",
+      "ARCHIVED": "The alert was archived.",
+      "RESTORED": "The alert was restored from the archive.",
+      "ALL_READ": "All alerts were marked as read."
     }
+  },
+  "NOT_FOUND": {
+    "TITLE": "Page Not Found",
+    "MESSAGE": "The page you requested does not exist, was moved, or is temporarily unavailable. Check the address or return to the dashboard.",
+    "PATH_LABEL": "Requested path",
+    "GO_DASHBOARD": "Back to Dashboard",
+    "GO_BACK": "Go Back",
+    "GO_LOGIN": "Sign In"
   },
   "AUTH": {
     "LOGIN_TITLE": "Login",
@@ -398,7 +316,8 @@
     "ERR_ACCOUNT_NOT_ALLOWED": "This account is not allowed to sign in right now.",
     "ERR_ACCOUNT_LOCKED": "This account is temporarily locked. Please contact support or try again later.",
     "ERR_SERVER_UNREACHABLE": "We could not reach the server right now. Make sure the API is running or check your network connection, then try again.",
-    "ERR_SERVER_ERROR": "A server error occurred. Please try again in a moment."
+    "ERR_SERVER_ERROR": "A server error occurred. Please try again in a moment.",
+    "ERR_SESSION_EXPIRED": "Your session has expired. Please sign in again."
   },
   "ONBOARDING": {
     "TITLE": "Store Setup",
@@ -627,6 +546,339 @@
       "GEO_FAILED": "Could not read your current location. Allow location access or select from the map."
     }
   },
+  "FORGOT_PASSWORD_PAGE": {
+    "PORTAL_TITLE": "Vendor Portal",
+    "HERO_TITLE_1": "Recover access",
+    "HERO_TITLE_2": "to your account easily",
+    "HERO_DESC": "Enter your email and we will help you restore access to your store account securely.",
+    "CARD_TITLE": "Forgot Password",
+    "CARD_DESC": "We will send you a password reset link to your email.",
+    "BTN_SUBMIT": "Send Reset Link",
+    "SENDING": "Sending...",
+    "BTN_BACK": "Back to Login",
+    "ERRORS": {
+      "INVALID_EMAIL": "Please enter a valid email address.",
+      "SEND_FAILED": "Unable to send reset instructions right now."
+    }
+  },
+  "REGISTER": {
+    "PORTAL_TITLE": "Vendor Portal",
+    "HERO_TITLE": "Start your store with Coupony",
+    "HERO_SUBTITLE": "Sign up and start selling",
+    "HERO_DESC": "Create your vendor account and start managing your products and orders with ease.",
+    "CARD_TITLE": "Create New Account",
+    "FIRST_NAME": "First Name",
+    "LAST_NAME": "Last Name",
+    "STORE_NAME": "Store Name",
+    "CONFIRM_PASSWORD": "Confirm Password",
+    "ERR_MISMATCH": "Passwords do not match",
+    "ERR_INVALID_FORM": "Please fill all details correctly.",
+    "ERR_GENERAL": "This field is required or invalid.",
+    "BTN_SUBMIT": "Create Account",
+    "OR": "Or",
+    "BTN_REGISTER_GOOGLE": "Register with Google",
+    "ALREADY_HAVE_ACCOUNT": "Already have an account?",
+    "SIGN_IN": "Sign In"
+  },
+  "RESET_PASSWORD_PAGE": {
+    "EYEBROW": "Reset Password",
+    "HERO_TITLE_1": "Create a new",
+    "HERO_TITLE_2": "password securely",
+    "HERO_DESC": "Enter the verification code sent to your email and set a strong password to restore access to your store account.",
+    "TITLE": "Enter the OTP and your new password",
+    "CARD_DESC": "Check your email for the 4-digit verification code.",
+    "FIELDS": {
+      "EMAIL": "Email",
+      "OTP": "OTP Code",
+      "NEW_PASSWORD": "New Password",
+      "CONFIRM_PASSWORD": "Confirm Password"
+    },
+    "SUBMIT": "Update Password",
+    "SENDING": "Updating...",
+    "BTN_BACK": "Back to Login",
+    "ERRORS": {
+      "INVALID_FORM": "Please complete the form correctly.",
+      "INVALID_OTP": "Enter the 4-digit verification code.",
+      "PASSWORD_MIN": "Password must be at least 8 characters.",
+      "PASSWORD_MISMATCH": "Passwords do not match.",
+      "RESET_FAILED": "Unable to reset the password right now."
+    }
+  },
+  "DASHBOARD": {
+    "TITLE": "Vendor command center",
+    "SUBTITLE": "Operational, commercial, quality, and finance visibility in one place",
+    "LAST_UPDATED": "Last updated",
+    "REFRESH": "Refresh",
+    "ERROR": "Unable to load dashboard data right now.",
+    "PERIODS": {
+      "today": "Today",
+      "7d": "Last 7 days",
+      "30d": "Last 30 days",
+      "90d": "Last 90 days"
+    },
+    "SECTION_NAV": {
+      "OVERVIEW": "Overview",
+      "OPERATIONS": "Operations",
+      "SALES": "Sales",
+      "INVENTORY": "Inventory",
+      "OFFERS": "Offers",
+      "REVIEWS": "Reviews",
+      "FINANCE": "Finance",
+      "RISK": "Risk",
+      "STAFF": "Staff"
+    },
+    "DOMAIN": {
+      "OPERATIONS": "Operations",
+      "INVENTORY": "Inventory",
+      "FINANCE": "Finance",
+      "REVIEWS": "Reviews",
+      "RISK": "Risk"
+    },
+    "CONTEXT": {
+      "CURRENT_BRANCH": "Current branch",
+      "CURRENT_ROLE": "Account type",
+      "UNKNOWN_BRANCH": "Unassigned"
+    },
+    "HERO": {
+      "PENDING_ORDERS": "Pending orders",
+      "LATE_ORDERS": "Late orders",
+      "READY_FOR_PICKUP": "Ready for pickup",
+      "DRIVER_ISSUES": "Driver issues",
+      "OPEN_DISPUTES": "Open disputes",
+      "LOW_STOCK": "Critical stock"
+    },
+    "SECTIONS": {
+      "OVERVIEW": "Overview",
+      "OVERVIEW_HINT": "Comprehensive summary of operational and financial performance.",
+      "OPERATIONS": "Operational command center",
+      "OPERATIONS_HINT": "What needs action right now across orders and fulfillment.",
+      "SALES": "Sales and commercial performance",
+      "SALES_HINT": "Revenue, order quality, category performance, and weak spots.",
+      "INVENTORY": "Inventory and catalog",
+      "INVENTORY_HINT": "Stock health, catalog movement, and products that need intervention.",
+      "OFFERS": "Offers and merchandising",
+      "OFFERS_HINT": "Live promotions, discount bands, and promotion candidates.",
+      "REVIEWS": "Reviews and customer quality",
+      "REVIEWS_HINT": "Customer sentiment, reply pressure, and quality feedback.",
+      "FINANCE": "Wallet summary",
+      "FINANCE_HINT": "Cash posture, settlements, payouts, and ledger activity.",
+      "RISK": "Disputes and risk",
+      "RISK_HINT": "Cases that may hurt service quality or profitability.",
+      "STAFF": "Staff and branches",
+      "STAFF_HINT": "Light branch summary for operational coverage.",
+      "URGENT_ORDERS": "Urgent orders",
+      "LATEST_ALERTS": "Latest operational alerts",
+      "TOP_PRODUCTS": "Top products",
+      "UNDERPERFORMING_PRODUCTS": "Underperforming products",
+      "CRITICAL_STOCK": "Critical stock watchlist",
+      "NO_MOVEMENT_PRODUCTS": "Products with no movement",
+      "EXPIRING_OFFERS": "Expiring offers",
+      "PROMOTION_CANDIDATES": "Promotion candidates",
+      "LOW_RATING_UNREPLIED": "Low-rating reviews without reply",
+      "RECENT_HIGHLIGHTS": "Recent review highlights",
+      "BRANCH_REVENUE": "Branch revenue",
+      "RECENT_SETTLEMENTS": "Recent settlements",
+      "RECENT_LEDGER": "Recent ledger activity",
+      "AWAITING_ACTION": "Cases awaiting vendor action",
+      "RECENT_ESCALATIONS": "Recent escalations"
+    },
+    "CHARTS": {
+      "COUNT": "Count",
+      "SALES": "Sales",
+      "ORDERS": "Orders",
+      "SALES_TREND": "Sales trend",
+      "PAYOUTS": "Payouts",
+      "PRODUCTS": "Products",
+      "REVIEWS": "Reviews",
+      "DISPUTES": "Disputes",
+      "ORDERS_TREND": "Orders trend",
+      "ORDER_STATUS_BREAKDOWN": "Order status breakdown",
+      "ORDER_FUNNEL": "Order funnel",
+      "SALES_VS_ORDERS": "Sales vs orders",
+      "WEEKDAY_PERFORMANCE": "Weekday performance",
+      "TOP_CATEGORIES": "Top categories",
+      "STOCK_HEALTH": "Stock health distribution",
+      "INVENTORY_RISK": "Inventory risk list",
+      "CATALOG_GROWTH": "Catalog growth",
+      "OFFERS_BY_TYPE": "Offers by type",
+      "DISCOUNT_BANDS": "Discount bands",
+      "OFFER_LINKED_PRODUCTS": "Offer-linked products",
+      "RATING_DISTRIBUTION": "Rating distribution",
+      "REVIEWS_TREND": "Reviews trend",
+      "REPLY_BREAKDOWN": "Reply breakdown",
+      "SALES_VS_PAYOUTS": "Sales vs payouts",
+      "SETTLEMENT_STATUS": "Settlement status",
+      "LEDGER_BREAKDOWN": "Ledger breakdown",
+      "DISPUTES_BY_STATUS": "Disputes by status",
+      "DISPUTES_BY_TYPE": "Disputes by type",
+      "DISPUTES_TREND": "Disputes trend",
+      "BRANCH_STATUS": "Branch status",
+      "STAFF_ROLE_DISTRIBUTION": "Staff role distribution"
+    },
+    "FUNNEL": {
+      "NEW": "New",
+      "CONFIRMED": "Confirmed",
+      "PREPARING": "Preparing",
+      "READY": "Ready",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    },
+    "STOCK_HEALTH": {
+      "HEALTHY": "Healthy",
+      "LOW": "Low",
+      "OUT": "Out of stock"
+    },
+    "OFFER_TYPES": {
+      "DIRECT": "Direct offers",
+      "COUPONS": "Coupons",
+      "CATEGORY_CAMPAIGNS": "Category campaigns",
+      "CLEARANCE": "Clearance",
+      "CAMPAIGNS": "Campaigns"
+    },
+    "REPLY_BREAKDOWN": {
+      "REPLIED": "Replied",
+      "PENDING": "Pending"
+    },
+    "SETTLEMENT_STATUS": {
+      "PAID": "Paid",
+      "PROCESSING": "Processing",
+      "SCHEDULED": "Scheduled"
+    },
+    "CHART_LABELS": {
+      "SUBSIDIZED": "Subsidized",
+      "ADJUSTMENTS": "Adjustments",
+      "ADJUSTMENT": "Adjustment",
+      "CATEGORY": "Category"
+    },
+    "LEDGER_TYPES": {
+      "SALES": "Sales",
+      "FEES": "Fees",
+      "PAYOUTS": "Payouts",
+      "REFUNDS": "Refunds",
+      "ADJUSTMENTS": "Adjustments"
+    },
+    "LEDGER_REFERENCE": {
+      "ORDER": "Order",
+      "ORDER_REVENUE": "Order revenue",
+      "VENDOR_RECOVERY": "Vendor recovery",
+      "PAYOUT": "Payout",
+      "SETTLEMENT": "Settlement"
+    },
+    "LEDGER_DEFAULTS": {
+      "ORDER_REVENUE": "Order revenue",
+      "PAYOUT_HOLD": "Payout hold",
+      "PAYOUT_HOLD_RELEASE": "Payout hold release",
+      "VENDOR_PAYOUT": "Vendor payout",
+      "REFUND": "Refund",
+      "WALLET_ADJUSTMENT": "Wallet adjustment",
+      "WALLET_CREDIT": "Wallet credit",
+      "WALLET_DEBIT": "Wallet debit",
+      "SETTLEMENT": "Settlement",
+      "CASH_COLLECTED": "Cash collected"
+    },
+    "LEDGER_MEMOS": {
+      "PAYOUT_PAID": "Payout paid {{id}}",
+      "PLATFORM_CASH_PAYOUT": "Platform cash payout {{id}}",
+      "COD_RECEIVABLE": "Expected COD receivable for order {{order}}",
+      "CUSTOMER_ADVANCE_CLEARING": "Expected customer advance clearing for order {{order}}",
+      "REVENUE_RECONCILIATION_DELTA": "Revenue reconciliation delta for order {{order}}",
+      "GATEWAY_RECEIVABLE": "Gateway receivable on payment captured for order {{order}}",
+      "CUSTOMER_ADVANCE_RECOGNISED": "Customer advance recognised for order {{order}}",
+      "COD_CASH_COLLECTED": "COD cash collected for order {{order}}",
+      "CUSTOMER_ADVANCE_CLEARED": "Customer advance cleared for order {{order}}",
+      "VENDOR_PAYABLE": "Vendor payable for order {{order}}",
+      "DRIVER_PAYABLE": "Driver payable for order {{order}}",
+      "PLATFORM_REVENUE": "Platform revenue for order {{order}}",
+      "TAX_PAYABLE": "Tax payable for order {{order}}",
+      "DRIVER_WITHDRAWAL_APPROVED": "Driver withdrawal approved for transfer"
+    },
+    "SALES": {
+      "GROSS_SALES": "Gross sales",
+      "PAID_SALES": "Paid sales",
+      "ORDERS_COUNT": "Orders",
+      "AVERAGE_ORDER_VALUE": "Average order value",
+      "CANCELLATION_RATE": "Cancellation rate",
+      "REFUND_RATE": "Refund rate",
+      "LOST_REVENUE": "Lost Revenue"
+    },
+    "INVENTORY": {
+      "ACTIVE_PRODUCTS": "Active products",
+      "OUT_OF_STOCK": "Out of stock",
+      "LOW_STOCK": "Low stock",
+      "INACTIVE_PRODUCTS": "Inactive products",
+      "PRODUCTS_WITH_OFFERS": "Products with offers",
+      "CRITICAL_STOCK_NOTE": "Immediate replenishment recommended",
+      "NO_MOVEMENT": "No movement in selected period",
+      "IDLE_CAPITAL": "Idle Capital"
+    },
+    "OFFERS": {
+      "ACTIVE_OFFERS": "Active offers",
+      "CLEARANCE_ITEMS": "Clearance items",
+      "EXPIRING_OFFERS": "Expiring offers",
+      "OFFER_COVERAGE": "Offer coverage",
+      "EXPIRING_HINT": "Offer value currently exposed",
+      "PROMOTION_HINT": "Candidate for promotional push"
+    },
+    "REVIEWS": {
+      "AVERAGE_RATING": "Average rating",
+      "TOTAL_REVIEWS": "Total reviews",
+      "LOW_RATING_COUNT": "Low ratings",
+      "PENDING_REPLIES": "Pending replies",
+      "HIDDEN_REVIEWS": "Hidden reviews"
+    },
+    "FINANCE": {
+      "AVAILABLE_BALANCE": "Available balance",
+      "PENDING_SETTLEMENT": "Pending settlement",
+      "NET_SALES": "Net sales",
+      "FEES": "Fees",
+      "PAYOUTS_PAID": "Payouts paid",
+      "HOLD_AMOUNT": "Hold amount",
+      "NEXT_SETTLEMENT": "Next settlement",
+      "LIFECYCLE_MODE": "Lifecycle mode",
+      "BRANCH_REVENUE_HINT": "Paid revenue is broken down by branch so you can distinguish branch performance clearly.",
+      "BRANCH_ORDERS": "Orders",
+      "AVG_ORDER_VALUE": "Avg order value"
+    },
+    "DISPUTES": {
+      "OPEN": "Open disputes",
+      "HIGH_PRIORITY": "High priority",
+      "REFUND_REQUESTS": "Refund requests",
+      "AWAITING_VENDOR_RESPONSE": "Awaiting vendor response"
+    },
+    "STAFF": {
+      "ACTIVE_BRANCHES": "Active branches",
+      "ACTIVE_STAFF": "Active staff",
+      "PENDING_INVITATIONS": "Pending invitations",
+      "BRANCHES_NEEDING_COVERAGE": "Branches needing coverage"
+    },
+    "ALERTS": {
+      "LATE_ORDERS_TITLE": "Late orders need attention",
+      "LATE_ORDERS_BODY": "Some orders have exceeded the expected preparation window.",
+      "LOW_STOCK_TITLE": "Critical stock needs replenishment",
+      "LOW_STOCK_BODY": "A group of products is running at a risky stock level.",
+      "DISPUTES_TITLE": "Cases are waiting for vendor response",
+      "DISPUTES_BODY": "There are disputes that require immediate vendor follow-up.",
+      "REVIEWS_TITLE": "Customer reviews need replies",
+      "REVIEWS_BODY": "Unreplied low-rating reviews may affect trust and conversion.",
+      "LARGE_SETTLEMENT_TITLE": "Pending settlement in cycle",
+      "LARGE_SETTLEMENT_BODY": "Settlement funds are still in process and should be reviewed."
+    },
+    "EMPTY": {
+      "NO_ALERTS": "No active alerts right now.",
+      "NO_URGENT_ORDERS": "No urgent orders at the moment.",
+      "NO_CRITICAL_STOCK": "No products with critical stock right now.",
+      "NO_PENDING_REVIEWS": "No low-rating reviews waiting for a reply.",
+      "NO_STAFF_DISTRIBUTION": "No staff distribution data is available yet."
+    },
+    "OPERATIONS": {
+      "PREP_EFFICIENCY": "Prep Efficiency (SLA)",
+      "AVG_PREP_TIME": "Avg Prep Time",
+      "MINUTES": "minutes"
+    },
+    "TABLES": {
+      "SALES": "sales"
+    }
+  },
   "PRODUCTS": {
     "LIST_TITLE": "Product Management",
     "LIST_SUBTITLE": "View and edit your product stock and prices",
@@ -760,6 +1012,22 @@
     "OFFER_BADGE": "{{value}}% OFF",
     "PRICE_LABEL": "Selling Price",
     "PRICING_STOCK": "Pricing & Stock",
+    "PRICING_STOCK_HINT": "Update prices and stock — changes apply to your store immediately.",
+    "PRICING_SECTION": "Pricing",
+    "INVENTORY_SECTION": "Inventory",
+    "PROFIT_SUMMARY": "Profit summary",
+    "TRADE_PRICE": "Trade price",
+    "SELLING_PRICE": "Selling price",
+    "DISPLAY_SIZE": "Size",
+    "PRODUCT_CODE": "Product code",
+    "CATALOG_INFO_HINT": "Data from the master catalog — read only.",
+    "TRADE_PRICE_REQUIRED_NOTE": "This product needs a trade price before it is ready for live orders.",
+    "DELETE_PRODUCT": "Delete product",
+    "DELETE_CONFIRM_TITLE": "Confirm deletion",
+    "DELETE_CONFIRM_MESSAGE": "Do you want to delete \"{{name}}\"?",
+    "DELETE_CONFIRM_BUTTON": "Delete",
+    "VALIDATION_INCOMPLETE": "Please make sure to fill all required fields correctly (like selling price and trade price).",
+    "VALIDATION_INCOMPLETE_TITLE": "Incomplete data",
     "REQUEST_NEW_SUBTITLE": "Submit a request to add a new product to the master catalog.",
     "REQUEST_SUCCESS": "Product request submitted successfully.",
     "SAVE_CHANGES": "Save Changes",
@@ -790,6 +1058,8 @@
     "CATEGORY_L3": "Level 3 Category",
     "SELECTED_PATH": "Selected Path",
     "REQUEST_SUBMITTED_SUCCESS": "Product request submitted successfully, it will be reviewed by admin.",
+    "REQUEST_SUBMIT_FAILED_TITLE": "Submission failed",
+    "REQUEST_SUBMIT_FAILED": "Could not submit the product request. Please review the details and try again.",
     "FIELD_REQUIRED": "This field is required",
     "NAME_MIN_LENGTH": "Name must be at least 3 characters",
     "CATEGORY_SELECTION_REQUIRED": "Please select a category or create a new one from the category dialog",
@@ -802,7 +1072,96 @@
     "PRIMARY_IMAGE": "Primary image",
     "IMAGE": "Image",
     "SIZE_PREVIEW": "Size preview",
-    "BRAND_NAME_PLACEHOLDER": "Enter suggested brand name..."
+    "CLASSIFICATION": "Classification & Brand",
+    "SUGGESTED_BRAND": "Suggested brand",
+    "ERROR_CODES": {
+      "PRODUCT_REQUEST_BRAND_CONFLICT": "Choose either an existing brand or a new brand request, not both.",
+      "PRODUCT_REQUEST_CATEGORY_CONFLICT": "Choose either an existing category or a new category request, not both.",
+      "BRAND_CATEGORY_MISMATCH": "The selected brand does not belong to the selected category.",
+      "INVALID_MEASUREMENT_VALUE": "Measurement value must be greater than zero.",
+      "PRODUCT_REQUEST_ALREADY_PENDING": "A matching product request is already pending review.",
+      "PRODUCT_ALREADY_EXISTS": "This product already exists in the catalog. Add it to your store instead of creating a new request.",
+      "VALIDATION_ERROR": "Please check the required fields and try again."
+    },
+    "BRAND_NAME_PLACEHOLDER": "Enter suggested brand name...",
+    "BULK": {
+      "TITLE": "Bulk Add From Product Bank",
+      "SUBTITLE": "Review trade price, selling price, and stock before submit.",
+      "DEFAULTS_TITLE": "Quick bulk defaults",
+      "DEFAULTS_HINT": "Apply default values to selected rows or to all rows at once.",
+      "COST_PRICE": "Cost price",
+      "TRADE_PRICE": "Trade price",
+      "SELLING_PRICE": "Selling price",
+      "STOCK": "Stock",
+      "APPLY_SELECTED": "Apply to selected",
+      "APPLY_ALL": "Apply to all",
+      "SELECT_ALL": "Select all",
+      "CLEAR_SELECTION": "Clear selection",
+      "REVIEW_SELECTED": "Review selected",
+      "PRODUCT": "Product",
+      "SIZE": "Size",
+      "COST": "Cost",
+      "TRADE": "Trade",
+      "SELLING": "Selling",
+      "ACTION": "Action",
+      "REMOVE": "Remove",
+      "STANDARD_SIZE": "Standard",
+      "ROWS": "Total rows",
+      "SELECTED": "Selected",
+      "PAGE": "Page",
+      "CLOSE": "Close",
+      "SUBMIT": "Submit bulk add",
+      "SUBMITTING": "Submitting bulk add...",
+      "SUBMIT_ERROR": "Bulk add could not be submitted. Review the data and try again.",
+      "SUBMIT_TIMEOUT": "Bulk add is taking longer than expected. Try again, or refresh the products list in a moment.",
+      "VALIDATION_BANNER": "{{count}} row(s) need fixes before submit.",
+      "VALIDATION": {
+        "COST_NEGATIVE": "Cost price cannot be negative.",
+        "TRADE_REQUIRED": "Trade price is required and must be greater than zero.",
+        "SELLING_REQUIRED": "Selling price is required and must be greater than zero.",
+        "TRADE_GT_SELLING": "Trade price cannot be greater than selling price.",
+        "DISCOUNT_RANGE": "Discount percentage must be between 0 and less than 100.",
+        "STOCK_NEGATIVE": "Stock cannot be negative."
+      },
+      "RESULT": {
+        "TITLE": "Bulk add result",
+        "SUCCEEDED": "Succeeded",
+        "FAILED": "Failed",
+        "SKIPPED": "Skipped",
+        "COPY_ERRORS": "Copy errors",
+        "REFRESH_LIST": "Refresh list",
+        "COPIED": "Errors copied.",
+        "PROGRESS": "{{processed}} of {{total}}"
+      },
+      "STATUS": {
+        "Pending": "Pending",
+        "Processing": "Processing",
+        "Completed": "Completed",
+        "CompletedWithErrors": "Completed with errors",
+        "Failed": "Failed",
+        "Succeeded": "Succeeded",
+        "Skipped": "Skipped"
+      },
+      "ERRORS": {
+        "MASTER_NOT_FOUND": "Master product was not found.",
+        "ALREADY_EXISTS": "Product already exists in your store.",
+        "BRANCH_INVALID": "Branch is invalid for this vendor.",
+        "COMPARE_PRICE_INVALID": "Compare-at price must be greater than selling price.",
+        "TRADE_REQUIRED": "Trade price is required.",
+        "TRADE_GT_SELLING": "Trade price must be less than or equal to selling price.",
+        "MIN_ORDER_INVALID": "Minimum order quantity must be greater than zero.",
+        "MAX_ORDER_INVALID": "Maximum order quantity must be greater than or equal to minimum order quantity.",
+        "VENDOR_NOT_FOUND": "Vendor was not found.",
+        "VENDOR_INACTIVE": "Vendor is not active.",
+        "DUPLICATE_ITEMS": "Duplicate products are not allowed in the same bulk request.",
+        "BRANCHES_INVALID": "One or more branch IDs do not belong to this vendor."
+      }
+    }
+  },
+  "CATALOG": {
+    "STATUS_PENDING": "Pending",
+    "STATUS_APPROVED": "Approved",
+    "STATUS_REJECTED": "Rejected"
   },
   "OFFERS": {
     "TITLE": "Offers & Discounts",
@@ -874,7 +1233,7 @@
       "USAGE_LIMIT": "Usage Limit",
       "ENDS_AT": "Expiry Date",
       "AUDIENCE_AR": "Arabic Audience Label",
-      "AUDIENCE_AR_PLACEHOLDER": "Example: Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ Ø§Ù„Ø¬Ø¯Ø¯",
+      "AUDIENCE_AR_PLACEHOLDER": "Example: العملاء الجدد",
       "AUDIENCE_EN": "English Audience Label",
       "AUDIENCE_EN_PLACEHOLDER": "Example: New customers",
       "NOTE_AR": "Arabic Description",
@@ -886,7 +1245,7 @@
       "CATEGORY_PLACEHOLDER": "Choose target category",
       "DISCOUNT_PERCENTAGE": "Discount Percentage",
       "HEADLINE_AR": "Arabic Campaign Headline",
-      "HEADLINE_AR_PLACEHOLDER": "Example: Ø­Ù…Ù„Ø© Ù†Ù‡Ø§ÙŠØ© Ø§Ù„Ø£Ø³Ø¨ÙˆØ¹ Ù„Ù„Ù‚Ø³Ù…",
+      "HEADLINE_AR_PLACEHOLDER": "Example: حملة نهاية الأسبوع للقسم",
       "HEADLINE_EN": "English Campaign Headline",
       "HEADLINE_EN_PLACEHOLDER": "Example: Weekend category push",
       "CATEGORY_NOTE_AR_PLACEHOLDER": "Write the operational or marketing note in Arabic.",
@@ -1013,6 +1372,13 @@
       "TIMING_LATE": "Delayed only",
       "TIMING_ONTIME": "On time"
     },
+    "TABLE": {
+      "TITLE": "Orders List",
+      "SUBTITLE": "Review incoming orders and their status in one table."
+    },
+    "LOAD_ERROR": "Could not load orders. Check your connection and try again.",
+    "REFRESHING": "Refreshing orders...",
+    "RETRY": "Try again",
     "HEADER_ORDER_ID": "Order ID",
     "HEADER_CUSTOMER": "Customer",
     "HEADER_DATE": "Date",
@@ -1020,6 +1386,10 @@
     "HEADER_TOTAL": "Total",
     "HEADER_STATUS": "Status",
     "STATUS_NEW": "New Order",
+    "STATUS_PENDING_PAYMENT": "Pending Payment",
+    "STATUS_PENDING_BANK_CONFIRMATION": "Pending Bank Confirmation",
+    "STATUS_PENDING_VENDOR_ACCEPTANCE": "Pending Vendor Acceptance",
+    "STATUS_VENDOR_REJECTED": "Rejected by Vendor",
     "STATUS_CONFIRMED": "Confirmed",
     "STATUS_IN_PROGRESS": "In Preparation",
     "STATUS_READY": "Ready for Delivery",
@@ -1041,6 +1411,100 @@
     "TAB_COMPLETED": "Completed",
     "DETAIL_TITLE": "Order Details",
     "DETAIL_TIMELINE": "Order Timeline",
+    "TIMELINE": {
+      "CHANGED_AT": "Status changed at: {{datetime}}",
+      "CURRENT_STEP": "Current stage",
+      "PENDING_STEP": "Not reached yet",
+      "STEPS": {
+        "NEW": {
+          "TITLE": "New order",
+          "DESCRIPTION": "The order was received from the customer and is waiting for your review."
+        },
+        "CONFIRMED": {
+          "TITLE": "Confirmed",
+          "DESCRIPTION": "The order was accepted and moved into preparation."
+        },
+        "IN_PROGRESS": {
+          "TITLE": "Preparing",
+          "DESCRIPTION": "Items are being prepared and packed in the store."
+        },
+        "READY_FOR_PICKUP": {
+          "TITLE": "Ready for pickup",
+          "DESCRIPTION": "The order is ready and waiting for the courier to arrive."
+        },
+        "DRIVER_ASSIGNMENT_IN_PROGRESS": {
+          "TITLE": "Finding a driver",
+          "DESCRIPTION": "The system is searching for the nearest available courier."
+        },
+        "DRIVER_ASSIGNED": {
+          "TITLE": "Driver assigned",
+          "DESCRIPTION": "A courier was assigned and will head to the store for pickup."
+        },
+        "PICKED_UP": {
+          "TITLE": "Picked up from store",
+          "DESCRIPTION": "The courier picked up the order from the store."
+        },
+        "OUT_FOR_DELIVERY": {
+          "TITLE": "On the way",
+          "DESCRIPTION": "The courier is on the way to the customer address."
+        },
+        "DELIVERED": {
+          "TITLE": "Delivered",
+          "DESCRIPTION": "The order was delivered to the customer successfully."
+        },
+        "COMPLETED": {
+          "TITLE": "Completed",
+          "DESCRIPTION": "The order was completed successfully."
+        },
+        "CANCELLED": {
+          "TITLE": "Cancelled",
+          "DESCRIPTION": "The order was cancelled and delivery was stopped."
+        },
+        "RETURNED": {
+          "TITLE": "Returned",
+          "DESCRIPTION": "The order was returned."
+        },
+        "DELIVERY_FAILED": {
+          "TITLE": "Delivery failed",
+          "DESCRIPTION": "Delivery could not be completed and needs follow-up."
+        },
+        "REFUNDED": {
+          "TITLE": "Refunded",
+          "DESCRIPTION": "The order amount was refunded to the customer."
+        }
+      },
+      "NOTES": {
+        "AUTO_DISPATCH_STARTED": "Automatic driver search started",
+        "DRIVER_ACCEPTED_OFFER": "Driver accepted the delivery offer",
+        "DRIVER_ASSIGNED_VIA_DISPATCH": "Driver assigned via dispatch",
+        "DRIVER_ASSIGNED_BY_ADMIN": "Driver assigned by admin",
+        "VENDOR_CONFIRMED_PICKUP": "Vendor confirmed pickup handoff via OTP",
+        "DRIVER_VERIFIED_PICKUP": "Driver verified pickup OTP",
+        "DRIVER_ON_THE_WAY": "Driver is on the way",
+        "DRIVER_VERIFIED_DELIVERY": "Driver verified delivery OTP",
+        "COD_SELECTED": "Cash on delivery selected",
+        "AWAITING_VENDOR": "Awaiting vendor response",
+        "VENDOR_ACCEPTED": "Vendor accepted the order",
+        "VENDOR_PREPARING": "Vendor started preparing",
+        "READY_FOR_PICKUP": "Order is ready for pickup",
+        "SEARCHING_DRIVERS": "Searching for drivers",
+        "NO_DRIVERS": "No drivers available",
+        "OFFER_SENT": "Delivery offer sent",
+        "DRIVER_REJECTED": "Driver rejected delivery offer",
+        "CANCELLED_BY_ADMIN": "Cancelled by admin",
+        "CANCELLED_BY_CUSTOMER": "Cancelled by customer",
+        "ORDER_PLACED": "Order placed",
+        "ORDER_CONFIRMED": "Order confirmed",
+        "ORDER_PICKED_UP": "Order picked up",
+        "ORDER_DELIVERED": "Order delivered",
+        "PICKUP_CONFIRMED_EARLY": "Pickup confirmed before customer arrival",
+        "AWAITING_BANK_TRANSFER": "Awaiting automatic bank transfer confirmation",
+        "BANK_TRANSFER_UPLOADED": "Bank transfer proof uploaded",
+        "BANK_TRANSFER_CONFIRMED": "Bank transfer confirmed",
+        "DISPATCH_PENDING": "Dispatch pending",
+        "CUSTOMER_CANCELLATION": "Customer cancellation reason"
+      }
+    },
     "DETAIL_CUSTOMER": "Customer Data",
     "DETAIL_DRIVER": "Driver Data",
     "DETAIL_ITEMS": "Requested Items",
@@ -1073,6 +1537,365 @@
     "AUTHORIZE_HANDOVER": "Authorize Handover",
     "CARRIER_SYNTHESIS": "Carrier Synthesis",
     "LOGISTICS_ORCHESTRATION": "Orchestrating logistics network to secure the optimal delivery carrier."
+  },
+  "SUPPORT_CENTER": {
+    "TITLE": "Support & Reference Center",
+    "SUBTITLE": "Track active support tickets and browse operational guides from one page with the same clear super admin-inspired structure.",
+    "TABS": {
+      "SUPPORT": "Support",
+      "REFERENCE": "Reference"
+    },
+    "SUMMARY": {
+      "OPEN_TICKETS": "Open Tickets",
+      "OPEN_TICKETS_HINT": "Cases that still require follow-up or final closure from support.",
+      "PENDING_FOLLOWUPS": "Waiting for You",
+      "PENDING_FOLLOWUPS_HINT": "Tickets that still need a document or clarification from your team.",
+      "AVG_RESPONSE": "Avg First Reply",
+      "AVG_RESPONSE_HINT": "Approximate average time for the first response from support.",
+      "REFERENCE_COUNT": "Reference Articles",
+      "REFERENCE_COUNT_HINT": "Quick guides and policies you can review before opening a new case."
+    },
+    "FILTERS": {
+      "TITLE": "Filters",
+      "SUBTITLE": "Refine the current view by status, category, priority, or article type.",
+      "RESET": "Reset",
+      "SEARCH": "Search",
+      "CATEGORY": "Category",
+      "PRIORITY": "Priority",
+      "TYPE": "Type",
+      "ALL_STATUSES": "All statuses",
+      "ALL_PRIORITIES": "All priorities",
+      "ALL_CATEGORIES": "All categories",
+      "ALL_TYPES": "All types"
+    },
+    "SEARCH": {
+      "TICKETS": "Search by ticket reference, subject, or summary",
+      "ARTICLES": "Search article titles and summaries"
+    },
+    "SECTIONS": {
+      "SUPPORT_TITLE": "Active Support Cases",
+      "SUPPORT_SUBTITLE": "Review current tickets and continue the conversation from the same screen.",
+      "REFERENCE_TITLE": "Operational Reference",
+      "REFERENCE_SUBTITLE": "Short guides and policies to check before opening a new ticket."
+    },
+    "TABLE": {
+      "REFERENCE": "Reference",
+      "SUBJECT": "Subject",
+      "PRIORITY": "Priority",
+      "UPDATED": "Updated"
+    },
+    "STATUSES": {
+      "OPEN": "Open",
+      "IN_PROGRESS": "In Progress",
+      "WAITING_VENDOR": "Waiting for Vendor",
+      "RESOLVED": "Resolved"
+    },
+    "PRIORITIES": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "URGENT": "Urgent"
+    },
+    "CATEGORIES": {
+      "ORDERS": "Orders",
+      "PRODUCTS": "Products",
+      "FINANCE": "Finance",
+      "OFFERS": "Offers",
+      "STAFF": "Branches & Staff",
+      "PROFILE": "Store Profile",
+      "TECHNICAL": "Technical",
+      "GENERAL": "General"
+    },
+    "ARTICLE_TYPES": {
+      "GUIDE": "Guide",
+      "POLICY": "Policy",
+      "CHECKLIST": "Checklist"
+    },
+    "TAGS": {
+      "ESCALATED": "Escalated",
+      "SLA_ACTIVE": "Active SLA",
+      "FINANCE_REVIEW": "Finance Review",
+      "WAITING_VENDOR": "Waiting for Your Input",
+      "DOCS_REQUIRED": "Docs Required",
+      "RESOLVED": "Resolved",
+      "NEW_CASE": "New Case"
+    },
+    "ACTIONS": {
+      "CREATE_TICKET": "Create Ticket",
+      "RESET_DEMO": "Reset Demo Data",
+      "OPEN_TICKET": "Open Case",
+      "OPEN_REFERENCE": "Open Reference",
+      "OPEN_LINKED_PATH": "Open Related Page",
+      "SEND_MESSAGE": "Send Reply",
+      "OPEN_SUPPORT_FROM_REFERENCE": "Open Ticket from This Reference",
+      "SUBMIT_TICKET": "Submit Ticket"
+    },
+    "DETAIL": {
+      "SUMMARY_TITLE": "Case Summary",
+      "ASSIGNED_AGENT": "Assigned Agent",
+      "REFERENCE": "Ticket Reference",
+      "THREAD_TITLE": "Support Thread",
+      "THREAD_SUBTITLE": "Every reply between your team and support appears here in time order.",
+      "RELATED_REFERENCE_TITLE": "Related References",
+      "RELATED_REFERENCE_SUBTITLE": "Guides and policies from the same category that can help close the case faster.",
+      "COMPOSER_TITLE": "Add a New Reply",
+      "COMPOSER_SUBTITLE": "Send the update or clarification needed to move the case forward.",
+      "MESSAGE_FIELD": "Message",
+      "MESSAGE_PLACEHOLDER": "Write your reply or the clarification you want to add to this ticket",
+      "CLOSED_BANNER": "This ticket has been closed. If you are still facing the issue, please open a new support ticket."
+    },
+    "REFERENCE": {
+      "READ_TIME": "{{count}} min read",
+      "RELATED_PATHS": "Related Pages",
+      "ESCALATION_NOTE": "When to Escalate",
+      "RELATED_TICKETS_TITLE": "Related Support Cases",
+      "RELATED_TICKETS_SUBTITLE": "Recent tickets from the same category so the reference stays connected to similar cases."
+    },
+    "CREATE": {
+      "EYEBROW": "New Ticket",
+      "TITLE": "Open a Support Case",
+      "SUBTITLE": "Provide a clear summary so the request reaches the right team quickly.",
+      "ORDER_PLACEHOLDER": "Select a related order if needed",
+      "FIELDS": {
+        "SUBJECT": "Case Subject",
+        "CATEGORY": "Category",
+        "PRIORITY": "Priority",
+        "MESSAGE": "Case Details"
+      },
+      "MESSAGE_PLACEHOLDER": "Explain the issue, request, and the steps already taken before contacting support"
+    },
+    "EMPTY": {
+      "TICKETS_TITLE": "No tickets match the current view",
+      "TICKETS_SUBTITLE": "Try lighter filters or create a new ticket from the top action.",
+      "SELECT_TICKET_TITLE": "Select a case to view its details",
+      "SELECT_TICKET_SUBTITLE": "Choose a ticket from the table to load its summary and conversation.",
+      "ARTICLES_TITLE": "No articles match the current filters",
+      "ARTICLES_SUBTITLE": "Adjust the search or filters to surface the right guides.",
+      "SELECT_ARTICLE_TITLE": "Select a reference article",
+      "SELECT_ARTICLE_SUBTITLE": "Pick any article from the list to load its operational details.",
+      "RELATED_REFERENCE": "There are no related references for this category right now.",
+      "RELATED_TICKETS": "There are no related tickets for this category right now."
+    },
+    "FEEDBACK": {
+      "TICKET_CREATED": "The support ticket was created successfully.",
+      "TICKET_CREATE_FAILED": "The support ticket could not be created. Check the order ID and try again.",
+      "MESSAGE_SENT": "Your reply was sent to the ticket.",
+      "MESSAGE_SEND_FAILED": "Your reply could not be sent. Please try again.",
+      "SEED_RESET": "The demo support workspace was reset."
+    }
+  },
+  "VENDOR_DISPUTES": {
+    "TITLE": "Disputes",
+    "SUBTITLE": "Track support cases linked to your orders and respond to the review team.",
+    "SUMMARY": {
+      "TOTAL": "Total cases",
+      "OPEN": "Open cases",
+      "RESPONDED": "Responded",
+      "WAITING": "Waiting your reply"
+    },
+    "FILTERS": {
+      "TITLE": "Case filters",
+      "SUBTITLE": "Narrow the disputes list by status or case type.",
+      "SEARCH": "Search",
+      "SEARCH_PLACEHOLDER": "Search by case ID, order #, reason, or message",
+      "STATUS": "Status",
+      "TYPE": "Type",
+      "RESET": "Reset filters",
+      "ALL_STATUSES": "All statuses",
+      "ALL_TYPES": "All types"
+    },
+    "TABLE": {
+      "TITLE": "Disputes queue",
+      "SUBTITLE": "Open a case to review updates, attachments, and respond.",
+      "CASE": "Case ID",
+      "ORDER": "Order #",
+      "TYPE": "Type",
+      "PRIORITY": "Priority",
+      "UPDATED": "Updated",
+      "NO_REASON": "No reason code"
+    },
+    "TYPE": {
+      "COMPLAINT": "Complaint",
+      "RETURN_REQUEST": "Return request",
+      "DRIVER_REPORT": "Driver report",
+      "DRIVER_DISPUTE": "Driver dispute"
+    },
+    "STATUS": {
+      "SUBMITTED": "Submitted",
+      "IN_REVIEW": "In review",
+      "AWAITING_CUSTOMER_EVIDENCE": "Awaiting evidence",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "RESOLVED": "Resolved"
+    },
+    "PRIORITY": {
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "ACTIONS": {
+      "OPEN": "Open case",
+      "SEND_RESPONSE": "Send response"
+    },
+    "WAITING_ON": {
+      "VENDOR": "Waiting on vendor",
+      "CUSTOMER": "Waiting on customer",
+      "DRIVER": "Waiting on driver",
+      "ADMIN": "Under admin review",
+      "REVIEW": "Under review"
+    },
+    "PARTICIPANTS": {
+      "CUSTOMER": "Customer",
+      "VENDOR": "Vendor",
+      "DRIVER": "Driver",
+      "ADMIN": "Admin",
+      "SUPPORT": "Support"
+    },
+    "QUEUE": {
+      "SUPPORT": "Customer support",
+      "FINANCE": "Finance",
+      "OPERATIONS": "Operations",
+      "RISK": "Risk",
+      "LEGAL": "Legal",
+      "DRIVER_OPS": "Driver operations"
+    },
+    "SETTLEMENT_STATUS": {
+      "PENDING_REVIEW": "Pending review",
+      "PENDING_REVIEW_ALT": "Awaiting review",
+      "REJECTED": "Rejected",
+      "APPROVED": "Approved, awaiting settlement",
+      "CASH_REFUNDED": "Cash refunded",
+      "COUPON_ISSUED": "Coupon issued",
+      "COUPON_REDEEMED": "Coupon redeemed"
+    },
+    "COMPENSATION_TYPES": {
+      "PENDING": "Pending decision",
+      "CASH_REFUND": "Cash compensation",
+      "COUPON_COMPENSATION": "Coupon compensation"
+    },
+    "REFUND_METHOD": {
+      "WALLET": "Wallet",
+      "BANK": "Bank transfer",
+      "CARD": "Card",
+      "CASH": "Cash",
+      "COUPON": "Coupon"
+    },
+    "COST_BEARER": {
+      "VENDOR": "Vendor",
+      "PLATFORM": "Platform",
+      "DRIVER": "Driver",
+      "CUSTOMER": "Customer"
+    },
+    "ACTIVITY": {
+      "SUBMITTED": {
+        "TITLE": "Case opened",
+        "NOTE": "We received the support case for order #{{orderNumber}} and it is now under review."
+      },
+      "REQUEST_EVIDENCE": {
+        "TITLE": "More evidence requested",
+        "NOTE": "We need additional information or evidence to continue reviewing the case for order #{{orderNumber}}."
+      },
+      "APPROVED": {
+        "TITLE": "Case approved",
+        "NOTE": "Your return request has been approved. You will be notified when the financial processing begins."
+      },
+      "REJECTED": {
+        "TITLE": "Case rejected",
+        "NOTE": "The support case linked to order #{{orderNumber}} has been rejected."
+      },
+      "RESOLVED": {
+        "TITLE": "Case resolved",
+        "NOTE": "The support case linked to order #{{orderNumber}} has been resolved and closed."
+      },
+      "ESCALATED": {
+        "TITLE": "Case escalated",
+        "NOTE": "The support case linked to order #{{orderNumber}} was escalated to a specialized team."
+      },
+      "ADMIN_MESSAGE": {
+        "TITLE": "Admin update",
+        "NOTE": "Support shared an update on this case."
+      },
+      "VENDOR_RESPONSE": {
+        "TITLE": "Vendor replied"
+      },
+      "CUSTOMER_RESPONSE": {
+        "TITLE": "Customer replied"
+      },
+      "DRIVER_RESPONSE": {
+        "TITLE": "Driver replied"
+      },
+      "DECISION": {
+        "NOTE": "A final decision was recorded for this case."
+      },
+      "PUBLIC_NOTE": {
+        "NOTE": "A public note was added to this case."
+      }
+    },
+    "REASONS": {
+      "COMPLAINT": {
+        "LATE_DELIVERY": "Late delivery",
+        "MISSING_ITEMS": "Missing items",
+        "WRONG_ITEMS": "Wrong items",
+        "POOR_QUALITY": "Poor quality",
+        "DRIVER_BEHAVIOR": "Driver behavior",
+        "OTHER": "Other"
+      },
+      "RETURN_REQUEST": {
+        "DEFECTIVE": "Defective product",
+        "NOT_AS_DESCRIBED": "Not as described",
+        "WRONG_SIZE": "Wrong size",
+        "CHANGED_MIND": "Changed mind",
+        "OTHER": "Other"
+      },
+      "DRIVER_REPORT": {
+        "WRONG_ADDRESS": "Wrong address",
+        "CUSTOMER_UNAVAILABLE": "Customer unavailable",
+        "DAMAGED_PACKAGE": "Damaged package",
+        "VEHICLE_ISSUE": "Vehicle issue",
+        "OTHER": "Other"
+      },
+      "DRIVER_DISPUTE": {
+        "PAYOUT_DISPUTE": "Payout dispute",
+        "INCORRECT_DEDUCTION": "Incorrect deduction",
+        "OTHER": "Other"
+      }
+    },
+    "EMPTY": {
+      "TITLE": "No disputes found",
+      "SUBTITLE": "There are no cases matching the current filters."
+    },
+    "DETAIL": {
+      "TITLE": "Dispute case",
+      "SUMMARY_TITLE": "Case summary",
+      "SUMMARY_SUBTITLE": "Core dispute information and refund context.",
+      "QUEUE": "Queue",
+      "WAITING_ON": "Waiting on",
+      "REQUESTED_REFUND": "Requested refund",
+      "APPROVED_REFUND": "Approved refund",
+      "NOTES_TITLE": "Case notes",
+      "NOTES_SUBTITLE": "Review the original case message and any visible notes.",
+      "PARTICIPANTS": "Participants",
+      "CASE_MESSAGE": "Case message",
+      "CUSTOMER_NOTE": "Customer-visible note",
+      "DECISION_NOTES": "Decision notes",
+      "YOUR_RESPONSE": "Your latest response",
+      "ATTACHMENTS_TITLE": "Attachments",
+      "ATTACHMENTS_SUBTITLE": "Files shared with this dispute case.",
+      "OPEN_ATTACHMENT": "Open attachment",
+      "NO_ATTACHMENTS": "No attachments were shared for this case.",
+      "ACTIVITY_TITLE": "Activity timeline",
+      "ACTIVITY_SUBTITLE": "Visible case events and reviewer updates.",
+      "CONVERSATION_TITLE": "Conversation",
+      "CONVERSATION_SUBTITLE": "Messages visible to your team inside this case.",
+      "REPLY_TITLE": "Send response",
+      "REPLY_SUBTITLE": "Reply to the case reviewer with additional context.",
+      "REPLY_FIELD": "Response message",
+      "REPLY_PLACEHOLDER": "Write your response, explanation, or evidence summary here...",
+      "RESPONSE_SENT": "Your response was sent successfully.",
+      "RESPONSE_FAILED": "Unable to send your response right now.",
+      "CLOSED_BANNER": "This dispute is currently closed. Additional messages or attachments cannot be sent."
+    }
   },
   "SETTINGS_PROFILE": {
     "TITLE": "Vendor profile",
@@ -1125,7 +1948,8 @@
       "LEGAL_IDENTIFIERS": "Legal identifiers",
       "VERIFICATION_SUMMARY": "Verification summary",
       "BANK_PROFILE": "Bank profile",
-      "REQUIRED_DOCUMENTS": "Required documents"
+      "REQUIRED_DOCUMENTS": "Required documents",
+      "SAVE_SECTION": "Save this section"
     },
     "SECTIONS": {
       "STORE": "Store details",
@@ -1251,6 +2075,9 @@
       "DOCUMENT_UPLOAD_FAILED": "Unable to upload the document right now.",
       "SAVE_INVALID": "Please complete the required fields before saving the profile.",
       "SAVE_SUCCESS": "Profile changes were saved and synced to the admin workspace.",
+      "SAVE_STORE_SUCCESS": "Store details were saved and sent to admin review.",
+      "SAVE_OWNER_PENDING": "Owner details were submitted for admin approval.",
+      "SAVE_CONTACT_SUCCESS": "Contact details were saved and sent to admin review.",
       "SAVE_FAILED": "Unable to save profile changes right now.",
       "SUBMIT_INVALID": "Complete the required data and documents before submitting for review.",
       "SUBMIT_SUCCESS": "The vendor profile was submitted for review and is now visible to admin.",
@@ -1294,98 +2121,6 @@
       "APPROVED": "Approved",
       "SAVE": "Save",
       "VENDOR_PROFILE": "VENDOR PROFILE"
-    }
-  },
-  "HEADER": {
-    "OPEN_MENU": "Open Menu",
-    "NOTIFICATIONS": "Notifications",
-    "PROFILE": "Profile",
-    "SEARCH": "Search in system...",
-    "ACTIVE_ACCOUNT": "Active Account",
-    "PENDING_ACTIVATION": "Pending activation",
-    "UNDER_REVIEW": "Under review",
-    "CHANGES_REQUESTED": "Changes requested",
-    "ACCOUNT_SUSPENDED": "Account suspended",
-    "VENDOR_DASHBOARD": "Vendor Dashboard",
-    "SEARCH_PLACEHOLDER": "Search in Coupony..."
-  },
-  "HEADER_SEARCH": {
-    "TITLE": "Global Search",
-    "PLACEHOLDER": "Search in Coupony (orders, products, catalog...)",
-    "MIN_QUERY": "Type at least {{count}} characters to search.",
-    "SEARCHING": "Searching vendor panel...",
-    "NO_RESULTS": "No matching results found.",
-    "GROUPS": {
-      "NAVIGATION": "Pages",
-      "ORDERS": "Orders",
-      "PRODUCTS": "My Products",
-      "MASTER_PRODUCTS": "Product Catalog"
-    }
-  },
-  "PAGINATION": {
-    "PREVIOUS": "Previous",
-    "NEXT": "Next",
-    "PAGE_INFO": "Page {{current}} of {{total}}",
-    "TOTAL_PRODUCTS": "Total: {{count}} products",
-    "TOTAL_ITEMS": "Total: {{count}} items",
-    "TOTAL_ORDERS": "Total: {{count}} orders"
-  },
-  "FORGOT_PASSWORD_PAGE": {
-    "PORTAL_TITLE": "Vendor Portal",
-    "HERO_TITLE_1": "Recover access",
-    "HERO_TITLE_2": "to your account easily",
-    "HERO_DESC": "Enter your email and we will help you restore access to your store account securely.",
-    "CARD_TITLE": "Forgot Password",
-    "CARD_DESC": "We will send you a password reset link to your email.",
-    "BTN_SUBMIT": "Send Reset Link",
-    "SENDING": "Sending...",
-    "BTN_BACK": "Back to Login",
-    "ERRORS": {
-      "INVALID_EMAIL": "Please enter a valid email address.",
-      "SEND_FAILED": "Unable to send reset instructions right now."
-    }
-  },
-  "REGISTER": {
-    "PORTAL_TITLE": "Vendor Portal",
-    "HERO_TITLE": "Start your store with Coupony",
-    "HERO_SUBTITLE": "Sign up and start selling",
-    "HERO_DESC": "Create your vendor account and start managing your products and orders with ease.",
-    "CARD_TITLE": "Create New Account",
-    "FIRST_NAME": "First Name",
-    "LAST_NAME": "Last Name",
-    "STORE_NAME": "Store Name",
-    "CONFIRM_PASSWORD": "Confirm Password",
-    "ERR_MISMATCH": "Passwords do not match",
-    "ERR_INVALID_FORM": "Please fill all details correctly.",
-    "ERR_GENERAL": "This field is required or invalid.",
-    "BTN_SUBMIT": "Create Account",
-    "OR": "Or",
-    "BTN_REGISTER_GOOGLE": "Register with Google",
-    "ALREADY_HAVE_ACCOUNT": "Already have an account?",
-    "SIGN_IN": "Sign In"
-  },
-  "RESET_PASSWORD_PAGE": {
-    "EYEBROW": "Reset Password",
-    "HERO_TITLE_1": "Create a new",
-    "HERO_TITLE_2": "password securely",
-    "HERO_DESC": "Enter the verification code sent to your email and set a strong password to restore access to your store account.",
-    "TITLE": "Enter the OTP and your new password",
-    "CARD_DESC": "Check your email for the 4-digit verification code.",
-    "FIELDS": {
-      "EMAIL": "Email",
-      "OTP": "OTP Code",
-      "NEW_PASSWORD": "New Password",
-      "CONFIRM_PASSWORD": "Confirm Password"
-    },
-    "SUBMIT": "Update Password",
-    "SENDING": "Updating...",
-    "BTN_BACK": "Back to Login",
-    "ERRORS": {
-      "INVALID_FORM": "Please complete the form correctly.",
-      "INVALID_OTP": "Enter the 4-digit verification code.",
-      "PASSWORD_MIN": "Password must be at least 8 characters.",
-      "PASSWORD_MISMATCH": "Passwords do not match.",
-      "RESET_FAILED": "Unable to reset the password right now."
     }
   },
   "STAFF_BRANCHES": {
@@ -1465,11 +2200,6 @@
       "CREATE_BRANCH": "Create branch",
       "SEND_INVITATION": "Send invitation",
       "SAVE_PERMISSIONS": "Save permissions"
-    },
-    "CONFIRMATIONS": {
-      "DELETE_BRANCH": "Delete branch \"{{name}}\"?",
-      "DELETE_EMPLOYEE": "Delete employee \"{{name}}\" from this workspace list?",
-      "DELETE_INVITATION": "Delete invitation for \"{{name}}\"?"
     },
     "BRANCH_TYPES": {
       "PRIMARY": "Primary branch",
@@ -1580,24 +2310,15 @@
     },
     "FEEDBACK": {
       "BRANCH_CREATED": "The new branch was added and a manager invitation was sent by email.",
-      "BRANCH_DELETED": "Branch deleted successfully.",
-      "BRANCH_DELETE_FAILED": "The branch could not be deleted. Please try again.",
-      "BRANCH_DELETE_PRIMARY_FORBIDDEN": "The primary branch cannot be deleted.",
-      "BRANCH_DELETE_BLOCKED_PRODUCTS": "This branch still has products linked to it, so it cannot be deleted.",
-      "BRANCH_DELETE_BLOCKED_ORDERS": "This branch still has orders linked to it, so it cannot be deleted.",
-      "BRANCH_DELETE_BLOCKED_STAFF": "This branch still has staff access assigned to it, so it cannot be deleted.",
-      "BRANCH_DELETE_BLOCKED_INVITATIONS": "This branch still has linked invitations, so it cannot be deleted.",
       "PERMISSIONS_UPDATED": "Employee permissions were updated.",
       "EMPLOYEE_CREATED": "The employee was created successfully.",
       "EMPLOYEE_INVITED": "The employee invitation was sent successfully.",
-      "EMPLOYEE_DELETED": "Employee removed from the current workspace list.",
       "EMPLOYEE_ACTIVATED": "The employee was activated.",
       "EMPLOYEE_SUSPENDED": "The employee was suspended.",
       "BRANCH_STATUS_UPDATED": "Branch status was updated.",
       "LINK_COPIED": "Invitation link copied.",
       "LINK_COPY_FALLBACK": "Copy failed here. You can still copy the link manually.",
       "INVITATION_RESENT": "Invitation resent successfully.",
-      "INVITATION_DELETED": "Invitation deleted successfully.",
       "INVITATION_REVOKED": "Invitation was revoked.",
       "INVITATION_SEND_FAILED": "The invitation email could not be sent. Check the address and email provider, then try again.",
       "INVITATION_ACTION_FAILED": "The invitation action could not be completed. Please try again."
@@ -1624,10 +2345,7 @@
       "SUCCESS_EYEBROW": "Access ready",
       "SUCCESS_TITLE": "Your account is active",
       "SUCCESS_BODY": "You can now sign in with the invited email and the password you just created.",
-      "LOGIN": "Go to login",
-      "USER_ALREADY_EXISTS": "An account already exists with this email (e.g. as a customer). Please use a different email or request a new invitation on a different email address.",
-      "STAFF_ALREADY_EXISTS": "This email already has staff access to this vendor.",
-      "ROLE_NOT_CONFIGURED": "The invited role is not configured on the server. Please contact support."
+      "LOGIN": "Go to login"
     },
     "DETAILS": {
       "BRANCH": {
@@ -1814,241 +2532,6 @@
       "SEED_RESET": "The demo reviews data was reset."
     }
   },
-  "ALERTS_CENTER": {
-    "TITLE": "Alerts Center",
-    "SUBTITLE": "Track operational alerts derived from orders, products, finance, support, and the rest of the vendor workspace.",
-    "ACTIONS": {
-      "MARK_ALL_READ": "Mark all as read",
-      "MARK_READ": "Mark as read",
-      "MARK_UNREAD": "Mark as unread",
-      "ARCHIVE": "Archive",
-      "RESTORE": "Restore",
-      "OPEN": "Open",
-      "VIEW_ALL": "View all alerts"
-    },
-    "SUMMARY": {
-      "UNREAD": "Unread",
-      "UNREAD_HINT": "Items that still have not been reviewed in the alerts center.",
-      "CRITICAL": "Critical",
-      "CRITICAL_HINT": "Alerts that need immediate intervention.",
-      "NEEDS_ACTION": "Needs action",
-      "NEEDS_ACTION_HINT": "Alerts with warning or operational weight.",
-      "ARCHIVED": "Archived",
-      "ARCHIVED_HINT": "Alerts you kept for later reference."
-    },
-    "QUICK_TABS": {
-      "ALL": "All",
-      "UNREAD": "Unread",
-      "CRITICAL": "Critical",
-      "ARCHIVED": "Archived"
-    },
-    "SECTION_TITLE": "Alerts log",
-    "SECTION_SUBTITLE": "Track sources, severity, and state, then open the related page directly from the alert.",
-    "FILTERS": {
-      "TITLE": "Filters",
-      "SUBTITLE": "Refine alerts by source, severity, and state from one place.",
-      "RESET": "Reset",
-      "SEARCH": "Search",
-      "SOURCE": "Source",
-      "SEVERITY": "Severity",
-      "STATE": "State",
-      "ALL_SOURCES": "All sources",
-      "ALL_SEVERITY": "All severity levels",
-      "ALL_STATES": "All states"
-    },
-    "SEARCH": {
-      "PLACEHOLDER": "Search alert titles and summaries"
-    },
-    "TABLE": {
-      "ALERT": "Alert",
-      "SOURCE": "Source",
-      "SEVERITY": "Severity",
-      "STATE": "State",
-      "TIME": "Time"
-    },
-    "SOURCES": {
-      "ORDERS": "Orders",
-      "PRODUCTS": "Products",
-      "OFFERS": "Offers",
-      "FINANCE": "Finance",
-      "SUPPORT": "Support",
-      "STAFF": "Branches & staff",
-      "REVIEWS": "Reviews",
-      "PROFILE": "Store profile"
-    },
-    "SEVERITY": {
-      "INFO": "Info",
-      "WARNING": "Warning",
-      "CRITICAL": "Critical"
-    },
-    "STATE": {
-      "UNREAD": "Unread",
-      "READ": "Read",
-      "ARCHIVED": "Archived"
-    },
-    "POPOVER": {
-      "SUBTITLE": "Highest current priorities that are not archived",
-      "EMPTY_TITLE": "No new alerts",
-      "EMPTY_SUBTITLE": "Any new alert will show up here as soon as it is generated."
-    },
-    "EMPTY": {
-      "TITLE": "No matching alerts",
-      "SUBTITLE": "Try adjusting the filters or revisit when the operational data changes."
-    },
-    "FEEDBACK": {
-      "MARKED_READ": "The alert was marked as read.",
-      "MARKED_UNREAD": "The alert was marked as unread again.",
-      "ARCHIVED": "The alert was archived.",
-      "RESTORED": "The alert was restored from the archive.",
-      "ALL_READ": "All alerts were marked as read."
-    }
-  },
-  "SUPPORT_CENTER": {
-    "TITLE": "Support & Reference Center",
-    "SUBTITLE": "Track active support tickets and browse operational guides from one page with the same clear super admin-inspired structure.",
-    "TABS": {
-      "SUPPORT": "Support",
-      "REFERENCE": "Reference"
-    },
-    "SUMMARY": {
-      "OPEN_TICKETS": "Open Tickets",
-      "OPEN_TICKETS_HINT": "Cases that still require follow-up or final closure from support.",
-      "PENDING_FOLLOWUPS": "Waiting for You",
-      "PENDING_FOLLOWUPS_HINT": "Tickets that still need a document or clarification from your team.",
-      "AVG_RESPONSE": "Avg First Reply",
-      "AVG_RESPONSE_HINT": "Approximate average time for the first response from support.",
-      "REFERENCE_COUNT": "Reference Articles",
-      "REFERENCE_COUNT_HINT": "Quick guides and policies you can review before opening a new case."
-    },
-    "FILTERS": {
-      "TITLE": "Filters",
-      "SUBTITLE": "Refine the current view by status, category, priority, or article type.",
-      "RESET": "Reset",
-      "SEARCH": "Search",
-      "CATEGORY": "Category",
-      "PRIORITY": "Priority",
-      "TYPE": "Type",
-      "ALL_STATUSES": "All statuses",
-      "ALL_PRIORITIES": "All priorities",
-      "ALL_CATEGORIES": "All categories",
-      "ALL_TYPES": "All types"
-    },
-    "SEARCH": {
-      "TICKETS": "Search by ticket reference, subject, or summary",
-      "ARTICLES": "Search article titles and summaries"
-    },
-    "SECTIONS": {
-      "SUPPORT_TITLE": "Active Support Cases",
-      "SUPPORT_SUBTITLE": "Review current tickets and continue the conversation from the same screen.",
-      "REFERENCE_TITLE": "Operational Reference",
-      "REFERENCE_SUBTITLE": "Short guides and policies to check before opening a new ticket."
-    },
-    "TABLE": {
-      "REFERENCE": "Reference",
-      "SUBJECT": "Subject",
-      "PRIORITY": "Priority",
-      "UPDATED": "Updated"
-    },
-    "STATUSES": {
-      "OPEN": "Open",
-      "IN_PROGRESS": "In Progress",
-      "WAITING_VENDOR": "Waiting for Vendor",
-      "RESOLVED": "Resolved"
-    },
-    "PRIORITIES": {
-      "LOW": "Low",
-      "MEDIUM": "Medium",
-      "HIGH": "High",
-      "URGENT": "Urgent"
-    },
-    "CATEGORIES": {
-      "ORDERS": "Orders",
-      "PRODUCTS": "Products",
-      "FINANCE": "Finance",
-      "OFFERS": "Offers",
-      "STAFF": "Branches & Staff",
-      "PROFILE": "Store Profile",
-      "TECHNICAL": "Technical",
-      "GENERAL": "General"
-    },
-    "ARTICLE_TYPES": {
-      "GUIDE": "Guide",
-      "POLICY": "Policy",
-      "CHECKLIST": "Checklist"
-    },
-    "TAGS": {
-      "ESCALATED": "Escalated",
-      "SLA_ACTIVE": "Active SLA",
-      "FINANCE_REVIEW": "Finance Review",
-      "WAITING_VENDOR": "Waiting for Your Input",
-      "DOCS_REQUIRED": "Docs Required",
-      "RESOLVED": "Resolved",
-      "NEW_CASE": "New Case"
-    },
-    "ACTIONS": {
-      "CREATE_TICKET": "Create Ticket",
-      "RESET_DEMO": "Reset Demo Data",
-      "OPEN_TICKET": "Open Case",
-      "OPEN_REFERENCE": "Open Reference",
-      "OPEN_LINKED_PATH": "Open Related Page",
-      "SEND_MESSAGE": "Send Reply",
-      "OPEN_SUPPORT_FROM_REFERENCE": "Open Ticket from This Reference",
-      "SUBMIT_TICKET": "Submit Ticket"
-    },
-    "DETAIL": {
-      "SUMMARY_TITLE": "Case Summary",
-      "ASSIGNED_AGENT": "Assigned Agent",
-      "REFERENCE": "Ticket Reference",
-      "THREAD_TITLE": "Support Thread",
-      "THREAD_SUBTITLE": "Every reply between your team and support appears here in time order.",
-      "RELATED_REFERENCE_TITLE": "Related References",
-      "RELATED_REFERENCE_SUBTITLE": "Guides and policies from the same category that can help close the case faster.",
-      "COMPOSER_TITLE": "Add a New Reply",
-      "COMPOSER_SUBTITLE": "Send the update or clarification needed to move the case forward.",
-      "MESSAGE_FIELD": "Message",
-      "MESSAGE_PLACEHOLDER": "Write your reply or the clarification you want to add to this ticket",
-      "CLOSED_BANNER": "This ticket has been closed. If you are still facing the issue, please open a new support ticket."
-    },
-    "REFERENCE": {
-      "READ_TIME": "{{count}} min read",
-      "RELATED_PATHS": "Related Pages",
-      "ESCALATION_NOTE": "When to Escalate",
-      "RELATED_TICKETS_TITLE": "Related Support Cases",
-      "RELATED_TICKETS_SUBTITLE": "Recent tickets from the same category so the reference stays connected to similar cases."
-    },
-    "CREATE": {
-      "EYEBROW": "New Ticket",
-      "TITLE": "Open a Support Case",
-      "SUBTITLE": "Provide a clear summary so the request reaches the right team quickly.",
-      "ORDER_PLACEHOLDER": "Select a related order if needed",
-      "FIELDS": {
-        "SUBJECT": "Case Subject",
-        "CATEGORY": "Category",
-        "PRIORITY": "Priority",
-        "MESSAGE": "Case Details"
-      },
-      "MESSAGE_PLACEHOLDER": "Explain the issue, request, and the steps already taken before contacting support"
-    },
-    "EMPTY": {
-      "TICKETS_TITLE": "No tickets match the current view",
-      "TICKETS_SUBTITLE": "Try lighter filters or create a new ticket from the top action.",
-      "SELECT_TICKET_TITLE": "Select a case to view its details",
-      "SELECT_TICKET_SUBTITLE": "Choose a ticket from the table to load its summary and conversation.",
-      "ARTICLES_TITLE": "No articles match the current filters",
-      "ARTICLES_SUBTITLE": "Adjust the search or filters to surface the right guides.",
-      "SELECT_ARTICLE_TITLE": "Select a reference article",
-      "SELECT_ARTICLE_SUBTITLE": "Pick any article from the list to load its operational details.",
-      "RELATED_REFERENCE": "There are no related references for this category right now.",
-      "RELATED_TICKETS": "There are no related tickets for this category right now."
-    },
-    "FEEDBACK": {
-      "TICKET_CREATED": "The support ticket was created successfully.",
-      "TICKET_CREATE_FAILED": "The support ticket could not be created. Check the order ID and try again.",
-      "MESSAGE_SENT": "Your reply was sent to the ticket.",
-      "MESSAGE_SEND_FAILED": "Your reply could not be sent. Please try again.",
-      "SEED_RESET": "The demo support workspace was reset."
-    }
-  },
   "VENDOR_FINANCE": {
     "TITLE": "My Wallet",
     "SUBTITLE": "Track your balance, settlements, and payout movements with the same operational clarity used in super admin.",
@@ -2062,7 +2545,15 @@
       "VIEW_REPORTS": "View Reports",
       "DOWNLOAD_STATEMENT": "Download Statement",
       "REQUEST_PAYOUT": "Request Payout",
+      "REVIEW_ORDERS": "Review orders",
       "PAYOUT_SUCCESS_MSG": "Payout request submitted successfully and is pending review"
+    },
+    "BRANCHES": {
+      "TITLE": "Financial breakdown by branch",
+      "ALL": "All branches",
+      "PRIMARY": "Primary branch",
+      "ORDERS": "{{count}} orders",
+      "SCOPE_HINT": "Wallet balance reflects the entire store. Branch figures show sales attributed to each branch for the selected period."
     },
     "LIFECYCLE_MODES": {
       "PerOrderDirectPayout": "Per Order",
@@ -2118,13 +2609,18 @@
         "VENDOR_RECOVERY": "Vendor Recovery"
       },
       "COMMISSION": "Commission",
+      "SALE": "Sales",
       "PAYOUT": "Payout",
       "FEE": "Fee",
       "REFUND": "Refund"
     },
     "ALERTS": {
       "TITLE": "Action Center",
-      "EMPTY": "All caught up. No new alerts."
+      "EMPTY": "All caught up. No new alerts.",
+      "PAYOUT_TITLE": "Pending settlements",
+      "PAYOUT_BODY": "You have amounts waiting to be settled. Review recent batches or download your statement.",
+      "HOLD_TITLE": "No available balance",
+      "HOLD_BODY": "Available balance is zero or on hold. Review orders or pending holds."
     },
     "MONTHS": {
       "JAN": "Jan",
@@ -2148,113 +2644,6 @@
       "FRI": "Fri",
       "SAT": "Sat",
       "SUN": "Sun"
-    }
-  },
-  "CATALOG": {
-    "STATUS_PENDING": "Pending",
-    "STATUS_APPROVED": "Approved",
-    "STATUS_REJECTED": "Rejected"
-  },
-  "VENDOR_DISPUTES": {
-    "TITLE": "Disputes",
-    "SUBTITLE": "Track support cases linked to your orders and respond to the review team.",
-    "SUMMARY": {
-      "TOTAL": "Total cases",
-      "OPEN": "Open cases",
-      "RESPONDED": "Responded",
-      "WAITING": "Waiting your reply"
-    },
-    "FILTERS": {
-      "TITLE": "Case filters",
-      "SUBTITLE": "Narrow the disputes list by status or case type.",
-      "SEARCH": "Search",
-      "SEARCH_PLACEHOLDER": "Search by case ID, order #, reason, or message",
-      "STATUS": "Status",
-      "TYPE": "Type",
-      "RESET": "Reset filters",
-      "ALL_STATUSES": "All statuses",
-      "ALL_TYPES": "All types"
-    },
-    "TABLE": {
-      "TITLE": "Disputes queue",
-      "SUBTITLE": "Open a case to review updates, attachments, and respond.",
-      "CASE": "Case ID",
-      "ORDER": "Order #",
-      "TYPE": "Type",
-      "PRIORITY": "Priority",
-      "UPDATED": "Updated",
-      "NO_REASON": "No reason code"
-    },
-    "TYPE": {
-      "COMPLAINT": "Complaint",
-      "RETURN_REQUEST": "Return request",
-      "DRIVER_REPORT": "Driver report",
-      "DRIVER_DISPUTE": "Driver dispute"
-    },
-    "STATUS": {
-      "SUBMITTED": "Submitted",
-      "IN_REVIEW": "In review",
-      "AWAITING_CUSTOMER_EVIDENCE": "Awaiting evidence",
-      "APPROVED": "Approved",
-      "REJECTED": "Rejected",
-      "RESOLVED": "Resolved"
-    },
-    "PRIORITY": {
-      "LOW": "Low",
-      "MEDIUM": "Medium",
-      "HIGH": "High",
-      "CRITICAL": "Critical"
-    },
-    "ACTIONS": {
-      "OPEN": "Open case",
-      "SEND_RESPONSE": "Send response"
-    },
-    "WAITING_ON": {
-      "VENDOR": "Waiting on vendor",
-      "CUSTOMER": "Waiting on customer",
-      "DRIVER": "Waiting on driver",
-      "ADMIN": "Under admin review",
-      "REVIEW": "Under review"
-    },
-    "PARTICIPANTS": {
-      "CUSTOMER": "Customer",
-      "VENDOR": "Vendor",
-      "DRIVER": "Driver"
-    },
-    "EMPTY": {
-      "TITLE": "No disputes found",
-      "SUBTITLE": "There are no cases matching the current filters."
-    },
-    "DETAIL": {
-      "TITLE": "Dispute case",
-      "SUMMARY_TITLE": "Case summary",
-      "SUMMARY_SUBTITLE": "Core dispute information and refund context.",
-      "QUEUE": "Queue",
-      "WAITING_ON": "Waiting on",
-      "REQUESTED_REFUND": "Requested refund",
-      "APPROVED_REFUND": "Approved refund",
-      "NOTES_TITLE": "Case notes",
-      "NOTES_SUBTITLE": "Review the original case message and any visible notes.",
-      "PARTICIPANTS": "Participants",
-      "CASE_MESSAGE": "Case message",
-      "CUSTOMER_NOTE": "Customer-visible note",
-      "DECISION_NOTES": "Decision notes",
-      "YOUR_RESPONSE": "Your latest response",
-      "ATTACHMENTS_TITLE": "Attachments",
-      "ATTACHMENTS_SUBTITLE": "Files shared with this dispute case.",
-      "OPEN_ATTACHMENT": "Open attachment",
-      "NO_ATTACHMENTS": "No attachments were shared for this case.",
-      "ACTIVITY_TITLE": "Activity timeline",
-      "ACTIVITY_SUBTITLE": "Visible case events and reviewer updates.",
-      "CONVERSATION_TITLE": "Conversation",
-      "CONVERSATION_SUBTITLE": "Messages visible to your team inside this case.",
-      "REPLY_TITLE": "Send response",
-      "REPLY_SUBTITLE": "Reply to the case reviewer with additional context.",
-      "REPLY_FIELD": "Response message",
-      "REPLY_PLACEHOLDER": "Write your response, explanation, or evidence summary here...",
-      "RESPONSE_SENT": "Your response was sent successfully.",
-      "RESPONSE_FAILED": "Unable to send your response right now.",
-      "CLOSED_BANNER": "This dispute is currently closed. Additional messages or attachments cannot be sent."
     }
   }
 }

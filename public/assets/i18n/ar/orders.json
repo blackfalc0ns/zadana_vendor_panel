@@ -5,11 +5,11 @@
     "SUMMARY": {
       "TOTAL": "إجمالي الطلبات",
       "NEW": "طلبات جديدة",
-      "IN_PROGRESS": "قيد التجهيز",
+      "IN_PROGRESS": "تحت التجهيز",
       "LATE": "طلبات متأخرة"
     },
     "CREATE_MANUAL_ORDER": "إنشاء طلب يدوي",
-    "CREATE_MANUAL_ORDER_DESC": "قم بإنشاء طلب جديد لعميلك مباشرة من هنا.",
+    "CREATE_MANUAL_ORDER_DESC": "أنشئ طلبًا جديدًا لعميلك مباشرة من هنا.",
     "SELECT_CUSTOMER": "اختيار العميل",
     "ADD_PRODUCTS": "إضافة المنتجات",
     "ORDER_SUMMARY": "ملخص الطلب",
@@ -19,7 +19,7 @@
     "SELECTED_ITEMS": "الأصناف المختارة",
     "NO_ITEMS_SELECTED": "لم يتم اختيار أصناف بعد",
     "CONFIRM_ORDER": "تأكيد الطلب",
-    "REVIEW_BEFORE_SUBMIT": "يرجى مراجعة بيانات الطلب قبل التأكيد",
+    "REVIEW_BEFORE_SUBMIT": "راجع بيانات الطلب قبل التأكيد",
     "CUSTOMER_INFO": "بيانات العميل",
     "PAYMENT_DETAILS": "بيانات الدفع",
     "PAYMENT_ON_DELIVERY": "الدفع عند الاستلام",
@@ -27,7 +27,7 @@
     "ITEM": "الصنف",
     "QTY": "الكمية",
     "PLACE_ORDER": "إنشاء الطلب",
-    "ORDER_PLACED_SUCCESS": "تم إنشاء الطلب بنجاح",
+    "ORDER_PLACED_SUCCESS": "أنشأنا الطلب بنجاح",
     "SEARCH_PLACEHOLDER": "بحث برقم الطلب أو اسم العميل...",
     "FILTERS": {
       "TITLE": "فلاتر الطلبات",
@@ -49,9 +49,9 @@
       "TITLE": "قائمة الطلبات",
       "SUBTITLE": "راجع الطلبات الواردة وحالاتها من جدول واحد."
     },
-    "LOAD_ERROR": "تعذّر تحميل الطلبات. تحقق من الاتصال ثم حاول مرة أخرى.",
-    "REFRESHING": "جاري تحديث قائمة الطلبات...",
-    "RETRY": "إعادة المحاولة",
+    "LOAD_ERROR": "تعذّر تحميل الطلبات. تحقق من الاتصال ثم جرّب مرة ثانية.",
+    "REFRESHING": "نحدّث قائمة الطلبات...",
+    "RETRY": "إعادة المجرّبة",
     "HEADER_ORDER_ID": "رقم الطلب",
     "HEADER_CUSTOMER": "العميل",
     "HEADER_DATE": "التاريخ",
@@ -64,19 +64,19 @@
     "STATUS_PENDING_VENDOR_ACCEPTANCE": "بانتظار قبول المتجر",
     "STATUS_VENDOR_REJECTED": "مرفوض من المتجر",
     "STATUS_CONFIRMED": "تم التأكيد",
-    "STATUS_IN_PROGRESS": "قيد التجهيز",
+    "STATUS_IN_PROGRESS": "تحت التجهيز",
     "STATUS_READY": "جاهز للتسليم",
     "STATUS_READY_FOR_PICKUP": "جاهز للاستلام",
     "STATUS_PICKED_UP": "تم الاستلام من المتجر",
     "STATUS_OUT_FOR_DELIVERY": "في الطريق للعميل",
     "STATUS_DRIVER_ASSIGNED": "تم تعيين مندوب",
-    "STATUS_DRIVER_ASSIGNMENT_IN_PROGRESS": "جاري البحث عن مندوب",
+    "STATUS_DRIVER_ASSIGNMENT_IN_PROGRESS": "نبحث عن مندوب",
     "STATUS_DELIVERED": "تم التسليم",
     "STATUS_COMPLETED": "مكتمل",
     "STATUS_CANCELLED": "ملغي",
     "STATUS_RETURNED": "مرتجع",
     "STATUS_DELIVERY_FAILED": "فشل التوصيل",
-    "STATUS_REFUNDED": "تم الاسترداد",
+    "STATUS_REFUNDED": "تم الاسترجاع",
     "TAB_ALL": "الكل",
     "TAB_NEW": "جديدة",
     "TAB_PREPARING": "قيد التحضير",
@@ -91,22 +91,22 @@
       "STEPS": {
         "NEW": {
           "TITLE": "طلب جديد",
-          "DESCRIPTION": "تم استلام الطلب من العميل وينتظر مراجعتك وتأكيدك."
+          "DESCRIPTION": "استلمنا الطلب من العميل وينتظر مراجعتك وتأكيدك."
         },
         "CONFIRMED": {
           "TITLE": "تم التأكيد",
-          "DESCRIPTION": "تم قبول الطلب وبدأ مسار التجهيز داخل المتجر."
+          "DESCRIPTION": "انقبل الطلب وبدأ مسار التجهيز داخل المتجر."
         },
         "IN_PROGRESS": {
-          "TITLE": "قيد التجهيز",
-          "DESCRIPTION": "يجري تجهيز المنتجات وتعبئة الطلب حالياً."
+          "TITLE": "تحت التجهيز",
+          "DESCRIPTION": "يجري تجهيز المنتجات وتعبئة الطلب الحين."
         },
         "READY_FOR_PICKUP": {
           "TITLE": "جاهز للاستلام",
           "DESCRIPTION": "الطلب جاهز للاستلام وينتظر وصول المندوب."
         },
         "DRIVER_ASSIGNMENT_IN_PROGRESS": {
-          "TITLE": "جاري البحث عن مندوب",
+          "TITLE": "نبحث عن مندوب",
           "DESCRIPTION": "النظام يبحث عن أقرب مندوب متاح للتوصيل."
         },
         "DRIVER_ASSIGNED": {
@@ -142,8 +142,8 @@
           "DESCRIPTION": "تعذّر إتمام التوصيل ويحتاج متابعة من فريق الدعم."
         },
         "REFUNDED": {
-          "TITLE": "تم الاسترداد",
-          "DESCRIPTION": "تم استرداد قيمة الطلب للعميل."
+          "TITLE": "تم الاسترجاع",
+          "DESCRIPTION": "تم استرجاع قيمة الطلب للعميل."
         }
       },
       "NOTES": {
@@ -157,18 +157,18 @@
         "DRIVER_VERIFIED_DELIVERY": "تم التحقق من رمز التوصيل بنجاح",
         "COD_SELECTED": "تم اختيار الدفع عند الاستلام",
         "AWAITING_VENDOR": "في انتظار رد المتجر",
-        "VENDOR_ACCEPTED": "تم قبول الطلب من قبل المتجر",
+        "VENDOR_ACCEPTED": "انقبل الطلب من المتجر",
         "VENDOR_PREPARING": "بدأ المتجر في تجهيز الطلب",
         "READY_FOR_PICKUP": "الطلب جاهز للاستلام",
-        "SEARCHING_DRIVERS": "جاري البحث عن مندوبين",
-        "NO_DRIVERS": "لا يوجد مندوبين متاحين",
-        "OFFER_SENT": "تم إرسال عرض التوصيل",
+        "SEARCHING_DRIVERS": "نبحث عن مندوبين",
+        "NO_DRIVERS": "ما فيه مندوبين متوفرين",
+        "OFFER_SENT": "انرسل عرض التوصيل",
         "DRIVER_REJECTED": "رفض المندوب عرض التوصيل",
         "CANCELLED_BY_ADMIN": "تم الإلغاء من قبل الإدارة",
         "CANCELLED_BY_CUSTOMER": "تم الإلغاء من قبل العميل",
-        "ORDER_PLACED": "تم إنشاء الطلب بنجاح",
+        "ORDER_PLACED": "أنشأنا الطلب بنجاح",
         "ORDER_CONFIRMED": "تم تأكيد الطلب",
-        "ORDER_PICKED_UP": "تم استلام الطلب من قبل المندوب",
+        "ORDER_PICKED_UP": "استلم المندوب الطلب",
         "ORDER_DELIVERED": "تم توصيل الطلب بنجاح",
         "PICKUP_CONFIRMED_EARLY": "تم تأكيد الاستلام قبل الوصول للعميل",
         "AWAITING_BANK_TRANSFER": "بانتظار تأكيد التحويل البنكي التلقائي",
@@ -189,7 +189,7 @@
     "CURRENCY": "ج.م",
     "ITEMS_COUNT": "{{count}} منتج",
     "ITEM_COUNT": "منتج واحد",
-    "EMPTY_TITLE": "لا توجد طلبات حالياً",
+    "EMPTY_TITLE": "ما فيه طلبات الحين",
     "EMPTY_DESC": "ستظهر الطلبات الجديدة هنا فور استلامها",
     "ACTION_CONFIRM": "تأكيد الطلب",
     "ACTION_START_PREPARING": "بدء التجهيز",
@@ -206,10 +206,14 @@
     "VERIFIED_SECURE": "عملية مؤمنة ومحققة",
     "SATELLITE_TELEMETRY": "تتبع القمر الصناعي",
     "CARRIER_HANDOVER": "بروتوكول تسليم الطلب",
-    "SYNCHRONIZE_HANDOFF": "يرجى إدخال رمز الأمان المكون من 4 أرقام لتزامن عملية التسليم مع المندوب المعتمد.",
+    "SYNCHRONIZE_HANDOFF": "أدخل رمز الأمان المكوّن من 4 أرقام عشان نزامن تسليم الطلب مع المندوب المعتمد.",
     "AUTHORIZE_HANDOVER": "تأكيد التسليم الآمن",
-    "CARRIER_SYNTHESIS": "جارٍ تخصيص المندوب",
-    "LOGISTICS_ORCHESTRATION": "يتم الآن تحليل الشبكة اللوجستية لتخصيص أقرب مندوب متاح."
+    "CARRIER_SYNTHESIS": "نخصص المندوب",
+    "LOGISTICS_ORCHESTRATION": "يتم الحين تحليل الشبكة اللوجستية لتخصيص أقرب مندوب متاح.",
+    "STATUS": {
+      "IN_PROGRESS": "تحت التجهيز",
+      "REFUNDED": "تم الاسترجاع"
+    }
   },
   "SUPPORT_CENTER": {
     "TITLE": "مركز الدعم والمرجع",
@@ -259,8 +263,8 @@
     },
     "STATUSES": {
       "OPEN": "مفتوحة",
-      "IN_PROGRESS": "قيد المعالجة",
-      "WAITING_VENDOR": "بانتظار المورد",
+      "IN_PROGRESS": "تحت المعالجة",
+      "WAITING_VENDOR": "بانتظار التاجر",
       "RESOLVED": "تم الحل"
     },
     "PRIORITIES": {
@@ -275,7 +279,7 @@
       "FINANCE": "المالية",
       "OFFERS": "العروض",
       "STAFF": "الفروع والموظفون",
-      "PROFILE": "ملف المورد",
+      "PROFILE": "ملف التاجر",
       "TECHNICAL": "تقني",
       "GENERAL": "عام"
     },
@@ -315,7 +319,7 @@
       "COMPOSER_SUBTITLE": "أرسل تحديثًا واضحًا أو أرفق التوضيح المطلوب لاستكمال المعالجة.",
       "MESSAGE_FIELD": "الرسالة",
       "MESSAGE_PLACEHOLDER": "اكتب ردك أو التوضيح الذي تريد إضافته إلى التذكرة",
-      "CLOSED_BANNER": "تم إغلاق هذه التذكرة. إذا كنت لا تزال تواجه المشكلة، يرجى فتح تذكرة دعم جديدة."
+      "CLOSED_BANNER": "أغلقنا هذه التذكرة. إذا لسه تواجه المشكلة، افتح تذكرة دعم جديدة."
     },
     "REFERENCE": {
       "READ_TIME": "{{count}} دقائق قراءة",
@@ -338,23 +342,23 @@
       "MESSAGE_PLACEHOLDER": "اشرح المشكلة أو الطلب والخطوات التي قمت بها قبل التواصل مع الدعم"
     },
     "EMPTY": {
-      "TICKETS_TITLE": "لا توجد تذاكر مطابقة",
+      "TICKETS_TITLE": "ما فيه تذاكر مطابقة",
       "TICKETS_SUBTITLE": "جرّب تخفيف الفلاتر أو افتح تذكرة جديدة من الزر العلوي.",
       "SELECT_TICKET_TITLE": "اختر حالة لعرض التفاصيل",
       "SELECT_TICKET_SUBTITLE": "حدد تذكرة من الجدول حتى تظهر بياناتها والمحادثة الجانبية.",
-      "ARTICLES_TITLE": "لا توجد مراجع مطابقة",
+      "ARTICLES_TITLE": "ما فيه مراجع مطابقة",
       "ARTICLES_SUBTITLE": "عدّل البحث أو غيّر الفلاتر لإظهار الأدلة المناسبة.",
       "SELECT_ARTICLE_TITLE": "اختر مرجعًا لعرض التفاصيل",
       "SELECT_ARTICLE_SUBTITLE": "حدد أي مرجع من القائمة حتى يظهر محتواه وروابطه المرتبطة.",
-      "RELATED_REFERENCE": "لا توجد مراجع مرتبطة بهذه التصنيف حالياً.",
-      "RELATED_TICKETS": "لا توجد تذاكر مرتبطة بهذا التصنيف حالياً."
+      "RELATED_REFERENCE": "ما فيه مراجع مرتبطة بهذه التصنيف الحين.",
+      "RELATED_TICKETS": "ما فيه تذاكر مرتبطة بهذا التصنيف الحين."
     },
     "FEEDBACK": {
-      "TICKET_CREATED": "تم إنشاء تذكرة الدعم بنجاح.",
-      "TICKET_CREATE_FAILED": "تعذر إنشاء تذكرة الدعم. راجع رقم الطلب وحاول مرة أخرى.",
-      "MESSAGE_SENT": "تم إرسال ردك إلى التذكرة.",
-      "MESSAGE_SEND_FAILED": "تعذر إرسال ردك. حاول مرة أخرى.",
-      "SEED_RESET": "تمت إعادة بيانات الدعم التجريبية."
+      "TICKET_CREATED": "أنشأنا تذكرة الدعم بنجاح.",
+      "TICKET_CREATE_FAILED": "ما قدرنا ننشئ تذكرة الدعم. راجع رقم الطلب وجرّب مرة ثانية.",
+      "MESSAGE_SENT": "أرسلنا ردك إلى التذكرة.",
+      "MESSAGE_SEND_FAILED": "ما قدرنا نرسل ردك. جرّب مرة ثانية.",
+      "SEED_RESET": "رجّعنا بيانات الدعم التجريبية."
     }
   },
   "VENDOR_DISPUTES": {
@@ -373,7 +377,7 @@
       "SEARCH_PLACEHOLDER": "ابحث برقم القضية أو رقم الطلب أو السبب أو الرسالة",
       "STATUS": "الحالة",
       "TYPE": "النوع",
-      "RESET": "إعادة التصفية",
+      "RESET": "إعادة الفلترة",
       "ALL_STATUSES": "كل الحالات",
       "ALL_TYPES": "كل الأنواع"
     },
@@ -385,19 +389,19 @@
       "TYPE": "النوع",
       "PRIORITY": "الأولوية",
       "UPDATED": "آخر تحديث",
-      "NO_REASON": "لا يوجد سبب"
+      "NO_REASON": "ما فيه سبب"
     },
     "TYPE": {
       "COMPLAINT": "شكوى",
       "RETURN_REQUEST": "طلب إرجاع",
-      "DRIVER_REPORT": "بلاغ سائق",
-      "DRIVER_DISPUTE": "نزاع سائق"
+      "DRIVER_REPORT": "بلاغ مندوب",
+      "DRIVER_DISPUTE": "نزاع مندوب"
     },
     "STATUS": {
       "SUBMITTED": "مقدمة",
-      "IN_REVIEW": "قيد المراجعة",
+      "IN_REVIEW": "تحت المراجعة",
       "AWAITING_CUSTOMER_EVIDENCE": "بانتظار أدلة العميل",
-      "APPROVED": "تمت الموافقة",
+      "APPROVED": "انقبل",
       "REJECTED": "مرفوضة",
       "RESOLVED": "مغلقة"
     },
@@ -416,7 +420,7 @@
       "CUSTOMER": "بانتظار رد العميل",
       "DRIVER": "بانتظار رد المندوب",
       "ADMIN": "قيد مراجعة الأدمن",
-      "REVIEW": "قيد المراجعة"
+      "REVIEW": "تحت المراجعة"
     },
     "PARTICIPANTS": {
       "CUSTOMER": "العميل",
@@ -463,27 +467,27 @@
     "ACTIVITY": {
       "SUBMITTED": {
         "TITLE": "تم فتح الحالة",
-        "NOTE": "تم استلام الحالة المرتبطة بالطلب رقم {{orderNumber}} وهي الآن قيد المراجعة."
+        "NOTE": "استلمنا الحالة المرتبطة بالطلب رقم {{orderNumber}} وهي الحين تحت المراجعة."
       },
       "REQUEST_EVIDENCE": {
         "TITLE": "طلب معلومات إضافية",
         "NOTE": "نحتاج إلى معلومات أو أدلة إضافية لمتابعة مراجعة الحالة الخاصة بالطلب رقم {{orderNumber}}."
       },
       "APPROVED": {
-        "TITLE": "تمت الموافقة",
-        "NOTE": "تمت الموافقة على طلب الاسترجاع وسيتم إشعارك عند بدء المعالجة المالية."
+        "TITLE": "انقبل الطلب",
+        "NOTE": "وافقنا على طلب الاسترجاع، وراح نبلغك عند بدء المعالجة المالية."
       },
       "REJECTED": {
         "TITLE": "تم الرفض",
-        "NOTE": "تم رفض الحالة الخاصة بالطلب رقم {{orderNumber}}."
+        "NOTE": "رفضنا الحالة الخاصة بالطلب رقم {{orderNumber}}."
       },
       "RESOLVED": {
         "TITLE": "تم الحل",
-        "NOTE": "تم إغلاق الحالة الخاصة بالطلب رقم {{orderNumber}} بعد معالجتها."
+        "NOTE": "أغلقنا الحالة الخاصة بالطلب رقم {{orderNumber}} بعد معالجتها."
       },
       "ESCALATED": {
         "TITLE": "تم التصعيد",
-        "NOTE": "تم تصعيد الحالة الخاصة بالطلب رقم {{orderNumber}} إلى فريق مختص."
+        "NOTE": "صعّدنا الحالة الخاصة بالطلب رقم {{orderNumber}} إلى فريق مختص."
       },
       "ADMIN_MESSAGE": {
         "TITLE": "رسالة من الإدارة",
@@ -523,7 +527,7 @@
       },
       "DRIVER_REPORT": {
         "WRONG_ADDRESS": "العنوان خاطئ",
-        "CUSTOMER_UNAVAILABLE": "العميل غير متاح",
+        "CUSTOMER_UNAVAILABLE": "العميل مو متاح",
         "DAMAGED_PACKAGE": "الشحنة تالفة",
         "VEHICLE_ISSUE": "مشكلة في المركبة",
         "OTHER": "أخرى"
@@ -535,8 +539,8 @@
       }
     },
     "EMPTY": {
-      "TITLE": "لا توجد نزاعات",
-      "SUBTITLE": "لا توجد قضايا تطابق الفلاتر الحالية."
+      "TITLE": "ما فيه نزاعات",
+      "SUBTITLE": "ما فيه قضايا تطابق الفلاتر الحالية."
     },
     "DETAIL": {
       "TITLE": "قضية نزاع",
@@ -547,7 +551,7 @@
       "REASON_CODE": "رمز السبب",
       "REQUESTED_REFUND": "المبلغ المطلوب",
       "APPROVED_REFUND": "المبلغ المعتمد",
-      "REFUND_METHOD": "طريقة الاسترداد",
+      "REFUND_METHOD": "طريقة الاسترجاع",
       "COST_BEARER": "متحمل التكلفة",
       "CLOSED_AT": "تاريخ الإغلاق",
       "NOTES_TITLE": "ملاحظات القضية",
@@ -560,7 +564,7 @@
       "ATTACHMENTS_TITLE": "المرفقات",
       "ATTACHMENTS_SUBTITLE": "الملفات المرتبطة بهذه القضية.",
       "OPEN_ATTACHMENT": "فتح المرفق",
-      "NO_ATTACHMENTS": "لا توجد مرفقات لهذه القضية.",
+      "NO_ATTACHMENTS": "ما فيه مرفقات لهذه القضية.",
       "ACTIVITY_TITLE": "سجل النشاط",
       "ACTIVITY_SUBTITLE": "الأحداث الظاهرة وتحديثات فريق المراجعة.",
       "CONVERSATION_TITLE": "المحادثة",
@@ -569,9 +573,9 @@
       "REPLY_SUBTITLE": "أرسل ردًا إلى مراجع القضية مع أي تفاصيل إضافية.",
       "REPLY_FIELD": "نص الرد",
       "REPLY_PLACEHOLDER": "اكتب ردك أو التوضيح أو ملخص الأدلة هنا...",
-      "RESPONSE_SENT": "تم إرسال ردك بنجاح.",
-      "RESPONSE_FAILED": "تعذر إرسال ردك حاليًا.",
-      "CLOSED_BANNER": "هذا النزاع مغلق حالياً. لا يمكن إرسال رسائل أو مرفقات إضافية."
+      "RESPONSE_SENT": "أرسلنا ردك بنجاح.",
+      "RESPONSE_FAILED": "ما قدرنا نرسل ردك الحين.",
+      "CLOSED_BANNER": "هذا النزاع مغلق الحين. ما تقدر ترسل رسائل أو مرفقات إضافية."
     }
   }
 }

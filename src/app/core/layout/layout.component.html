@@ -1,84 +1,84 @@
 <div
-  class="relative flex min-h-screen items-stretch bg-zadna-bgLight text-slate-900"
-  [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+ class="relative flex min-h-screen items-stretch bg-zadna-bgLight text-slate-900"
+ [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
 
-  <div
-    (click)="closeSidebar()"
-    class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
-    [class.opacity-100]="isMobileMenuOpen"
-    [class.pointer-events-auto]="isMobileMenuOpen"
-    [class.opacity-0]="!isMobileMenuOpen"
-    [class.pointer-events-none]="!isMobileMenuOpen">
-  </div>
+ <div
+ (click)="closeSidebar()"
+ class="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm transition-opacity duration-300 lg:hidden"
+ [class.opacity-100]="isMobileMenuOpen"
+ [class.pointer-events-auto]="isMobileMenuOpen"
+ [class.opacity-0]="!isMobileMenuOpen"
+ [class.pointer-events-none]="!isMobileMenuOpen">
+ </div>
 
-  <app-vendor-sidebar
-    [currentLang]="currentLang"
-    [userName]="userName"
-    [userRole]="userRole"
-    [initials]="initials"
-    [isMobileMenuOpen]="isMobileMenuOpen"
-    [isCollapsed]="!isSidebarOpen"
-    (toggleMobileMenu)="closeSidebar()"
-    (collapseSidebar)="toggleSidebar()"
-    (languageSwitch)="switchLanguage()"
-    (logoutAction)="logout()"
-    class="vendor-sidebar-shell z-50 shrink-0 transform transition-all duration-300 ease-out max-lg:fixed max-lg:inset-y-0 max-lg:start-0 max-lg:h-screen max-lg:w-[280px] max-lg:max-w-[calc(100vw-1.5rem)] lg:sticky lg:top-4 lg:ms-4 lg:me-0 lg:self-start lg:h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2rem)] lg:max-h-[calc(100vh-2rem)]"
-    [ngClass]="{
-      'max-lg:translate-x-0': isMobileMenuOpen,
-      'max-lg:-translate-x-full': !isMobileMenuOpen && currentLang === 'en',
-      'max-lg:translate-x-full': !isMobileMenuOpen && currentLang === 'ar',
-      'lg:w-[280px] lg:max-w-[280px]': isSidebarOpen,
-      'lg:w-[84px] lg:max-w-[84px]': !isSidebarOpen
-    }">
-  </app-vendor-sidebar>
+ <app-vendor-sidebar
+ [currentLang]="currentLang"
+ [userName]="userName"
+ [userRole]="userRole"
+ [initials]="initials"
+ [isMobileMenuOpen]="isMobileMenuOpen"
+ [isCollapsed]="!isSidebarOpen"
+ (toggleMobileMenu)="closeSidebar()"
+ (collapseSidebar)="toggleSidebar()"
+ (languageSwitch)="switchLanguage()"
+ (logoutAction)="logout()"
+ class="vendor-sidebar-shell z-50 shrink-0 transform transition-all duration-300 ease-out max-lg:fixed max-lg:inset-y-0 max-lg:start-0 max-lg:h-screen max-lg:w-[280px] max-lg:max-w-[calc(100vw-1.5rem)] lg:sticky lg:top-4 lg:ms-4 lg:me-0 lg:self-start lg:h-[calc(100vh-2rem)] lg:min-h-[calc(100vh-2rem)] lg:max-h-[calc(100vh-2rem)]"
+ [ngClass]="{
+ 'max-lg:translate-x-0': isMobileMenuOpen,
+ 'max-lg:-translate-x-full':!isMobileMenuOpen && currentLang === 'en',
+ 'max-lg:translate-x-full':!isMobileMenuOpen && currentLang === 'ar',
+ 'lg:w-[280px] lg:max-w-[280px]': isSidebarOpen,
+ 'lg:w-[84px] lg:max-w-[84px]':!isSidebarOpen
+ }">
+ </app-vendor-sidebar>
 
-  <main class="relative z-10 flex min-w-0 flex-1 flex-col w-full transition-all duration-300">
-    <app-vendor-header
-      [currentLang]="currentLang"
-      [storeLogoUrl]="storeLogoUrl"
-      [userName]="userName"
-      [userRole]="userRole"
-      [initials]="initials"
-      (languageSwitch)="switchLanguage()"
-      (logoutAction)="logout()">
-    </app-vendor-header>
+ <main class="relative z-10 flex min-w-0 flex-1 flex-col w-full transition-all duration-300">
+ <app-vendor-header
+ [currentLang]="currentLang"
+ [storeLogoUrl]="storeLogoUrl"
+ [userName]="userName"
+ [userRole]="userRole"
+ [initials]="initials"
+ (languageSwitch)="switchLanguage()"
+ (logoutAction)="logout()">
+ </app-vendor-header>
 
-    <section class="w-full px-4 pb-20 sm:px-5 md:px-6">
-      <article
-        *ngIf="showActivationBanner"
-        class="mb-5 rounded-[24px] border px-4 py-4 shadow-sm"
-        [ngClass]="activationBannerToneClasses">
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-          <div class="space-y-2">
-            <div class="inline-flex items-center gap-2 rounded-full border border-current/10 bg-white/70 px-3 py-1 text-[0.68rem] font-black uppercase tracking-[0.16em]">
-              <span class="h-2.5 w-2.5 rounded-full bg-current/70"></span>
-              {{ activationStateLabel }}
-            </div>
-            <h2 class="text-[1rem] font-black">
-              {{ currentLang === 'ar' ? 'التشغيل التجاري محجوب حتى الاعتماد' : 'Commercial activation is blocked until approval' }}
-            </h2>
-            <p class="max-w-3xl text-[0.82rem] font-semibold leading-6 text-current/80">
-              {{ activationSummary }}
-            </p>
-          </div>
+ <section class="w-full px-4 pb-20 sm:px-5 md:px-6">
+ <article
+ *ngIf="showActivationBanner"
+ class="mb-5 rounded-[24px] border px-4 py-4 shadow-sm"
+ [ngClass]="activationBannerToneClasses">
+ <div class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+ <div class="space-y-2">
+ <div class="inline-flex items-center gap-2 rounded-full border border-current/10 bg-white/70 px-3 py-1 text-[0.68rem] font-black uppercase tracking-[0.16em]">
+ <span class="h-2.5 w-2.5 rounded-full bg-current/70"></span>
+ {{ activationStateLabel }}
+ </div>
+ <h2 class="text-[1rem] font-black">
+ {{ currentLang === 'ar' ? 'تفعيل المتجر موقوف حتى الاعتماد' : 'Commercial activation is blocked until approval' }}
+ </h2>
+ <p class="max-w-3xl text-[0.82rem] font-semibold leading-6 text-current/80">
+ {{ activationSummary }}
+ </p>
+ </div>
 
-          <a
-            routerLink="/profile"
-            class="inline-flex items-center justify-center rounded-[16px] bg-slate-950 px-4 py-2.5 text-[0.76rem] font-black text-white shadow-[0_14px_24px_rgba(15,23,42,0.18)] transition hover:-translate-y-0.5">
-            {{ currentLang === 'ar' ? 'استكمال ملف التاجر' : 'Complete vendor profile' }}
-          </a>
-        </div>
+ <a
+ routerLink="/profile"
+ class="inline-flex items-center justify-center rounded-[16px] bg-slate-950 px-4 py-2.5 text-[0.76rem] font-black text-white shadow-[0_14px_24px_rgba(15,23,42,0.18)] transition hover:-translate-y-0.5">
+ {{ currentLang === 'ar' ? 'استكمال ملف التاجر' : 'Complete vendor profile' }}
+ </a>
+ </div>
 
-        <div *ngIf="activationProfile.requiredActions.length > 0" class="mt-4 flex flex-wrap gap-2">
-          <span
-            *ngFor="let action of activationProfile.requiredActions | slice:0:3"
-            class="inline-flex items-center rounded-full border border-current/10 bg-white/70 px-3 py-1.5 text-[0.68rem] font-black">
-            {{ localizeMessage(action.message) }}
-          </span>
-        </div>
-      </article>
+ <div *ngIf="activationProfile.requiredActions.length > 0" class="mt-4 flex flex-wrap gap-2">
+ <span
+ *ngFor="let action of activationProfile.requiredActions | slice:0:3"
+ class="inline-flex items-center rounded-full border border-current/10 bg-white/70 px-3 py-1.5 text-[0.68rem] font-black">
+ {{ localizeMessage(action.message) }}
+ </span>
+ </div>
+ </article>
 
-      <router-outlet (activate)="onChildRouteActivated()"></router-outlet>
-    </section>
-  </main>
+ <router-outlet (activate)="onChildRouteActivated()"></router-outlet>
+ </section>
+ </main>
 </div>

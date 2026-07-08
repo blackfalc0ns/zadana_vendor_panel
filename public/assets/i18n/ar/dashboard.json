@@ -1,18 +1,18 @@
 {
   "DASHBOARD": {
-    "TITLE": "مركز قيادة التاجر",
-    "SUBTITLE": "رؤية تشغيلية وتجارية وجودة ومالية في مكان واحد",
+    "TITLE": "مركز تحكم التاجر",
+    "SUBTITLE": "تشغيل ومبيعات وجودة ومالية في مكان واحد",
     "LAST_UPDATED": "آخر تحديث",
     "REFRESH": "تحديث",
-    "ERROR": "تعذر تحميل بيانات لوحة التحكم حالياً.",
+    "ERROR": "ما قدرنا نحمّل بيانات لوحة التحكم الحين.",
     "PERIODS": {
       "today": "اليوم",
       "7d": "آخر 7 أيام",
-      "30d": "آخر 30 يوماً",
-      "90d": "آخر 90 يوماً"
+      "30d": "آخر 30 يومًا",
+      "90d": "آخر 90 يومًا"
     },
     "SECTION_NAV": {
-      "OVERVIEW": "نظرة عامة",
+      "OVERVIEW": "لمحة عامة",
       "OPERATIONS": "التشغيل",
       "SALES": "المبيعات",
       "INVENTORY": "المخزون",
@@ -35,18 +35,18 @@
       "UNKNOWN_BRANCH": "غير محدد"
     },
     "HERO": {
-      "PENDING_ORDERS": "طلبات معلقة",
+      "PENDING_ORDERS": "طلبات معلّقة",
       "LATE_ORDERS": "طلبات متأخرة",
       "READY_FOR_PICKUP": "جاهز للاستلام",
-      "DRIVER_ISSUES": "مشكلات المندوب",
+      "DRIVER_ISSUES": "مشاكل المندوب",
       "OPEN_DISPUTES": "نزاعات مفتوحة",
       "LOW_STOCK": "مخزون حرج"
     },
     "SECTIONS": {
-      "OVERVIEW": "نظرة عامة",
+      "OVERVIEW": "لمحة عامة",
       "OVERVIEW_HINT": "ملخص شامل للأداء التشغيلي والمالي.",
-      "OPERATIONS": "مركز القيادة التشغيلية",
-      "OPERATIONS_HINT": "ما الذي يحتاج إلى تدخل الآن عبر الطلبات والتنفيذ.",
+      "OPERATIONS": "مركز التحكم التشغيلي",
+      "OPERATIONS_HINT": "الأشياء اللي تحتاج تدخل الحين في الطلبات والتنفيذ.",
       "SALES": "المبيعات والأداء التجاري",
       "SALES_HINT": "الإيرادات وجودة الطلبات وأداء الفئات ونقاط الضعف.",
       "INVENTORY": "المخزون والكتالوج",
@@ -113,7 +113,7 @@
     "FUNNEL": {
       "NEW": "جديد",
       "CONFIRMED": "مؤكد",
-      "PREPARING": "قيد التجهيز",
+      "PREPARING": "تحت التجهيز",
       "READY": "جاهز",
       "DELIVERED": "تم التسليم",
       "CANCELLED": "ملغي"
@@ -136,7 +136,7 @@
     },
     "SETTLEMENT_STATUS": {
       "PAID": "مدفوعة",
-      "PROCESSING": "قيد المعالجة",
+      "PROCESSING": "تحت المعالجة",
       "SCHEDULED": "مجدولة"
     },
     "CHART_LABELS": {
@@ -155,7 +155,7 @@
     "LEDGER_REFERENCE": {
       "ORDER": "طلب",
       "ORDER_REVENUE": "إيراد طلب",
-      "VENDOR_RECOVERY": "استرداد المتجر",
+      "VENDOR_RECOVERY": "استرجاع المتجر",
       "PAYOUT": "تحويل",
       "SETTLEMENT": "تسوية"
     },
@@ -180,7 +180,7 @@
       "GATEWAY_RECEIVABLE": "ذمم بوابة الدفع عند التحصيل للطلب {{order}}",
       "CUSTOMER_ADVANCE_RECOGNISED": "اعتراف بسلفة العميل للطلب {{order}}",
       "COD_CASH_COLLECTED": "تحصيل نقدي COD للطلب {{order}}",
-      "CUSTOMER_ADVANCE_CLEARED": "تصفية سلفة العميل للطلب {{order}}",
+      "CUSTOMER_ADVANCE_CLEARED": "فلترة سلفة العميل للطلب {{order}}",
       "VENDOR_PAYABLE": "مستحقات المتجر للطلب {{order}}",
       "DRIVER_PAYABLE": "مستحقات المندوب للطلب {{order}}",
       "PLATFORM_REVENUE": "إيرادات المنصة للطلب {{order}}",
@@ -203,12 +203,12 @@
       "INACTIVE_PRODUCTS": "منتجات غير نشطة",
       "PRODUCTS_WITH_OFFERS": "منتجات عليها عروض",
       "CRITICAL_STOCK_NOTE": "يوصى بإعادة التوريد فوراً",
-      "NO_MOVEMENT": "لا توجد حركة خلال الفترة المختارة",
+      "NO_MOVEMENT": "ما فيه حركة خلال الفترة المختارة",
       "IDLE_CAPITAL": "رأس المال المعطل"
     },
     "OFFERS": {
       "ACTIVE_OFFERS": "عروض نشطة",
-      "CLEARANCE_ITEMS": "منتجات تصفية",
+      "CLEARANCE_ITEMS": "منتجات فلترة",
       "EXPIRING_OFFERS": "عروض تنتهي قريباً",
       "OFFER_COVERAGE": "تغطية العروض",
       "EXPIRING_HINT": "قيمة عرض معرّضة للانتهاء",
@@ -218,12 +218,12 @@
       "AVERAGE_RATING": "متوسط التقييم",
       "TOTAL_REVIEWS": "إجمالي التقييمات",
       "LOW_RATING_COUNT": "تقييمات منخفضة",
-      "PENDING_REPLIES": "ردود معلقة",
+      "PENDING_REPLIES": "ردود معلّقة",
       "HIDDEN_REVIEWS": "تقييمات مخفية"
     },
     "FINANCE": {
       "AVAILABLE_BALANCE": "الرصيد المتاح",
-      "PENDING_SETTLEMENT": "تسويات معلقة",
+      "PENDING_SETTLEMENT": "تسويات معلّقة",
       "NET_SALES": "صافي المبيعات",
       "FEES": "الرسوم",
       "PAYOUTS_PAID": "التحويلات المدفوعة",
@@ -243,7 +243,7 @@
     "STAFF": {
       "ACTIVE_BRANCHES": "فروع نشطة",
       "ACTIVE_STAFF": "فريق نشط",
-      "PENDING_INVITATIONS": "دعوات معلقة",
+      "PENDING_INVITATIONS": "دعوات معلّقة",
       "BRANCHES_NEEDING_COVERAGE": "فروع تحتاج تغطية"
     },
     "ALERTS": {
@@ -255,15 +255,15 @@
       "DISPUTES_BODY": "توجد نزاعات تتطلب متابعة عاجلة من التاجر.",
       "REVIEWS_TITLE": "تقييمات العملاء تحتاج ردوداً",
       "REVIEWS_BODY": "التقييمات المنخفضة غير المردود عليها قد تؤثر على الثقة والتحويل.",
-      "LARGE_SETTLEMENT_TITLE": "تسوية معلقة ضمن الدورة",
-      "LARGE_SETTLEMENT_BODY": "أموال التسوية ما زالت قيد المعالجة وتحتاج مراجعة."
+      "LARGE_SETTLEMENT_TITLE": "تسوية معلّقة ضمن الدورة",
+      "LARGE_SETTLEMENT_BODY": "أموال التسوية ما زالت تحت المعالجة وتحتاج مراجعة."
     },
     "EMPTY": {
-      "NO_ALERTS": "لا توجد تنبيهات نشطة حالياً.",
-      "NO_URGENT_ORDERS": "لا توجد طلبات عاجلة حالياً.",
-      "NO_CRITICAL_STOCK": "لا توجد منتجات ذات مخزون حرج حالياً.",
-      "NO_PENDING_REVIEWS": "لا توجد تقييمات منخفضة بانتظار الرد.",
-      "NO_STAFF_DISTRIBUTION": "لا توجد بيانات كافية عن توزيع الفريق حتى الآن."
+      "NO_ALERTS": "ما فيه تنبيهات نشطة الحين.",
+      "NO_URGENT_ORDERS": "ما فيه طلبات عاجلة الحين.",
+      "NO_CRITICAL_STOCK": "ما فيه منتجات ذات مخزون حرج الحين.",
+      "NO_PENDING_REVIEWS": "ما فيه تقييمات منخفضة بانتظار الرد.",
+      "NO_STAFF_DISTRIBUTION": "ما فيه بيانات كافية عن توزيع الفريق حتى الحين."
     },
     "OPERATIONS": {
       "PREP_EFFICIENCY": "كفاءة التجهيز (SLA)",
@@ -272,6 +272,7 @@
     },
     "TABLES": {
       "SALES": "مبيعات"
-    }
+    },
+    "EMPTY_STATE": "ما فيه بيانات كافية للعرض الحين."
   }
 }

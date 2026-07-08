@@ -6,8 +6,8 @@
     "DELETE": "حذف",
     "EDIT": "تعديل",
     "ADD": "إضافة",
-    "LOADING": "جاري التحميل...",
-    "NO_DATA": "لا توجد بيانات",
+    "LOADING": "نحمّل...",
+    "NO_DATA": "ما فيه بيانات",
     "ACTIONS": "إجراءات",
     "STATUS": "الحالة",
     "CREATED_AT": "تاريخ الإنشاء",
@@ -16,7 +16,7 @@
     "NO": "لا",
     "CONFIRM": "تأكيد",
     "SUCCESS": "تمت العملية بنجاح",
-    "ERROR": "حدث خطأ ما",
+    "ERROR": "صار خطأ",
     "BACK": "رجوع",
     "OPTIONAL": "(اختياري)",
     "EGP": "ج.م",
@@ -27,15 +27,16 @@
     "TODAY": "اليوم",
     "OPEN": "فتح",
     "CLOSE": "إغلاق",
-    "WELCOME": "مرحباً بك",
+    "WELCOME": "هلا بك",
+    "PHONE_LOCAL_PLACEHOLDER": "05X XXX XXXX",
     "READY_TODAY": "جاهز لليوم",
     "OPERATIONAL_PRIORITIES": "أولويات التشغيل",
-    "BRAND_GENERAL": "علامة تجارية عامة",
+    "BRAND_GENERAL": "علامة عامة",
     "UNIT_PIECE": "قطعة",
     "HEADER_PRODUCT": "المنتج",
     "ENGLISH": "English",
     "ARABIC": "العربية",
-    "DEFAULT_VENDOR_NAME": "مورد جديد",
+    "DEFAULT_VENDOR_NAME": "تاجر جديد",
     "LOGOUT": "تسجيل الخروج",
     "PROFILE": "الملف الشخصي",
     "SHORTCUT_CTRL_K": "Ctrl K",
@@ -46,7 +47,13 @@
     "CLEAR_SELECTION": "مسح الاختيار",
     "ACTIVE": "نشط",
     "CONTINUE": "متابعة",
-    "ERROR_OCCURRED": "حدث خطأ غير متوقع.",
+    "ERROR_OCCURRED": "صار خطأ غير متوقع.",
+    "API_ERRORS": {
+      "UNKNOWN": "صار خطأ غير متوقع. جرّب مرة ثانية.",
+      "NETWORK": "ما قدرنا نتصل بالسيرفر. تحقق من الشبكة وجرّب مرة ثانية.",
+      "UNAUTHORIZED": "ما عندك صلاحية لتنفيذ هذا الإجراء.",
+      "CONFLICT": "ما قدرنا نكمل العملية بسبب تعارض في البيانات."
+    },
     "STATUS_ACTIVE": "نشط",
     "STATUS_INACTIVE": "غير نشط",
     "FILTERS": "الفلاتر",
@@ -57,7 +64,7 @@
   },
   "SIDEBAR": {
     "APP_NAME": "زادنا",
-    "APP_SUBTITLE": "لوحة المورد",
+    "APP_SUBTITLE": "لوحة التاجر",
     "DASHBOARD": "الرئيسية",
     "DASHBOARD_DESC": "مؤشرات الأداء ونبض العمليات",
     "PRODUCTS": "المنتجات / الكتالوج",
@@ -74,17 +81,17 @@
     "REVIEWS": "التقييمات",
     "REVIEWS_DESC": "مراجعة تقييمات العملاء وآرائهم",
     "SETTINGS": "الإعدادات",
-    "SETTINGS_DESC": "التحكم في إعدادات المتجر والملف التجاري",
+    "SETTINGS_DESC": "تحكّم بإعدادات المتجر والملف التجاري",
     "LOGOUT": "تسجيل الخروج",
     "NEW_BADGE": "جديد",
     "READY_STATUS": "جاهز للعمل",
     "SEARCH_PLACEHOLDER": "بحث سريع (Ctrl K)",
-    "OVERVIEW_TITLE": "نظرة عامة",
+    "OVERVIEW_TITLE": "لمحة عامة",
     "OPERATIONS_TITLE": "العمليات",
     "SUPPORT": "الدعم الفني",
     "SUPPORT_DESC": "تذاكر الدعم والمساعدة من فريق زدانا",
     "ALERTS": "التنبيهات",
-    "VERIFIED_VENDOR": "مورد معتمد لدى زدانا",
+    "VERIFIED_VENDOR": "تاجر معتمد لدى زدنا",
     "STORE_SETUP": "إعداد الحساب",
     "STORE_SETUP_TITLE": "أكمل بياناتك للبدء في البيع",
     "CONTINUE_SETUP": "متابعة الإعداد",
@@ -92,14 +99,15 @@
     "DISPUTES_DESC": "حل المشكلات والاعتراضات مع العملاء",
     "WORKSPACE_LABEL": "مساحة العمل",
     "NAVIGATION_TITLE": "التنقل",
-    "CAT_OVERVIEW": "نظرة عامة",
+    "CAT_OVERVIEW": "لمحة عامة",
     "CAT_OPERATIONS": "الوصول",
     "CAT_CATALOG": "الكتالوج",
-    "CAT_MANAGEMENT": "الإدارة"
+    "CAT_MANAGEMENT": "الإدارة",
+    "DEFAULT": "لوحة التاجر"
   },
   "PAGE_TITLES": {
-    "BRAND": "زادنا",
-    "DEFAULT": "لوحة المورد",
+    "BRAND": "زادنا — بوابة التاجر",
+    "DEFAULT": "لوحة التاجر",
     "LOGIN": "تسجيل الدخول",
     "REGISTER": "إنشاء حساب",
     "FORGOT_PASSWORD": "نسيت كلمة المرور",
@@ -107,7 +115,7 @@
     "INVITATION_ACCEPT": "قبول الدعوة",
     "VERIFY_EMAIL": "تأكيد البريد الإلكتروني",
     "ONBOARDING": "إعداد الحساب",
-    "SUBMISSION_SUCCESS": "تم إرسال الطلب",
+    "SUBMISSION_SUCCESS": "انرسل الطلب",
     "DASHBOARD": "الرئيسية",
     "PRODUCTS": "المنتجات",
     "PRODUCT_SUBMIT": "إضافة منتج",
@@ -130,242 +138,153 @@
     "SUPPORT_REFERENCE_DETAIL": "تفاصيل المرجع",
     "PROFILE": "الإعدادات"
   },
-  "DASHBOARD": {
-    "TITLE": "مركز قيادة التاجر",
-    "SUBTITLE": "رؤية تشغيلية وتجارية وجودة ومالية في مكان واحد",
-    "LAST_UPDATED": "آخر تحديث",
-    "REFRESH": "تحديث",
-    "ERROR": "تعذر تحميل بيانات لوحة التحكم حالياً.",
-    "PERIODS": {
-      "today": "اليوم",
-      "7d": "آخر 7 أيام",
-      "30d": "آخر 30 يوماً",
-      "90d": "آخر 90 يوماً"
-    },
-    "SECTION_NAV": {
-      "OVERVIEW": "نظرة عامة",
-      "OPERATIONS": "التشغيل",
-      "SALES": "المبيعات",
-      "INVENTORY": "المخزون",
-      "OFFERS": "العروض",
-      "REVIEWS": "التقييمات",
-      "FINANCE": "المالية",
-      "RISK": "المخاطر",
-      "STAFF": "الفريق"
-    },
-    "DOMAIN": {
-      "OPERATIONS": "التشغيل",
-      "INVENTORY": "المخزون",
-      "FINANCE": "المالية",
-      "REVIEWS": "التقييمات",
-      "RISK": "المخاطر"
-    },
-    "CONTEXT": {
-      "CURRENT_BRANCH": "الفرع الحالي",
-      "CURRENT_ROLE": "نوع الحساب",
-      "UNKNOWN_BRANCH": "غير محدد"
-    },
-    "HERO": {
-      "PENDING_ORDERS": "طلبات معلقة",
-      "LATE_ORDERS": "طلبات متأخرة",
-      "READY_FOR_PICKUP": "جاهز للاستلام",
-      "DRIVER_ISSUES": "مشكلات المندوب",
-      "OPEN_DISPUTES": "نزاعات مفتوحة",
-      "LOW_STOCK": "مخزون حرج"
-    },
-    "SECTIONS": {
-      "OVERVIEW": "نظرة عامة",
-      "OVERVIEW_HINT": "ملخص شامل للأداء التشغيلي والمالي.",
-      "OPERATIONS": "مركز القيادة التشغيلية",
-      "OPERATIONS_HINT": "ما الذي يحتاج إلى تدخل الآن عبر الطلبات والتنفيذ.",
-      "SALES": "المبيعات والأداء التجاري",
-      "SALES_HINT": "الإيرادات وجودة الطلبات وأداء الفئات ونقاط الضعف.",
-      "INVENTORY": "المخزون والكتالوج",
-      "INVENTORY_HINT": "صحة المخزون وحركة الكتالوج والمنتجات التي تحتاج إلى تدخل.",
-      "OFFERS": "العروض والترويج",
-      "OFFERS_HINT": "العروض النشطة وشرائح الخصم والمنتجات المرشحة للترويج.",
-      "REVIEWS": "التقييمات وجودة العملاء",
-      "REVIEWS_HINT": "انطباع العملاء وضغط الردود ومؤشرات الجودة.",
-      "FINANCE": "ملخص المحفظة",
-      "FINANCE_HINT": "وضع السيولة والتسويات والتحويلات وحركة القيود المالية.",
-      "RISK": "النزاعات والمخاطر",
-      "RISK_HINT": "الحالات التي قد تؤثر على الخدمة أو الربحية.",
-      "STAFF": "الفريق والفروع",
-      "STAFF_HINT": "ملخص خفيف لتغطية الفروع والتشغيل.",
-      "URGENT_ORDERS": "طلبات عاجلة",
-      "LATEST_ALERTS": "آخر التنبيهات التشغيلية",
-      "TOP_PRODUCTS": "أفضل المنتجات",
-      "UNDERPERFORMING_PRODUCTS": "منتجات ضعيفة الأداء",
-      "CRITICAL_STOCK": "قائمة المخزون الحرج",
-      "NO_MOVEMENT_PRODUCTS": "منتجات بلا حركة",
-      "EXPIRING_OFFERS": "عروض قاربت على الانتهاء",
-      "PROMOTION_CANDIDATES": "مرشحون للترويج",
-      "LOW_RATING_UNREPLIED": "تقييمات منخفضة بدون رد",
-      "RECENT_HIGHLIGHTS": "أبرز التقييمات الأخيرة",
-      "BRANCH_REVENUE": "إيرادات الفروع",
-      "RECENT_SETTLEMENTS": "أحدث التسويات",
-      "RECENT_LEDGER": "آخر الحركة المالية",
-      "AWAITING_ACTION": "حالات تنتظر إجراء التاجر",
-      "RECENT_ESCALATIONS": "آخر التصعيدات"
-    },
-    "CHARTS": {
-      "COUNT": "العدد",
-      "SALES": "المبيعات",
+  "HEADER": {
+    "OPEN_MENU": "فتح القائمة",
+    "CLOSE_MENU": "إغلاق القائمة",
+    "NOTIFICATIONS": "التنبيهات",
+    "PROFILE": "الملف الشخصي",
+    "SEARCH": "بحث في النظام...",
+    "ACTIVE_ACCOUNT": "حساب نشط",
+    "PENDING_ACTIVATION": "بانتظار الاعتماد",
+    "UNDER_REVIEW": "تحت المراجعة",
+    "CHANGES_REQUESTED": "مطلوب تعديلات",
+    "ACCOUNT_SUSPENDED": "حساب موقوف",
+    "VENDOR_DASHBOARD": "لوحة التحكم للتاجر",
+    "SEARCH_PLACEHOLDER": "بحث في زدانا..."
+  },
+  "HEADER_SEARCH": {
+    "TITLE": "البحث الموحد",
+    "PLACEHOLDER": "بحث في زدانا (طلبات، منتجات، كتالوج...)",
+    "MIN_QUERY": "اكتب {{count}} أحرف على الأقل لبدء البحث.",
+    "SEARCHING": "نبحث داخل لوحة التاجر...",
+    "NO_RESULTS": "ما لقينا نتائج مطابقة.",
+    "GROUPS": {
+      "NAVIGATION": "الصفحات",
       "ORDERS": "الطلبات",
-      "SALES_TREND": "اتجاه المبيعات",
-      "PAYOUTS": "التحويلات",
+      "PRODUCTS": "منتجاتي",
+      "MASTER_PRODUCTS": "كتالوج المنتجات"
+    }
+  },
+  "PAGINATION": {
+    "PREVIOUS": "السابق",
+    "NEXT": "التالي",
+    "PAGE_INFO": "صفحة {{current}} من {{total}}",
+    "TOTAL_PRODUCTS": "إجمالي: {{count}} منتج",
+    "TOTAL_ITEMS": "إجمالي: {{count}} عنصر",
+    "TOTAL_ORDERS": "إجمالي: {{count}} طلب"
+  },
+  "ALERTS_CENTER": {
+    "TITLE": "مركز التنبيهات",
+    "SUBTITLE": "تابع التنبيهات التشغيلية المشتقة من الطلبات والمنتجات والمالية والدعم وغيرها من نفس لوحة التاجر.",
+    "ACTIONS": {
+      "MARK_ALL_READ": "تعليم الكل كمقروء",
+      "MARK_READ": "تعليم كمقروء",
+      "MARK_UNREAD": "تعليم كغير مقروء",
+      "ARCHIVE": "أرشفة",
+      "RESTORE": "استعادة",
+      "OPEN": "فتح",
+      "VIEW_ALL": "عرض كل التنبيهات"
+    },
+    "SUMMARY": {
+      "UNREAD": "غير المقروءة",
+      "UNREAD_HINT": "عناصر لم تُراجع بعد داخل مركز التنبيهات.",
+      "CRITICAL": "حرجة",
+      "CRITICAL_HINT": "تنبيهات تحتاج تدخلاً فوريًا.",
+      "NEEDS_ACTION": "تحتاج إجراء",
+      "NEEDS_ACTION_HINT": "تنبيهات تحمل طابع تشغيلي أو تحذيري.",
+      "ARCHIVED": "مؤرشفة",
+      "ARCHIVED_HINT": "تنبيهات احتفظت بها للرجوع إليها لاحقًا."
+    },
+    "QUICK_TABS": {
+      "ALL": "الكل",
+      "UNREAD": "غير المقروءة",
+      "CRITICAL": "الحرجة",
+      "ARCHIVED": "المؤرشفة"
+    },
+    "SECTION_TITLE": "سجل التنبيهات",
+    "SECTION_SUBTITLE": "تابع المصادر والأولويات والحالة وافتح الصفحة المرتبطة مباشرة من التنبيه.",
+    "FILTERS": {
+      "TITLE": "الفلاتر",
+      "SUBTITLE": "خصص التنبيهات حسب المصدر والشدة والحالة بشكل واضح.",
+      "RESET": "إعادة تعيين",
+      "SEARCH": "بحث",
+      "SOURCE": "المصدر",
+      "SEVERITY": "الشدة",
+      "STATE": "الحالة",
+      "ALL_SOURCES": "كل المصادر",
+      "ALL_SEVERITY": "كل درجات الشدة",
+      "ALL_STATES": "كل الحالات"
+    },
+    "SEARCH": {
+      "PLACEHOLDER": "ابحث داخل عناوين التنبيهات ووصفها"
+    },
+    "TABLE": {
+      "ALERT": "التنبيه",
+      "SOURCE": "المصدر",
+      "SEVERITY": "الشدة",
+      "STATE": "الحالة",
+      "TIME": "الوقت"
+    },
+    "SOURCES": {
+      "ORDERS": "الطلبات",
       "PRODUCTS": "المنتجات",
+      "OFFERS": "العروض",
+      "FINANCE": "المالية",
+      "SUPPORT": "الدعم",
+      "STAFF": "الفروع والموظفون",
       "REVIEWS": "التقييمات",
-      "DISPUTES": "النزاعات",
-      "ORDERS_TREND": "اتجاه الطلبات",
-      "ORDER_STATUS_BREAKDOWN": "توزيع حالات الطلبات",
-      "ORDER_FUNNEL": "مسار الطلبات",
-      "SALES_VS_ORDERS": "المبيعات مقابل الطلبات",
-      "WEEKDAY_PERFORMANCE": "أداء أيام الأسبوع",
-      "TOP_CATEGORIES": "أفضل الفئات",
-      "STOCK_HEALTH": "توزيع صحة المخزون",
-      "INVENTORY_RISK": "قائمة مخاطر المخزون",
-      "CATALOG_GROWTH": "نمو الكتالوج",
-      "OFFERS_BY_TYPE": "العروض حسب النوع",
-      "DISCOUNT_BANDS": "شرائح الخصم",
-      "OFFER_LINKED_PRODUCTS": "المنتجات المرتبطة بالعروض",
-      "RATING_DISTRIBUTION": "توزيع التقييمات",
-      "REVIEWS_TREND": "اتجاه التقييمات",
-      "REPLY_BREAKDOWN": "توزيع الردود",
-      "SALES_VS_PAYOUTS": "المبيعات مقابل التحويلات",
-      "SETTLEMENT_STATUS": "حالة التسويات",
-      "LEDGER_BREAKDOWN": "توزيع القيود المالية",
-      "DISPUTES_BY_STATUS": "النزاعات حسب الحالة",
-      "DISPUTES_BY_TYPE": "النزاعات حسب النوع",
-      "DISPUTES_TREND": "اتجاه النزاعات",
-      "BRANCH_STATUS": "حالة الفروع",
-      "STAFF_ROLE_DISTRIBUTION": "توزيع أدوار الفريق"
+      "PROFILE": "ملف التاجر"
     },
-    "FUNNEL": {
-      "NEW": "جديد",
-      "CONFIRMED": "مؤكد",
-      "PREPARING": "قيد التجهيز",
-      "READY": "جاهز",
-      "DELIVERED": "تم التسليم",
-      "CANCELLED": "ملغي"
+    "SEVERITY": {
+      "INFO": "معلومة",
+      "WARNING": "تحذير",
+      "CRITICAL": "حرج"
     },
-    "STOCK_HEALTH": {
-      "HEALTHY": "جيد",
-      "LOW": "منخفض",
-      "OUT": "نافد"
+    "STATE": {
+      "UNREAD": "غير مقروء",
+      "READ": "مقروء",
+      "ARCHIVED": "مؤرشف"
     },
-    "OFFER_TYPES": {
-      "DIRECT": "عروض مباشرة",
-      "COUPONS": "كوبونات",
-      "CATEGORY_CAMPAIGNS": "حملات الفئات",
-      "CLEARANCE": "تصفيات",
-      "CAMPAIGNS": "حملات"
-    },
-    "REPLY_BREAKDOWN": {
-      "REPLIED": "تم الرد",
-      "PENDING": "بانتظار الرد"
-    },
-    "SETTLEMENT_STATUS": {
-      "PAID": "مدفوعة",
-      "PROCESSING": "قيد المعالجة",
-      "SCHEDULED": "مجدولة"
-    },
-    "LEDGER_TYPES": {
-      "SALES": "مبيعات",
-      "FEES": "رسوم",
-      "PAYOUTS": "تحويلات",
-      "REFUNDS": "مرتجعات"
-    },
-    "SALES": {
-      "GROSS_SALES": "إجمالي المبيعات",
-      "PAID_SALES": "المبيعات المحصلة",
-      "ORDERS_COUNT": "عدد الطلبات",
-      "AVERAGE_ORDER_VALUE": "متوسط قيمة الطلب",
-      "CANCELLATION_RATE": "معدل الإلغاء",
-      "REFUND_RATE": "معدل الاسترجاع",
-      "LOST_REVENUE": "الإيرادات الضائعة"
-    },
-    "INVENTORY": {
-      "ACTIVE_PRODUCTS": "منتجات نشطة",
-      "OUT_OF_STOCK": "نافد المخزون",
-      "LOW_STOCK": "مخزون منخفض",
-      "INACTIVE_PRODUCTS": "منتجات غير نشطة",
-      "PRODUCTS_WITH_OFFERS": "منتجات عليها عروض",
-      "CRITICAL_STOCK_NOTE": "يوصى بإعادة التوريد فوراً",
-      "NO_MOVEMENT": "لا توجد حركة خلال الفترة المختارة",
-      "IDLE_CAPITAL": "رأس المال المعطل"
-    },
-    "OFFERS": {
-      "ACTIVE_OFFERS": "عروض نشطة",
-      "CLEARANCE_ITEMS": "منتجات تصفية",
-      "EXPIRING_OFFERS": "عروض تنتهي قريباً",
-      "OFFER_COVERAGE": "تغطية العروض",
-      "EXPIRING_HINT": "قيمة عرض معرّضة للانتهاء",
-      "PROMOTION_HINT": "مرشح لدفع ترويجي"
-    },
-    "REVIEWS": {
-      "AVERAGE_RATING": "متوسط التقييم",
-      "TOTAL_REVIEWS": "إجمالي التقييمات",
-      "LOW_RATING_COUNT": "تقييمات منخفضة",
-      "PENDING_REPLIES": "ردود معلقة",
-      "HIDDEN_REVIEWS": "تقييمات مخفية"
-    },
-    "FINANCE": {
-      "AVAILABLE_BALANCE": "الرصيد المتاح",
-      "PENDING_SETTLEMENT": "تسويات معلقة",
-      "NET_SALES": "صافي المبيعات",
-      "FEES": "الرسوم",
-      "PAYOUTS_PAID": "التحويلات المدفوعة",
-      "HOLD_AMOUNT": "المبلغ المحجوز",
-      "NEXT_SETTLEMENT": "التسوية القادمة",
-      "LIFECYCLE_MODE": "دورة التسوية",
-      "BRANCH_REVENUE_HINT": "يتم توضيح الإيراد المحصل لكل فرع حتى تقدر تميز أداء كل فرع بشكل واضح.",
-      "BRANCH_ORDERS": "الطلبات",
-      "AVG_ORDER_VALUE": "متوسط قيمة الطلب"
-    },
-    "DISPUTES": {
-      "OPEN": "نزاعات مفتوحة",
-      "HIGH_PRIORITY": "أولوية عالية",
-      "REFUND_REQUESTS": "طلبات استرجاع",
-      "AWAITING_VENDOR_RESPONSE": "بانتظار رد التاجر"
-    },
-    "STAFF": {
-      "ACTIVE_BRANCHES": "فروع نشطة",
-      "ACTIVE_STAFF": "فريق نشط",
-      "PENDING_INVITATIONS": "دعوات معلقة",
-      "BRANCHES_NEEDING_COVERAGE": "فروع تحتاج تغطية"
-    },
-    "ALERTS": {
-      "LATE_ORDERS_TITLE": "طلبات متأخرة تحتاج متابعة",
-      "LATE_ORDERS_BODY": "بعض الطلبات تجاوزت الوقت المتوقع للتجهيز.",
-      "LOW_STOCK_TITLE": "مخزون حرج يحتاج إعادة تزويد",
-      "LOW_STOCK_BODY": "هناك منتجات وصلت إلى مستوى مخزون محفوف بالمخاطر.",
-      "DISPUTES_TITLE": "حالات تنتظر رد التاجر",
-      "DISPUTES_BODY": "توجد نزاعات تتطلب متابعة عاجلة من التاجر.",
-      "REVIEWS_TITLE": "تقييمات العملاء تحتاج ردوداً",
-      "REVIEWS_BODY": "التقييمات المنخفضة غير المردود عليها قد تؤثر على الثقة والتحويل.",
-      "LARGE_SETTLEMENT_TITLE": "تسوية معلقة ضمن الدورة",
-      "LARGE_SETTLEMENT_BODY": "أموال التسوية ما زالت قيد المعالجة وتحتاج مراجعة."
+    "POPOVER": {
+      "SUBTITLE": "أعلى الأولويات الحالية غير المؤرشفة",
+      "EMPTY_TITLE": "ما فيه تنبيهات جديدة",
+      "EMPTY_SUBTITLE": "عند ظهور أي تنبيه جديد، سيظهر هنا مباشرة."
     },
     "EMPTY": {
-      "NO_ALERTS": "لا توجد تنبيهات نشطة حالياً.",
-      "NO_URGENT_ORDERS": "لا توجد طلبات عاجلة حالياً.",
-      "NO_CRITICAL_STOCK": "لا توجد منتجات ذات مخزون حرج حالياً.",
-      "NO_PENDING_REVIEWS": "لا توجد تقييمات منخفضة بانتظار الرد.",
-      "NO_STAFF_DISTRIBUTION": "لا توجد بيانات كافية عن توزيع الفريق حتى الآن."
+      "TITLE": "ما فيه تنبيهات مطابقة",
+      "SUBTITLE": "جرّب تغيير الفلاتر أو تابع عندما تتغير البيانات التشغيلية."
     },
-    "OPERATIONS": {
-      "PREP_EFFICIENCY": "كفاءة التجهيز (SLA)",
-      "AVG_PREP_TIME": "متوسط وقت التجهيز",
-      "MINUTES": "دقيقة"
+    "LOAD_ERROR": "ما قدرنا نحمّل التنبيهات. تحقق من الاتصال وجرّب مرة ثانية.",
+    "DATE_GROUPS": {
+      "TODAY": "اليوم",
+      "YESTERDAY": "أمس",
+      "EARLIER": "سابقًا"
     },
-    "TABLES": {
-      "SALES": "مبيعات"
+    "REALTIME": {
+      "CONNECTED": "متصل مباشرة",
+      "CONNECTING": "نربط الاتصال...",
+      "ERROR": "انقطع الاتصال المباشر",
+      "OFFLINE": "غير متصل مباشرة"
+    },
+    "FEEDBACK": {
+      "MARKED_READ": "علّمنا التنبيه كمقروء.",
+      "MARKED_UNREAD": "رجّعنا التنبيه كغير مقروء.",
+      "ARCHIVED": "أرشفنا التنبيه.",
+      "RESTORED": "رجّعنا التنبيه من الأرشيف.",
+      "ALL_READ": "علّمنا كل التنبيهات كمقروءة."
     }
+  },
+  "NOT_FOUND": {
+    "TITLE": "الصفحة غير موجودة",
+    "MESSAGE": "ما لقينا الصفحة اللي طلبتها. تأكد من الرابط أو ارجع للرئيسية.",
+    "PATH_LABEL": "المسار المطلوب",
+    "GO_DASHBOARD": "الرئيسية",
+    "GO_BACK": "رجوع",
+    "GO_LOGIN": "تسجيل الدخول"
   },
   "AUTH": {
     "LOGIN_TITLE": "تسجيل الدخول",
-    "REGISTER_TITLE": "إنشاء حساب مورد",
+    "REGISTER_TITLE": "إنشاء حساب تاجر",
     "FORGOT_PASSWORD": "نسيت كلمة المرور؟",
     "EMAIL": "البريد الإلكتروني",
     "PASSWORD": "كلمة المرور",
@@ -374,11 +293,11 @@
     "ERR_REQUIRED": "هذا الحقل مطلوب"
   },
   "LOGIN": {
-    "ADMIN_PORTAL": "بوابة الموردين",
-    "WELCOME": "مرحباً بك مجدداً في زدانا",
-    "HERO_TITLE_1": "شريكك المثالي",
-    "HERO_TITLE_2": "لنمو أعمالك",
-    "HERO_DESC": "انضم إلى آلاف الموردين الناجحين في منصة زدانا، ووسع نطاق أعمالك في أكبر سوق للمواد الغذائية.",
+    "ADMIN_PORTAL": "بوابة التجار",
+    "WELCOME": "هلا بك مرة ثانية في زدنا",
+    "HERO_TITLE_1": "شريكك",
+    "HERO_TITLE_2": "لنمو متجرك",
+    "HERO_DESC": "انضم لتجار زدنا ووسّع مبيعاتك في سوق المواد الغذائية.",
     "EMAIL": "البريد الإلكتروني",
     "EMAIL_PLACEHOLDER": "أدخل بريدك الإلكتروني",
     "PASSWORD": "كلمة المرور",
@@ -386,23 +305,24 @@
     "FORGOT_PASSWORD": "نسيت كلمة المرور؟",
     "SIGN_IN": "تسجيل الدخول",
     "SIGN_IN_GOOGLE": "الدخول بواسطة جوجل",
-    "SIGNING_IN": "جاري الدخول...",
+    "SIGNING_IN": "نسجّل دخولك...",
     "OR_CONTINUE": "أو تابع بواسطة",
-    "DON_T_HAVE_STORE": "ليس لديك متجر بعد؟",
-    "CREATE_STORE_FREE": "أنشئ متجرك مجاناً الآن",
+    "DON_T_HAVE_STORE": "ما عندك متجر؟",
+    "CREATE_STORE_FREE": "أنشئ متجرك مجانًا الحين",
     "ERR_EMAIL_REQUIRED": "البريد الإلكتروني مطلوب",
     "ERR_EMAIL_INVALID": "البريد الإلكتروني غير صحيح",
     "ERR_PASSWORD_REQUIRED": "كلمة المرور مطلوبة",
-    "ERR_LOGIN_FAILED": "تعذر تسجيل الدخول. راجع البيانات وحاول مرة أخرى.",
+    "ERR_LOGIN_FAILED": "ما قدرنا نسجل دخولك. راجع البيانات وجرّب مرة ثانية.",
     "ERR_INVALID_CREDENTIALS": "البريد الإلكتروني أو كلمة المرور غير صحيحة.",
-    "ERR_ACCOUNT_NOT_ALLOWED": "هذا الحساب غير مخول لتسجيل الدخول حالياً.",
-    "ERR_ACCOUNT_LOCKED": "تم قفل هذا الحساب مؤقتاً. تواصل مع الدعم أو جرّب لاحقاً.",
-    "ERR_SERVER_UNREACHABLE": "تعذر الوصول إلى الخادم حالياً. تأكد من تشغيل الـ API أو تحقق من اتصال الشبكة ثم حاول مرة أخرى.",
-    "ERR_SERVER_ERROR": "حدث خطأ من جهة الخادم. حاول مرة أخرى بعد قليل."
+    "ERR_ACCOUNT_NOT_ALLOWED": "هذا الحساب ما عنده صلاحية للدخول الحين.",
+    "ERR_ACCOUNT_LOCKED": "تم قفل هذا الحساب مؤقتًا. تواصل مع الدعم أو جرّب لاحقاً.",
+    "ERR_SERVER_UNREACHABLE": "ما قدرنا نوصل للسيرفر الحين. تأكد من اتصالك وجرّب مرة ثانية.",
+    "ERR_SERVER_ERROR": "حدث خطأ من جهة السيرفر. جرّب مرة ثانية بعد قليل.",
+    "ERR_SESSION_EXPIRED": "انتهت جلستك. سجّل دخولك مرة ثانية."
   },
   "ONBOARDING": {
     "TITLE": "إعداد المتجر",
-    "SUBTITLE": "خطوات بسيطة لتفعيل متجرك والبدء في البيع",
+    "SUBTITLE": "خطوات بسيطة لتفعيل متجرك والبدء بالبيع",
     "PROGRESS_LABEL": "تقدم الإعداد",
     "STEP_BASIC": "البيانات الأساسية",
     "STEP_LOCATION": "الموقع الجغرافي",
@@ -410,9 +330,9 @@
     "STEP_FINANCE": "البيانات المالية",
     "STEP_DOCS": "رفع المستندات",
     "STEP_DESCRIPTIONS": {
-      "BASIC": "بيانات تعريف المتجر والنشاط التجاري",
+      "BASIC": "بيانات تعريف المتجر ونشاطه",
       "LOCATION": "تحديد المواقع الجغرافية للفروع والمستودعات",
-      "LEGAL": "رفع السجلات التجارية والتراخيص القانونية",
+      "LEGAL": "رفع السجلات والرخص القانونية",
       "FINANCE": "إعداد الحسابات البنكية ودورات الدفع",
       "DOCS": "رفع الوثائق الثبوتية وصور المستندات"
     },
@@ -519,18 +439,18 @@
       "MONTHLY": "شهري"
     },
     "SUCCESS_PAGE": {
-      "TITLE": "تم إرسال الطلب بنجاح!",
-      "DESCRIPTION": "شكراً لانضمامك إلى زدانا. فريقنا يقوم حالياً بمراجعة بيانات متجرك للتأكد من مطابقتها للمعايير.",
+      "TITLE": "انرسل الطلب بنجاح!",
+      "DESCRIPTION": "شكراً لانضمامك إلى زدانا. فريقنا يقوم الحين بمراجعة بيانات متجرك للتأكد من مطابقتها للمعايير.",
       "PENDING_HINT": "عملية المراجعة عادة ما تستغرق من 24 إلى 48 ساعة عمل. ستصلك رسالة إلكترونية فور تفعيل الحساب.",
-      "REVIEW_HERO_TITLE": "تم إرسال ملف المتجر للمراجعة",
-      "REVIEW_HERO_DESCRIPTION": "يوضح هذا المشهد أن ملف المورد دخل مرحلة المراجعة الداخلية، وسيبقى بنفس الحالة إلى أن يراجع فريق السوبر أدمن البيانات والمستندات.",
+      "REVIEW_HERO_TITLE": "انرسل ملف المتجر للمراجعة",
+      "REVIEW_HERO_DESCRIPTION": "يوضح هذا المشهد أن ملف التاجر دخل مرحلة المراجعة الداخلية، وسيبقى بنفس الحالة إلى أن يراجع فريق السوبر أدمن البيانات والمستندات.",
       "REVIEW_STAMP": "مراجعة",
       "GO_DASHBOARD": "الانتقال للوحة التحكم",
       "LOGOUT": "تسجيل الخروج",
       "EDIT_RESUBMIT": "تعديل وإعادة الإرسال",
-      "STATUS_PENDING": "قيد المراجعة",
+      "STATUS_PENDING": "تحت المراجعة",
       "STATUS_SUBMITTED": "تم الإرسال",
-      "STATUS_UNDER_REVIEW": "قيد المراجعة",
+      "STATUS_UNDER_REVIEW": "تحت المراجعة",
       "STATUS_CHANGES_REQUESTED": "مطلوب تعديلات",
       "STATUS_REJECTED": "مرفوض",
       "STATUS_ACTIVE": "نشط",
@@ -539,12 +459,12 @@
       "NO_DASHBOARD_HINT": "الوصول للوحة التحكم سيكون متاحاً بعد اعتماد الملف."
     },
     "ERRORS": {
-      "START_FROM_REGISTER": "يرجى البدء من صفحة إنشاء الحساب أولًا لإكمال بيانات الدخول.",
-      "SUBMIT_FAILED": "تعذر إرسال طلب تسجيل المورد الآن."
+      "START_FROM_REGISTER": "ابدأ من صفحة إنشاء الحساب أولًا عشان تكمل بيانات الدخول.",
+      "SUBMIT_FAILED": "ما قدرنا نرسل طلب تسجيل التاجر الحين."
     },
     "SUMMARY": {
       "TITLE": "ملخص الطلب",
-      "IN_REVIEW": "قيد المراجعة",
+      "IN_REVIEW": "تحت المراجعة",
       "BIZ_NAME": "اسم المنشأة",
       "APP_ID": "رقم الطلب",
       "STATUS": "حالة الطلب"
@@ -564,7 +484,7 @@
     "BANK_CARD_TITLE": "البيانات البنكية",
     "DOCS_CARD_TITLE": "الوثائق والمستندات",
     "UPLOAD_LOGO_TITLE": "شعار المتجر",
-    "UPLOAD_LOGO_HELP": "يرجى رفع صورة واضحة لشعار المتجر (JPG, PNG)",
+    "UPLOAD_LOGO_HELP": "ارفع صورة واضحة لشعار المتجر (JPG, PNG)",
     "UPLOAD_CR_TITLE": "السجل التجاري",
     "UPLOAD_CR_HELP": "ارفع نسخة من السجل التجاري كملف PDF أو صورة",
     "UPLOAD_ACTION": "رفع الملف",
@@ -617,15 +537,356 @@
     "MAP": {
       "EYEBROW": "إحداثيات الفرع",
       "TITLE": "حدد موقع المتجر على الخريطة",
-      "DESC": "اضغط على الخريطة أو استخدم موقعك الحالي. يتم حفظ خط العرض والطول من هذا الاختيار وليس من حقل المنطقة.",
+      "DESC": "اضغط على الخريطة أو استخدم موقعك الحالي. نحفظ خط العرض والطول من هذا الاختيار، مو من حقل المنطقة.",
       "USE_CURRENT": "استخدام موقعي الحالي",
-      "LOCATING": "جاري تحديد الموقع...",
+      "LOCATING": "نحدد موقعك...",
       "SELECTED": "الموقع المحدد",
       "EMPTY_TITLE": "لم يتم تحديد موقع",
       "EMPTY_DESC": "اضغط في أي مكان على الخريطة لتحديد خط العرض وخط الطول.",
       "GEO_UNSUPPORTED": "المتصفح لا يدعم الوصول للموقع.",
-      "GEO_FAILED": "تعذر قراءة موقعك الحالي. اسمح بالوصول للموقع أو اختر من الخريطة."
+      "GEO_FAILED": "ما قدرنا نقرأ موقعك الحالي. اسمح بالوصول للموقع أو اختر من الخريطة."
+    },
+    "LOCATION": {
+      "EMPTY_TITLE": "ما تم تحديد موقع",
+      "GEO_FAILED": "ما قدرنا نقرأ موقعك الحين. اسمح بالوصول للموقع أو اختر من الخريطة."
     }
+  },
+  "FORGOT_PASSWORD_PAGE": {
+    "PORTAL_TITLE": "بوابة التجار",
+    "HERO_TITLE_1": "استعد الوصول",
+    "HERO_TITLE_2": "إلى حسابك بسهولة",
+    "HERO_DESC": "أدخل بريدك الإلكتروني وسنساعدك على استعادة الوصول إلى حساب متجرك بأمان.",
+    "CARD_TITLE": "نسيت كلمة المرور",
+    "CARD_DESC": "سنرسل رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.",
+    "BTN_SUBMIT": "إرسال رابط الاستعادة",
+    "SENDING": "نرسل...",
+    "BTN_BACK": "العودة إلى تسجيل الدخول",
+    "ERRORS": {
+      "INVALID_EMAIL": "أدخل بريد إلكتروني صحيح.",
+      "SEND_FAILED": "ما قدرنا نرسل تعليمات إعادة التعيين الحين."
+    }
+  },
+  "REGISTER": {
+    "PORTAL_TITLE": "بوابة التجار",
+    "HERO_TITLE": "ابدأ متجرك مع زدانا",
+    "HERO_SUBTITLE": "سجّل وابدأ البيع",
+    "HERO_DESC": "أنشئ حساب التاجر وابدأ بإدارة منتجاتك وطلباتك بسهولة.",
+    "CARD_TITLE": "إنشاء حساب جديد",
+    "FIRST_NAME": "الاسم الأول",
+    "LAST_NAME": "اسم العائلة",
+    "STORE_NAME": "اسم المتجر",
+    "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
+    "ERR_MISMATCH": "كلمتا المرور غير متطابقتين",
+    "ERR_INVALID_FORM": "كمل كل الحقول بشكل صحيح.",
+    "ERR_GENERAL": "هذا الحقل مطلوب أو غير صحيح.",
+    "BTN_SUBMIT": "إنشاء الحساب",
+    "OR": "أو",
+    "BTN_REGISTER_GOOGLE": "التسجيل عبر جوجل",
+    "ALREADY_HAVE_ACCOUNT": "عندك حساب؟",
+    "SIGN_IN": "تسجيل الدخول"
+  },
+  "RESET_PASSWORD_PAGE": {
+    "EYEBROW": "إعادة تعيين كلمة المرور",
+    "HERO_TITLE_1": "أنشئ كلمة مرور",
+    "HERO_TITLE_2": "جديدة بأمان",
+    "HERO_DESC": "أدخل رمز التحقق المرسل إلى بريدك وحدّد كلمة مرور قوية لاستعادة الوصول إلى حساب متجرك.",
+    "TITLE": "أدخل رمز التحقق وكلمة المرور الجديدة",
+    "CARD_DESC": "تحقق من بريدك الإلكتروني للحصول على رمز التحقق المكوّن من 4 أرقام.",
+    "FIELDS": {
+      "EMAIL": "البريد الإلكتروني",
+      "OTP": "رمز التحقق",
+      "NEW_PASSWORD": "كلمة المرور الجديدة",
+      "CONFIRM_PASSWORD": "تأكيد كلمة المرور"
+    },
+    "SUBMIT": "تحديث كلمة المرور",
+    "SENDING": "نحدّث...",
+    "BTN_BACK": "العودة إلى تسجيل الدخول",
+    "ERRORS": {
+      "INVALID_FORM": "كمل البيانات بشكل صحيح.",
+      "INVALID_OTP": "اكتب رمز التحقق المكوّن من 4 أرقام.",
+      "PASSWORD_MIN": "كلمة المرور لازم تكون 8 أحرف على الأقل.",
+      "PASSWORD_MISMATCH": "كلمتا المرور غير متطابقتين.",
+      "RESET_FAILED": "ما قدرنا نحدّث كلمة المرور الحين."
+    }
+  },
+  "FORGOT_PASSWORD": {
+    "PORTAL_TITLE": "بوابة التجار"
+  },
+  "DASHBOARD": {
+    "TITLE": "مركز تحكم التاجر",
+    "SUBTITLE": "تشغيل ومبيعات وجودة ومالية في مكان واحد",
+    "LAST_UPDATED": "آخر تحديث",
+    "REFRESH": "تحديث",
+    "ERROR": "ما قدرنا نحمّل بيانات لوحة التحكم الحين.",
+    "PERIODS": {
+      "today": "اليوم",
+      "7d": "آخر 7 أيام",
+      "30d": "آخر 30 يومًا",
+      "90d": "آخر 90 يومًا"
+    },
+    "SECTION_NAV": {
+      "OVERVIEW": "لمحة عامة",
+      "OPERATIONS": "التشغيل",
+      "SALES": "المبيعات",
+      "INVENTORY": "المخزون",
+      "OFFERS": "العروض",
+      "REVIEWS": "التقييمات",
+      "FINANCE": "المالية",
+      "RISK": "المخاطر",
+      "STAFF": "الفريق"
+    },
+    "DOMAIN": {
+      "OPERATIONS": "التشغيل",
+      "INVENTORY": "المخزون",
+      "FINANCE": "المالية",
+      "REVIEWS": "التقييمات",
+      "RISK": "المخاطر"
+    },
+    "CONTEXT": {
+      "CURRENT_BRANCH": "الفرع الحالي",
+      "CURRENT_ROLE": "نوع الحساب",
+      "UNKNOWN_BRANCH": "غير محدد"
+    },
+    "HERO": {
+      "PENDING_ORDERS": "طلبات معلّقة",
+      "LATE_ORDERS": "طلبات متأخرة",
+      "READY_FOR_PICKUP": "جاهز للاستلام",
+      "DRIVER_ISSUES": "مشاكل المندوب",
+      "OPEN_DISPUTES": "نزاعات مفتوحة",
+      "LOW_STOCK": "مخزون حرج"
+    },
+    "SECTIONS": {
+      "OVERVIEW": "لمحة عامة",
+      "OVERVIEW_HINT": "ملخص شامل للأداء التشغيلي والمالي.",
+      "OPERATIONS": "مركز التحكم التشغيلي",
+      "OPERATIONS_HINT": "الأشياء اللي تحتاج تدخل الحين في الطلبات والتنفيذ.",
+      "SALES": "المبيعات والأداء التجاري",
+      "SALES_HINT": "الإيرادات وجودة الطلبات وأداء الفئات ونقاط الضعف.",
+      "INVENTORY": "المخزون والكتالوج",
+      "INVENTORY_HINT": "صحة المخزون وحركة الكتالوج والمنتجات التي تحتاج إلى تدخل.",
+      "OFFERS": "العروض والترويج",
+      "OFFERS_HINT": "العروض النشطة وشرائح الخصم والمنتجات المرشحة للترويج.",
+      "REVIEWS": "التقييمات وجودة العملاء",
+      "REVIEWS_HINT": "انطباع العملاء وضغط الردود ومؤشرات الجودة.",
+      "FINANCE": "ملخص المحفظة",
+      "FINANCE_HINT": "وضع السيولة والتسويات والتحويلات وحركة القيود المالية.",
+      "RISK": "النزاعات والمخاطر",
+      "RISK_HINT": "الحالات التي قد تؤثر على الخدمة أو الربحية.",
+      "STAFF": "الفريق والفروع",
+      "STAFF_HINT": "ملخص خفيف لتغطية الفروع والتشغيل.",
+      "URGENT_ORDERS": "طلبات عاجلة",
+      "LATEST_ALERTS": "آخر التنبيهات التشغيلية",
+      "TOP_PRODUCTS": "أفضل المنتجات",
+      "UNDERPERFORMING_PRODUCTS": "منتجات ضعيفة الأداء",
+      "CRITICAL_STOCK": "قائمة المخزون الحرج",
+      "NO_MOVEMENT_PRODUCTS": "منتجات بلا حركة",
+      "EXPIRING_OFFERS": "عروض قاربت على الانتهاء",
+      "PROMOTION_CANDIDATES": "مرشحون للترويج",
+      "LOW_RATING_UNREPLIED": "تقييمات منخفضة بدون رد",
+      "RECENT_HIGHLIGHTS": "أبرز التقييمات الأخيرة",
+      "BRANCH_REVENUE": "إيرادات الفروع",
+      "RECENT_SETTLEMENTS": "أحدث التسويات",
+      "RECENT_LEDGER": "آخر الحركة المالية",
+      "AWAITING_ACTION": "حالات تنتظر إجراء التاجر",
+      "RECENT_ESCALATIONS": "آخر التصعيدات"
+    },
+    "CHARTS": {
+      "COUNT": "العدد",
+      "SALES": "المبيعات",
+      "ORDERS": "الطلبات",
+      "SALES_TREND": "اتجاه المبيعات",
+      "PAYOUTS": "التحويلات",
+      "PRODUCTS": "المنتجات",
+      "REVIEWS": "التقييمات",
+      "DISPUTES": "النزاعات",
+      "ORDERS_TREND": "اتجاه الطلبات",
+      "ORDER_STATUS_BREAKDOWN": "توزيع حالات الطلبات",
+      "ORDER_FUNNEL": "مسار الطلبات",
+      "SALES_VS_ORDERS": "المبيعات مقابل الطلبات",
+      "WEEKDAY_PERFORMANCE": "أداء أيام الأسبوع",
+      "TOP_CATEGORIES": "أفضل الفئات",
+      "STOCK_HEALTH": "توزيع صحة المخزون",
+      "INVENTORY_RISK": "قائمة مخاطر المخزون",
+      "CATALOG_GROWTH": "نمو الكتالوج",
+      "OFFERS_BY_TYPE": "العروض حسب النوع",
+      "DISCOUNT_BANDS": "شرائح الخصم",
+      "OFFER_LINKED_PRODUCTS": "المنتجات المرتبطة بالعروض",
+      "RATING_DISTRIBUTION": "توزيع التقييمات",
+      "REVIEWS_TREND": "اتجاه التقييمات",
+      "REPLY_BREAKDOWN": "توزيع الردود",
+      "SALES_VS_PAYOUTS": "المبيعات مقابل التحويلات",
+      "SETTLEMENT_STATUS": "حالة التسويات",
+      "LEDGER_BREAKDOWN": "توزيع القيود المالية",
+      "DISPUTES_BY_STATUS": "النزاعات حسب الحالة",
+      "DISPUTES_BY_TYPE": "النزاعات حسب النوع",
+      "DISPUTES_TREND": "اتجاه النزاعات",
+      "BRANCH_STATUS": "حالة الفروع",
+      "STAFF_ROLE_DISTRIBUTION": "توزيع أدوار الفريق"
+    },
+    "FUNNEL": {
+      "NEW": "جديد",
+      "CONFIRMED": "مؤكد",
+      "PREPARING": "تحت التجهيز",
+      "READY": "جاهز",
+      "DELIVERED": "تم التسليم",
+      "CANCELLED": "ملغي"
+    },
+    "STOCK_HEALTH": {
+      "HEALTHY": "جيد",
+      "LOW": "منخفض",
+      "OUT": "نافد"
+    },
+    "OFFER_TYPES": {
+      "DIRECT": "عروض مباشرة",
+      "COUPONS": "كوبونات",
+      "CATEGORY_CAMPAIGNS": "حملات الفئات",
+      "CLEARANCE": "تصفيات",
+      "CAMPAIGNS": "حملات"
+    },
+    "REPLY_BREAKDOWN": {
+      "REPLIED": "تم الرد",
+      "PENDING": "بانتظار الرد"
+    },
+    "SETTLEMENT_STATUS": {
+      "PAID": "مدفوعة",
+      "PROCESSING": "تحت المعالجة",
+      "SCHEDULED": "مجدولة"
+    },
+    "CHART_LABELS": {
+      "SUBSIDIZED": "مدعوم",
+      "ADJUSTMENTS": "تعديلات",
+      "ADJUSTMENT": "تعديل",
+      "CATEGORY": "فئة"
+    },
+    "LEDGER_TYPES": {
+      "SALES": "مبيعات",
+      "FEES": "رسوم",
+      "PAYOUTS": "تحويلات",
+      "REFUNDS": "مرتجعات",
+      "ADJUSTMENTS": "تعديلات"
+    },
+    "LEDGER_REFERENCE": {
+      "ORDER": "طلب",
+      "ORDER_REVENUE": "إيراد طلب",
+      "VENDOR_RECOVERY": "استرجاع المتجر",
+      "PAYOUT": "تحويل",
+      "SETTLEMENT": "تسوية"
+    },
+    "LEDGER_DEFAULTS": {
+      "ORDER_REVENUE": "إيراد طلب",
+      "PAYOUT_HOLD": "حجز للتحويل",
+      "PAYOUT_HOLD_RELEASE": "فك حجز التحويل",
+      "VENDOR_PAYOUT": "تحويل بنكي",
+      "REFUND": "استرجاع",
+      "WALLET_ADJUSTMENT": "تسوية مالية",
+      "WALLET_CREDIT": "إضافة للمحفظة",
+      "WALLET_DEBIT": "خصم من المحفظة",
+      "SETTLEMENT": "تسوية",
+      "CASH_COLLECTED": "تحصيل نقدي"
+    },
+    "LEDGER_MEMOS": {
+      "PAYOUT_PAID": "تم دفع التسوية {{id}}",
+      "PLATFORM_CASH_PAYOUT": "تسوية نقدية للمنصة {{id}}",
+      "COD_RECEIVABLE": "ذمم COD متوقعة للطلب {{order}}",
+      "CUSTOMER_ADVANCE_CLEARING": "تسوية سلفة العميل للطلب {{order}}",
+      "REVENUE_RECONCILIATION_DELTA": "فرق مطابقة الإيرادات للطلب {{order}}",
+      "GATEWAY_RECEIVABLE": "ذمم بوابة الدفع عند التحصيل للطلب {{order}}",
+      "CUSTOMER_ADVANCE_RECOGNISED": "اعتراف بسلفة العميل للطلب {{order}}",
+      "COD_CASH_COLLECTED": "تحصيل نقدي COD للطلب {{order}}",
+      "CUSTOMER_ADVANCE_CLEARED": "فلترة سلفة العميل للطلب {{order}}",
+      "VENDOR_PAYABLE": "مستحقات المتجر للطلب {{order}}",
+      "DRIVER_PAYABLE": "مستحقات المندوب للطلب {{order}}",
+      "PLATFORM_REVENUE": "إيرادات المنصة للطلب {{order}}",
+      "TAX_PAYABLE": "ضريبة مستحقة للطلب {{order}}",
+      "DRIVER_WITHDRAWAL_APPROVED": "تم اعتماد سحب المندوب للتحويل"
+    },
+    "SALES": {
+      "GROSS_SALES": "إجمالي المبيعات",
+      "PAID_SALES": "المبيعات المحصلة",
+      "ORDERS_COUNT": "عدد الطلبات",
+      "AVERAGE_ORDER_VALUE": "متوسط قيمة الطلب",
+      "CANCELLATION_RATE": "معدل الإلغاء",
+      "REFUND_RATE": "معدل الاسترجاع",
+      "LOST_REVENUE": "الإيرادات الضائعة"
+    },
+    "INVENTORY": {
+      "ACTIVE_PRODUCTS": "منتجات نشطة",
+      "OUT_OF_STOCK": "نافد المخزون",
+      "LOW_STOCK": "مخزون منخفض",
+      "INACTIVE_PRODUCTS": "منتجات غير نشطة",
+      "PRODUCTS_WITH_OFFERS": "منتجات عليها عروض",
+      "CRITICAL_STOCK_NOTE": "يوصى بإعادة التوريد فوراً",
+      "NO_MOVEMENT": "ما فيه حركة خلال الفترة المختارة",
+      "IDLE_CAPITAL": "رأس المال المعطل"
+    },
+    "OFFERS": {
+      "ACTIVE_OFFERS": "عروض نشطة",
+      "CLEARANCE_ITEMS": "منتجات فلترة",
+      "EXPIRING_OFFERS": "عروض تنتهي قريباً",
+      "OFFER_COVERAGE": "تغطية العروض",
+      "EXPIRING_HINT": "قيمة عرض معرّضة للانتهاء",
+      "PROMOTION_HINT": "مرشح لدفع ترويجي"
+    },
+    "REVIEWS": {
+      "AVERAGE_RATING": "متوسط التقييم",
+      "TOTAL_REVIEWS": "إجمالي التقييمات",
+      "LOW_RATING_COUNT": "تقييمات منخفضة",
+      "PENDING_REPLIES": "ردود معلّقة",
+      "HIDDEN_REVIEWS": "تقييمات مخفية"
+    },
+    "FINANCE": {
+      "AVAILABLE_BALANCE": "الرصيد المتاح",
+      "PENDING_SETTLEMENT": "تسويات معلّقة",
+      "NET_SALES": "صافي المبيعات",
+      "FEES": "الرسوم",
+      "PAYOUTS_PAID": "التحويلات المدفوعة",
+      "HOLD_AMOUNT": "المبلغ المحجوز",
+      "NEXT_SETTLEMENT": "التسوية القادمة",
+      "LIFECYCLE_MODE": "دورة التسوية",
+      "BRANCH_REVENUE_HINT": "يتم توضيح الإيراد المحصل لكل فرع حتى تقدر تميز أداء كل فرع بشكل واضح.",
+      "BRANCH_ORDERS": "الطلبات",
+      "AVG_ORDER_VALUE": "متوسط قيمة الطلب"
+    },
+    "DISPUTES": {
+      "OPEN": "نزاعات مفتوحة",
+      "HIGH_PRIORITY": "أولوية عالية",
+      "REFUND_REQUESTS": "طلبات استرجاع",
+      "AWAITING_VENDOR_RESPONSE": "بانتظار رد التاجر"
+    },
+    "STAFF": {
+      "ACTIVE_BRANCHES": "فروع نشطة",
+      "ACTIVE_STAFF": "فريق نشط",
+      "PENDING_INVITATIONS": "دعوات معلّقة",
+      "BRANCHES_NEEDING_COVERAGE": "فروع تحتاج تغطية"
+    },
+    "ALERTS": {
+      "LATE_ORDERS_TITLE": "طلبات متأخرة تحتاج متابعة",
+      "LATE_ORDERS_BODY": "بعض الطلبات تجاوزت الوقت المتوقع للتجهيز.",
+      "LOW_STOCK_TITLE": "مخزون حرج يحتاج إعادة تزويد",
+      "LOW_STOCK_BODY": "هناك منتجات وصلت إلى مستوى مخزون محفوف بالمخاطر.",
+      "DISPUTES_TITLE": "حالات تنتظر رد التاجر",
+      "DISPUTES_BODY": "توجد نزاعات تتطلب متابعة عاجلة من التاجر.",
+      "REVIEWS_TITLE": "تقييمات العملاء تحتاج ردوداً",
+      "REVIEWS_BODY": "التقييمات المنخفضة غير المردود عليها قد تؤثر على الثقة والتحويل.",
+      "LARGE_SETTLEMENT_TITLE": "تسوية معلّقة ضمن الدورة",
+      "LARGE_SETTLEMENT_BODY": "أموال التسوية ما زالت تحت المعالجة وتحتاج مراجعة."
+    },
+    "EMPTY": {
+      "NO_ALERTS": "ما فيه تنبيهات نشطة الحين.",
+      "NO_URGENT_ORDERS": "ما فيه طلبات عاجلة الحين.",
+      "NO_CRITICAL_STOCK": "ما فيه منتجات ذات مخزون حرج الحين.",
+      "NO_PENDING_REVIEWS": "ما فيه تقييمات منخفضة بانتظار الرد.",
+      "NO_STAFF_DISTRIBUTION": "ما فيه بيانات كافية عن توزيع الفريق حتى الحين."
+    },
+    "OPERATIONS": {
+      "PREP_EFFICIENCY": "كفاءة التجهيز (SLA)",
+      "AVG_PREP_TIME": "متوسط وقت التجهيز",
+      "MINUTES": "دقيقة"
+    },
+    "TABLES": {
+      "SALES": "مبيعات"
+    },
+    "EMPTY_STATE": "ما فيه بيانات كافية للعرض الحين."
   },
   "PRODUCTS": {
     "LIST_TITLE": "إدارة المنتجات",
@@ -673,48 +934,48 @@
     "SELECT_BRAND": "اختر العلامة التجارية...",
     "CATEGORY": "التصنيف",
     "UNIT": "الوحدة",
-    "EMPTY_TITLE": "لم تقم بإضافة منتجات بعد",
+    "EMPTY_TITLE": "ما أضفت منتجات للحين",
     "EMPTY_DESC": "ابدأ بإضافة منتجاتك من الكتالوج العام",
     "ADD_FIRST": "إضافة أول منتج",
     "INCL_VAT": "شامل الضريبة",
     "STATUS_ACTIVE": "نشط",
     "STATUS_INACTIVE": "غير نشط",
     "UNIT_PIECE": "قطعة",
-    "ERROR_ADDING_MSG": "حدث خطأ أثناء إضافة المنتج",
+    "ERROR_ADDING_MSG": "صار خطأ أثناء إضافة المنتج",
     "BANK_TITLE": "بنك المنتجات",
     "BANK_SUBTITLE": "اختر من المنتجات المتوفرة في الكتالوج العام",
     "BTN_SELECT": "اختيار",
     "REQUEST_NEW_TITLE": "طلب منتج جديد",
-    "REQUEST_HINT": "إذا لم تجد المنتج المطلوب، يمكنك طلب إضافته للكتالوج",
+    "REQUEST_HINT": "إذا لم تجد المنتج المطلوب، تقدر طلب إضافته للكتالوج",
     "REQUESTS_TITLE": "طلبات الكتالوج",
-    "REQUESTS_SUBTITLE": "تابع طلبات المنتجات والعلامات التجارية والتصنيفات التي أرسلتها إلى فريق زدانا.",
+    "REQUESTS_SUBTITLE": "تابع طلبات المنتجات والعلامات التجارية والتصنيفات اللي أرسلتها لفريق زدانا.",
     "REQUESTS_BUTTON": "طلبات الكتالوج",
     "REQUESTS_ALL": "كل الطلبات",
     "REQUESTS_PRODUCTS": "طلبات المنتجات",
     "REQUESTS_BRANDS": "طلبات العلامات التجارية",
     "REQUESTS_CATEGORIES": "طلبات التصنيفات",
-    "REQUESTS_EMPTY_TITLE": "لا توجد طلبات بعد",
-    "REQUESTS_EMPTY_DESC": "عندما ترسل طلب منتج أو علامة تجارية أو تصنيف جديد سيظهر هنا مباشرة.",
+    "REQUESTS_EMPTY_TITLE": "ما فيه طلبات بعد",
+    "REQUESTS_EMPTY_DESC": "إذا أرسلت طلب منتج أو علامة تجارية أو تصنيف جديد، بيظهر هنا مباشرة.",
     "REQUESTS_UNNAMED_PRODUCT": "طلب بدون اسم",
-    "REQUESTS_NO_CONTEXT": "لا توجد تفاصيل إضافية",
+    "REQUESTS_NO_CONTEXT": "ما فيه تفاصيل إضافية",
     "REQUESTS_UNREVIEWED": "لم تتم المراجعة بعد",
     "REQUEST_TYPE_PRODUCT": "منتج",
     "REQUEST_TYPE_BRAND": "علامة تجارية",
     "REQUEST_TYPE_CATEGORY": "تصنيف",
-    "NO_RESULTS_FOR": "لا توجد نتائج للبحث عن '{{term}}'",
-    "NO_RESULTS": "لا توجد نتائج",
-    "ADD_TO_STORE_NOW": "أضف إلى المتجر الآن",
+    "NO_RESULTS_FOR": "ما فيه نتائج للبحث عن '{{term}}'",
+    "NO_RESULTS": "ما فيه نتائج",
+    "ADD_TO_STORE_NOW": "أضف إلى المتجر الحين",
     "AGREE_POLICIES": "أوافق على سياسات إدراج المنتجات والتسعير.",
     "BASIC_INFO": "المعلومات الأساسية",
     "BRAND_AR": "العلامة التجارية بالعربية",
     "BRAND_EN": "العلامة التجارية بالإنجليزية",
     "NEW_BRAND_AR": "اسم العلامة التجارية الجديدة بالعربية",
     "NEW_BRAND_EN": "اسم العلامة التجارية الجديدة بالإنجليزية",
-    "CATALOG_DESC_NOTE": "هذا الوصف مأخوذ من الكتالوج الرئيسي ولا يمكن تعديله من هنا.",
+    "CATALOG_DESC_NOTE": "هذا الوصف مأخوذ من الكتالوج الرئيسي وما تقدر تعدّله من هنا.",
     "CATALOG_INFO": "معلومات الكتالوج",
     "CHANGE_IMAGE": "تغيير الصورة",
     "REQUEST_MISSING_BRAND": "العلامة التجارية غير موجودة؟",
-    "REQUEST_MISSING_BRAND_HINT": "فعّل هذا الخيار إذا كان المنتج يتبع علامة تجارية غير موجودة حاليًا.",
+    "REQUEST_MISSING_BRAND_HINT": "فعّل هذا الخيار إذا كان المنتج يتبع علامة تجارية غير موجودة الحين.",
     "REQUEST_MISSING_CATEGORY": "التصنيف غير موجود؟",
     "REQUEST_MISSING_CATEGORY_HINT": "فعّل هذا الخيار إذا كنت تحتاج إنشاء تصنيف جديد بالكامل لهذا المنتج.",
     "OPEN_BRAND_MODAL": "العلامات التجارية",
@@ -760,14 +1021,30 @@
     "OFFER_BADGE": "خصم {{value}}%",
     "PRICE_LABEL": "سعر البيع",
     "PRICING_STOCK": "التسعير والمخزون",
+    "PRICING_STOCK_HINT": "حدّث الأسعار والمخزون — التغييرات تنعكس مباشرة على متجرك.",
+    "PRICING_SECTION": "الأسعار",
+    "INVENTORY_SECTION": "المخزون",
+    "PROFIT_SUMMARY": "ملخص الأرباح",
+    "TRADE_PRICE": "السعر التجاري",
+    "SELLING_PRICE": "سعر البيع",
+    "DISPLAY_SIZE": "الحجم",
+    "PRODUCT_CODE": "رمز المنتج",
+    "CATALOG_INFO_HINT": "بيانات من الكتالوج الرئيسي — للقراءة فقط.",
+    "TRADE_PRICE_REQUIRED_NOTE": "لازم تضيف سعرًا تجاريًا لهذا المنتج قبل ما يصير جاهزًا للطلبات الفعلية.",
+    "DELETE_PRODUCT": "حذف المنتج",
+    "DELETE_CONFIRM_TITLE": "تأكيد الحذف",
+    "DELETE_CONFIRM_MESSAGE": "هل تريد حذف المنتج \"{{name}}\"؟",
+    "DELETE_CONFIRM_BUTTON": "حذف",
+    "VALIDATION_INCOMPLETE": "تأكد من إدخال كل الحقول المطلوبة بشكل صحيح (مثل سعر البيع والسعر التجاري).",
+    "VALIDATION_INCOMPLETE_TITLE": "بيانات غير مكتملة",
     "REQUEST_NEW_SUBTITLE": "أرسل طلبًا لإضافة منتج جديد إلى الكتالوج الرئيسي.",
-    "REQUEST_SUCCESS": "تم إرسال طلب المنتج بنجاح.",
+    "REQUEST_SUCCESS": "انرسل طلب المنتج بنجاح.",
     "SAVE_CHANGES": "حفظ التغييرات",
-    "STOCK_ACTION_HEALTHY": "المخزون الحالي جيد لمسار الطلبات الحالي. حافظ على الرقم مطابقًا للكمية الفعلية على الرف.",
+    "STOCK_ACTION_HEALTHY": "المخزون الحالي مناسب لمسار الطلبات. خل الرقم مطابقًا للكمية الفعلية على الرف.",
     "STOCK_ACTION_LOW": "المخزون بدأ يقل. أعد التعبئة قريبًا حتى لا يؤدي الخصم التلقائي عند الاستلام إلى نفاد المنتج.",
     "STOCK_ACTION_OUT": "هذا المنتج نافد بالفعل. أعد التخزين أولًا قبل إعادة تفعيله أو الترويج له.",
-    "STOCK_ACTION_TITLE": "الخطوة المقترحة الآن",
-    "STOCK_AUTOMATION_BODY": "المخزون الآن يتحرك مع دورة الطلب الفعلية. يتم خصم الكمية عند استلام المندوب للطلب، ثم تُعاد تلقائيًا إذا فشل التسليم أو تم رد الطلب.",
+    "STOCK_ACTION_TITLE": "الخطوة المقترحة الحين",
+    "STOCK_AUTOMATION_BODY": "المخزون الحين يتحرك مع دورة الطلب الفعلية. نخصم الكمية عند استلام المندوب للطلب، ونرجعها تلقائيًا إذا فشل التسليم أو تم رد الطلب.",
     "STOCK_AUTOMATION_TITLE": "أتمتة المخزون المباشرة",
     "STOCK_HEALTH_HEALTHY": "مخزون جيد",
     "STOCK_HEALTH_LOW": "مراقبة مخزون منخفض",
@@ -775,11 +1052,11 @@
     "STOCK_LABEL": "الكمية المتاحة",
     "STOCK_STATUS": "المخزون: {{count}}",
     "SUBMIT_REQUEST": "إرسال الطلب",
-    "UPDATE_ERROR": "تعذر تحديث تفاصيل المنتج.",
-    "UPDATE_SUCCESS": "تم تحديث تفاصيل المنتج بنجاح.",
+    "UPDATE_ERROR": "ما قدرنا نحدّث تفاصيل المنتج.",
+    "UPDATE_SUCCESS": "حدّثنا تفاصيل المنتج بنجاح.",
     "UPLOAD_PHOTO": "رفع صورة المنتج",
     "SUBMIT_NEW_PRODUCT": "طلب إضافة منتج جديد",
-    "SUBMIT_NEW_PRODUCT_DESC": "إذا لم تجد منتجك في الكتالوج، اطلب إضافته الآن.",
+    "SUBMIT_NEW_PRODUCT_DESC": "إذا لم تجد منتجك في الكتالوج، اطلب إضافته الحين.",
     "PRODUCT_NAME_AR": "اسم المنتج بالعربية",
     "PRODUCT_NAME_EN": "اسم المنتج بالإنجليزية",
     "PRODUCT_NAME_AR_PLACEHOLDER": "مثال: طماطم بلدي طازجة",
@@ -789,20 +1066,111 @@
     "CATEGORY_L2": "التصنيف الفرعي",
     "CATEGORY_L3": "تصنيف المستوى الثالث",
     "SELECTED_PATH": "المسار المختار",
-    "REQUEST_SUBMITTED_SUCCESS": "تم إرسال طلب إضافة المنتج بنجاح، سيتم مراجعته من قبل الإدارة.",
+    "REQUEST_SUBMITTED_SUCCESS": "انرسل طلب إضافة المنتج بنجاح، وراح تراجعه الإدارة.",
+    "REQUEST_SUBMIT_FAILED_TITLE": "ما انرسل الطلب",
+    "REQUEST_SUBMIT_FAILED": "ما قدرنا نرسل طلب المنتج. راجع البيانات ثم جرّب مرة ثانية.",
     "FIELD_REQUIRED": "هذا الحقل مطلوب",
-    "NAME_MIN_LENGTH": "يجب أن يكون الاسم 3 أحرف على الأقل",
-    "CATEGORY_SELECTION_REQUIRED": "يرجى اختيار تصنيف أو إنشاء تصنيف جديد من نافذة التصنيف",
-    "UNIT_SELECTION_REQUIRED": "يرجى اختيار وحدة المقاس",
+    "NAME_MIN_LENGTH": "لازم يكون الاسم 3 أحرف على الأقل",
+    "CATEGORY_SELECTION_REQUIRED": "اختر تصنيفًا أو أنشئ تصنيفًا جديدًا من نافذة التصنيف",
+    "UNIT_SELECTION_REQUIRED": "اختر وحدة المقاس",
     "IMAGE_FORMATS": "JPG, PNG, WEBP",
-    "IMAGE_OPTIMIZING": "جاري تحضير الصورة...",
+    "IMAGE_OPTIMIZING": "نحضّر الصورة...",
     "PRODUCT_IMAGES": "صور المنتج",
-    "PRODUCT_IMAGES_HINT": "يمكنك رفع حتى 5 صور. أول صورة ستكون الصورة الرئيسية.",
+    "PRODUCT_IMAGES_HINT": "تقدر رفع حتى 5 صور. أول صورة ستكون الصورة الرئيسية.",
     "ADD_IMAGE": "إضافة صورة",
     "PRIMARY_IMAGE": "الصورة الرئيسية",
     "IMAGE": "صورة",
     "SIZE_PREVIEW": "معاينة الحجم",
-    "BRAND_NAME_PLACEHOLDER": "أدخل اسم العلامة التجارية المقترحة..."
+    "CLASSIFICATION": "التصنيف والعلامة التجارية",
+    "SUGGESTED_BRAND": "العلامة التجارية المقترحة",
+    "ERROR_CODES": {
+      "PRODUCT_REQUEST_BRAND_CONFLICT": "اختر علامة تجارية موجودة أو اطلب علامة جديدة، وليس الاثنين معًا.",
+      "PRODUCT_REQUEST_CATEGORY_CONFLICT": "اختر تصنيفًا موجودًا أو اطلب تصنيفًا جديدًا، وليس الاثنين معًا.",
+      "BRAND_CATEGORY_MISMATCH": "العلامة التجارية المختارة لا تنتمي للتصنيف المحدد.",
+      "INVALID_MEASUREMENT_VALUE": "قيمة الحجم لازم تكون أكبر من صفر.",
+      "PRODUCT_REQUEST_ALREADY_PENDING": "يوجد طلب منتج مطابق تحت المراجعة بالفعل.",
+      "PRODUCT_ALREADY_EXISTS": "المنتج موجود في الكتالوج. أضفه إلى متجرك بدلًا من إنشاء طلب جديد.",
+      "VALIDATION_ERROR": "تحقق من الحقول المطلوبة وأعد المجرّبة."
+    },
+    "BRAND_NAME_PLACEHOLDER": "اكتب اسم العلامة التجارية المقترحة...",
+    "BULK": {
+      "TITLE": "إضافة جماعية من بنك المنتجات",
+      "SUBTITLE": "راجع السعر التجاري وسعر البيع والمخزون قبل الإرسال.",
+      "DEFAULTS_TITLE": "إعدادات جماعية سريعة",
+      "DEFAULTS_HINT": "طبّق القيم الافتراضية على الصفوف المحددة أو على الكل دفعة واحدة.",
+      "COST_PRICE": "سعر التكلفة",
+      "TRADE_PRICE": "السعر التجاري",
+      "SELLING_PRICE": "سعر البيع",
+      "STOCK": "المخزون",
+      "APPLY_SELECTED": "تطبيق على المحدد",
+      "APPLY_ALL": "تطبيق على الكل",
+      "SELECT_ALL": "تحديد الكل",
+      "CLEAR_SELECTION": "إلغاء التحديد",
+      "REVIEW_SELECTED": "مراجعة المحدد",
+      "PRODUCT": "المنتج",
+      "SIZE": "الحجم",
+      "COST": "التكلفة",
+      "TRADE": "التجاري",
+      "SELLING": "البيع",
+      "ACTION": "إجراء",
+      "REMOVE": "حذف",
+      "STANDARD_SIZE": "قياسي",
+      "ROWS": "إجمالي الصفوف",
+      "SELECTED": "المحدد",
+      "PAGE": "الصفحة",
+      "CLOSE": "إغلاق",
+      "SUBMIT": "إرسال الإضافة الجماعية",
+      "SUBMITTING": "نرسل الإضافة الجماعية...",
+      "SUBMIT_ERROR": "ما قدرنا نرسل الإضافة الجماعية. راجع البيانات وجرّب مرة ثانية.",
+      "SUBMIT_TIMEOUT": "الإضافة الجماعية استغرقت وقتًا أطول من المتوقع. جرّب مرة ثانية أو حدّث قائمة المنتجات بعد قليل.",
+      "VALIDATION_BANNER": "يوجد {{count}} صف/صفوف تحتاج تصحيحًا قبل الإرسال.",
+      "VALIDATION": {
+        "COST_NEGATIVE": "ما ينفع يكون سعر التكلفة سالبًا.",
+        "TRADE_REQUIRED": "السعر التجاري مطلوب ولازم يكون أكبر من صفر.",
+        "SELLING_REQUIRED": "سعر البيع مطلوب ولازم يكون أكبر من صفر.",
+        "TRADE_GT_SELLING": "ما ينفع يكون السعر التجاري أكبر من سعر البيع.",
+        "DISCOUNT_RANGE": "نسبة الخصم لازم تكون من 0 إلى أقل من 100.",
+        "STOCK_NEGATIVE": "ما ينفع يكون المخزون سالبًا."
+      },
+      "RESULT": {
+        "TITLE": "نتيجة الإضافة الجماعية",
+        "SUCCEEDED": "نجح",
+        "FAILED": "فشل",
+        "SKIPPED": "تم التخطي",
+        "COPY_ERRORS": "نسخ الأخطاء",
+        "REFRESH_LIST": "تحديث القائمة",
+        "COPIED": "تم نسخ الأخطاء.",
+        "PROGRESS": "{{processed}} من {{total}}"
+      },
+      "STATUS": {
+        "Pending": "بانتظار المعالجة",
+        "Processing": "قيد المعالجة",
+        "Completed": "مكتمل",
+        "CompletedWithErrors": "مكتمل مع أخطاء",
+        "Failed": "فشل",
+        "Succeeded": "نجح",
+        "Skipped": "تم التخطي"
+      },
+      "ERRORS": {
+        "MASTER_NOT_FOUND": "المنتج الرئيسي غير موجود.",
+        "ALREADY_EXISTS": "المنتج موجود بالفعل في متجرك.",
+        "BRANCH_INVALID": "الفرع غير صالح لهذا المتجر.",
+        "COMPARE_PRICE_INVALID": "السعر قبل الخصم لازم يكون أكبر من سعر البيع.",
+        "TRADE_REQUIRED": "السعر التجاري مطلوب.",
+        "TRADE_GT_SELLING": "السعر التجاري لازم يكون أقل من أو يساوي سعر البيع.",
+        "MIN_ORDER_INVALID": "الحد الأدنى للطلب لازم يكون أكبر من صفر.",
+        "MAX_ORDER_INVALID": "الحد الأقصى للطلب لازم يكون أكبر من أو يساوي الحد الأدنى.",
+        "VENDOR_NOT_FOUND": "المتجر غير موجود.",
+        "VENDOR_INACTIVE": "المتجر غير نشط.",
+        "DUPLICATE_ITEMS": "ما ينفع تكرر نفس المنتج في طلب واحد.",
+        "BRANCHES_INVALID": "أحد الفروع المحددة لا ينتمي لهذا المتجر."
+      }
+    }
+  },
+  "CATALOG": {
+    "STATUS_PENDING": "تحت المراجعة",
+    "STATUS_APPROVED": "مقبول",
+    "STATUS_REJECTED": "مرفوض"
   },
   "OFFERS": {
     "TITLE": "العروض والخصومات",
@@ -811,7 +1179,7 @@
       "DIRECT": "خصومات المنتجات",
       "COUPONS": "كوبونات نشطة",
       "CATEGORIES": "حملات الأقسام",
-      "CLEARANCE": "عروض التصفية"
+      "CLEARANCE": "عروض الفلترة"
     },
     "SEARCH_PLACEHOLDER": "ابحث داخل العروض...",
     "FILTERS": {
@@ -860,10 +1228,10 @@
       "CATEGORY_EYEBROW": "حملة جديدة",
       "CATEGORY_TITLE": "إنشاء عرض على تصنيف",
       "CATEGORY_HINT": "خصص حملة لتصنيف كامل مع عنوان وخصم واضح لفترة محددة.",
-      "CLEARANCE_EYEBROW": "عرض تصفية",
+      "CLEARANCE_EYEBROW": "عرض فلترة",
       "CLEARANCE_TITLE": "إنشاء عرض آخر القطع",
       "CLEARANCE_HINT": "اختر منتجًا منخفض المخزون وادفعه بخصم أسرع قبل النفاد.",
-      "MODAL_HELP": "يتم حفظ العروض الجديدة مباشرة داخل لوحة المورد الحالية.",
+      "MODAL_HELP": "نحفظ العروض الجديدة مباشرة داخل لوحة التاجر الحالية.",
       "COUPON_CODE": "كود الخصم",
       "COUPON_CODE_PLACEHOLDER": "مثال: SAVE20",
       "DISCOUNT_TYPE": "نوع الخصم",
@@ -897,11 +1265,11 @@
       "COMPARE_PRICE": "السعر قبل العرض",
       "CURRENT_STOCK": "المخزون الحالي",
       "URGENCY": "الأولوية",
-      "NO_LOW_STOCK_PRODUCTS": "لا توجد منتجات مناسبة حاليًا لإنشاء عرض آخر القطع.",
+      "NO_LOW_STOCK_PRODUCTS": "ما فيه منتجات مناسبة الحين لإنشاء عرض آخر القطع.",
       "NO_LOW_STOCK_PRODUCTS_HINT": "أضف منتجًا بمخزون منخفض أو حدّث الكميات من صفحة المنتجات أولًا.",
       "SAVE_COUPON": "حفظ الكوبون",
       "SAVE_CATEGORY": "حفظ الحملة",
-      "SAVE_CLEARANCE": "حفظ عرض التصفية"
+      "SAVE_CLEARANCE": "حفظ عرض الفلترة"
     },
     "TABLE": {
       "PRODUCT": "المنتج",
@@ -922,7 +1290,7 @@
       "RECOMMENDED_DISCOUNT": "خصم مقترح"
     },
     "DIRECT_OFFERS": "خصومات المنتجات",
-    "DIRECT_OFFERS_HINT": "العروض المباشرة المطبقة على منتجاتك الآن.",
+    "DIRECT_OFFERS_HINT": "العروض المباشرة المطبقة على منتجاتك الحين.",
     "DIRECT_SECTION_HINT": "راجع المنتجات التي عليها خصم فعلي وقارن السعر قبل وبعد العرض.",
     "ACTIVE_COUNT": "العروض النشطة",
     "ACTIVE_COUNT_HINT": "عدد المنتجات التي تحتوي على سعر عرض فعلي.",
@@ -941,7 +1309,7 @@
     "STOCK_STATUS": "المخزون: {{count}}",
     "EDIT_OFFER": "تعديل العرض",
     "COUPONS_TITLE": "كوبونات الخصم",
-    "COUPONS_SUBTITLE": "أكواد خصم يمكن استخدامها في الحملات والإعلانات وتحفيز الطلبات.",
+    "COUPONS_SUBTITLE": "أكواد خصم ممكن استخدامها في الحملات والإعلانات وتحفيز الطلبات.",
     "COUPON_CODE": "كود الخصم",
     "DISCOUNT_VALUE": "قيمة الخصم",
     "MIN_ORDER": "أقل طلب",
@@ -953,17 +1321,17 @@
     "CAMPAIGN_PRODUCTS": "منتجات مشمولة",
     "REVIEW_PRODUCTS": "راجع المنتجات",
     "CLEARANCE_TITLE": "عروض آخر القطع",
-    "CLEARANCE_SUBTITLE": "منتجات مخزونها منخفض ويمكن دفعها بعرض أسرع قبل النفاد أو الركود.",
+    "CLEARANCE_SUBTITLE": "منتجات مخزونها منخفض وممكن دفعها بعرض أسرع قبل النفاد أو الركود.",
     "LAST_PIECES_BADGE": "آخر القطع",
     "LOW_STOCK_BADGE": "مخزون منخفض",
     "RECOMMENDED_DISCOUNT": "خصم مقترح",
     "PIECES_LEFT": "متبقي {{count}} قطعة",
     "ACTIVATE_CLEARANCE": "فعّل العرض",
-    "EMPTY_DIRECT": "لا توجد خصومات مباشرة على المنتجات حسب البحث الحالي.",
-    "EMPTY_COUPONS": "لا توجد كوبونات مطابقة للبحث الحالي.",
-    "EMPTY_CATEGORIES": "لا توجد حملات تصنيفات مطابقة للبحث الحالي.",
-    "EMPTY_CLEARANCE": "لا توجد منتجات منخفضة المخزون مطابقة للبحث الحالي.",
-    "EMPTY_TITLE": "لا توجد عروض نشطة حاليًا",
+    "EMPTY_DIRECT": "ما فيه خصومات مباشرة على المنتجات حسب البحث الحالي.",
+    "EMPTY_COUPONS": "ما فيه كوبونات مطابقة للبحث الحالي.",
+    "EMPTY_CATEGORIES": "ما فيه حملات تصنيفات مطابقة للبحث الحالي.",
+    "EMPTY_CLEARANCE": "ما فيه منتجات منخفضة المخزون مطابقة للبحث الحالي.",
+    "EMPTY_TITLE": "ما فيه عروض نشطة الحين",
     "EMPTY_DESC": "أضف خصمًا لأي منتج من صفحة المنتجات أو من تفاصيل المنتج ليظهر هنا.",
     "EMPTY_CTA": "اذهب إلى المنتجات"
   },
@@ -973,11 +1341,11 @@
     "SUMMARY": {
       "TOTAL": "إجمالي الطلبات",
       "NEW": "طلبات جديدة",
-      "IN_PROGRESS": "قيد التجهيز",
+      "IN_PROGRESS": "تحت التجهيز",
       "LATE": "طلبات متأخرة"
     },
     "CREATE_MANUAL_ORDER": "إنشاء طلب يدوي",
-    "CREATE_MANUAL_ORDER_DESC": "قم بإنشاء طلب جديد لعميلك مباشرة من هنا.",
+    "CREATE_MANUAL_ORDER_DESC": "أنشئ طلبًا جديدًا لعميلك مباشرة من هنا.",
     "SELECT_CUSTOMER": "اختيار العميل",
     "ADD_PRODUCTS": "إضافة المنتجات",
     "ORDER_SUMMARY": "ملخص الطلب",
@@ -987,7 +1355,7 @@
     "SELECTED_ITEMS": "الأصناف المختارة",
     "NO_ITEMS_SELECTED": "لم يتم اختيار أصناف بعد",
     "CONFIRM_ORDER": "تأكيد الطلب",
-    "REVIEW_BEFORE_SUBMIT": "يرجى مراجعة بيانات الطلب قبل التأكيد",
+    "REVIEW_BEFORE_SUBMIT": "راجع بيانات الطلب قبل التأكيد",
     "CUSTOMER_INFO": "بيانات العميل",
     "PAYMENT_DETAILS": "بيانات الدفع",
     "PAYMENT_ON_DELIVERY": "الدفع عند الاستلام",
@@ -995,7 +1363,7 @@
     "ITEM": "الصنف",
     "QTY": "الكمية",
     "PLACE_ORDER": "إنشاء الطلب",
-    "ORDER_PLACED_SUCCESS": "تم إنشاء الطلب بنجاح",
+    "ORDER_PLACED_SUCCESS": "أنشأنا الطلب بنجاح",
     "SEARCH_PLACEHOLDER": "بحث برقم الطلب أو اسم العميل...",
     "FILTERS": {
       "TITLE": "فلاتر الطلبات",
@@ -1013,6 +1381,13 @@
       "TIMING_LATE": "المتأخرة فقط",
       "TIMING_ONTIME": "في الموعد"
     },
+    "TABLE": {
+      "TITLE": "قائمة الطلبات",
+      "SUBTITLE": "راجع الطلبات الواردة وحالاتها من جدول واحد."
+    },
+    "LOAD_ERROR": "تعذّر تحميل الطلبات. تحقق من الاتصال ثم جرّب مرة ثانية.",
+    "REFRESHING": "نحدّث قائمة الطلبات...",
+    "RETRY": "إعادة المجرّبة",
     "HEADER_ORDER_ID": "رقم الطلب",
     "HEADER_CUSTOMER": "العميل",
     "HEADER_DATE": "التاريخ",
@@ -1020,20 +1395,24 @@
     "HEADER_TOTAL": "الإجمالي",
     "HEADER_STATUS": "الحالة",
     "STATUS_NEW": "طلب جديد",
+    "STATUS_PENDING_PAYMENT": "بانتظار الدفع",
+    "STATUS_PENDING_BANK_CONFIRMATION": "بانتظار تأكيد التحويل",
+    "STATUS_PENDING_VENDOR_ACCEPTANCE": "بانتظار قبول المتجر",
+    "STATUS_VENDOR_REJECTED": "مرفوض من المتجر",
     "STATUS_CONFIRMED": "تم التأكيد",
-    "STATUS_IN_PROGRESS": "قيد التجهيز",
+    "STATUS_IN_PROGRESS": "تحت التجهيز",
     "STATUS_READY": "جاهز للتسليم",
     "STATUS_READY_FOR_PICKUP": "جاهز للاستلام",
     "STATUS_PICKED_UP": "تم الاستلام من المتجر",
     "STATUS_OUT_FOR_DELIVERY": "في الطريق للعميل",
     "STATUS_DRIVER_ASSIGNED": "تم تعيين مندوب",
-    "STATUS_DRIVER_ASSIGNMENT_IN_PROGRESS": "جاري البحث عن مندوب",
+    "STATUS_DRIVER_ASSIGNMENT_IN_PROGRESS": "نبحث عن مندوب",
     "STATUS_DELIVERED": "تم التسليم",
     "STATUS_COMPLETED": "مكتمل",
     "STATUS_CANCELLED": "ملغي",
     "STATUS_RETURNED": "مرتجع",
     "STATUS_DELIVERY_FAILED": "فشل التوصيل",
-    "STATUS_REFUNDED": "تم الاسترداد",
+    "STATUS_REFUNDED": "تم الاسترجاع",
     "TAB_ALL": "الكل",
     "TAB_NEW": "جديدة",
     "TAB_PREPARING": "قيد التحضير",
@@ -1041,6 +1420,100 @@
     "TAB_COMPLETED": "مكتملة",
     "DETAIL_TITLE": "تفاصيل الطلب",
     "DETAIL_TIMELINE": "تتبع حالة الطلب",
+    "TIMELINE": {
+      "CHANGED_AT": "وقت تغيير الحالة: {{datetime}}",
+      "CURRENT_STEP": "المرحلة الحالية",
+      "PENDING_STEP": "لم تصل بعد إلى هذه المرحلة",
+      "STEPS": {
+        "NEW": {
+          "TITLE": "طلب جديد",
+          "DESCRIPTION": "استلمنا الطلب من العميل وينتظر مراجعتك وتأكيدك."
+        },
+        "CONFIRMED": {
+          "TITLE": "تم التأكيد",
+          "DESCRIPTION": "انقبل الطلب وبدأ مسار التجهيز داخل المتجر."
+        },
+        "IN_PROGRESS": {
+          "TITLE": "تحت التجهيز",
+          "DESCRIPTION": "يجري تجهيز المنتجات وتعبئة الطلب الحين."
+        },
+        "READY_FOR_PICKUP": {
+          "TITLE": "جاهز للاستلام",
+          "DESCRIPTION": "الطلب جاهز للاستلام وينتظر وصول المندوب."
+        },
+        "DRIVER_ASSIGNMENT_IN_PROGRESS": {
+          "TITLE": "نبحث عن مندوب",
+          "DESCRIPTION": "النظام يبحث عن أقرب مندوب متاح للتوصيل."
+        },
+        "DRIVER_ASSIGNED": {
+          "TITLE": "تم تعيين مندوب",
+          "DESCRIPTION": "تم تعيين مندوب وسيتوجه إلى المتجر لاستلام الطلب."
+        },
+        "PICKED_UP": {
+          "TITLE": "تم الاستلام من المتجر",
+          "DESCRIPTION": "استلم المندوب الطلب من المتجر وغادر نحو العميل."
+        },
+        "OUT_FOR_DELIVERY": {
+          "TITLE": "في الطريق",
+          "DESCRIPTION": "المندوب في الطريق إلى عنوان العميل."
+        },
+        "DELIVERED": {
+          "TITLE": "تم التوصيل",
+          "DESCRIPTION": "تم تسليم الطلب للعميل بنجاح."
+        },
+        "COMPLETED": {
+          "TITLE": "مكتمل",
+          "DESCRIPTION": "اكتمل الطلب بنجاح."
+        },
+        "CANCELLED": {
+          "TITLE": "ملغي",
+          "DESCRIPTION": "تم إلغاء الطلب وإيقاف مسار التوصيل."
+        },
+        "RETURNED": {
+          "TITLE": "مرتجع",
+          "DESCRIPTION": "تم إرجاع الطلب."
+        },
+        "DELIVERY_FAILED": {
+          "TITLE": "فشل التوصيل",
+          "DESCRIPTION": "تعذّر إتمام التوصيل ويحتاج متابعة من فريق الدعم."
+        },
+        "REFUNDED": {
+          "TITLE": "تم الاسترجاع",
+          "DESCRIPTION": "تم استرجاع قيمة الطلب للعميل."
+        }
+      },
+      "NOTES": {
+        "AUTO_DISPATCH_STARTED": "بدأ البحث التلقائي عن مندوب",
+        "DRIVER_ACCEPTED_OFFER": "وافق المندوب على عرض التوصيل",
+        "DRIVER_ASSIGNED_VIA_DISPATCH": "تم تعيين المندوب عبر التوجيه",
+        "DRIVER_ASSIGNED_BY_ADMIN": "تم تعيين المندوب من قبل الإدارة",
+        "VENDOR_CONFIRMED_PICKUP": "تم تأكيد تسليم الطلب للمندوب عبر الرمز",
+        "DRIVER_VERIFIED_PICKUP": "تحقق المندوب من رمز الاستلام",
+        "DRIVER_ON_THE_WAY": "المندوب في الطريق إليك",
+        "DRIVER_VERIFIED_DELIVERY": "تم التحقق من رمز التوصيل بنجاح",
+        "COD_SELECTED": "تم اختيار الدفع عند الاستلام",
+        "AWAITING_VENDOR": "في انتظار رد المتجر",
+        "VENDOR_ACCEPTED": "انقبل الطلب من المتجر",
+        "VENDOR_PREPARING": "بدأ المتجر في تجهيز الطلب",
+        "READY_FOR_PICKUP": "الطلب جاهز للاستلام",
+        "SEARCHING_DRIVERS": "نبحث عن مندوبين",
+        "NO_DRIVERS": "ما فيه مندوبين متوفرين",
+        "OFFER_SENT": "انرسل عرض التوصيل",
+        "DRIVER_REJECTED": "رفض المندوب عرض التوصيل",
+        "CANCELLED_BY_ADMIN": "تم الإلغاء من قبل الإدارة",
+        "CANCELLED_BY_CUSTOMER": "تم الإلغاء من قبل العميل",
+        "ORDER_PLACED": "أنشأنا الطلب بنجاح",
+        "ORDER_CONFIRMED": "تم تأكيد الطلب",
+        "ORDER_PICKED_UP": "استلم المندوب الطلب",
+        "ORDER_DELIVERED": "تم توصيل الطلب بنجاح",
+        "PICKUP_CONFIRMED_EARLY": "تم تأكيد الاستلام قبل الوصول للعميل",
+        "AWAITING_BANK_TRANSFER": "بانتظار تأكيد التحويل البنكي التلقائي",
+        "BANK_TRANSFER_UPLOADED": "تم رفع إثبات التحويل البنكي",
+        "BANK_TRANSFER_CONFIRMED": "تم تأكيد التحويل البنكي",
+        "DISPATCH_PENDING": "التوجيه معلّق",
+        "CUSTOMER_CANCELLATION": "سبب إلغاء العميل"
+      }
+    },
     "DETAIL_CUSTOMER": "بيانات العميل",
     "DETAIL_DRIVER": "بيانات المندوب",
     "DETAIL_ITEMS": "المنتجات المطلوبة",
@@ -1052,7 +1525,7 @@
     "CURRENCY": "ج.م",
     "ITEMS_COUNT": "{{count}} منتج",
     "ITEM_COUNT": "منتج واحد",
-    "EMPTY_TITLE": "لا توجد طلبات حالياً",
+    "EMPTY_TITLE": "ما فيه طلبات الحين",
     "EMPTY_DESC": "ستظهر الطلبات الجديدة هنا فور استلامها",
     "ACTION_CONFIRM": "تأكيد الطلب",
     "ACTION_START_PREPARING": "بدء التجهيز",
@@ -1069,18 +1542,385 @@
     "VERIFIED_SECURE": "عملية مؤمنة ومحققة",
     "SATELLITE_TELEMETRY": "تتبع القمر الصناعي",
     "CARRIER_HANDOVER": "بروتوكول تسليم الطلب",
-    "SYNCHRONIZE_HANDOFF": "يرجى إدخال رمز الأمان المكون من 4 أرقام لتزامن عملية التسليم مع المندوب المعتمد.",
+    "SYNCHRONIZE_HANDOFF": "أدخل رمز الأمان المكوّن من 4 أرقام عشان نزامن تسليم الطلب مع المندوب المعتمد.",
     "AUTHORIZE_HANDOVER": "تأكيد التسليم الآمن",
-    "CARRIER_SYNTHESIS": "جارٍ تخصيص المندوب",
-    "LOGISTICS_ORCHESTRATION": "يتم الآن تحليل الشبكة اللوجستية لتخصيص أقرب مندوب متاح."
+    "CARRIER_SYNTHESIS": "نخصص المندوب",
+    "LOGISTICS_ORCHESTRATION": "يتم الحين تحليل الشبكة اللوجستية لتخصيص أقرب مندوب متاح.",
+    "STATUS": {
+      "IN_PROGRESS": "تحت التجهيز",
+      "REFUNDED": "تم الاسترجاع"
+    }
+  },
+  "SUPPORT_CENTER": {
+    "TITLE": "مركز الدعم والمرجع",
+    "SUBTITLE": "تابع تذاكر الدعم المفتوحة وارجع إلى الأدلة التشغيلية من نفس الصفحة بأسلوب واضح يشبه تجربة السوبر أدمن.",
+    "TABS": {
+      "SUPPORT": "الدعم",
+      "REFERENCE": "المرجع"
+    },
+    "SUMMARY": {
+      "OPEN_TICKETS": "تذاكر مفتوحة",
+      "OPEN_TICKETS_HINT": "حالات لا تزال تحتاج متابعة أو إغلاقًا من فريق الدعم.",
+      "PENDING_FOLLOWUPS": "بانتظار ردك",
+      "PENDING_FOLLOWUPS_HINT": "تذاكر تحتاج منك مستندًا أو توضيحًا قبل استكمال المعالجة.",
+      "AVG_RESPONSE": "متوسط أول رد",
+      "AVG_RESPONSE_HINT": "متوسط زمني تقريبي لأول استجابة من فريق الدعم.",
+      "REFERENCE_COUNT": "مراجع جاهزة",
+      "REFERENCE_COUNT_HINT": "أدلة وسياسات سريعة تساعدك قبل فتح تذكرة جديدة."
+    },
+    "FILTERS": {
+      "TITLE": "الفلاتر",
+      "SUBTITLE": "خصص العرض الحالي بسرعة حسب نوع الحالة أو التصنيف أو الأولوية.",
+      "RESET": "إعادة تعيين",
+      "SEARCH": "بحث",
+      "CATEGORY": "التصنيف",
+      "PRIORITY": "الأولوية",
+      "TYPE": "النوع",
+      "ALL_STATUSES": "كل الحالات",
+      "ALL_PRIORITIES": "كل الأولويات",
+      "ALL_CATEGORIES": "كل التصنيفات",
+      "ALL_TYPES": "كل الأنواع"
+    },
+    "SEARCH": {
+      "TICKETS": "ابحث برقم التذكرة أو عنوان الحالة أو ملخصها",
+      "ARTICLES": "ابحث داخل العناوين والملخصات المرجعية"
+    },
+    "SECTIONS": {
+      "SUPPORT_TITLE": "حالات الدعم المفتوحة",
+      "SUPPORT_SUBTITLE": "راجع التذاكر الحالية وتابع الردود والتصعيد من نفس الشاشة.",
+      "REFERENCE_TITLE": "المرجع التشغيلي",
+      "REFERENCE_SUBTITLE": "أدلة قصيرة وسياسات عملية قبل فتح تذكرة جديدة."
+    },
+    "TABLE": {
+      "REFERENCE": "المرجع",
+      "SUBJECT": "الموضوع",
+      "PRIORITY": "الأولوية",
+      "UPDATED": "آخر تحديث"
+    },
+    "STATUSES": {
+      "OPEN": "مفتوحة",
+      "IN_PROGRESS": "تحت المعالجة",
+      "WAITING_VENDOR": "بانتظار التاجر",
+      "RESOLVED": "تم الحل"
+    },
+    "PRIORITIES": {
+      "LOW": "منخفضة",
+      "MEDIUM": "متوسطة",
+      "HIGH": "مرتفعة",
+      "URGENT": "عاجلة"
+    },
+    "CATEGORIES": {
+      "ORDERS": "الطلبات",
+      "PRODUCTS": "المنتجات",
+      "FINANCE": "المالية",
+      "OFFERS": "العروض",
+      "STAFF": "الفروع والموظفون",
+      "PROFILE": "ملف التاجر",
+      "TECHNICAL": "تقني",
+      "GENERAL": "عام"
+    },
+    "ARTICLE_TYPES": {
+      "GUIDE": "دليل",
+      "POLICY": "سياسة",
+      "CHECKLIST": "قائمة تحقق"
+    },
+    "TAGS": {
+      "ESCALATED": "مصعّدة",
+      "SLA_ACTIVE": "مهلة متابعة نشطة",
+      "FINANCE_REVIEW": "مراجعة مالية",
+      "WAITING_VENDOR": "بانتظار بياناتك",
+      "DOCS_REQUIRED": "مستندات مطلوبة",
+      "RESOLVED": "مغلقة بعد الحل",
+      "NEW_CASE": "حالة جديدة"
+    },
+    "ACTIONS": {
+      "CREATE_TICKET": "فتح تذكرة",
+      "RESET_DEMO": "إعادة بيانات التجربة",
+      "OPEN_TICKET": "عرض الحالة",
+      "OPEN_REFERENCE": "عرض المرجع",
+      "OPEN_LINKED_PATH": "فتح الصفحة المرتبطة",
+      "SEND_MESSAGE": "إرسال الرد",
+      "OPEN_SUPPORT_FROM_REFERENCE": "افتح تذكرة من هذا المرجع",
+      "SUBMIT_TICKET": "إرسال التذكرة"
+    },
+    "DETAIL": {
+      "SUMMARY_TITLE": "ملخص الحالة",
+      "ASSIGNED_AGENT": "المسؤول الحالي",
+      "REFERENCE": "مرجع التذكرة",
+      "THREAD_TITLE": "سجل المتابعة",
+      "THREAD_SUBTITLE": "كل الرسائل بينك وبين فريق الدعم تظهر هنا بترتيب زمني.",
+      "RELATED_REFERENCE_TITLE": "مراجع مرتبطة",
+      "RELATED_REFERENCE_SUBTITLE": "أدلة وسياسات من نفس التصنيف تساعدك على إنهاء الحالة بسرعة أكبر.",
+      "COMPOSER_TITLE": "أضف ردًا جديدًا",
+      "COMPOSER_SUBTITLE": "أرسل تحديثًا واضحًا أو أرفق التوضيح المطلوب لاستكمال المعالجة.",
+      "MESSAGE_FIELD": "الرسالة",
+      "MESSAGE_PLACEHOLDER": "اكتب ردك أو التوضيح الذي تريد إضافته إلى التذكرة",
+      "CLOSED_BANNER": "أغلقنا هذه التذكرة. إذا لسه تواجه المشكلة، افتح تذكرة دعم جديدة."
+    },
+    "REFERENCE": {
+      "READ_TIME": "{{count}} دقائق قراءة",
+      "RELATED_PATHS": "صفحات مرتبطة",
+      "ESCALATION_NOTE": "متى تصعّد للدعم",
+      "RELATED_TICKETS_TITLE": "حالات دعم مرتبطة",
+      "RELATED_TICKETS_SUBTITLE": "أحدث التذاكر من نفس التصنيف حتى تربط المرجع بالحالات المشابهة."
+    },
+    "CREATE": {
+      "EYEBROW": "تذكرة جديدة",
+      "TITLE": "افتح حالة دعم جديدة",
+      "SUBTITLE": "اكتب ملخصًا واضحًا حتى يصل الطلب بسرعة للفريق المناسب.",
+      "ORDER_PLACEHOLDER": "اختر طلبًا مرتبطًا عند الحاجة",
+      "FIELDS": {
+        "SUBJECT": "عنوان الحالة",
+        "CATEGORY": "التصنيف",
+        "PRIORITY": "الأولوية",
+        "MESSAGE": "تفاصيل الحالة"
+      },
+      "MESSAGE_PLACEHOLDER": "اشرح المشكلة أو الطلب والخطوات التي قمت بها قبل التواصل مع الدعم"
+    },
+    "EMPTY": {
+      "TICKETS_TITLE": "ما فيه تذاكر مطابقة",
+      "TICKETS_SUBTITLE": "جرّب تخفيف الفلاتر أو افتح تذكرة جديدة من الزر العلوي.",
+      "SELECT_TICKET_TITLE": "اختر حالة لعرض التفاصيل",
+      "SELECT_TICKET_SUBTITLE": "حدد تذكرة من الجدول حتى تظهر بياناتها والمحادثة الجانبية.",
+      "ARTICLES_TITLE": "ما فيه مراجع مطابقة",
+      "ARTICLES_SUBTITLE": "عدّل البحث أو غيّر الفلاتر لإظهار الأدلة المناسبة.",
+      "SELECT_ARTICLE_TITLE": "اختر مرجعًا لعرض التفاصيل",
+      "SELECT_ARTICLE_SUBTITLE": "حدد أي مرجع من القائمة حتى يظهر محتواه وروابطه المرتبطة.",
+      "RELATED_REFERENCE": "ما فيه مراجع مرتبطة بهذه التصنيف الحين.",
+      "RELATED_TICKETS": "ما فيه تذاكر مرتبطة بهذا التصنيف الحين."
+    },
+    "FEEDBACK": {
+      "TICKET_CREATED": "أنشأنا تذكرة الدعم بنجاح.",
+      "TICKET_CREATE_FAILED": "ما قدرنا ننشئ تذكرة الدعم. راجع رقم الطلب وجرّب مرة ثانية.",
+      "MESSAGE_SENT": "أرسلنا ردك إلى التذكرة.",
+      "MESSAGE_SEND_FAILED": "ما قدرنا نرسل ردك. جرّب مرة ثانية.",
+      "SEED_RESET": "رجّعنا بيانات الدعم التجريبية."
+    }
+  },
+  "VENDOR_DISPUTES": {
+    "TITLE": "النزاعات",
+    "SUBTITLE": "تابع قضايا الدعم المرتبطة بطلباتك ورد على فريق المراجعة.",
+    "SUMMARY": {
+      "TOTAL": "إجمالي القضايا",
+      "OPEN": "القضايا المفتوحة",
+      "RESPONDED": "تم الرد عليها",
+      "WAITING": "بانتظار ردك"
+    },
+    "FILTERS": {
+      "TITLE": "فلاتر القضايا",
+      "SUBTITLE": "ضيّق قائمة النزاعات حسب الحالة أو نوع القضية.",
+      "SEARCH": "البحث",
+      "SEARCH_PLACEHOLDER": "ابحث برقم القضية أو رقم الطلب أو السبب أو الرسالة",
+      "STATUS": "الحالة",
+      "TYPE": "النوع",
+      "RESET": "إعادة الفلترة",
+      "ALL_STATUSES": "كل الحالات",
+      "ALL_TYPES": "كل الأنواع"
+    },
+    "TABLE": {
+      "TITLE": "قائمة النزاعات",
+      "SUBTITLE": "افتح القضية لمراجعة التحديثات والمرفقات والرد عليها.",
+      "CASE": "رقم القضية",
+      "ORDER": "رقم الطلب",
+      "TYPE": "النوع",
+      "PRIORITY": "الأولوية",
+      "UPDATED": "آخر تحديث",
+      "NO_REASON": "ما فيه سبب"
+    },
+    "TYPE": {
+      "COMPLAINT": "شكوى",
+      "RETURN_REQUEST": "طلب إرجاع",
+      "DRIVER_REPORT": "بلاغ مندوب",
+      "DRIVER_DISPUTE": "نزاع مندوب"
+    },
+    "STATUS": {
+      "SUBMITTED": "مقدمة",
+      "IN_REVIEW": "تحت المراجعة",
+      "AWAITING_CUSTOMER_EVIDENCE": "بانتظار أدلة العميل",
+      "APPROVED": "انقبل",
+      "REJECTED": "مرفوضة",
+      "RESOLVED": "مغلقة"
+    },
+    "PRIORITY": {
+      "LOW": "منخفضة",
+      "MEDIUM": "متوسطة",
+      "HIGH": "مرتفعة",
+      "CRITICAL": "حرجة"
+    },
+    "ACTIONS": {
+      "OPEN": "فتح القضية",
+      "SEND_RESPONSE": "إرسال الرد"
+    },
+    "WAITING_ON": {
+      "VENDOR": "بانتظار رد التاجر",
+      "CUSTOMER": "بانتظار رد العميل",
+      "DRIVER": "بانتظار رد المندوب",
+      "ADMIN": "قيد مراجعة الأدمن",
+      "REVIEW": "تحت المراجعة"
+    },
+    "PARTICIPANTS": {
+      "CUSTOMER": "العميل",
+      "VENDOR": "التاجر",
+      "DRIVER": "المندوب",
+      "ADMIN": "الإدارة",
+      "SUPPORT": "الدعم"
+    },
+    "QUEUE": {
+      "SUPPORT": "دعم العملاء",
+      "FINANCE": "المالية",
+      "OPERATIONS": "التشغيل",
+      "RISK": "المخاطر",
+      "LEGAL": "القانونية",
+      "DRIVER_OPS": "عمليات المناديب"
+    },
+    "SETTLEMENT_STATUS": {
+      "PENDING_REVIEW": "بانتظار المراجعة",
+      "PENDING_REVIEW_ALT": "بانتظار المراجعة",
+      "REJECTED": "مرفوض",
+      "APPROVED": "معتمد بانتظار التسوية",
+      "CASH_REFUNDED": "تم رد المبلغ",
+      "COUPON_ISSUED": "تم إصدار كوبون",
+      "COUPON_REDEEMED": "تم استخدام الكوبون"
+    },
+    "COMPENSATION_TYPES": {
+      "PENDING": "قيد التحديد",
+      "CASH_REFUND": "تعويض نقدي",
+      "COUPON_COMPENSATION": "تعويض بكوبون"
+    },
+    "REFUND_METHOD": {
+      "WALLET": "المحفظة",
+      "BANK": "تحويل بنكي",
+      "CARD": "البطاقة",
+      "CASH": "نقدًا",
+      "COUPON": "كوبون"
+    },
+    "COST_BEARER": {
+      "VENDOR": "التاجر",
+      "PLATFORM": "المنصة",
+      "DRIVER": "المندوب",
+      "CUSTOMER": "العميل"
+    },
+    "ACTIVITY": {
+      "SUBMITTED": {
+        "TITLE": "تم فتح الحالة",
+        "NOTE": "استلمنا الحالة المرتبطة بالطلب رقم {{orderNumber}} وهي الحين تحت المراجعة."
+      },
+      "REQUEST_EVIDENCE": {
+        "TITLE": "طلب معلومات إضافية",
+        "NOTE": "نحتاج إلى معلومات أو أدلة إضافية لمتابعة مراجعة الحالة الخاصة بالطلب رقم {{orderNumber}}."
+      },
+      "APPROVED": {
+        "TITLE": "انقبل الطلب",
+        "NOTE": "وافقنا على طلب الاسترجاع، وراح نبلغك عند بدء المعالجة المالية."
+      },
+      "REJECTED": {
+        "TITLE": "تم الرفض",
+        "NOTE": "رفضنا الحالة الخاصة بالطلب رقم {{orderNumber}}."
+      },
+      "RESOLVED": {
+        "TITLE": "تم الحل",
+        "NOTE": "أغلقنا الحالة الخاصة بالطلب رقم {{orderNumber}} بعد معالجتها."
+      },
+      "ESCALATED": {
+        "TITLE": "تم التصعيد",
+        "NOTE": "صعّدنا الحالة الخاصة بالطلب رقم {{orderNumber}} إلى فريق مختص."
+      },
+      "ADMIN_MESSAGE": {
+        "TITLE": "رسالة من الإدارة",
+        "NOTE": "شارك فريق الدعم تحديثًا على هذه الحالة."
+      },
+      "VENDOR_RESPONSE": {
+        "TITLE": "رد التاجر"
+      },
+      "CUSTOMER_RESPONSE": {
+        "TITLE": "رد العميل"
+      },
+      "DRIVER_RESPONSE": {
+        "TITLE": "رد المندوب"
+      },
+      "DECISION": {
+        "NOTE": "تم تسجيل قرار نهائي لهذه الحالة."
+      },
+      "PUBLIC_NOTE": {
+        "NOTE": "أُضيفت ملاحظة عامة إلى هذه الحالة."
+      }
+    },
+    "REASONS": {
+      "COMPLAINT": {
+        "LATE_DELIVERY": "تأخر التوصيل",
+        "MISSING_ITEMS": "عناصر مفقودة",
+        "WRONG_ITEMS": "عناصر خاطئة",
+        "POOR_QUALITY": "جودة سيئة",
+        "DRIVER_BEHAVIOR": "سلوك المندوب",
+        "OTHER": "أخرى"
+      },
+      "RETURN_REQUEST": {
+        "DEFECTIVE": "منتج معيب",
+        "NOT_AS_DESCRIBED": "غير مطابق للوصف",
+        "WRONG_SIZE": "المقاس خاطئ",
+        "CHANGED_MIND": "غيرت رأيي",
+        "OTHER": "أخرى"
+      },
+      "DRIVER_REPORT": {
+        "WRONG_ADDRESS": "العنوان خاطئ",
+        "CUSTOMER_UNAVAILABLE": "العميل مو متاح",
+        "DAMAGED_PACKAGE": "الشحنة تالفة",
+        "VEHICLE_ISSUE": "مشكلة في المركبة",
+        "OTHER": "أخرى"
+      },
+      "DRIVER_DISPUTE": {
+        "PAYOUT_DISPUTE": "نزاع مالي",
+        "INCORRECT_DEDUCTION": "خصم غير صحيح",
+        "OTHER": "أخرى"
+      }
+    },
+    "EMPTY": {
+      "TITLE": "ما فيه نزاعات",
+      "SUBTITLE": "ما فيه قضايا تطابق الفلاتر الحالية."
+    },
+    "DETAIL": {
+      "TITLE": "قضية نزاع",
+      "SUMMARY_TITLE": "ملخص القضية",
+      "SUMMARY_SUBTITLE": "المعلومات الأساسية للنزاع وسياق المبالغ المرتبطة به.",
+      "QUEUE": "المسار",
+      "WAITING_ON": "بانتظار",
+      "REASON_CODE": "رمز السبب",
+      "REQUESTED_REFUND": "المبلغ المطلوب",
+      "APPROVED_REFUND": "المبلغ المعتمد",
+      "REFUND_METHOD": "طريقة الاسترجاع",
+      "COST_BEARER": "متحمل التكلفة",
+      "CLOSED_AT": "تاريخ الإغلاق",
+      "NOTES_TITLE": "ملاحظات القضية",
+      "NOTES_SUBTITLE": "راجع رسالة القضية الأصلية وأي ملاحظات ظاهرة.",
+      "PARTICIPANTS": "الأطراف المشاركة",
+      "CASE_MESSAGE": "رسالة القضية",
+      "CUSTOMER_NOTE": "ملاحظة ظاهرة للعميل",
+      "DECISION_NOTES": "ملاحظات القرار",
+      "YOUR_RESPONSE": "آخر رد منك",
+      "ATTACHMENTS_TITLE": "المرفقات",
+      "ATTACHMENTS_SUBTITLE": "الملفات المرتبطة بهذه القضية.",
+      "OPEN_ATTACHMENT": "فتح المرفق",
+      "NO_ATTACHMENTS": "ما فيه مرفقات لهذه القضية.",
+      "ACTIVITY_TITLE": "سجل النشاط",
+      "ACTIVITY_SUBTITLE": "الأحداث الظاهرة وتحديثات فريق المراجعة.",
+      "CONVERSATION_TITLE": "المحادثة",
+      "CONVERSATION_SUBTITLE": "الرسائل الظاهرة لفريقك داخل هذه القضية.",
+      "REPLY_TITLE": "إرسال رد",
+      "REPLY_SUBTITLE": "أرسل ردًا إلى مراجع القضية مع أي تفاصيل إضافية.",
+      "REPLY_FIELD": "نص الرد",
+      "REPLY_PLACEHOLDER": "اكتب ردك أو التوضيح أو ملخص الأدلة هنا...",
+      "RESPONSE_SENT": "أرسلنا ردك بنجاح.",
+      "RESPONSE_FAILED": "ما قدرنا نرسل ردك الحين.",
+      "CLOSED_BANNER": "هذا النزاع مغلق الحين. ما تقدر ترسل رسائل أو مرفقات إضافية."
+    }
   },
   "SETTINGS_PROFILE": {
-    "TITLE": "ملف المورد",
-    "SUBTITLE": "إدارة كل بيانات المتجر والمالك والبيانات التجارية والتحويلات من مكان واحد",
-    "ROLE_LABEL": "مورد معتمد",
+    "TITLE": "ملف التاجر",
+    "SUBTITLE": "كل بيانات المتجر والمالك والبيانات التجارية والتحويلات من مكان واحد",
+    "ROLE_LABEL": "تاجر معتمد",
     "SAVE": "حفظ الملف",
     "STATUS_ACTIVE": "الملف نشط",
-    "STATUS_PENDING": "قيد المراجعة",
+    "STATUS_PENDING": "تحت المراجعة",
     "OPEN_NOW": "مفتوح",
     "OVERVIEW": {
       "STORE_NAME": "اسم المتجر",
@@ -1102,15 +1942,16 @@
       "LEGAL_IDENTIFIERS": "معرفات قانونية",
       "VERIFICATION_SUMMARY": "ملخص التحقق",
       "BANK_PROFILE": "ملف البنك",
-      "REQUIRED_DOCUMENTS": "المستندات المطلوبة"
+      "REQUIRED_DOCUMENTS": "المستندات المطلوبة",
+      "SAVE_SECTION": "حفظ هذا القسم"
     },
     "SECTIONS": {
       "STORE": "بيانات المتجر",
-      "STORE_HINT": "المعلومات الأساسية التي تظهر عبر لوحة المورد.",
+      "STORE_HINT": "المعلومات الأساسية التي تظهر عبر لوحة التاجر.",
       "OWNER": "بيانات المالك",
       "OWNER_HINT": "البيانات الشخصية ووسائل التواصل الخاصة بمالك الحساب.",
       "CONTACT": "التواصل والعنوان",
-      "CONTACT_HINT": "وسائل التواصل وعنوان المورد الكامل.",
+      "CONTACT_HINT": "وسائل التواصل وعنوان التاجر الكامل.",
       "LEGAL": "البيانات القانونية",
       "LEGAL_HINT": "السجل التجاري والرقم الضريبي للحساب التجاري.",
       "DOCUMENTS": "المستندات الرسمية",
@@ -1182,8 +2023,8 @@
       }
     },
     "COMMAND": {
-      "EYEBROW": "مساحة عمل المورد",
-      "ACTIVE_SUBTITLE": "حسابك التجاري نشط. التعديلات الهامة وإعادة رفع الملفات ستظهر مباشرة في مساحة المراجعة الخاصة بالإدارة.",
+      "EYEBROW": "مساحة عمل التاجر",
+      "ACTIVE_SUBTITLE": "حسابك التجاري نشط. التعديلات المهمة وإعادة رفع الملفات بتظهر مباشرة في مساحة مراجعة الإدارة.",
       "PENDING_SUBTITLE": "أكمل البيانات الأساسية والمستندات الرسمية، ثم أرسل الملف للمراجعة. كل تحديث تحفظه ينعكس لدى الإدارة."
     },
     "METRICS": {
@@ -1192,7 +2033,7 @@
       "LAST_DECISION": "القرار الأخير",
       "MISSING": "مطلوب",
       "APPROVED": "مقبول",
-      "IN_REVIEW": "قيد المراجعة"
+      "IN_REVIEW": "تحت المراجعة"
     },
     "WINDOWS": {
       "BASICS_LABEL": "الملف الأساسي",
@@ -1206,7 +2047,7 @@
     },
     "ACCOUNT": {
       "ACTIVE_ACCESS": "الوصول التجاري مفعل",
-      "GATED_ACCESS": "الوصول التجاري معلق حالياً"
+      "GATED_ACCESS": "الوصول التجاري معلّق الحين"
     },
     "REVIEW_PANEL": {
       "TITLE": "المستندات والمراجعة",
@@ -1233,16 +2074,16 @@
       "SUBTITLE": "تتبع ما تغير في الملف وتجاوب فريق المراجعة.",
       "CURRENT_STATE": "حالة المراجعة الحالية",
       "COMPLETE_REVIEW_TIMELINE": "السجل الكامل للمراجعة",
-      "EMPTY": "لا يوجد نشاط للمراجعة حتى الآن."
+      "EMPTY": "ما فيه نشاط للمراجعة حتى الحين."
     },
     "NOTICES": {
       "REOPEN_TITLE": "أي تغيير هنا سيعيد فتح هذا القسم للمراجعة",
-      "REOPEN_SUBMITTED": "يمكنك التعديل، ولكن التحديثات الهامة أو إعادة رفع المستندات ستظهر للإدارة كعمل مراجعة جديد.",
-      "REOPEN_CHANGES_REQUESTED": "قم بتطبيق التعديلات المطلوبة، احفظ، وأعد رفع المستندات المرفوضة قبل إعادة تقديم الملف."
+      "REOPEN_SUBMITTED": "تقدر تعدّل، ولكن التحديثات الهامة أو إعادة رفع المستندات ستظهر للإدارة كعمل مراجعة جديد.",
+      "REOPEN_CHANGES_REQUESTED": "طبّق التعديلات المطلوبة، احفظ، وأعد رفع المستندات المرفوضة قبل إعادة تقديم الملف."
     },
     "ACTIVATION": {
-      "TITLE": "الملف جاهز للإعداد الداخلي، لكن التفعيل التجاري لا يزال محظوراً",
-      "BODY": "يمكنك إكمال البيانات المتبقية والإعدادات التشغيلية هنا، ثم تقديم أو إعادة تقديم الملف للمراجعة والامتثال."
+      "TITLE": "الملف جاهز للإعداد الداخلي، لكن التفعيل التجاري لسه موقوف",
+      "BODY": "تقدر تكمل البيانات المتبقية والإعدادات التشغيلية هنا، ثم تقديم أو إعادة تقديم الملف للمراجعة والامتثال."
     },
     "ACTIONS": {
       "SAVE_CHANGES": "حفظ التغييرات",
@@ -1255,15 +2096,18 @@
     },
     "MESSAGES": {
       "NO_FINAL_DECISION": "لم يصدر قرار نهائي بعد",
-      "PDF_ONLY": "يجب رفع المستندات الرسمية بصيغة PDF.",
+      "PDF_ONLY": "لازم ترفع المستندات الرسمية بصيغة PDF.",
       "DOCUMENT_UPLOADED": "تم رفع المستند ومزامنته مع طابور المراجعة.",
-      "DOCUMENT_UPLOAD_FAILED": "تعذر رفع المستند حالياً.",
-      "SAVE_INVALID": "يرجى إكمال الحقول المطلوبة قبل حفظ الملف.",
-      "SAVE_SUCCESS": "تم حفظ التغييرات ومزامنتها بنجاح.",
-      "SAVE_FAILED": "تعذر حفظ التغييرات في الملف حالياً.",
+      "DOCUMENT_UPLOAD_FAILED": "ما قدرنا رفع المستند الحين.",
+      "SAVE_INVALID": "كمل الحقول المطلوبة قبل حفظ الملف.",
+      "SAVE_SUCCESS": "حفظنا التغييرات وزامناها بنجاح.",
+      "SAVE_STORE_SUCCESS": "حفظنا بيانات المتجر وأرسلناها للمراجعة.",
+      "SAVE_OWNER_PENDING": "أرسلنا بيانات المالك لاعتماد الإدارة.",
+      "SAVE_CONTACT_SUCCESS": "حفظنا بيانات التواصل وأرسلناها للمراجعة.",
+      "SAVE_FAILED": "ما قدرنا حفظ التغييرات في الملف الحين.",
       "SUBMIT_INVALID": "أكمل البيانات والمستندات المطلوبة قبل التقديم.",
-      "SUBMIT_SUCCESS": "تم تقديم ملف المورد للمراجعة وهو متاح الآن للإدارة.",
-      "SUBMIT_FAILED": "تعذر تقديم الملف للمراجعة حالياً."
+      "SUBMIT_SUCCESS": "تم تقديم ملف التاجر للمراجعة وهو متاح الحين للإدارة.",
+      "SUBMIT_FAILED": "ما قدرنا تقديم الملف للمراجعة الحين."
     },
     "REVIEW_ITEMS": {
       "COMMERCIAL": "السجل التجاري",
@@ -1277,9 +2121,9 @@
       "SUBMITTED": "مقدم",
       "CHANGES": "مطلوب تعديلات",
       "WAIVED": "معفى",
-      "PENDING_VENDOR": "بانتظار المورد",
+      "PENDING_VENDOR": "بانتظار التاجر",
       "AWAITING_SUBMISSION": "بانتظار التقديم",
-      "UNDER_REVIEW": "قيد المراجعة",
+      "UNDER_REVIEW": "تحت المراجعة",
       "VERIFIED": "تم التحقق",
       "REJECTED": "مرفوض",
       "SUSPENDED": "موقوف",
@@ -1296,98 +2140,6 @@
       "VENDOR_PROFILE": "ملف التاجر"
     }
   },
-  "HEADER": {
-    "OPEN_MENU": "فتح القائمة",
-    "NOTIFICATIONS": "التنبيهات",
-    "PROFILE": "الملف الشخصي",
-    "SEARCH": "بحث في النظام...",
-    "ACTIVE_ACCOUNT": "حساب نشط",
-    "PENDING_ACTIVATION": "بانتظار الاعتماد",
-    "UNDER_REVIEW": "قيد المراجعة",
-    "CHANGES_REQUESTED": "مطلوب تعديلات",
-    "ACCOUNT_SUSPENDED": "حساب موقوف",
-    "VENDOR_DASHBOARD": "لوحة التحكم للمورد",
-    "SEARCH_PLACEHOLDER": "بحث في زدانا..."
-  },
-  "HEADER_SEARCH": {
-    "TITLE": "البحث الموحد",
-    "PLACEHOLDER": "بحث في زدانا (طلبات، منتجات، كتالوج...)",
-    "MIN_QUERY": "اكتب {{count}} أحرف على الأقل لبدء البحث.",
-    "SEARCHING": "جارٍ البحث داخل لوحة المورد...",
-    "NO_RESULTS": "لم يتم العثور على نتائج مطابقة.",
-    "GROUPS": {
-      "NAVIGATION": "الصفحات",
-      "ORDERS": "الطلبات",
-      "PRODUCTS": "منتجاتي",
-      "MASTER_PRODUCTS": "كتالوج المنتجات"
-    }
-  },
-  "PAGINATION": {
-    "PREVIOUS": "السابق",
-    "NEXT": "التالي",
-    "PAGE_INFO": "صفحة {{current}} من {{total}}",
-    "TOTAL_PRODUCTS": "إجمالي: {{count}} منتج",
-    "TOTAL_ITEMS": "إجمالي: {{count}} عنصر",
-    "TOTAL_ORDERS": "إجمالي: {{count}} طلب"
-  },
-  "FORGOT_PASSWORD_PAGE": {
-    "PORTAL_TITLE": "بوابة الموردين",
-    "HERO_TITLE_1": "استعد الوصول",
-    "HERO_TITLE_2": "إلى حسابك بسهولة",
-    "HERO_DESC": "أدخل بريدك الإلكتروني وسنساعدك على استعادة الوصول إلى حساب متجرك بأمان.",
-    "CARD_TITLE": "نسيت كلمة المرور",
-    "CARD_DESC": "سنرسل رابط إعادة تعيين كلمة المرور إلى بريدك الإلكتروني.",
-    "BTN_SUBMIT": "إرسال رابط الاستعادة",
-    "SENDING": "جاري الإرسال...",
-    "BTN_BACK": "العودة إلى تسجيل الدخول",
-    "ERRORS": {
-      "INVALID_EMAIL": "يرجى إدخال بريد إلكتروني صحيح.",
-      "SEND_FAILED": "تعذر إرسال تعليمات إعادة التعيين الآن."
-    }
-  },
-  "REGISTER": {
-    "PORTAL_TITLE": "بوابة الموردين",
-    "HERO_TITLE": "ابدأ متجرك مع زدانا",
-    "HERO_SUBTITLE": "سجّل وابدأ البيع",
-    "HERO_DESC": "أنشئ حساب المورد الخاص بك وابدأ في إدارة منتجاتك وطلباتك بسهولة.",
-    "CARD_TITLE": "إنشاء حساب جديد",
-    "FIRST_NAME": "الاسم الأول",
-    "LAST_NAME": "اسم العائلة",
-    "STORE_NAME": "اسم المتجر",
-    "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
-    "ERR_MISMATCH": "كلمتا المرور غير متطابقتين",
-    "ERR_INVALID_FORM": "يرجى إكمال جميع الحقول بشكل صحيح.",
-    "ERR_GENERAL": "هذا الحقل مطلوب أو غير صحيح.",
-    "BTN_SUBMIT": "إنشاء الحساب",
-    "OR": "أو",
-    "BTN_REGISTER_GOOGLE": "التسجيل عبر جوجل",
-    "ALREADY_HAVE_ACCOUNT": "لديك حساب بالفعل؟",
-    "SIGN_IN": "تسجيل الدخول"
-  },
-  "RESET_PASSWORD_PAGE": {
-    "EYEBROW": "إعادة تعيين كلمة المرور",
-    "HERO_TITLE_1": "أنشئ كلمة مرور",
-    "HERO_TITLE_2": "جديدة بأمان",
-    "HERO_DESC": "أدخل رمز التحقق المرسل إلى بريدك وحدّد كلمة مرور قوية لاستعادة الوصول إلى حساب متجرك.",
-    "TITLE": "أدخل رمز التحقق وكلمة المرور الجديدة",
-    "CARD_DESC": "تحقق من بريدك الإلكتروني للحصول على رمز التحقق المكوّن من 4 أرقام.",
-    "FIELDS": {
-      "EMAIL": "البريد الإلكتروني",
-      "OTP": "رمز التحقق",
-      "NEW_PASSWORD": "كلمة المرور الجديدة",
-      "CONFIRM_PASSWORD": "تأكيد كلمة المرور"
-    },
-    "SUBMIT": "تحديث كلمة المرور",
-    "SENDING": "جاري التحديث...",
-    "BTN_BACK": "العودة إلى تسجيل الدخول",
-    "ERRORS": {
-      "INVALID_FORM": "يرجى إكمال البيانات بشكل صحيح.",
-      "INVALID_OTP": "اكتب رمز التحقق المكوّن من 4 أرقام.",
-      "PASSWORD_MIN": "كلمة المرور يجب أن تكون 8 أحرف على الأقل.",
-      "PASSWORD_MISMATCH": "كلمتا المرور غير متطابقتين.",
-      "RESET_FAILED": "تعذر تحديث كلمة المرور الآن."
-    }
-  },
   "STAFF_BRANCHES": {
     "TITLE": "الفروع والموظفون",
     "SUBTITLE": "أدر الفروع وفرق التشغيل والدعوات من مساحة عمل واحدة واضحة وسريعة.",
@@ -1402,7 +2154,7 @@
     },
     "SECTIONS": {
       "BRANCHES_TITLE": "خريطة تشغيل الفروع",
-      "BRANCHES_SUBTITLE": "تابع الفرع الرئيسي والفروع الجديدة قيد المراجعة وجاهزية التشغيل لكل فرع.",
+      "BRANCHES_SUBTITLE": "تابع الفرع الرئيسي والفروع الجديدة تحت المراجعة وجاهزية التشغيل لكل فرع.",
       "EMPLOYEES_TITLE": "فريق المتجر",
       "EMPLOYEES_SUBTITLE": "أدر الأدوار التشغيلية وصلاحيات الوصول للفروع وحالة كل موظف.",
       "INVITATIONS_TITLE": "مركز متابعة الدعوات",
@@ -1447,7 +2199,7 @@
       "SENT_AT": "تاريخ الإرسال",
       "EXPIRES_AT": "تاريخ الانتهاء",
       "DAYS_VALUE": "{{count}} أيام",
-      "NO_ACTIVITY": "لا يوجد نشاط بعد"
+      "NO_ACTIVITY": "ما فيه نشاط بعد"
     },
     "ACTIONS": {
       "ADD_BRANCH": "إضافة فرع",
@@ -1472,13 +2224,13 @@
     },
     "STATUSES": {
       "BRANCH_ACTIVE": "نشط",
-      "BRANCH_PENDING": "قيد المراجعة",
-      "BRANCH_SUSPENDED": "معلق",
+      "BRANCH_PENDING": "تحت المراجعة",
+      "BRANCH_SUSPENDED": "معلّق",
       "BRANCH_ARCHIVED": "مؤرشف",
       "EMPLOYEE_ACTIVE": "نشط",
       "EMPLOYEE_INVITED": "مدعو",
-      "EMPLOYEE_SUSPENDED": "معلق",
-      "INVITATION_PENDING": "معلقة",
+      "EMPLOYEE_SUSPENDED": "معلّق",
+      "INVITATION_PENDING": "معلّقة",
       "INVITATION_ACCEPTED": "مقبولة",
       "INVITATION_EXPIRED": "منتهية",
       "INVITATION_REVOKED": "ملغاة",
@@ -1489,9 +2241,9 @@
       "EMPLOYEE": "موظف"
     },
     "EMPTY": {
-      "BRANCHES": "لا توجد فروع مطابقة للفلاتر الحالية.",
-      "EMPLOYEES": "لا يوجد موظفون مطابقون للفلاتر الحالية.",
-      "INVITATIONS": "لا توجد دعوات مطابقة للفلاتر الحالية."
+      "BRANCHES": "ما فيه فروع مطابقة للفلاتر الحالية.",
+      "EMPLOYEES": "ما فيه موظفون مطابقون للفلاتر الحالية.",
+      "INVITATIONS": "ما فيه دعوات مطابقة للفلاتر الحالية."
     },
     "BRANCH_WIZARD": {
       "EYEBROW": "فرع جديد",
@@ -1515,7 +2267,7 @@
         "MANAGER_CONTACT": "بريد المدير",
         "MESSAGE": "ملاحظة داخلية مع الدعوة"
       },
-      "PRIMARY_WARNING": "يوجد بالفعل فرع رئيسي. أي إضافة جديدة سيتم إنشاؤها كفرع تابع وبحالة قيد المراجعة.",
+      "PRIMARY_WARNING": "فيه فرع رئيسي بالفعل. أي إضافة جديدة بننشئها كفرع تابع وبحالة تحت المراجعة.",
       "OPERATING_HOURS_TITLE": "ساعات التشغيل",
       "OPERATING_HOURS_HINT": "حدد أيام وساعات العمل قبل إطلاق هذا الفرع.",
       "LOCATION_PICKER_TITLE": "موقع الفرع",
@@ -1539,8 +2291,8 @@
       },
       "TEMPLATE_TITLE": "قالب الدور",
       "BRANCH_ACCESS_TITLE": "الوصول للفروع",
-      "BRANCH_ACCESS_HINT": "اختر الفروع التي يمكن لهذا الموظف العمل عليها.",
-      "BRANCH_ACCESS_LOCKED": "الوصول للفروع ثابت حاليًا عند تعديل موظف موجود في هذه النسخة الأولى.",
+      "BRANCH_ACCESS_HINT": "اختر الفروع التي ممكن لهذا الموظف العمل عليها.",
+      "BRANCH_ACCESS_LOCKED": "الوصول للفروع ثابت الحين عند تعديل موظف موجود في هذه النسخة الأولى.",
       "PERMISSIONS_TITLE": "مصفوفة الصلاحيات",
       "PERMISSIONS_HINT": "استخدم القالب الجاهز أو فعّل التخصيص المتقدم للتحكم في كل وحدة.",
       "CUSTOMIZE": "تخصيص متقدم",
@@ -1575,30 +2327,21 @@
     },
     "FEEDBACK": {
       "BRANCH_CREATED": "تمت إضافة الفرع وإرسال دعوة مدير الفرع على البريد.",
-      "PERMISSIONS_UPDATED": "تم تحديث صلاحيات الموظف.",
-      "EMPLOYEE_CREATED": "تم إنشاء الموظف بنجاح.",
-      "EMPLOYEE_INVITED": "تم إرسال دعوة الموظف بنجاح.",
+      "PERMISSIONS_UPDATED": "حدّثنا صلاحيات الموظف.",
+      "EMPLOYEE_CREATED": "أنشأنا الموظف بنجاح.",
+      "EMPLOYEE_INVITED": "أرسلنا دعوة الموظف بنجاح.",
       "EMPLOYEE_ACTIVATED": "تم تفعيل الموظف.",
       "EMPLOYEE_SUSPENDED": "تم تعليق الموظف.",
-      "BRANCH_STATUS_UPDATED": "تم تحديث حالة الفرع.",
+      "BRANCH_STATUS_UPDATED": "حدّثنا حالة الفرع.",
       "LINK_COPIED": "تم نسخ رابط الدعوة.",
-      "LINK_COPY_FALLBACK": "تعذر النسخ هنا، ويمكنك نسخ الرابط يدويًا.",
-      "INVITATION_RESENT": "تمت إعادة إرسال الدعوة.",
+      "LINK_COPY_FALLBACK": "ما قدرنا ننسخ هنا، وتقدر تنسخ الرابط يدويًا.",
+      "INVITATION_RESENT": "أعدنا إرسال الدعوة.",
       "INVITATION_REVOKED": "تم إلغاء الدعوة.",
-      "INVITATION_SEND_FAILED": "تعذر إرسال بريد الدعوة. راجع البريد وإعدادات مزود الإرسال ثم حاول مرة أخرى.",
-      "INVITATION_ACTION_FAILED": "تعذر تنفيذ إجراء الدعوة. حاول مرة أخرى.",
-      "BRANCH_DELETED": "?? ??? ????? ?????.",
-      "BRANCH_DELETE_FAILED": "???? ??? ?????. ???? ??? ????.",
-      "BRANCH_DELETE_PRIMARY_FORBIDDEN": "?? ???? ??? ????? ???????.",
-      "BRANCH_DELETE_BLOCKED_PRODUCTS": "?? ???? ??? ????? ??? ???? ?????? ?????? ??.",
-      "BRANCH_DELETE_BLOCKED_ORDERS": "?? ???? ??? ????? ??? ???? ????? ?????? ??.",
-      "BRANCH_DELETE_BLOCKED_STAFF": "?? ???? ??? ????? ??? ???? ?????? ????? ?????? ???? ????.",
-      "BRANCH_DELETE_BLOCKED_INVITATIONS": "?? ???? ??? ????? ??? ???? ????? ?????? ??.",
-      "EMPLOYEE_DELETED": "?? ????? ?????? ?? ????? ????? ???????.",
-      "INVITATION_DELETED": "?? ??? ?????? ?????."
+      "INVITATION_SEND_FAILED": "ما قدرنا نرسل بريد الدعوة. راجع البريد وإعدادات مزود الإرسال ثم جرّب مرة ثانية.",
+      "INVITATION_ACTION_FAILED": "ما قدرنا تنفيذ إجراء الدعوة. جرّب مرة ثانية."
     },
     "ACCEPT": {
-      "LOADING": "جاري تحميل الدعوة...",
+      "LOADING": "نحمّل الدعوة...",
       "EYEBROW": "دعوة تاجر",
       "TITLE": "إنشاء وصول الموظف",
       "SUBTITLE": "تمت دعوتك للانضمام إلى {{vendor}} على لوحة تجار زادنا.",
@@ -1609,24 +2352,21 @@
       "PASSWORD": "كلمة المرور",
       "CONFIRM_PASSWORD": "تأكيد كلمة المرور",
       "SUBMIT": "قبول الدعوة",
-      "SUBMITTING": "جاري إنشاء الوصول...",
+      "SUBMITTING": "ننشئ الوصول...",
       "WEAK_PASSWORD": "أدخل الاسم وكلمة مرور لا تقل عن 8 أحرف.",
       "PASSWORD_MISMATCH": "كلمتا المرور غير متطابقتين.",
-      "FAILED": "تعذر قبول الدعوة. ربما انتهت أو تم استخدامها بالفعل.",
-      "INVALID_EYEBROW": "الدعوة غير متاحة",
+      "FAILED": "ما قدرنا قبول الدعوة. ربما انتهت أو تم استخدامها بالفعل.",
+      "INVALID_EYEBROW": "الدعوة مو متاحة",
       "INVALID_TITLE": "هذه الدعوة غير نشطة",
-      "INVALID_BODY": "رابط الدعوة منتهي أو ملغي أو تم قبوله من قبل.",
+      "INVALID_BODY": "رابط الدعوة منتهي أو ملغي أو انقبل من قبل.",
       "SUCCESS_EYEBROW": "تم تفعيل الوصول",
       "SUCCESS_TITLE": "حسابك جاهز",
-      "SUCCESS_BODY": "يمكنك الآن تسجيل الدخول بالبريد المدعو وكلمة المرور التي أنشأتها.",
-      "LOGIN": "الذهاب لتسجيل الدخول",
-      "USER_ALREADY_EXISTS": "يوجد حساب مسجل بالفعل بهذا البريد الإلكتروني (مثلاً كعميل). يرجى استخدام بريد إلكتروني آخر أو طلب دعوة جديدة على بريد آخر.",
-      "STAFF_ALREADY_EXISTS": "هذا البريد الإلكتروني لديه صلاحية موظف بالفعل لهذا المتجر.",
-      "ROLE_NOT_CONFIGURED": "الدور التشغيلي المدعو إليه غير مهيأ على الخادم. يرجى التواصل مع الدعم الفني."
+      "SUCCESS_BODY": "تقدر تسجل دخولك الحين بالبريد المدعو وكلمة المرور التي أنشأتها.",
+      "LOGIN": "الذهاب لتسجيل الدخول"
     },
     "DETAILS": {
       "BRANCH": {
-        "OVERVIEW_TITLE": "نظرة عامة على الفرع",
+        "OVERVIEW_TITLE": "لمحة عامة على الفرع",
         "OVERVIEW_SUBTITLE": "البيانات التشغيلية الأساسية للفرع وحالة الجاهزية الحالية.",
         "FIELDS": {
           "CODE": "كود الفرع",
@@ -1637,33 +2377,33 @@
         },
         "KM": "كم",
         "HOURS_TITLE": "ساعات التشغيل",
-        "HOURS_SUBTITLE": "الجدول الأسبوعي المعتمد حاليًا لهذا الفرع.",
+        "HOURS_SUBTITLE": "الجدول الأسبوعي المعتمد الحين لهذا الفرع.",
         "TEAM_TITLE": "الفريق المرتبط",
         "TEAM_SUBTITLE": "الموظفون المرتبطون بهذا الفرع والأدوار التشغيلية الخاصة بهم.",
-        "EMPTY_TEAM": "لا يوجد موظفون مرتبطون بهذا الفرع حتى الآن.",
+        "EMPTY_TEAM": "ما فيه موظفون مرتبطون بهذا الفرع حتى الحين.",
         "MANAGER_TITLE": "مدير الفرع",
         "MANAGER_SUBTITLE": "جهة الاتصال الأساسية المسؤولة عن هذا الفرع.",
         "SUMMARY_TITLE": "ملخص سريع",
         "SUMMARY_SUBTITLE": "مؤشرات تشغيلية سريعة لفهم جاهزية الفرع بنظرة واحدة.",
         "METRICS": {
           "TEAM_SIZE": "حجم الفريق",
-          "PENDING_INVITATIONS": "الدعوات المعلقة",
+          "PENDING_INVITATIONS": "الدعوات المعلّقة",
           "WORKING_DAYS": "أيام العمل",
           "DELIVERY_RADIUS": "نطاق التوصيل"
         },
         "INVITATIONS_TITLE": "حركة الدعوات",
         "INVITATIONS_SUBTITLE": "أحدث الدعوات المرتبطة بالفرع وحالتها الحالية.",
-        "EMPTY_INVITATIONS": "لا توجد دعوات مرتبطة بهذا الفرع."
+        "EMPTY_INVITATIONS": "ما فيه دعوات مرتبطة بهذا الفرع."
       },
       "EMPLOYEE": {
         "IDENTITY_TITLE": "ملف الموظف",
         "IDENTITY_SUBTITLE": "الهوية وقالب الدور وآخر نشاط تشغيلي للموظف.",
         "BRANCH_ACCESS_TITLE": "الوصول للفروع",
-        "BRANCH_ACCESS_SUBTITLE": "الفروع التي يستطيع هذا الموظف العمل عليها حاليًا.",
-        "EMPTY_BRANCHES": "لا توجد فروع مخصصة لهذا الموظف.",
+        "BRANCH_ACCESS_SUBTITLE": "الفروع التي يستطيع هذا الموظف العمل عليها الحين.",
+        "EMPTY_BRANCHES": "ما فيه فروع مخصصة لهذا الموظف.",
         "INVITATIONS_TITLE": "سجل الدعوات",
         "INVITATIONS_SUBTITLE": "كل الدعوات المرتبطة بهذه الهوية داخل مساحة العمل.",
-        "EMPTY_INVITATIONS": "لا توجد دعوات مرتبطة بهذا الموظف.",
+        "EMPTY_INVITATIONS": "ما فيه دعوات مرتبطة بهذا الموظف.",
         "PERMISSIONS_TITLE": "مصفوفة الصلاحيات",
         "PERMISSIONS_SUBTITLE": "عرض للصلاحيات الفعالة عبر الوحدات التشغيلية المختلفة.",
         "SUMMARY_TITLE": "الأثر التشغيلي",
@@ -1674,27 +2414,22 @@
         }
       },
       "INVITATION": {
-        "OVERVIEW_TITLE": "نظرة عامة على الدعوة",
+        "OVERVIEW_TITLE": "لمحة عامة على الدعوة",
         "OVERVIEW_SUBTITLE": "تابع المستهدف ونافذة الانتهاء وتفاصيل دورة حياة الدعوة.",
         "BRANCHES_TITLE": "الفروع المرتبطة",
-        "BRANCHES_SUBTITLE": "الفروع التي تمنح هذه الدعوة الوصول إليها حاليًا.",
-        "EMPTY_BRANCHES": "لا توجد فروع مرتبطة بهذه الدعوة.",
+        "BRANCHES_SUBTITLE": "الفروع التي تمنح هذه الدعوة الوصول إليها الحين.",
+        "EMPTY_BRANCHES": "ما فيه فروع مرتبطة بهذه الدعوة.",
         "LINK_TITLE": "رابط الدعوة",
         "LINK_SUBTITLE": "استخدم هذا الرابط عند الحاجة إلى إعادة الإرسال أو المشاركة اليدوية.",
         "MATCH_TITLE": "الموظف المطابق",
         "MATCH_SUBTITLE": "إذا كان الشخص المدعو موجودًا بالفعل داخل الفريق سيظهر هنا.",
-        "NO_MATCH": "لا يوجد موظف مطابق لهذه الدعوة حتى الآن.",
+        "NO_MATCH": "ما فيه موظف مطابق لهذه الدعوة حتى الحين.",
         "TIMELINE_TITLE": "خط زمني للدعوة",
         "TIMELINE_SUBTITLE": "عرض سريع لموعد الإرسال والوضع الحالي للدعوة.",
         "TIMELINE": {
-          "SENT": "تم إرسال الدعوة"
+          "SENT": "انرسلت الدعوة"
         }
       }
-    },
-    "CONFIRMATIONS": {
-      "DELETE_BRANCH": "?? ???? ??? ????? \"{{name}}\"?",
-      "DELETE_EMPLOYEE": "?? ???? ??? ?????? \"{{name}}\" ?? ????? ????? ????????",
-      "DELETE_INVITATION": "?? ???? ??? ?????? ?????? ?? \"{{name}}\"?"
     }
   },
   "REVIEWS": {
@@ -1716,7 +2451,7 @@
       "TOTAL_REVIEWS": "إجمالي التقييمات",
       "TOTAL_HINT": "كل التقييمات المخزنة داخل مساحة العمل الحالية",
       "PENDING_REPLY": "بانتظار رد",
-      "PENDING_HINT": "تقييمات لم يصلها رد رسمي من المورد بعد",
+      "PENDING_HINT": "تقييمات لم يصلها رد رسمي من التاجر بعد",
       "HIDDEN": "مخفية",
       "HIDDEN_HINT": "تقييمات مخفية من العرض التشغيلي الحالي"
     },
@@ -1781,7 +2516,7 @@
       "REPLIED": "تم الرد"
     },
     "EMPTY": {
-      "TITLE": "لا توجد تقييمات مطابقة",
+      "TITLE": "ما فيه تقييمات مطابقة",
       "SUBTITLE": "جرّب تغيير الفلاتر أو أعد ضبط البيانات التجريبية لعرض السجل الكامل."
     },
     "DRAWER": {
@@ -1794,7 +2529,7 @@
       "MEDIA_TITLE": "مرفقات العميل",
       "MEDIA_SUBTITLE": "صور أو لقطات مرتبطة بالتقييم الحالي.",
       "REPLY_TITLE": "الرد الرسمي",
-      "REPLY_SUBTITLE": "اكتب ردًا واضحًا يظهر كاستجابة المورد الرسمية ويمكن تعديله لاحقًا.",
+      "REPLY_SUBTITLE": "اكتب ردًا واضحًا يظهر كاستجابة التاجر الرسمية وممكن تعديله لاحقًا.",
       "CURRENT_REPLY": "الرد الحالي",
       "REPLY_UPDATED_AT": "آخر تحديث: {{date}}",
       "REPLY_SENT_AT": "تم الرد في: {{date}}",
@@ -1807,246 +2542,11 @@
       "ACCURACY": "دقة الطلب"
     },
     "FEEDBACK": {
-      "REPLY_UPDATED": "تم تحديث الرد على التقييم.",
-      "REPLY_SENT": "تم إرسال الرد على التقييم بنجاح.",
-      "REVIEW_PUBLISHED": "تمت إعادة إظهار التقييم.",
+      "REPLY_UPDATED": "حدّثنا الرد على التقييم.",
+      "REPLY_SENT": "أرسلنا الرد على التقييم بنجاح.",
+      "REVIEW_PUBLISHED": "رجّعنا إظهار التقييم.",
       "REVIEW_HIDDEN": "تم إخفاء التقييم من العرض الحالي.",
-      "SEED_RESET": "تمت إعادة بيانات التقييمات التجريبية."
-    }
-  },
-  "ALERTS_CENTER": {
-    "TITLE": "مركز التنبيهات",
-    "SUBTITLE": "تابع التنبيهات التشغيلية المشتقة من الطلبات والمنتجات والمالية والدعم وغيرها من نفس لوحة المورد.",
-    "ACTIONS": {
-      "MARK_ALL_READ": "تعليم الكل كمقروء",
-      "MARK_READ": "تعليم كمقروء",
-      "MARK_UNREAD": "تعليم كغير مقروء",
-      "ARCHIVE": "أرشفة",
-      "RESTORE": "استعادة",
-      "OPEN": "فتح",
-      "VIEW_ALL": "عرض كل التنبيهات"
-    },
-    "SUMMARY": {
-      "UNREAD": "غير المقروءة",
-      "UNREAD_HINT": "عناصر لم تُراجع بعد داخل مركز التنبيهات.",
-      "CRITICAL": "حرجة",
-      "CRITICAL_HINT": "تنبيهات تحتاج تدخلاً فوريًا.",
-      "NEEDS_ACTION": "تحتاج إجراء",
-      "NEEDS_ACTION_HINT": "تنبيهات تحمل طابع تشغيلي أو تحذيري.",
-      "ARCHIVED": "مؤرشفة",
-      "ARCHIVED_HINT": "تنبيهات احتفظت بها للرجوع إليها لاحقًا."
-    },
-    "QUICK_TABS": {
-      "ALL": "الكل",
-      "UNREAD": "غير المقروءة",
-      "CRITICAL": "الحرجة",
-      "ARCHIVED": "المؤرشفة"
-    },
-    "SECTION_TITLE": "سجل التنبيهات",
-    "SECTION_SUBTITLE": "تابع المصادر والأولويات والحالة وافتح الصفحة المرتبطة مباشرة من التنبيه.",
-    "FILTERS": {
-      "TITLE": "الفلاتر",
-      "SUBTITLE": "خصص التنبيهات حسب المصدر والشدة والحالة بشكل واضح.",
-      "RESET": "إعادة تعيين",
-      "SEARCH": "بحث",
-      "SOURCE": "المصدر",
-      "SEVERITY": "الشدة",
-      "STATE": "الحالة",
-      "ALL_SOURCES": "كل المصادر",
-      "ALL_SEVERITY": "كل درجات الشدة",
-      "ALL_STATES": "كل الحالات"
-    },
-    "SEARCH": {
-      "PLACEHOLDER": "ابحث داخل عناوين التنبيهات ووصفها"
-    },
-    "TABLE": {
-      "ALERT": "التنبيه",
-      "SOURCE": "المصدر",
-      "SEVERITY": "الشدة",
-      "STATE": "الحالة",
-      "TIME": "الوقت"
-    },
-    "SOURCES": {
-      "ORDERS": "الطلبات",
-      "PRODUCTS": "المنتجات",
-      "OFFERS": "العروض",
-      "FINANCE": "المالية",
-      "SUPPORT": "الدعم",
-      "STAFF": "الفروع والموظفون",
-      "REVIEWS": "التقييمات",
-      "PROFILE": "ملف المورد"
-    },
-    "SEVERITY": {
-      "INFO": "معلومة",
-      "WARNING": "تحذير",
-      "CRITICAL": "حرج"
-    },
-    "STATE": {
-      "UNREAD": "غير مقروء",
-      "READ": "مقروء",
-      "ARCHIVED": "مؤرشف"
-    },
-    "POPOVER": {
-      "SUBTITLE": "أعلى الأولويات الحالية غير المؤرشفة",
-      "EMPTY_TITLE": "لا توجد تنبيهات جديدة",
-      "EMPTY_SUBTITLE": "عند ظهور أي تنبيه جديد، سيظهر هنا مباشرة."
-    },
-    "EMPTY": {
-      "TITLE": "لا توجد تنبيهات مطابقة",
-      "SUBTITLE": "جرّب تغيير الفلاتر أو تابع عندما تتغير البيانات التشغيلية."
-    },
-    "FEEDBACK": {
-      "MARKED_READ": "تم تعليم التنبيه كمقروء.",
-      "MARKED_UNREAD": "تمت إعادة التنبيه كغير مقروء.",
-      "ARCHIVED": "تمت أرشفة التنبيه.",
-      "RESTORED": "تمت استعادة التنبيه من الأرشيف.",
-      "ALL_READ": "تم تعليم كل التنبيهات كمقروءة."
-    }
-  },
-  "SUPPORT_CENTER": {
-    "TITLE": "مركز الدعم والمرجع",
-    "SUBTITLE": "تابع تذاكر الدعم المفتوحة وارجع إلى الأدلة التشغيلية من نفس الصفحة بأسلوب واضح يشبه تجربة السوبر أدمن.",
-    "TABS": {
-      "SUPPORT": "الدعم",
-      "REFERENCE": "المرجع"
-    },
-    "SUMMARY": {
-      "OPEN_TICKETS": "تذاكر مفتوحة",
-      "OPEN_TICKETS_HINT": "حالات لا تزال تحتاج متابعة أو إغلاقًا من فريق الدعم.",
-      "PENDING_FOLLOWUPS": "بانتظار ردك",
-      "PENDING_FOLLOWUPS_HINT": "تذاكر تحتاج منك مستندًا أو توضيحًا قبل استكمال المعالجة.",
-      "AVG_RESPONSE": "متوسط أول رد",
-      "AVG_RESPONSE_HINT": "متوسط زمني تقريبي لأول استجابة من فريق الدعم.",
-      "REFERENCE_COUNT": "مراجع جاهزة",
-      "REFERENCE_COUNT_HINT": "أدلة وسياسات سريعة تساعدك قبل فتح تذكرة جديدة."
-    },
-    "FILTERS": {
-      "TITLE": "الفلاتر",
-      "SUBTITLE": "خصص العرض الحالي بسرعة حسب نوع الحالة أو التصنيف أو الأولوية.",
-      "RESET": "إعادة تعيين",
-      "SEARCH": "بحث",
-      "CATEGORY": "التصنيف",
-      "PRIORITY": "الأولوية",
-      "TYPE": "النوع",
-      "ALL_STATUSES": "كل الحالات",
-      "ALL_PRIORITIES": "كل الأولويات",
-      "ALL_CATEGORIES": "كل التصنيفات",
-      "ALL_TYPES": "كل الأنواع"
-    },
-    "SEARCH": {
-      "TICKETS": "ابحث برقم التذكرة أو عنوان الحالة أو ملخصها",
-      "ARTICLES": "ابحث داخل العناوين والملخصات المرجعية"
-    },
-    "SECTIONS": {
-      "SUPPORT_TITLE": "حالات الدعم المفتوحة",
-      "SUPPORT_SUBTITLE": "راجع التذاكر الحالية وتابع الردود والتصعيد من نفس الشاشة.",
-      "REFERENCE_TITLE": "المرجع التشغيلي",
-      "REFERENCE_SUBTITLE": "أدلة قصيرة وسياسات عملية قبل فتح تذكرة جديدة."
-    },
-    "TABLE": {
-      "REFERENCE": "المرجع",
-      "SUBJECT": "الموضوع",
-      "PRIORITY": "الأولوية",
-      "UPDATED": "آخر تحديث"
-    },
-    "STATUSES": {
-      "OPEN": "مفتوحة",
-      "IN_PROGRESS": "قيد المعالجة",
-      "WAITING_VENDOR": "بانتظار المورد",
-      "RESOLVED": "تم الحل"
-    },
-    "PRIORITIES": {
-      "LOW": "منخفضة",
-      "MEDIUM": "متوسطة",
-      "HIGH": "مرتفعة",
-      "URGENT": "عاجلة"
-    },
-    "CATEGORIES": {
-      "ORDERS": "الطلبات",
-      "PRODUCTS": "المنتجات",
-      "FINANCE": "المالية",
-      "OFFERS": "العروض",
-      "STAFF": "الفروع والموظفون",
-      "PROFILE": "ملف المورد",
-      "TECHNICAL": "تقني",
-      "GENERAL": "عام"
-    },
-    "ARTICLE_TYPES": {
-      "GUIDE": "دليل",
-      "POLICY": "سياسة",
-      "CHECKLIST": "قائمة تحقق"
-    },
-    "TAGS": {
-      "ESCALATED": "مصعّدة",
-      "SLA_ACTIVE": "مهلة متابعة نشطة",
-      "FINANCE_REVIEW": "مراجعة مالية",
-      "WAITING_VENDOR": "بانتظار بياناتك",
-      "DOCS_REQUIRED": "مستندات مطلوبة",
-      "RESOLVED": "مغلقة بعد الحل",
-      "NEW_CASE": "حالة جديدة"
-    },
-    "ACTIONS": {
-      "CREATE_TICKET": "فتح تذكرة",
-      "RESET_DEMO": "إعادة بيانات التجربة",
-      "OPEN_TICKET": "عرض الحالة",
-      "OPEN_REFERENCE": "عرض المرجع",
-      "OPEN_LINKED_PATH": "فتح الصفحة المرتبطة",
-      "SEND_MESSAGE": "إرسال الرد",
-      "OPEN_SUPPORT_FROM_REFERENCE": "افتح تذكرة من هذا المرجع",
-      "SUBMIT_TICKET": "إرسال التذكرة"
-    },
-    "DETAIL": {
-      "SUMMARY_TITLE": "ملخص الحالة",
-      "ASSIGNED_AGENT": "المسؤول الحالي",
-      "REFERENCE": "مرجع التذكرة",
-      "THREAD_TITLE": "سجل المتابعة",
-      "THREAD_SUBTITLE": "كل الرسائل بينك وبين فريق الدعم تظهر هنا بترتيب زمني.",
-      "RELATED_REFERENCE_TITLE": "مراجع مرتبطة",
-      "RELATED_REFERENCE_SUBTITLE": "أدلة وسياسات من نفس التصنيف تساعدك على إنهاء الحالة بسرعة أكبر.",
-      "COMPOSER_TITLE": "أضف ردًا جديدًا",
-      "COMPOSER_SUBTITLE": "أرسل تحديثًا واضحًا أو أرفق التوضيح المطلوب لاستكمال المعالجة.",
-      "MESSAGE_FIELD": "الرسالة",
-      "MESSAGE_PLACEHOLDER": "اكتب ردك أو التوضيح الذي تريد إضافته إلى التذكرة",
-      "CLOSED_BANNER": "تم إغلاق هذه التذكرة. إذا كنت لا تزال تواجه المشكلة، يرجى فتح تذكرة دعم جديدة."
-    },
-    "REFERENCE": {
-      "READ_TIME": "{{count}} دقائق قراءة",
-      "RELATED_PATHS": "صفحات مرتبطة",
-      "ESCALATION_NOTE": "متى تصعّد للدعم",
-      "RELATED_TICKETS_TITLE": "حالات دعم مرتبطة",
-      "RELATED_TICKETS_SUBTITLE": "أحدث التذاكر من نفس التصنيف حتى تربط المرجع بالحالات المشابهة."
-    },
-    "CREATE": {
-      "EYEBROW": "تذكرة جديدة",
-      "TITLE": "افتح حالة دعم جديدة",
-      "SUBTITLE": "اكتب ملخصًا واضحًا حتى يصل الطلب بسرعة للفريق المناسب.",
-      "ORDER_PLACEHOLDER": "اختر طلبًا مرتبطًا عند الحاجة",
-      "FIELDS": {
-        "SUBJECT": "عنوان الحالة",
-        "CATEGORY": "التصنيف",
-        "PRIORITY": "الأولوية",
-        "MESSAGE": "تفاصيل الحالة"
-      },
-      "MESSAGE_PLACEHOLDER": "اشرح المشكلة أو الطلب والخطوات التي قمت بها قبل التواصل مع الدعم"
-    },
-    "EMPTY": {
-      "TICKETS_TITLE": "لا توجد تذاكر مطابقة",
-      "TICKETS_SUBTITLE": "جرّب تخفيف الفلاتر أو افتح تذكرة جديدة من الزر العلوي.",
-      "SELECT_TICKET_TITLE": "اختر حالة لعرض التفاصيل",
-      "SELECT_TICKET_SUBTITLE": "حدد تذكرة من الجدول حتى تظهر بياناتها والمحادثة الجانبية.",
-      "ARTICLES_TITLE": "لا توجد مراجع مطابقة",
-      "ARTICLES_SUBTITLE": "عدّل البحث أو غيّر الفلاتر لإظهار الأدلة المناسبة.",
-      "SELECT_ARTICLE_TITLE": "اختر مرجعًا لعرض التفاصيل",
-      "SELECT_ARTICLE_SUBTITLE": "حدد أي مرجع من القائمة حتى يظهر محتواه وروابطه المرتبطة.",
-      "RELATED_REFERENCE": "لا توجد مراجع مرتبطة بهذه التصنيف حالياً.",
-      "RELATED_TICKETS": "لا توجد تذاكر مرتبطة بهذا التصنيف حالياً."
-    },
-    "FEEDBACK": {
-      "TICKET_CREATED": "تم إنشاء تذكرة الدعم بنجاح.",
-      "TICKET_CREATE_FAILED": "تعذر إنشاء تذكرة الدعم. راجع رقم الطلب وحاول مرة أخرى.",
-      "MESSAGE_SENT": "تم إرسال ردك إلى التذكرة.",
-      "MESSAGE_SEND_FAILED": "تعذر إرسال ردك. حاول مرة أخرى.",
-      "SEED_RESET": "تمت إعادة بيانات الدعم التجريبية."
+      "SEED_RESET": "رجّعنا بيانات التقييمات التجريبية."
     }
   },
   "VENDOR_FINANCE": {
@@ -2062,7 +2562,15 @@
       "VIEW_REPORTS": "عرض التقارير",
       "DOWNLOAD_STATEMENT": "تحميل كشف الحساب",
       "REQUEST_PAYOUT": "طلب سحب الأرباح",
-      "PAYOUT_SUCCESS_MSG": "تم إرسال طلب سحب الأرباح بنجاح للمراجعة"
+      "REVIEW_ORDERS": "مراجعة الطلبات",
+      "PAYOUT_SUCCESS_MSG": "انرسل طلب سحب الأرباح بنجاح للمراجعة"
+    },
+    "BRANCHES": {
+      "TITLE": "الأداء المالي حسب الفرع",
+      "ALL": "كل الفروع",
+      "PRIMARY": "الفرع الرئيسي",
+      "ORDERS": "{{count}} طلب",
+      "SCOPE_HINT": "رصيد المحفظة يخص المتجر بالكامل. أرقام الفروع تعكس مبيعات كل فرع خلال الفترة المحددة."
     },
     "LIFECYCLE_MODES": {
       "PerOrderDirectPayout": "تحويل مباشر بالطلب",
@@ -2072,15 +2580,19 @@
     },
     "OVERVIEW": {
       "AVAILABLE_BALANCE": "الرصيد المتاح",
-      "PENDING_SETTLEMENT": "تسويات معلقة",
+      "PENDING_SETTLEMENT": "تسويات معلّقة",
       "NEXT_PAYOUT": "الدفعة القادمة",
       "HOLD_AMOUNT": "المبالغ المحتجزة"
     },
     "KPIS": {
       "NET_SALES": "صافي المبيعات",
-      "PAYOUTS": "مستحقات المورد",
+      "PAYOUTS": "مستحقات التاجر",
       "FEES": "رسوم المنصة",
-      "REFUNDS": "الاسترجاعات"
+      "REFUNDS": "الاسترجاعات",
+      "GROSS_SALES": "إجمالي المبيعات",
+      "VENDOR_PROFIT": "ربح التاجر",
+      "PLATFORM_FEES": "عمولة المنصة",
+      "VENDOR_NET": "صافي مستحق التاجر"
     },
     "CHART": {
       "TITLE": "اتجاه المبيعات مقابل التحويلات",
@@ -2101,7 +2613,7 @@
       "TITLE": "أحدث التسويات",
       "BATCH_ID": "رقم الدفعة",
       "PAID": "مدفوع",
-      "PROCESSING": "قيد المعالجة",
+      "PROCESSING": "تحت المعالجة",
       "SCHEDULED": "مجدول"
     },
     "LEDGER": {
@@ -2111,16 +2623,21 @@
       "PAGE_STATUS": "الصفحة {{page}} من {{totalPages}}",
       "REFERENCES": {
         "ORDER_REVENUE": "إيراد طلب",
-        "VENDOR_RECOVERY": "استرداد التاجر"
+        "VENDOR_RECOVERY": "استرجاع التاجر"
       },
       "COMMISSION": "عمولة",
+      "SALE": "مبيعات",
       "PAYOUT": "تحويل",
       "FEE": "رسوم",
       "REFUND": "استرجاع"
     },
     "ALERTS": {
       "TITLE": "مركز التنبيهات",
-      "EMPTY": "لا توجد تنبيهات جديدة."
+      "EMPTY": "ما فيه تنبيهات جديدة.",
+      "PAYOUT_TITLE": "تسويات معلّقة",
+      "PAYOUT_BODY": "عندك مبالغ بانتظار التسوية. راجع أحدث الدفعات أو حمّل كشف الحساب.",
+      "HOLD_TITLE": "ما فيه رصيد متوفر",
+      "HOLD_BODY": "الرصيد المتاح صفر أو محجوز. راجع الطلبات أو المبالغ المعلّقة."
     },
     "MONTHS": {
       "JAN": "يناير",
@@ -2135,117 +2652,15 @@
       "OCT": "أكتوبر",
       "NOV": "نوفمبر",
       "DEC": "ديسمبر"
-    }
-  },
-  "CATALOG": {
-    "STATUS_PENDING": "قيد المراجعة",
-    "STATUS_APPROVED": "مقبول",
-    "STATUS_REJECTED": "مرفوض"
-  },
-  "VENDOR_DISPUTES": {
-    "TITLE": "النزاعات",
-    "SUBTITLE": "تابع قضايا الدعم المرتبطة بطلباتك ورد على فريق المراجعة.",
-    "SUMMARY": {
-      "TOTAL": "إجمالي القضايا",
-      "OPEN": "القضايا المفتوحة",
-      "RESPONDED": "تم الرد عليها",
-      "WAITING": "بانتظار ردك"
     },
-    "FILTERS": {
-      "TITLE": "فلاتر القضايا",
-      "SUBTITLE": "ضيّق قائمة النزاعات حسب الحالة أو نوع القضية.",
-      "SEARCH": "البحث",
-      "SEARCH_PLACEHOLDER": "ابحث برقم القضية أو رقم الطلب أو السبب أو الرسالة",
-      "STATUS": "الحالة",
-      "TYPE": "النوع",
-      "RESET": "إعادة التصفية",
-      "ALL_STATUSES": "كل الحالات",
-      "ALL_TYPES": "كل الأنواع"
-    },
-    "TABLE": {
-      "TITLE": "قائمة النزاعات",
-      "SUBTITLE": "افتح القضية لمراجعة التحديثات والمرفقات والرد عليها.",
-      "CASE": "رقم القضية",
-      "ORDER": "رقم الطلب",
-      "TYPE": "النوع",
-      "PRIORITY": "الأولوية",
-      "UPDATED": "آخر تحديث",
-      "NO_REASON": "لا يوجد سبب"
-    },
-    "TYPE": {
-      "COMPLAINT": "شكوى",
-      "RETURN_REQUEST": "طلب إرجاع",
-      "DRIVER_REPORT": "بلاغ سائق",
-      "DRIVER_DISPUTE": "نزاع سائق"
-    },
-    "STATUS": {
-      "SUBMITTED": "مقدمة",
-      "IN_REVIEW": "قيد المراجعة",
-      "AWAITING_CUSTOMER_EVIDENCE": "بانتظار أدلة العميل",
-      "APPROVED": "تمت الموافقة",
-      "REJECTED": "مرفوضة",
-      "RESOLVED": "مغلقة"
-    },
-    "PRIORITY": {
-      "LOW": "منخفضة",
-      "MEDIUM": "متوسطة",
-      "HIGH": "مرتفعة",
-      "CRITICAL": "حرجة"
-    },
-    "ACTIONS": {
-      "OPEN": "فتح القضية",
-      "SEND_RESPONSE": "إرسال الرد"
-    },
-    "WAITING_ON": {
-      "VENDOR": "بانتظار رد التاجر",
-      "CUSTOMER": "بانتظار رد العميل",
-      "DRIVER": "بانتظار رد المندوب",
-      "ADMIN": "قيد مراجعة الأدمن",
-      "REVIEW": "قيد المراجعة"
-    },
-    "PARTICIPANTS": {
-      "CUSTOMER": "العميل",
-      "VENDOR": "التاجر",
-      "DRIVER": "المندوب"
-    },
-    "EMPTY": {
-      "TITLE": "لا توجد نزاعات",
-      "SUBTITLE": "لا توجد قضايا تطابق الفلاتر الحالية."
-    },
-    "DETAIL": {
-      "TITLE": "قضية نزاع",
-      "SUMMARY_TITLE": "ملخص القضية",
-      "SUMMARY_SUBTITLE": "المعلومات الأساسية للنزاع وسياق المبالغ المرتبطة به.",
-      "QUEUE": "المسار",
-      "WAITING_ON": "بانتظار",
-      "REASON_CODE": "رمز السبب",
-      "REQUESTED_REFUND": "المبلغ المطلوب",
-      "APPROVED_REFUND": "المبلغ المعتمد",
-      "REFUND_METHOD": "طريقة الاسترداد",
-      "COST_BEARER": "متحمل التكلفة",
-      "CLOSED_AT": "تاريخ الإغلاق",
-      "NOTES_TITLE": "ملاحظات القضية",
-      "NOTES_SUBTITLE": "راجع رسالة القضية الأصلية وأي ملاحظات ظاهرة.",
-      "PARTICIPANTS": "الأطراف المشاركة",
-      "CASE_MESSAGE": "رسالة القضية",
-      "CUSTOMER_NOTE": "ملاحظة ظاهرة للعميل",
-      "DECISION_NOTES": "ملاحظات القرار",
-      "YOUR_RESPONSE": "آخر رد منك",
-      "ATTACHMENTS_TITLE": "المرفقات",
-      "ATTACHMENTS_SUBTITLE": "الملفات المرتبطة بهذه القضية.",
-      "OPEN_ATTACHMENT": "فتح المرفق",
-      "NO_ATTACHMENTS": "لا توجد مرفقات لهذه القضية.",
-      "ACTIVITY_TITLE": "سجل النشاط",
-      "ACTIVITY_SUBTITLE": "الأحداث الظاهرة وتحديثات فريق المراجعة.",
-      "CONVERSATION_TITLE": "المحادثة",
-      "CONVERSATION_SUBTITLE": "الرسائل الظاهرة لفريقك داخل هذه القضية.",
-      "REPLY_TITLE": "إرسال رد",
-      "REPLY_SUBTITLE": "أرسل ردًا إلى مراجع القضية مع أي تفاصيل إضافية.",
-      "REPLY_FIELD": "نص الرد",
-      "REPLY_PLACEHOLDER": "اكتب ردك أو التوضيح أو ملخص الأدلة هنا...",
-      "RESPONSE_SENT": "تم إرسال ردك بنجاح.",
-      "RESPONSE_FAILED": "تعذر إرسال ردك حاليًا.",
-      "CLOSED_BANNER": "هذا النزاع مغلق حالياً. لا يمكن إرسال رسائل أو مرفقات إضافية."
+    "DAYS": {
+      "MON": "الاثنين",
+      "TUE": "الثلاثاء",
+      "WED": "الأربعاء",
+      "THU": "الخميس",
+      "FRI": "الجمعة",
+      "SAT": "السبت",
+      "SUN": "الأحد"
     }
   }
 }

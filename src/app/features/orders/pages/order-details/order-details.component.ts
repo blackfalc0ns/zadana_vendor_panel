@@ -9,1232 +9,1226 @@ import { OrderStatusBadgeComponent } from '../../components/order-status-badge/o
 import { OrderDetail, OrderStatus, OrderTimelineEntry } from '../../models/orders.models';
 import { OrdersService } from '../../services/orders.service';
 import {
-  OrderTrackingDriverLocation,
-  OrderTrackingRealtimeService,
-  OrderTrackingStatusChangedPayload
+ OrderTrackingDriverLocation,
+ OrderTrackingRealtimeService,
+ OrderTrackingStatusChangedPayload
 } from '../../services/order-tracking-realtime.service';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 import { environment } from '../../../../../environments/environment';
 
 @Component({
-  changeDetection: ChangeDetectionStrategy.OnPush,
-  selector: 'app-order-details',
-  standalone: true,
-  imports: [
-    CommonModule,
-    RouterModule,
-    TranslateModule,
-    OrderStatusBadgeComponent,
-    DriverTrackingMapComponent
-  ],
-  template: `
-    <div class="min-h-screen order-details-shell -mx-2 sm:-mx-3 md:-mx-4" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
-      <div class="w-full max-w-none order-details-page space-y-4">
-        <header class="floating-top-bar">
-          <div class="flex items-center gap-2.5">
-            <button routerLink="/orders" class="icon-shell group" type="button" [attr.aria-label]="currentLang === 'ar' ? 'العودة إلى الطلبات' : 'Back to orders'">
-              <span class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-0.5" [class.rotate-180]="currentLang === 'ar'">arrow_back</span>
-            </button>
-            <div>
-              <p class="text-[0.64rem] font-black uppercase tracking-[0.22em] text-[#00626f]/55">
-                {{ currentLang === 'ar' ? 'لوحة متابعة الطلب' : 'Order Command View' }}
-              </p>
-              <h1 class="text-base font-extrabold text-[#004953] md:text-lg">
-                {{ currentLang === 'ar' ? 'تفاصيل الطلب' : 'Order Details' }}
-              </h1>
-            </div>
-          </div>
+ changeDetection: ChangeDetectionStrategy.OnPush,
+ selector: 'app-order-details',
+ standalone: true,
+ imports: [
+ CommonModule,
+ RouterModule,
+ TranslateModule,
+ OrderStatusBadgeComponent,
+ DriverTrackingMapComponent
+ ],
+ template: `
+ <div class="min-h-screen order-details-shell -mx-2 sm:-mx-3 md:-mx-4" [dir]="currentLang === 'ar' ? 'rtl' : 'ltr'">
+ <div class="w-full max-w-none order-details-page space-y-4">
+ <header class="floating-top-bar">
+ <div class="flex items-center gap-2.5">
+ <button routerLink="/orders" class="icon-shell group" type="button" [attr.aria-label]="currentLang === 'ar' ? 'العودة إلى الطلبات' : 'Back to orders'">
+ <span class="material-symbols-outlined text-[20px] transition-transform group-hover:translate-x-0.5" [class.rotate-180]="currentLang === 'ar'">arrow_back</span>
+ </button>
+ <div>
+ <p class="text-[0.64rem] font-black uppercase tracking-[0.22em] text-[#00626f]/55">
+ {{ currentLang === 'ar' ? 'لوحة متابعة الطلب' : 'Order Command View' }}
+ </p>
+ <h1 class="text-base font-extrabold text-[#004953] md:text-lg">
+ {{ currentLang === 'ar' ? 'تفاصيل الطلب' : 'Order Details' }}
+ </h1>
+ </div>
+ </div>
 
-          <div class="flex items-center gap-2">
-            <a
-              *ngIf="orderId && isTrackingActive()"
-              class="icon-shell"
-              [routerLink]="['/orders', orderId]"
-              fragment="tracking"
-              (click)="scrollToTracking()"
-              [attr.aria-label]="currentLang === 'ar' ? 'رابط تتبع المندوب' : 'Courier tracking link'">
-              <span class="material-symbols-outlined text-[20px]">share_location</span>
-            </a>
-            <button class="icon-shell" type="button" (click)="retryLoad()" [disabled]="isLoading" [attr.aria-label]="currentLang === 'ar' ? 'تحديث الصفحة' : 'Refresh page'">
-              <span class="material-symbols-outlined text-[20px]" [class.animate-spin]="isLoading">sync</span>
-            </button>
-          </div>
-        </header>
+ <div class="flex items-center gap-2">
+ <a
+ *ngIf="orderId && isTrackingActive()"
+ class="icon-shell"
+ [routerLink]="['/orders', orderId]"
+ fragment="tracking"
+ (click)="scrollToTracking()"
+ [attr.aria-label]="currentLang === 'ar' ? 'رابط تتبع المندوب' : 'Courier tracking link'">
+ <span class="material-symbols-outlined text-[20px]">share_location</span>
+ </a>
+ <button class="icon-shell" type="button" (click)="retryLoad()" [disabled]="isLoading" [attr.aria-label]="currentLang === 'ar' ? 'تحديث الصفحة' : 'Refresh page'">
+ <span class="material-symbols-outlined text-[20px]" [class.animate-spin]="isLoading">sync</span>
+ </button>
+ </div>
+ </header>
 
-        <section *ngIf="isLoading" class="surface-card min-h-[50vh] p-5 space-y-6">
-          <!-- Order Header Skeleton -->
-          <div class="flex items-center justify-between gap-4">
-            <div class="space-y-3 flex-1">
-              <span class="vendor-skeleton vendor-skeleton-line lg w-48"></span>
-              <span class="vendor-skeleton vendor-skeleton-line w-32"></span>
-            </div>
-            <span class="vendor-skeleton vendor-skeleton-chip"></span>
-          </div>
-          <!-- Order Items Skeleton -->
-          <div class="space-y-4">
-            <span class="vendor-skeleton vendor-skeleton-line lg w-28"></span>
-            <div class="space-y-3">
-              <div *ngFor="let row of [1,2,3]" class="flex items-center gap-4 rounded-2xl border border-slate-50 p-4">
-                <span class="vendor-skeleton vendor-skeleton-avatar"></span>
-                <div class="flex-1 space-y-2">
-                  <span class="vendor-skeleton vendor-skeleton-line w-3/5"></span>
-                  <span class="vendor-skeleton vendor-skeleton-line sm w-2/5"></span>
-                </div>
-                <span class="vendor-skeleton vendor-skeleton-line w-16"></span>
-              </div>
-            </div>
-          </div>
-          <!-- Order Summary Skeleton -->
-          <div class="grid grid-cols-2 gap-4">
-            <div *ngFor="let item of [1,2,3,4]" class="space-y-2 p-3 rounded-xl border border-slate-50">
-              <span class="vendor-skeleton vendor-skeleton-line sm w-20"></span>
-              <span class="vendor-skeleton vendor-skeleton-line lg w-24"></span>
-            </div>
-          </div>
-          <!-- Timeline Skeleton -->
-          <div class="space-y-3">
-            <span class="vendor-skeleton vendor-skeleton-line lg w-32"></span>
-            <div *ngFor="let step of [1,2,3,4]" class="flex items-center gap-3">
-              <span class="vendor-skeleton vendor-skeleton-circle" style="width:1.5rem;height:1.5rem"></span>
-              <span class="vendor-skeleton vendor-skeleton-line w-40"></span>
-            </div>
-          </div>
-        </section>
+ <section *ngIf="isLoading" class="surface-card min-h-[50vh] p-5 space-y-6">
+ <!-- Order Header Skeleton -->
+ <div class="flex items-center justify-between gap-4">
+ <div class="space-y-3 flex-1">
+ <span class="vendor-skeleton vendor-skeleton-line lg w-48"></span>
+ <span class="vendor-skeleton vendor-skeleton-line w-32"></span>
+ </div>
+ <span class="vendor-skeleton vendor-skeleton-chip"></span>
+ </div>
+ <!-- Order Items Skeleton -->
+ <div class="space-y-4">
+ <span class="vendor-skeleton vendor-skeleton-line lg w-28"></span>
+ <div class="space-y-3">
+ <div *ngFor="let row of [1,2,3]" class="flex items-center gap-4 rounded-2xl border border-slate-50 p-4">
+ <span class="vendor-skeleton vendor-skeleton-avatar"></span>
+ <div class="flex-1 space-y-2">
+ <span class="vendor-skeleton vendor-skeleton-line w-3/5"></span>
+ <span class="vendor-skeleton vendor-skeleton-line sm w-2/5"></span>
+ </div>
+ <span class="vendor-skeleton vendor-skeleton-line w-16"></span>
+ </div>
+ </div>
+ </div>
+ <!-- Order Summary Skeleton -->
+ <div class="grid grid-cols-2 gap-4">
+ <div *ngFor="let item of [1,2,3,4]" class="space-y-2 p-3 rounded-xl border border-slate-50">
+ <span class="vendor-skeleton vendor-skeleton-line sm w-20"></span>
+ <span class="vendor-skeleton vendor-skeleton-line lg w-24"></span>
+ </div>
+ </div>
+ <!-- Timeline Skeleton -->
+ <div class="space-y-3">
+ <span class="vendor-skeleton vendor-skeleton-line lg w-32"></span>
+ <div *ngFor="let step of [1,2,3,4]" class="flex items-center gap-3">
+ <span class="vendor-skeleton vendor-skeleton-circle" style="width:1.5rem;height:1.5rem"></span>
+ <span class="vendor-skeleton vendor-skeleton-line w-40"></span>
+ </div>
+ </div>
+ </section>
 
-        <section *ngIf="!isLoading && loadErrorMessage" class="surface-card flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center">
-          <div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-500">
-            <span class="material-symbols-outlined text-[28px]">error</span>
-          </div>
-          <p class="max-w-xl text-sm font-bold text-[#004953]">{{ loadErrorMessage }}</p>
-          <button type="button" class="primary-action" (click)="retryLoad()">
-            {{ currentLang === 'ar' ? 'إعادة المحاولة' : 'Retry' }}
-          </button>
-        </section>
+ <section *ngIf="!isLoading && loadErrorMessage" class="surface-card flex min-h-[40vh] flex-col items-center justify-center gap-4 text-center">
+ <div class="flex h-16 w-16 items-center justify-center rounded-full bg-red-50 text-red-500">
+ <span class="material-symbols-outlined text-[28px]">error</span>
+ </div>
+ <p class="max-w-xl text-sm font-bold text-[#004953]">{{ loadErrorMessage }}</p>
+ <button type="button" class="primary-action" (click)="retryLoad()">
+ {{ currentLang === 'ar' ? 'إعادة المحاولة' : 'Retry' }}
+ </button>
+ </section>
 
-        <ng-container *ngIf="!isLoading && order as currentOrder">
-          <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
-            <div class="space-y-4 lg:col-span-8">
-              <section class="surface-card overflow-hidden">
-                <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                  <div>
-                    <p class="eyebrow-label">{{ currentLang === 'ar' ? 'ملخص الطلب' : 'Order overview' }}</p>
-                    <div class="mt-1.5 flex flex-wrap items-center gap-2.5">
-                      <h2 class="text-xl font-extrabold text-[#004953] md:text-[1.7rem]">
-                        {{ currentLang === 'ar' ? 'طلب' : 'Order' }}
-                        <span class="font-numeric text-[#00626f]">#{{ currentOrder.displayId }}</span>
-                      </h2>
-                      <app-order-status-badge
-                        [status]="currentOrder.status"
-                        customClass="rounded-full border border-[#00626f]/10 bg-[#00626f]/5 px-3 py-1.5 text-[0.68rem] font-black"
-                      ></app-order-status-badge>
-                    </div>
-                    <p class="mt-2.5 max-w-2xl text-[0.82rem] leading-6 text-[#3f484a]">
-                      {{ currentOrder.notes || (currentLang === 'ar' ? 'عرض مباشر لحالة الطلب، بيانات العميل، وخط سير التوصيل.' : 'Live order status, customer data, and delivery progress in one place.') }}
-                    </p>
-                  </div>
+ <ng-container *ngIf="!isLoading && order as currentOrder">
+ <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
+ <div class="space-y-4 lg:col-span-8">
+ <section class="surface-card overflow-hidden">
+ <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+ <div>
+ <p class="eyebrow-label">{{ currentLang === 'ar' ? 'ملخص الطلب' : 'Order overview' }}</p>
+ <div class="mt-1.5 flex flex-wrap items-center gap-2.5">
+ <h2 class="text-xl font-extrabold text-[#004953] md:text-[1.7rem]">
+ {{ currentLang === 'ar' ? 'طلب' : 'Order' }}
+ <span class="font-numeric text-[#00626f]">#{{ currentOrder.displayId }}</span>
+ </h2>
+ <app-order-status-badge
+ [status]="currentOrder.status"
+ customClass="rounded-full border border-[#00626f]/10 bg-[#00626f]/5 px-3 py-1.5 text-[0.68rem] font-black"
+ ></app-order-status-badge>
+ </div>
+ <p class="mt-2.5 max-w-2xl text-[0.82rem] leading-6 text-[#3f484a]">
+ {{ currentOrder.notes || (currentLang === 'ar' ? 'عرض مباشر لحالة الطلب، بيانات العميل، وخط سير التوصيل.' : 'Live order status, customer data, and delivery progress in one place.') }}
+ </p>
+ </div>
 
-                  <div class="flex flex-wrap gap-2.5">
-                    <button *ngIf="canConfirm()" type="button" class="primary-action" (click)="updateStatus('CONFIRMED')" [disabled]="isUpdatingStatus">
-                      <span class="material-symbols-outlined text-[16px]">task_alt</span>
-                      {{ 'ORDERS.ACTION_CONFIRM' | translate }}
-                    </button>
-                    <button *ngIf="canPrepare()" type="button" class="accent-action" (click)="updateStatus('IN_PROGRESS')" [disabled]="isUpdatingStatus">
-                      <span class="material-symbols-outlined text-[16px]">restaurant</span>
-                      {{ 'ORDERS.ACTION_START_PREPARING' | translate }}
-                    </button>
-                    <button *ngIf="canMarkReady()" type="button" class="teal-action" (click)="updateStatus('READY_FOR_PICKUP')" [disabled]="isUpdatingStatus">
-                      <span class="material-symbols-outlined text-[16px]">inventory_2</span>
-                      {{ 'ORDERS.ACTION_MARK_READY' | translate }}
-                    </button>
-                  </div>
-                </div>
+ <div class="flex flex-wrap gap-2.5">
+ <button *ngIf="canConfirm()" type="button" class="primary-action" (click)="updateStatus('CONFIRMED')" [disabled]="isUpdatingStatus">
+ <span class="material-symbols-outlined text-[16px]">task_alt</span>
+ {{ 'ORDERS.ACTION_CONFIRM' | translate }}
+ </button>
+ <button *ngIf="canPrepare()" type="button" class="accent-action" (click)="updateStatus('IN_PROGRESS')" [disabled]="isUpdatingStatus">
+ <span class="material-symbols-outlined text-[16px]">restaurant</span>
+ {{ 'ORDERS.ACTION_START_PREPARING' | translate }}
+ </button>
+ <button *ngIf="canMarkReady()" type="button" class="teal-action" (click)="updateStatus('READY_FOR_PICKUP')" [disabled]="isUpdatingStatus">
+ <span class="material-symbols-outlined text-[16px]">inventory_2</span>
+ {{ 'ORDERS.ACTION_MARK_READY' | translate }}
+ </button>
+ </div>
+ </div>
 
-                <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
-                  <article class="stat-card">
-                    <p class="stat-label">{{ currentLang === 'ar' ? 'وقت الطلب' : 'Order time' }}</p>
-                    <p class="stat-value font-numeric">{{ currentOrder.time | date:'shortTime' }}</p>
-                    <p class="stat-sub">{{ currentOrder.time | date:'mediumDate' }}</p>
-                  </article>
-                  <article class="stat-card">
-                    <p class="stat-label">{{ currentLang === 'ar' ? 'العميل' : 'Customer' }}</p>
-                    <p class="stat-value">{{ currentOrder.customerName }}</p>
-                    <p class="stat-sub font-numeric">{{ currentOrder.customerPhone }}</p>
-                  </article>
-                  <article class="stat-card">
-                    <p class="stat-label">{{ currentLang === 'ar' ? 'الدفع' : 'Payment' }}</p>
-                    <p class="stat-value">{{ paymentMethodLabel(currentOrder) }}</p>
-                    <p class="stat-sub">{{ paymentStatusLabel(currentOrder) }}</p>
-                  </article>
-                  <article class="stat-card stat-card-total">
-                    <p class="stat-label">{{ 'ORDERS.GRAND_TOTAL' | translate }}</p>
-                    <p class="stat-value font-numeric">{{ currentOrder.total | number:'1.2-2' }}</p>
-                    <p class="stat-sub">{{ 'ORDERS.CURRENCY' | translate }}</p>
-                  </article>
-                </div>
-              </section>
+ <div class="mt-4 grid grid-cols-1 gap-3 md:grid-cols-4">
+ <article class="stat-card">
+ <p class="stat-label">{{ currentLang === 'ar' ? 'وقت الطلب' : 'Order time' }}</p>
+ <p class="stat-value font-numeric">{{ currentOrder.time | date:'shortTime' }}</p>
+ <p class="stat-sub">{{ currentOrder.time | date:'mediumDate' }}</p>
+ </article>
+ <article class="stat-card">
+ <p class="stat-label">{{ currentLang === 'ar' ? 'العميل' : 'Customer' }}</p>
+ <p class="stat-value">{{ currentOrder.customerName }}</p>
+ <p class="stat-sub font-numeric">{{ currentOrder.customerPhone }}</p>
+ </article>
+ <article class="stat-card">
+ <p class="stat-label">{{ currentLang === 'ar' ? 'الدفع' : 'Payment' }}</p>
+ <p class="stat-value">{{ paymentMethodLabel(currentOrder) }}</p>
+ <p class="stat-sub">{{ paymentStatusLabel(currentOrder) }}</p>
+ </article>
+ <article class="stat-card stat-card-total">
+ <p class="stat-label">{{ 'ORDERS.GRAND_TOTAL' | translate }}</p>
+ <p class="stat-value font-numeric">{{ currentOrder.total | number:'1.2-2' }}</p>
+ <p class="stat-sub">{{ 'ORDERS.CURRENCY' | translate }}</p>
+ </article>
+ </div>
+ </section>
 
-              <section class="surface-card">
-                <div class="flex items-center justify-between gap-4">
-                  <h3 class="section-title">
-                    <span class="material-symbols-outlined text-[20px] text-[#00626f]">inventory_2</span>
-                    {{ 'ORDERS.DETAIL_ITEMS' | translate }}
-                  </h3>
-                  <span class="eyebrow-label font-numeric">{{ currentOrder.items.length }} {{ currentLang === 'ar' ? 'عنصر' : 'items' }}</span>
-                </div>
+ <section class="surface-card">
+ <div class="flex items-center justify-between gap-4">
+ <h3 class="section-title">
+ <span class="material-symbols-outlined text-[20px] text-[#00626f]">inventory_2</span>
+ {{ 'ORDERS.DETAIL_ITEMS' | translate }}
+ </h3>
+ <span class="eyebrow-label font-numeric">{{ currentOrder.items.length }} {{ currentLang === 'ar' ? 'عنصر' : 'items' }}</span>
+ </div>
 
-                <div class="mt-4 space-y-2.5">
-                  <article *ngFor="let item of currentOrder.items" class="item-row">
-                    <div class="flex min-w-0 items-center gap-3">
-                      <div class="w-20 h-20 shrink-0 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden p-1 shadow-sm">
-                        <img
-                          [src]="resolveProductImageUrl(item.imageUrl)"
-                          [alt]="currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr)"
-                          (error)="handleProductImageError($event)"
-                          class="w-full h-full object-contain rounded-xl">
-                      </div>
-                      <div class="min-w-0">
-                        <p class="truncate text-[0.82rem] font-extrabold text-[#004953] md:text-[0.92rem]">{{ currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr) }}</p>
-                        <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[0.68rem] font-bold text-[#6f797b]">
-                          <span class="rounded-full bg-[#00626f]/6 px-2.5 py-1 font-numeric text-[#00626f]">{{ item.sku }}</span>
-                          <span *ngIf="item.unitAr || item.unitEn">{{ currentLang === 'ar' ? (item.unitAr || item.unitEn) : (item.unitEn || item.unitAr) }}</span>
-                        </div>
-                      </div>
-                    </div>
+ <div class="mt-4 space-y-2.5">
+ <article *ngFor="let item of currentOrder.items" class="item-row">
+ <div class="flex min-w-0 items-center gap-3">
+ <div class="w-20 h-20 shrink-0 rounded-2xl border border-slate-200 bg-slate-50 flex items-center justify-center overflow-hidden p-1 shadow-sm">
+ <img
+ [src]="resolveProductImageUrl(item.imageUrl)"
+ [alt]="currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr)"
+ (error)="handleProductImageError($event)"
+ class="w-full h-full object-contain rounded-xl">
+ </div>
+ <div class="min-w-0">
+ <p class="truncate text-[0.82rem] font-extrabold text-[#004953] md:text-[0.92rem]">{{ currentLang === 'ar' ? (item.nameAr || item.nameEn) : (item.nameEn || item.nameAr) }}</p>
+ <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[0.68rem] font-bold text-[#6f797b]">
+ <span class="rounded-full bg-[#00626f]/6 px-2.5 py-1 font-numeric text-[#00626f]">{{ item.sku }}</span>
+ <span *ngIf="item.unitAr || item.unitEn">{{ currentLang === 'ar' ? (item.unitAr || item.unitEn) : (item.unitEn || item.unitAr) }}</span>
+ </div>
+ </div>
+ </div>
 
-                    <div class="item-figures">
-                      <div>
-                        <p class="item-label">{{ currentLang === 'ar' ? 'الكمية' : 'Qty' }}</p>
-                        <p class="item-number font-numeric">{{ item.quantity }}</p>
-                      </div>
-                      <div>
-                        <p class="item-label">{{ currentLang === 'ar' ? 'السعر' : 'Price' }}</p>
-                        <p class="item-number font-numeric">{{ item.price | number:'1.2-2' }}</p>
-                      </div>
-                      <div>
-                        <p class="item-label">{{ currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</p>
-                        <p class="item-number font-numeric text-[#004953]">{{ item.total | number:'1.2-2' }}</p>
-                      </div>
-                    </div>
-                  </article>
-                </div>
-              </section>
+ <div class="item-figures">
+ <div>
+ <p class="item-label">{{ currentLang === 'ar' ? 'الكمية' : 'Qty' }}</p>
+ <p class="item-number font-numeric">{{ item.quantity }}</p>
+ </div>
+ <div>
+ <p class="item-label">{{ currentLang === 'ar' ? 'السعر' : 'Price' }}</p>
+ <p class="item-number font-numeric">{{ item.price | number:'1.2-2' }}</p>
+ </div>
+ <div>
+ <p class="item-label">{{ currentLang === 'ar' ? 'الإجمالي' : 'Total' }}</p>
+ <p class="item-number font-numeric text-[#004953]">{{ item.total | number:'1.2-2' }}</p>
+ </div>
+ </div>
+ </article>
+ </div>
+ </section>
 
-              <section id="tracking" class="tracking-card scroll-mt-24" *ngIf="isTrackingActive()">
-                <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                  <div>
-                    <h3 class="section-title">
-                      <span class="material-symbols-outlined text-[20px] text-[#00626f]">explore</span>
-                      {{ currentLang === 'ar' ? 'تتبع حي للطلب' : 'Live order tracking' }}
-                    </h3>
-                    <p class="section-copy">
-                      {{ hasTrackableMapData()
-                        ? (currentLang === 'ar' ? 'المندوب في الطريق إلى المتجر. يمكنك متابعة موقعه مباشرة حتى تسليم الطلب للمندوب.' : 'The courier is heading to the store. Track their location live until the handoff is complete.')
+ <section id="tracking" class="tracking-card scroll-mt-24" *ngIf="isTrackingActive()">
+ <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+ <div>
+ <h3 class="section-title">
+ <span class="material-symbols-outlined text-[20px] text-[#00626f]">explore</span>
+ {{ currentLang === 'ar' ? 'تتبع حي للطلب' : 'Live order tracking' }}
+ </h3>
+ <p class="section-copy">
+ {{ hasTrackableMapData()
+                        ? (currentLang === 'ar' ? 'المندوب في الطريق إلى المتجر. تقدر تتابع موقعه مباشرة حتى تسليم الطلب للمندوب.' : 'The courier is heading to the store. Track their location live until the handoff is complete.')
                         : (currentLang === 'ar' ? 'سيظهر موقع المندوب على الخريطة فور توفر إحداثياته.' : 'The courier location will appear on the map as soon as coordinates are available.') }}
-                    </p>
-                  </div>
+ </p>
+ </div>
 
-                  <div class="live-pill">
-                    <span class="relative flex h-2.5 w-2.5">
-                      <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                      <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-                    </span>
-                    <span>{{ currentLang === 'ar' ? 'مباشر' : 'Live' }}</span>
-                  </div>
-                </div>
+ <div class="live-pill">
+ <span class="relative flex h-2.5 w-2.5">
+ <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
+ <span class="relative inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
+ </span>
+ <span>{{ currentLang === 'ar' ? 'مباشر' : 'Live' }}</span>
+ </div>
+ </div>
 
-                <div class="mt-4 overflow-hidden rounded-[1.1rem] border border-white/60 bg-[#12212c] shadow-inner">
-                  <div *ngIf="shouldShowLiveMap(); else trackingPlaceholder">
-                    <app-driver-tracking-map
-                      [driverLocation]="currentOrder.driverLiveLocation"
-                      [vendorLocation]="currentOrder.vendorLocation"
-                      [customerLocation]="currentOrder.customerLocation"
-                      [orderStatus]="currentOrder.status"
-                      [isArabic]="currentLang === 'ar'"
-                    ></app-driver-tracking-map>
-                  </div>
+ <div class="mt-4 overflow-hidden rounded-[1.1rem] border border-white/60 bg-[#12212c] shadow-inner">
+ <div *ngIf="shouldShowLiveMap(); else trackingPlaceholder">
+ <app-driver-tracking-map
+ [driverLocation]="currentOrder.driverLiveLocation"
+ [vendorLocation]="currentOrder.vendorLocation"
+ [customerLocation]="currentOrder.customerLocation"
+ [orderStatus]="currentOrder.status"
+ [isArabic]="currentLang === 'ar'"
+ ></app-driver-tracking-map>
+ </div>
 
-                  <ng-template #trackingPlaceholder>
-                    <div class="tracking-empty-state">
-                      <div class="tracking-empty-badge">
-                        <span class="material-symbols-outlined text-[26px]">location_off</span>
-                      </div>
-                      <p class="tracking-empty-title">
-                        {{ currentLang === 'ar' ? 'لا توجد بيانات تتبع حية لهذا الطلب' : 'No live tracking data for this order' }}
-                      </p>
-                      <p class="tracking-empty-copy">
-                        {{ currentLang === 'ar'
-                          ? 'سيتم عرض الخريطة الحقيقية فقط عند وصول إحداثيات المتجر أو العميل أو السائق من النظام.'
+ <ng-template #trackingPlaceholder>
+ <div class="tracking-empty-state">
+ <div class="tracking-empty-badge">
+ <span class="material-symbols-outlined text-[26px]">location_off</span>
+ </div>
+ <p class="tracking-empty-title">
+                        {{ currentLang === 'ar' ? 'ما فيه بيانات تتبع مباشرة لهذا الطلب' : 'No live tracking data for this order' }}
+ </p>
+ <p class="tracking-empty-copy">
+ {{ currentLang === 'ar'
+                          ? 'راح نعرض الخريطة الحقيقية فقط عند وصول إحداثيات المتجر أو العميل أو السائق من النظام.'
                           : 'The real map will appear only when store, customer, or driver coordinates are received from the system.' }}
-                      </p>
-                      <div class="tracking-empty-note">
-                        {{ currentLang === 'ar' ? 'لا يتم عرض أي مسار أو خريطة تجريبية.' : 'No mock route or fake map is shown.' }}
-                      </div>
-                    </div>
-                  </ng-template>
-                </div>
+ </p>
+ <div class="tracking-empty-note">
+ {{ currentLang === 'ar' ? 'لا يتم عرض أي مسار أو خريطة تجريبية.' : 'No mock route or fake map is shown.' }}
+ </div>
+ </div>
+ </ng-template>
+ </div>
 
-                <div class="mt-3 grid grid-cols-1 gap-2.5 md:grid-cols-3">
-                  <article class="telemetry-card">
-                    <p class="telemetry-label">{{ currentLang === 'ar' ? 'الحالة الحالية' : 'Current phase' }}</p>
-                    <p class="telemetry-value">{{ currentStatusLabel(currentOrder) }}</p>
-                  </article>
-                  <article class="telemetry-card">
-                    <p class="telemetry-label">{{ currentLang === 'ar' ? 'موعد الوصول' : 'ETA' }}</p>
-                    <p class="telemetry-value font-numeric">{{ currentOrder.estimatedDelivery || '--' }}</p>
-                  </article>
-                  <article class="telemetry-card">
-                    <p class="telemetry-label">{{ currentLang === 'ar' ? 'آخر تحديث' : 'Last update' }}</p>
-                    <p class="telemetry-value font-numeric">
-                      {{ currentOrder.driverLiveLocation?.recordedAtUtc
+ <div class="mt-3 grid grid-cols-1 gap-2.5 md:grid-cols-3">
+ <article class="telemetry-card">
+ <p class="telemetry-label">{{ currentLang === 'ar' ? 'الحالة الحالية' : 'Current phase' }}</p>
+ <p class="telemetry-value">{{ currentStatusLabel(currentOrder) }}</p>
+ </article>
+ <article class="telemetry-card">
+ <p class="telemetry-label">{{ currentLang === 'ar' ? 'موعد الوصول' : 'ETA' }}</p>
+ <p class="telemetry-value font-numeric">{{ currentOrder.estimatedDelivery || '--' }}</p>
+ </article>
+ <article class="telemetry-card">
+ <p class="telemetry-label">{{ currentLang === 'ar' ? 'آخر تحديث' : 'Last update' }}</p>
+ <p class="telemetry-value font-numeric">
+ {{ currentOrder.driverLiveLocation?.recordedAtUtc
                         ? (currentOrder.driverLiveLocation?.recordedAtUtc | date:'shortTime')
                         : (hasTrackableMapData() ? (currentLang === 'ar' ? 'الخريطة متاحة' : 'Map ready') : '--:--') }}
-                    </p>
-                  </article>
-                </div>
-              </section>
+ </p>
+ </article>
+ </div>
+ </section>
 
-              <section class="surface-card">
-                <div class="flex items-center justify-between gap-4">
-                  <h3 class="section-title">
-                    <span class="material-symbols-outlined text-[20px] text-[#00626f]">receipt_long</span>
-                    {{ currentLang === 'ar' ? 'التفاصيل المالية' : 'Financial details' }}
-                  </h3>
-                  <span class="eyebrow-label">{{ currentLang === 'ar' ? 'بيانات الفاتورة' : 'Invoice summary' }}</span>
-                </div>
+ <section class="surface-card">
+ <div class="flex items-center justify-between gap-4">
+ <h3 class="section-title">
+ <span class="material-symbols-outlined text-[20px] text-[#00626f]">receipt_long</span>
+ {{ currentLang === 'ar' ? 'التفاصيل المالية' : 'Financial details' }}
+ </h3>
+ <span class="eyebrow-label">{{ currentLang === 'ar' ? 'بيانات الفاتورة' : 'Invoice summary' }}</span>
+ </div>
 
-                <div class="mt-4 space-y-2.5">
-                  <div class="money-row">
-                    <span>{{ 'ORDERS.SUBTOTAL' | translate }}</span>
-                    <span class="font-numeric">{{ currentOrder.subtotal | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
-                  </div>
-                  <div class="money-row">
-                    <span>{{ 'ORDERS.DELIVERY_FEE' | translate }}</span>
-                    <span class="font-numeric">{{ currentOrder.deliveryFee | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
-                  </div>
-                  <div class="money-row">
-                    <span>{{ 'ORDERS.TAX' | translate }}</span>
-                    <span class="font-numeric">{{ currentOrder.tax | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
-                  </div>
-                  <div class="divider-line"></div>
-                  <div class="money-total">
-                    <span>{{ 'COMMON.TOTAL' | translate }}</span>
-                    <span class="font-numeric">{{ currentOrder.total | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
-                  </div>
-                </div>
-              </section>
+ <div class="mt-4 space-y-2.5">
+ <div class="money-row">
+ <span>{{ 'ORDERS.SUBTOTAL' | translate }}</span>
+ <span class="font-numeric">{{ currentOrder.subtotal | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
+ </div>
+ <div class="money-row">
+ <span>{{ 'ORDERS.DELIVERY_FEE' | translate }}</span>
+ <span class="font-numeric">{{ currentOrder.deliveryFee | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
+ </div>
+ <div class="money-row">
+ <span>{{ 'ORDERS.TAX' | translate }}</span>
+ <span class="font-numeric">{{ currentOrder.tax | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
+ </div>
+ <div class="divider-line"></div>
+ <div class="money-total">
+ <span>{{ 'COMMON.TOTAL' | translate }}</span>
+ <span class="font-numeric">{{ currentOrder.total | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
+ </div>
+ </div>
+ </section>
 
-            </div>
+ </div>
 
-            <div class="space-y-4 lg:col-span-4">
-              <section class="surface-card">
-                <h3 class="section-title">
-                  <span class="material-symbols-outlined text-[20px] text-[#00626f]">timeline</span>
-                  {{ 'ORDERS.DETAIL_TIMELINE' | translate }}
-                </h3>
+ <div class="space-y-4 lg:col-span-4">
+ <section class="surface-card">
+ <h3 class="section-title">
+ <span class="material-symbols-outlined text-[20px] text-[#00626f]">timeline</span>
+ {{ 'ORDERS.DETAIL_TIMELINE' | translate }}
+ </h3>
 
-                <div class="relative mt-6 ms-2 pb-2">
-                  <!-- Gradient Vertical Rail -->
-                  <div class="absolute top-4 bottom-4 start-[1.1rem] w-[2px] bg-gradient-to-b from-teal-500 via-teal-300 to-slate-100" [ngClass]="{'opacity-50': !currentOrder.timeline[0].isCompleted}"></div>
-                  
-                  <article *ngFor="let step of currentOrder.timeline; let i = index; let last = last" class="relative flex items-start gap-5 group" [ngClass]="{'pb-8': !last}">
-                    
-                    <!-- Node -->
-                    <div class="relative z-10 flex flex-col items-center justify-start">
-                      <!-- Active Pulse Effect -->
-                      <div *ngIf="isActiveTimelineStep(i)" class="absolute -inset-1.5 animate-ping rounded-full bg-teal-400 opacity-20"></div>
-                      <div *ngIf="isActiveTimelineStep(i)" class="absolute -inset-1 rounded-full bg-teal-100 opacity-50"></div>
-                      
-                      <div class="relative flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-300 shadow-sm"
-                           [ngClass]="{
-                             'bg-teal-500 border-teal-500 text-white shadow-[0_4px_12px_rgba(20,184,166,0.3)]': step.isCompleted && !isActiveTimelineStep(i),
-                             'bg-white border-teal-500 text-teal-600 ring-4 ring-teal-50': isActiveTimelineStep(i),
-                             'bg-slate-50 border-slate-200 text-slate-300': !step.isCompleted
-                           }">
-                        <span class="material-symbols-outlined text-[18px] transition-transform" [ngClass]="{'scale-110': isActiveTimelineStep(i)}"
-                          [style.fontVariationSettings]="getTimelineIconVariation(step, i)">
-                          {{ timelineIcon(step) }}
-                        </span>
-                      </div>
-                    </div>
+ <div class="relative mt-6 ms-2 pb-2">
+ <!-- Gradient Vertical Rail -->
+ <div class="absolute top-4 bottom-4 start-[1.1rem] w-[2px] bg-gradient-to-b from-teal-500 via-teal-300 to-slate-100" [ngClass]="{'opacity-50':!currentOrder.timeline[0].isCompleted}"></div>
+ 
+ <article *ngFor="let step of currentOrder.timeline; let i = index; let last = last" class="relative flex items-start gap-5 group" [ngClass]="{'pb-8':!last}">
+ 
+ <!-- Node -->
+ <div class="relative z-10 flex flex-col items-center justify-start">
+ <!-- Active Pulse Effect -->
+ <div *ngIf="isActiveTimelineStep(i)" class="absolute -inset-1.5 animate-ping rounded-full bg-teal-400 opacity-20"></div>
+ <div *ngIf="isActiveTimelineStep(i)" class="absolute -inset-1 rounded-full bg-teal-100 opacity-50"></div>
+ 
+ <div class="relative flex h-9 w-9 items-center justify-center rounded-full border-2 transition-all duration-300 shadow-sm"
+ [ngClass]="{
+ 'bg-teal-500 border-teal-500 text-white shadow-[0_4px_12px_rgba(20,184,166,0.3)]': step.isCompleted &&!isActiveTimelineStep(i),
+ 'bg-white border-teal-500 text-teal-600 ring-4 ring-teal-50': isActiveTimelineStep(i),
+ 'bg-slate-50 border-slate-200 text-slate-300':!step.isCompleted
+ }">
+ <span class="material-symbols-outlined text-[18px] transition-transform" [ngClass]="{'scale-110': isActiveTimelineStep(i)}"
+ [style.fontVariationSettings]="getTimelineIconVariation(step, i)">
+ {{ timelineIcon(step) }}
+ </span>
+ </div>
+ </div>
 
-                    <!-- Content -->
-                    <div class="min-w-0 flex-1 pt-1.5">
-                      <p class="truncate text-[0.9rem] font-extrabold transition-colors"
-                         [ngClass]="{
-                           'text-[#004953] drop-shadow-sm': isActiveTimelineStep(i),
-                           'text-slate-700': step.isCompleted && !isActiveTimelineStep(i),
-                           'text-slate-400': !step.isCompleted
-                         }">
-                        {{ timelineStepTitleKey(step) | translate }}
-                      </p>
+ <!-- Content -->
+ <div class="min-w-0 flex-1 pt-1.5">
+ <p class="truncate text-[0.9rem] font-extrabold transition-colors"
+ [ngClass]="{
+ 'text-[#004953] drop-shadow-sm': isActiveTimelineStep(i),
+ 'text-slate-700': step.isCompleted &&!isActiveTimelineStep(i),
+ 'text-slate-400':!step.isCompleted
+ }">
+ {{ timelineStepTitleKey(step) | translate }}
+ </p>
 
-                      <p class="mt-1 text-[0.75rem] font-medium leading-5 transition-colors"
-                         [ngClass]="{'text-teal-700/90': isActiveTimelineStep(i), 'text-slate-500': step.isCompleted && !isActiveTimelineStep(i), 'text-slate-400/80': !step.isCompleted}">
-                        {{ timelineStepDescriptionKey(step) | translate }}
-                      </p>
+ <p class="mt-1 text-[0.75rem] font-medium leading-5 transition-colors"
+ [ngClass]="{'text-teal-700/90': isActiveTimelineStep(i), 'text-slate-500': step.isCompleted &&!isActiveTimelineStep(i), 'text-slate-400/80':!step.isCompleted}">
+ {{ timelineStepDescriptionKey(step) | translate }}
+ </p>
 
-                      <p *ngIf="step.changedAtUtc" class="mt-1 text-[0.72rem] font-bold leading-5 font-numeric transition-colors"
-                         [ngClass]="{'text-teal-700': isActiveTimelineStep(i), 'text-slate-400': !isActiveTimelineStep(i)}">
-                        {{ 'ORDERS.TIMELINE.CHANGED_AT' | translate:{ datetime: (step.changedAtUtc | date:(currentLang === 'ar' ? 'd MMM y، h:mm a' : 'MMM d, y, h:mm a')) } }}
-                      </p>
+ <p *ngIf="step.changedAtUtc" class="mt-1 text-[0.72rem] font-bold leading-5 font-numeric transition-colors"
+ [ngClass]="{'text-teal-700': isActiveTimelineStep(i), 'text-slate-400':!isActiveTimelineStep(i)}">
+ {{ 'ORDERS.TIMELINE.CHANGED_AT' | translate:{ datetime: (step.changedAtUtc | date:(currentLang === 'ar' ? 'd MMM y، h:mm a' : 'MMM d, y, h:mm a')) } }}
+ </p>
 
-                      <p *ngIf="isActiveTimelineStep(i)" class="mt-1 inline-flex items-center rounded-[0.45rem] bg-teal-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-teal-700 border border-teal-100">
-                        {{ 'ORDERS.TIMELINE.CURRENT_STEP' | translate }}
-                      </p>
+ <p *ngIf="isActiveTimelineStep(i)" class="mt-1 inline-flex items-center rounded-[0.45rem] bg-teal-50 px-2 py-0.5 text-[0.68rem] font-extrabold text-teal-700 border border-teal-100">
+ {{ 'ORDERS.TIMELINE.CURRENT_STEP' | translate }}
+ </p>
 
-                      <p *ngIf="!step.isCompleted" class="mt-1 text-[0.72rem] font-semibold italic text-slate-400/90">
-                        {{ 'ORDERS.TIMELINE.PENDING_STEP' | translate }}
-                      </p>
+ <p *ngIf="!step.isCompleted" class="mt-1 text-[0.72rem] font-semibold italic text-slate-400/90">
+ {{ 'ORDERS.TIMELINE.PENDING_STEP' | translate }}
+ </p>
 
-                      <p *ngIf="step.notes" class="mt-1 text-[0.72rem] font-medium leading-5 transition-colors"
-                         [ngClass]="{'text-teal-600/80': isActiveTimelineStep(i), 'text-slate-500': step.isCompleted && !isActiveTimelineStep(i), 'text-slate-400/70': !step.isCompleted}">
-                        {{ translateTimelineNote(step.notes) }}
-                      </p>
-                    </div>
-                  </article>
-                </div>
-              </section>
+ <p *ngIf="step.notes" class="mt-1 text-[0.72rem] font-medium leading-5 transition-colors"
+ [ngClass]="{'text-teal-600/80': isActiveTimelineStep(i), 'text-slate-500': step.isCompleted &&!isActiveTimelineStep(i), 'text-slate-400/70':!step.isCompleted}">
+ {{ translateTimelineNote(step.notes) }}
+ </p>
+ </div>
+ </article>
+ </div>
+ </section>
 
-              <section class="surface-card">
-                <h3 class="section-title">
-                  <span class="material-symbols-outlined text-[20px] text-[#00626f]">delivery_truck_speed</span>
-                  {{ currentLang === 'ar' ? 'معلومات المندوب' : 'Driver details' }}
-                </h3>
+ <section class="surface-card">
+ <h3 class="section-title">
+ <span class="material-symbols-outlined text-[20px] text-[#00626f]">delivery_truck_speed</span>
+ {{ currentLang === 'ar' ? 'معلومات المندوب' : 'Driver details' }}
+ </h3>
 
-                <ng-container *ngIf="currentOrder.driverName; else noDriverState">
-                  <!-- Profile Card -->
-                  <div class="mt-4 flex items-center gap-3 p-3 rounded-[1rem] bg-gradient-to-br from-teal-50/50 to-white border border-teal-100/50 shadow-sm relative overflow-hidden">
-                    <!-- Background Accent -->
-                    <div class="absolute -right-4 -top-4 w-16 h-16 bg-teal-100/40 rounded-full blur-xl"></div>
+ <ng-container *ngIf="currentOrder.driverName; else noDriverState">
+ <!-- Profile Card -->
+ <div class="mt-4 flex items-center gap-3 p-3 rounded-[1rem] bg-gradient-to-br from-teal-50/50 to-white border border-teal-100/50 shadow-sm relative overflow-hidden">
+ <!-- Background Accent -->
+ <div class="absolute -right-4 -top-4 w-16 h-16 bg-teal-100/40 rounded-full blur-xl"></div>
 
-                    <div class="relative">
-                      <div class="h-11 w-11 overflow-hidden rounded-full ring-2 ring-white shadow-sm bg-slate-100">
-                        <img class="h-full w-full object-cover" [src]="resolveImageUrl(currentOrder.driverImage, currentOrder.driverName)" [alt]="currentOrder.driverName" (error)="handleImageError($event, currentOrder.driverName)">
-                      </div>
-                      <div class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white shadow-sm"></div>
-                    </div>
-                    <div class="min-w-0 flex-1 relative z-10">
-                      <p class="truncate text-[0.85rem] font-extrabold text-[#004953] drop-shadow-sm">{{ currentOrder.driverName }}</p>
-                      <p class="mt-0.5 text-[0.65rem] font-bold text-teal-700/80">{{ driverCompanyLabel(currentOrder) }}</p>
-                      <div *ngIf="currentOrder.driverRating" class="mt-1.5 inline-flex items-center gap-1 rounded-[0.3rem] bg-amber-50 px-1.5 py-0.5 text-[0.65rem] font-bold text-amber-700 border border-amber-200/60 shadow-sm">
-                        <span class="material-symbols-outlined text-[13px] text-amber-500" style="font-variation-settings: 'FILL' 1">star</span>
-                        <span class="font-numeric leading-none">{{ currentOrder.driverRating }}</span>
-                      </div>
-                    </div>
-                  </div>
+ <div class="relative">
+ <div class="h-11 w-11 overflow-hidden rounded-full ring-2 ring-white shadow-sm bg-slate-100">
+ <img class="h-full w-full object-cover" [src]="resolveImageUrl(currentOrder.driverImage, currentOrder.driverName)" [alt]="currentOrder.driverName" (error)="handleImageError($event, currentOrder.driverName)">
+ </div>
+ <div class="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white shadow-sm"></div>
+ </div>
+ <div class="min-w-0 flex-1 relative z-10">
+ <p class="truncate text-[0.85rem] font-extrabold text-[#004953] drop-shadow-sm">{{ currentOrder.driverName }}</p>
+ <p class="mt-0.5 text-[0.65rem] font-bold text-teal-700/80">{{ driverCompanyLabel(currentOrder) }}</p>
+ <div *ngIf="currentOrder.driverRating" class="mt-1.5 inline-flex items-center gap-1 rounded-[0.3rem] bg-amber-50 px-1.5 py-0.5 text-[0.65rem] font-bold text-amber-700 border border-amber-200/60 shadow-sm">
+ <span class="material-symbols-outlined text-[13px] text-amber-500" style="font-variation-settings: 'FILL' 1">star</span>
+ <span class="font-numeric leading-none">{{ currentOrder.driverRating }}</span>
+ </div>
+ </div>
+ </div>
 
-                  <!-- Vehicle Info -->
-                  <div class="mt-3 flex gap-2">
-                    <div class="flex-1 rounded-[1rem] bg-slate-50 border border-slate-100 p-2.5 flex flex-col justify-center items-center gap-1 transition-all hover:bg-white hover:shadow-sm">
-                      <span class="material-symbols-outlined text-[18px] text-slate-400">directions_car</span>
-                      <span class="text-[0.6rem] font-bold text-slate-500">{{ currentLang === 'ar' ? 'المركبة' : 'Vehicle' }}</span>
-                      <span class="text-[0.75rem] font-extrabold text-[#004953]">{{ translateVehicleType(currentOrder.driverVehicleType) }}</span>
-                    </div>
-                    <div class="flex-1 rounded-[1rem] bg-slate-50 border border-slate-100 p-2.5 flex flex-col justify-center items-center gap-1 transition-all hover:bg-white hover:shadow-sm min-w-0">
-                      <span class="material-symbols-outlined text-[18px] text-slate-400">pin</span>
-                      <span class="text-[0.6rem] font-bold text-slate-500">{{ currentLang === 'ar' ? 'اللوحة' : 'Plate' }}</span>
-                      <!-- License Plate Styling -->
-                      <div class="mt-0.5 px-3 py-1 bg-white border border-slate-300 rounded-[0.3rem] text-center shadow-sm max-w-full min-w-[70px]">
-                        <p class="font-numeric text-[0.75rem] font-black tracking-widest text-[#004953] truncate">{{ currentOrder.driverVehiclePlate || '--' }}</p>
-                      </div>
-                    </div>
-                  </div>
+ <!-- Vehicle Info -->
+ <div class="mt-3 flex gap-2">
+ <div class="flex-1 rounded-[1rem] bg-slate-50 border border-slate-100 p-2.5 flex flex-col justify-center items-center gap-1 transition-all hover:bg-white hover:shadow-sm">
+ <span class="material-symbols-outlined text-[18px] text-slate-400">directions_car</span>
+ <span class="text-[0.6rem] font-bold text-slate-500">{{ currentLang === 'ar' ? 'المركبة' : 'Vehicle' }}</span>
+ <span class="text-[0.75rem] font-extrabold text-[#004953]">{{ translateVehicleType(currentOrder.driverVehicleType) }}</span>
+ </div>
+ <div class="flex-1 rounded-[1rem] bg-slate-50 border border-slate-100 p-2.5 flex flex-col justify-center items-center gap-1 transition-all hover:bg-white hover:shadow-sm min-w-0">
+ <span class="material-symbols-outlined text-[18px] text-slate-400">pin</span>
+ <span class="text-[0.6rem] font-bold text-slate-500">{{ currentLang === 'ar' ? 'اللوحة' : 'Plate' }}</span>
+ <!-- License Plate Styling -->
+ <div class="mt-0.5 px-3 py-1 bg-white border border-slate-300 rounded-[0.3rem] text-center shadow-sm max-w-full min-w-[70px]">
+ <p class="font-numeric text-[0.75rem] font-black tracking-widest text-[#004953] truncate">{{ currentOrder.driverVehiclePlate || '--' }}</p>
+ </div>
+ </div>
+ </div>
 
-                  <!-- Actions -->
-                  <div class="mt-3 grid grid-cols-2 gap-2">
-                    <a *ngIf="currentOrder.driverPhone" [href]="'tel:' + currentOrder.driverPhone" 
-                       class="flex items-center justify-center gap-1.5 rounded-[0.8rem] bg-gradient-to-r from-teal-500 to-[#004953] py-2 px-3 text-white font-bold text-[0.75rem] shadow-sm shadow-teal-500/20 transition-transform active:scale-95 hover:shadow-teal-500/30">
-                      <span class="material-symbols-outlined text-[16px]">call</span>
-                      {{ currentLang === 'ar' ? 'اتصال' : 'Call' }}
-                    </a>
-                    <a *ngIf="currentOrder.driverPhone" [href]="'https://wa.me/' + sanitizePhone(currentOrder.driverPhone)" target="_blank" rel="noreferrer"
-                       class="flex items-center justify-center gap-1.5 rounded-[0.8rem] bg-gradient-to-r from-emerald-500 to-green-600 py-2 px-3 text-white font-bold text-[0.75rem] shadow-sm shadow-emerald-500/20 transition-transform active:scale-95 hover:shadow-emerald-500/30">
-                      <span class="material-symbols-outlined text-[16px]">chat</span>
-                      {{ currentLang === 'ar' ? 'واتساب' : 'WhatsApp' }}
-                    </a>
-                  </div>
-                </ng-container>
+ <!-- Actions -->
+ <div class="mt-3 grid grid-cols-2 gap-2">
+ <a *ngIf="currentOrder.driverPhone" [href]="'tel:' + currentOrder.driverPhone" 
+ class="flex items-center justify-center gap-1.5 rounded-[0.8rem] bg-gradient-to-r from-teal-500 to-[#004953] py-2 px-3 text-white font-bold text-[0.75rem] shadow-sm shadow-teal-500/20 transition-transform active:scale-95 hover:shadow-teal-500/30">
+ <span class="material-symbols-outlined text-[16px]">call</span>
+ {{ currentLang === 'ar' ? 'اتصال' : 'Call' }}
+ </a>
+ <a *ngIf="currentOrder.driverPhone" [href]="'https://wa.me/' + sanitizePhone(currentOrder.driverPhone)" target="_blank" rel="noreferrer"
+ class="flex items-center justify-center gap-1.5 rounded-[0.8rem] bg-gradient-to-r from-emerald-500 to-green-600 py-2 px-3 text-white font-bold text-[0.75rem] shadow-sm shadow-emerald-500/20 transition-transform active:scale-95 hover:shadow-emerald-500/30">
+ <span class="material-symbols-outlined text-[16px]">chat</span>
+ {{ currentLang === 'ar' ? 'واتساب' : 'WhatsApp' }}
+ </a>
+ </div>
+ </ng-container>
 
-                <ng-template #noDriverState>
-                  <div class="mt-5 rounded-[1.1rem] border border-dashed border-[#00626f]/20 bg-[#f8fafb] px-4 py-8 text-center">
-                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#00626f]/8 text-[#00626f]">
-                      <span class="material-symbols-outlined text-[22px]">{{ isDispatchInProgress() ? 'search' : 'delivery_truck_speed' }}</span>
-                    </div>
-                    <p class="mt-3 text-[0.82rem] font-extrabold text-[#004953]">
-                      {{ isDispatchInProgress() ? (currentLang === 'ar' ? 'جارٍ البحث عن مندوب' : 'Searching for a courier') : (currentLang === 'ar' ? 'لم يتم تعيين مندوب بعد' : 'No courier assigned yet') }}
-                    </p>
-                    <p class="mt-1.5 text-[0.7rem] leading-5 text-[#6f797b]">
-                      {{ currentLang === 'ar' ? 'سيظهر ملف المندوب هنا فور قبول مهمة التوصيل.' : 'The courier profile will appear here once a delivery task is accepted.' }}
-                    </p>
-                  </div>
-                </ng-template>
-              </section>
+ <ng-template #noDriverState>
+ <div class="mt-5 rounded-[1.1rem] border border-dashed border-[#00626f]/20 bg-[#f8fafb] px-4 py-8 text-center">
+ <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-[#00626f]/8 text-[#00626f]">
+ <span class="material-symbols-outlined text-[22px]">{{ isDispatchInProgress() ? 'search' : 'delivery_truck_speed' }}</span>
+ </div>
+ <p class="mt-3 text-[0.82rem] font-extrabold text-[#004953]">
+ {{ isDispatchInProgress() ? (currentLang === 'ar' ? 'جارٍ البحث عن مندوب' : 'Searching for a courier') : (currentLang === 'ar' ? 'لم يتم تعيين مندوب بعد' : 'No courier assigned yet') }}
+ </p>
+ <p class="mt-1.5 text-[0.7rem] leading-5 text-[#6f797b]">
+ {{ currentLang === 'ar' ? 'سيظهر ملف المندوب هنا فور قبول مهمة التوصيل.' : 'The courier profile will appear here once a delivery task is accepted.' }}
+ </p>
+ </div>
+ </ng-template>
+ </section>
 
-              <section class="otp-card" *ngIf="currentOrder.canConfirmPickup">
-                <div class="relative z-10">
-                  <h3 class="text-lg font-extrabold text-white">
-                    {{ currentLang === 'ar' ? 'تسليم الطلب' : 'Pickup handoff' }}
-                  </h3>
-                  <p class="mt-2 text-[0.82rem] leading-6 text-[#d8f6fb]">
-                    {{ currentLang === 'ar' ? 'أدخل رمز التحقق المكوّن من 4 أرقام لتأكيد تسليم الطلب للمندوب.' : 'Enter the 4-digit OTP to confirm the handoff to the courier.' }}
-                  </p>
+ <section class="otp-card" *ngIf="currentOrder.canConfirmPickup">
+ <div class="relative z-10">
+ <h3 class="text-lg font-extrabold text-white">
+ {{ currentLang === 'ar' ? 'تسليم الطلب' : 'Pickup handoff' }}
+ </h3>
+ <p class="mt-2 text-[0.82rem] leading-6 text-[#d8f6fb]">
+ {{ currentLang === 'ar' ? 'أدخل رمز التحقق المكوّن من 4 أرقام لتأكيد تسليم الطلب للمندوب.' : 'Enter the 4-digit OTP to confirm the handoff to the courier.' }}
+ </p>
 
-                  <div class="mt-5 flex justify-center gap-2" dir="ltr">
-                    <input
-                      *ngFor="let i of [0, 1, 2, 3]"
-                      type="text"
-                      inputmode="numeric"
-                      pattern="[0-9]"
-                      maxlength="1"
-                      [attr.data-otp-index]="i"
-                      [value]="otpDigits[i] || ''"
-                      (input)="onOtpDigitInput($event, i)"
-                      (keydown)="onOtpKeyDown($event, i)"
-                      (paste)="onOtpPaste($event)"
-                      class="otp-input"
-                      placeholder="•"
-                    />
-                  </div>
+ <div class="mt-5 flex justify-center gap-2" dir="ltr">
+ <input
+ *ngFor="let i of [0, 1, 2, 3]"
+ type="text"
+ inputmode="numeric"
+ pattern="[0-9]"
+ maxlength="1"
+ [attr.data-otp-index]="i"
+ [value]="otpDigits[i] || ''"
+ (input)="onOtpDigitInput($event, i)"
+ (keydown)="onOtpKeyDown($event, i)"
+ (paste)="onOtpPaste($event)"
+ class="otp-input"
+ placeholder="•"
+ />
+ </div>
 
-                  <button type="button" class="otp-submit" (click)="confirmPickup()" [disabled]="isConfirmingPickup || otpDigits.join('').length < 4">
-                    <span *ngIf="!isConfirmingPickup" class="flex items-center justify-center gap-2">
-                      <span class="material-symbols-outlined text-[20px]">check_circle</span>
-                      {{ currentLang === 'ar' ? 'تأكيد التسليم' : 'Confirm handoff' }}
-                    </span>
-                    <span *ngIf="isConfirmingPickup" class="flex items-center justify-center gap-2">
-                      <span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
-                      {{ 'COMMON.PROCESSING' | translate }}
-                    </span>
-                  </button>
-                </div>
-              </section>
-            </div>
-          </div>
-        </ng-container>
-      </div>
-    </div>
-  `,
-  styles: [`
-    :host {
-      display: block;
-    }
-  `]
+ <button type="button" class="otp-submit" (click)="confirmPickup()" [disabled]="isConfirmingPickup || otpDigits.join('').length < 4">
+ <span *ngIf="!isConfirmingPickup" class="flex items-center justify-center gap-2">
+ <span class="material-symbols-outlined text-[20px]">check_circle</span>
+ {{ currentLang === 'ar' ? 'تأكيد التسليم' : 'Confirm handoff' }}
+ </span>
+ <span *ngIf="isConfirmingPickup" class="flex items-center justify-center gap-2">
+ <span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+ {{ 'COMMON.PROCESSING' | translate }}
+ </span>
+ </button>
+ </div>
+ </section>
+ </div>
+ </div>
+ </ng-container>
+ </div>
+ </div>
+ `,
+ styles: [`
+ :host {
+ display: block;
+ }
+ `]
 })
 export class OrderDetailsComponent implements OnInit, OnDestroy {
-  private readonly cdr = inject(ChangeDetectorRef);
-  order: OrderDetail | null = null;
-  orderId: string | null = null;
-  currentLang = 'ar';
-  isUpdatingStatus = false;
-  isConfirmingPickup = false;
-  isLoading = true;
-  loadErrorMessage = '';
-  otpDigits: string[] = ['', '', '', ''];
-  private sub: Subscription | null = null;
-  private langSub: Subscription | null = null;
-  private pollSub: Subscription | null = null;
-  private fragmentSub: Subscription | null = null;
-  private driverLocationSub: Subscription | null = null;
-  private statusChangeSub: Subscription | null = null;
-  private trackedOrderId: string | null = null;
-  private readonly POLL_INTERVAL_MS = 60000;
-  private readonly TRACKING_FALLBACK_POLL_INTERVAL_MS = 30000;
-
-  constructor(
-    private route: ActivatedRoute,
-    private ordersService: OrdersService,
-    private translate: TranslateService,
-    private orderTrackingRealtime: OrderTrackingRealtimeService,
-    private zone: NgZone,
-    private alertModalService: AlertModalService
-  ) {
-    this.currentLang = this.translate.currentLang || 'ar';
-    this.langSub = this.translate.onLangChange.subscribe((e) => {
-      this.cdr.markForCheck();
-      this.currentLang = e.lang;
-    });
-  }
-
-  ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.orderId = id;
-      this.loadOrder(id);
-    }
-
-    this.fragmentSub = this.route.fragment.subscribe((fragment) => {
-      this.cdr.markForCheck();
-      if (fragment === 'tracking') {
-        this.scrollToTracking();
-      }
-    });
-  }
-
-  resolveImageUrl(path: string | undefined, driverName?: string): string {
-    const fallbackUrl = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23004953'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
-    if (!path) return fallbackUrl;
-    if (path.startsWith('http')) return path;
-    const cleanPath = path.replace(/\\/g, '/').replace(/^\//, '');
-    const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
-    return `${baseUrl}/${cleanPath}`;
-  }
-
-  resolveProductImageUrl(path: string | undefined): string {
-    if (!path) {
-      return '/assets/images/placeholders/product.svg';
-    }
-
-    if (path.startsWith('http')) {
-      return path;
-    }
-
-    if (path.startsWith('assets/') || path.startsWith('/assets/')) {
-      return path.startsWith('/') ? path : `/${path}`;
-    }
-
-    const cleanPath = path.replace(/\\/g, '/').replace(/^\//, '');
-    const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
-    return `${baseUrl}/${cleanPath}`;
-  }
-
-  handleProductImageError(event: Event): void {
-    const img = event.target as HTMLImageElement;
-    img.src = '/assets/images/placeholders/product.svg';
-  }
-
-  handleImageError(event: Event, driverName?: string): void {
-    const img = event.target as HTMLImageElement;
-    img.src = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23004953'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
-  }
-
-  ngOnDestroy(): void {
-    this.sub?.unsubscribe();
-    this.langSub?.unsubscribe();
-    this.fragmentSub?.unsubscribe();
-    this.stopPolling();
-    this.stopRealtimeTracking();
-  }
-
-  canConfirm(): boolean {
-    return this.order?.backendStatus === 'PendingVendorAcceptance';
-  }
-
-  canPrepare(): boolean {
-    return this.order?.backendStatus === 'Accepted';
-  }
-
-  canMarkReady(): boolean {
-    return this.order?.backendStatus === 'Preparing';
-  }
-
-  isDispatchInProgress(): boolean {
-    return this.order?.backendStatus === 'ReadyForPickup' || this.order?.backendStatus === 'DriverAssignmentInProgress';
-  }
-
-  isTrackingActive(): boolean {
-    return this.canReceiveLiveDriverTracking(this.order);
-  }
-
-  isOrderCompleted(): boolean {
-    const status = this.order?.status;
-    return status === 'DELIVERED' || status === 'COMPLETED' || status === 'CANCELLED' || status === 'RETURNED' || status === 'DELIVERY_FAILED' || status === 'REFUNDED';
-  }
-
-  hasTrackableMapData(): boolean {
-    return !!(
-      this.order?.vendorLocation ||
-      this.order?.customerLocation ||
-      this.order?.driverLiveLocation
-    );
-  }
-
-  shouldShowLiveMap(): boolean {
-    return this.isTrackingActive() && this.hasTrackableMapData();
-  }
-
-  updateStatus(status: OrderStatus): void {
-    if (!this.order || this.isUpdatingStatus) {
-      return;
-    }
-
-    const orderId = this.order.id;
-    this.isUpdatingStatus = true;
-
-    this.ordersService.updateOrderStatus(orderId, status).subscribe({
-      next: (updated) => {
-        this.cdr.markForCheck();
-        this.order = this.applyVendorTrackingPolicy(updated);
-        this.isUpdatingStatus = false;
-        this.startPollingIfNeeded();
-      },
-      error: (error: HttpErrorResponse) => {
-        this.cdr.markForCheck();
-        this.isUpdatingStatus = false;
-        this.loadOrder(orderId);
-        void this.alertModalService.showAlert(this.resolveUpdateErrorMessage(error), 'COMMON.ERROR', 'danger');
-      }
-    });
-  }
-
-  confirmPickup(): void {
-    const code = this.otpDigits.join('');
-    if (!this.order || this.isConfirmingPickup || code.length < 4) {
-      return;
-    }
-
-    const orderId = this.order.id;
-    this.isConfirmingPickup = true;
-
-    this.ordersService.confirmPickupOtp(orderId, code).subscribe({
-      next: (updated) => {
-        this.cdr.markForCheck();
-        this.order = this.applyVendorTrackingPolicy(updated);
-        this.stopRealtimeTracking();
-        this.isConfirmingPickup = false;
-        this.otpDigits = ['', '', '', ''];
-        this.loadOrder(orderId);
-      },
-      error: (error: HttpErrorResponse) => {
-        this.cdr.markForCheck();
-        this.isConfirmingPickup = false;
-        this.otpDigits = ['', '', '', ''];
-        setTimeout(() => {
-          const first = document.querySelector<HTMLInputElement>('[data-otp-index="0"]');
-          first?.focus();
-        });
-        const detail = error.error?.detail;
-        const msg = typeof detail === 'string' && detail.trim() ? detail : (this.currentLang === 'ar' ? 'رمز غير صحيح' : 'Invalid code');
-        void this.alertModalService.showAlert(msg, 'COMMON.ERROR', 'danger');
-      }
-    });
-  }
-
-  onOtpDigitInput(event: Event, index: number): void {
-    const input = event.target as HTMLInputElement;
-    const value = input.value.replace(/[^0-9]/g, '');
-    input.value = value;
-    this.otpDigits[index] = value;
-
-    if (value && index < 3) {
-      const next = document.querySelector<HTMLInputElement>(`[data-otp-index="${index + 1}"]`);
-      next?.focus();
-    }
-
-    if (this.otpDigits.join('').length === 4) {
-      this.confirmPickup();
-    }
-  }
-
-  onOtpKeyDown(event: KeyboardEvent, index: number): void {
-    if (event.key === 'Backspace' && !this.otpDigits[index] && index > 0) {
-      const prev = document.querySelector<HTMLInputElement>(`[data-otp-index="${index - 1}"]`);
-      if (prev) {
-        this.otpDigits[index - 1] = '';
-        prev.value = '';
-        prev.focus();
-      }
-    }
-  }
-
-  onOtpPaste(event: ClipboardEvent): void {
-    event.preventDefault();
-    const paste = event.clipboardData?.getData('text')?.replace(/[^0-9]/g, '') || '';
-    const digits = paste.slice(0, 4).split('');
-
-    for (let i = 0; i < 4; i++) {
-      this.otpDigits[i] = digits[i] || '';
-      const input = document.querySelector<HTMLInputElement>(`[data-otp-index="${i}"]`);
-      if (input) {
-        input.value = this.otpDigits[i];
-      }
-    }
-
-    const nextEmpty = this.otpDigits.findIndex((digit) => !digit);
-    const focusIndex = nextEmpty === -1 ? 3 : nextEmpty;
-    const target = document.querySelector<HTMLInputElement>(`[data-otp-index="${focusIndex}"]`);
-    target?.focus();
-
-    if (this.otpDigits.join('').length === 4) {
-      this.confirmPickup();
-    }
-  }
-
-  retryLoad(): void {
-    if (!this.orderId) {
-      return;
-    }
-
-    this.loadOrder(this.orderId);
-  }
-
-  scrollToTracking(): void {
-    setTimeout(() => {
-      document.getElementById('tracking')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  }
-
-  paymentMethodLabel(order: OrderDetail): string {
-    if (this.currentLang === 'ar') {
-      return order.paymentMethodType === 'CARD' ? 'بطاقة ائتمان' : 'نقدًا عند الاستلام';
-    }
-
-    return order.paymentMethodType === 'CARD' ? 'Credit card' : 'Cash on delivery';
-  }
-
-  paymentStatusLabel(order: OrderDetail): string {
-    const labels = this.currentLang === 'ar'
-      ? {
-          PENDING: 'قيد الانتظار',
-          PAID: 'مدفوع',
-          FAILED: 'فشل الدفع',
-          REFUNDED: 'مسترد',
-          PARTIALLY_REFUNDED: 'استرداد جزئي',
-          COD_PENDING: 'يدفع عند التسليم'
-        }
-      : {
-          PENDING: 'Pending',
-          PAID: 'Paid',
-          FAILED: 'Failed',
-          REFUNDED: 'Refunded',
-          PARTIALLY_REFUNDED: 'Partially refunded',
-          COD_PENDING: 'Pay on delivery'
-        };
-
-    return labels[order.paymentStatus] || order.paymentStatus;
-  }
-
-  currentStatusLabel(order: OrderDetail): string {
-    return this.currentLang === 'ar' ? this.getStatusLabel(order.status).ar : this.getStatusLabel(order.status).en;
-  }
-
-  driverCompanyLabel(order: OrderDetail): string {
-    return this.currentLang === 'ar'
-      ? order.driverCompanyAr || 'شركة التوصيل'
-      : order.driverCompanyEn || 'Delivery company';
-  }
-
-  sanitizePhone(phone: string): string {
-    return phone.replace(/[^\d+]/g, '').replace(/^\+/, '');
-  }
-
-  translateVehicleType(type: string | undefined): string {
-    if (!type) return '--';
-    if (this.currentLang === 'en') return type;
-    
-    const lowerType = type.toLowerCase();
-    if (lowerType.includes('motorcycle') || lowerType.includes('bike') || lowerType.includes('scooter')) return 'دراجة نارية';
-    if (lowerType.includes('car')) return 'سيارة';
-    if (lowerType.includes('van')) return 'عربة نقل (فان)';
-    if (lowerType.includes('truck')) return 'شاحنة';
-    if (lowerType.includes('bicycle')) return 'دراجة هوائية';
-    
-    const translations: Record<string, string> = {
-      'sedan': 'سيارة (سيدان)',
-      'suv': 'سيارة عائلية',
-      'pickup': 'سيارة نقل (بيك أب)',
-    };
-    
-    return translations[lowerType] || type;
-  }
-
-  timelineStepTitleKey(step: OrderTimelineEntry): string {
-    return `ORDERS.TIMELINE.STEPS.${step.status}.TITLE`;
-  }
-
-  timelineStepDescriptionKey(step: OrderTimelineEntry): string {
-    return `ORDERS.TIMELINE.STEPS.${step.status}.DESCRIPTION`;
-  }
-
-  timelineIcon(step: OrderTimelineEntry): string {
-    const icons: Record<OrderStatus, string> = {
-      NEW: 'receipt_long',
-      CONFIRMED: 'task_alt',
-      IN_PROGRESS: 'restaurant',
-      READY_FOR_PICKUP: 'inventory_2',
-      DRIVER_ASSIGNMENT_IN_PROGRESS: 'search',
-      DRIVER_ASSIGNED: 'delivery_truck_speed',
-      PICKED_UP: 'move_to_inbox',
-      OUT_FOR_DELIVERY: 'local_shipping',
-      DELIVERED: 'check_circle',
-      COMPLETED: 'check_circle',
-      CANCELLED: 'close',
-      RETURNED: 'undo',
-      DELIVERY_FAILED: 'warning',
-      REFUNDED: 'currency_exchange'
-    };
-
-    return icons[step.status] || 'radio_button_checked';
-  }
-
-  timelineIconFilled(step: OrderTimelineEntry, index: number): boolean {
-    if (step.status === 'DELIVERED' || step.status === 'COMPLETED') {
-      return step.isCompleted;
-    }
-
-    return this.isActiveTimelineStep(index);
-  }
-
-  getTimelineIconVariation(step: OrderTimelineEntry, index: number): string {
-    return this.timelineIconFilled(step, index)
-      ? "'FILL' 1, 'wght' 600"
-      : "'FILL' 0, 'wght' 400";
-  }
-
-  timelineNodeClass(step: OrderTimelineEntry, index: number): string[] {
-    const classes = ['timeline-node', this.timelineStatusClass(step.status)];
-
-    if (step.isCompleted) {
-      classes.push('timeline-node-completed');
-    }
-
-    if (this.isActiveTimelineStep(index)) {
-      classes.push('timeline-node-active');
-    }
-
-    if (!step.isCompleted) {
-      classes.push('timeline-node-pending');
-    }
-
-    return classes;
-  }
-
-  timelineTextClass(step: OrderTimelineEntry, index: number): string[] {
-    if (this.isActiveTimelineStep(index)) {
-      return ['timeline-text-active', this.timelineAccentTextClass(step.status)];
-    }
-
-    return step.isCompleted ? ['text-[#004953]'] : ['text-[#5f6b6e]'];
-  }
-
-  isActiveTimelineStep(index: number): boolean {
-    const timeline = this.order?.timeline ?? [];
-    const current = timeline[index];
-    const next = timeline[index + 1];
-
-    return !!current?.isCompleted && !next?.isCompleted;
-  }
-
-  translateTimelineNote(note: string): string {
-    if (!note?.trim()) {
-      return '';
-    }
-
-    const normalized = note.trim().replace(/\.+$/, '');
-    if (normalized.toLowerCase().startsWith('customer cancellation reason:')) {
-      return normalized;
-    }
-
-    const key = this.resolveTimelineNoteKey(normalized);
-    if (key) {
-      const translated = this.translate.instant(key);
-      return translated !== key ? translated : normalized;
-    }
-
-    return normalized;
-  }
-
-  private resolveTimelineNoteKey(note: string): string | null {
-    const normalized = note.trim().toLowerCase();
-    const entries: Array<{ match: string; key: string }> = [
-      { match: 'auto-dispatch started', key: 'ORDERS.TIMELINE.NOTES.AUTO_DISPATCH_STARTED' },
-      { match: 'driver accepted delivery offer', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ACCEPTED_OFFER' },
-      { match: 'driver assigned via dispatch', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ASSIGNED_VIA_DISPATCH' },
-      { match: 'driver assigned by admin', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ASSIGNED_BY_ADMIN' },
-      { match: 'vendor confirmed pickup handoff via otp', key: 'ORDERS.TIMELINE.NOTES.VENDOR_CONFIRMED_PICKUP' },
-      { match: 'driver verified pickup otp', key: 'ORDERS.TIMELINE.NOTES.DRIVER_VERIFIED_PICKUP' },
-      { match: 'driver is on the way', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ON_THE_WAY' },
-      { match: 'driver verified delivery otp', key: 'ORDERS.TIMELINE.NOTES.DRIVER_VERIFIED_DELIVERY' },
-      { match: 'cash on delivery selected', key: 'ORDERS.TIMELINE.NOTES.COD_SELECTED' },
-      { match: 'awaiting vendor response', key: 'ORDERS.TIMELINE.NOTES.AWAITING_VENDOR' },
-      { match: 'vendor accepted the order', key: 'ORDERS.TIMELINE.NOTES.VENDOR_ACCEPTED' },
-      { match: 'vendor started preparing', key: 'ORDERS.TIMELINE.NOTES.VENDOR_PREPARING' },
-      { match: 'order is ready for pickup', key: 'ORDERS.TIMELINE.NOTES.READY_FOR_PICKUP' },
-      { match: 'searching for drivers', key: 'ORDERS.TIMELINE.NOTES.SEARCHING_DRIVERS' },
-      { match: 'no drivers available', key: 'ORDERS.TIMELINE.NOTES.NO_DRIVERS' },
-      { match: 'delivery offer sent', key: 'ORDERS.TIMELINE.NOTES.OFFER_SENT' },
-      { match: 'driver rejected delivery offer', key: 'ORDERS.TIMELINE.NOTES.DRIVER_REJECTED' },
-      { match: 'cancelled by admin', key: 'ORDERS.TIMELINE.NOTES.CANCELLED_BY_ADMIN' },
-      { match: 'cancelled by customer', key: 'ORDERS.TIMELINE.NOTES.CANCELLED_BY_CUSTOMER' },
-      { match: 'order placed', key: 'ORDERS.TIMELINE.NOTES.ORDER_PLACED' },
-      { match: 'order confirmed', key: 'ORDERS.TIMELINE.NOTES.ORDER_CONFIRMED' },
-      { match: 'order picked up', key: 'ORDERS.TIMELINE.NOTES.ORDER_PICKED_UP' },
-      { match: 'order delivered', key: 'ORDERS.TIMELINE.NOTES.ORDER_DELIVERED' },
-      { match: 'pickup confirmed before customer arrival', key: 'ORDERS.TIMELINE.NOTES.PICKUP_CONFIRMED_EARLY' },
-      { match: 'awaiting automatic bank transfer confirmation', key: 'ORDERS.TIMELINE.NOTES.AWAITING_BANK_TRANSFER' },
-      { match: 'bank transfer proof uploaded', key: 'ORDERS.TIMELINE.NOTES.BANK_TRANSFER_UPLOADED' },
-      { match: 'bank transfer confirmed by', key: 'ORDERS.TIMELINE.NOTES.BANK_TRANSFER_CONFIRMED' }
-    ];
-
-    const matched = entries.find((entry) => normalized === entry.match || normalized.startsWith(`${entry.match} `));
-    return matched?.key ?? null;
-  }
-
-  private timelineStatusClass(status: OrderStatus): string {
-    const classes: Record<OrderStatus, string> = {
-      NEW: 'timeline-status-new',
-      CONFIRMED: 'timeline-status-confirmed',
-      IN_PROGRESS: 'timeline-status-preparing',
-      READY_FOR_PICKUP: 'timeline-status-ready',
-      DRIVER_ASSIGNMENT_IN_PROGRESS: 'timeline-status-dispatch',
-      DRIVER_ASSIGNED: 'timeline-status-driver',
-      PICKED_UP: 'timeline-status-picked',
-      OUT_FOR_DELIVERY: 'timeline-status-shipping',
-      DELIVERED: 'timeline-status-delivered',
-      COMPLETED: 'timeline-status-completed',
-      CANCELLED: 'timeline-status-cancelled',
-      RETURNED: 'timeline-status-returned',
-      DELIVERY_FAILED: 'timeline-status-failed',
-      REFUNDED: 'timeline-status-refunded'
-    };
-
-    return classes[status];
-  }
-
-  private timelineAccentTextClass(status: OrderStatus): string {
-    const classes: Record<OrderStatus, string> = {
-      NEW: 'text-[#0d5c63]',
-      CONFIRMED: 'text-[#0f766e]',
-      IN_PROGRESS: 'text-[#c77700]',
-      READY_FOR_PICKUP: 'text-[#0f8a7a]',
-      DRIVER_ASSIGNMENT_IN_PROGRESS: 'text-[#0b7285]',
-      DRIVER_ASSIGNED: 'text-[#2563eb]',
-      PICKED_UP: 'text-[#7c3aed]',
-      OUT_FOR_DELIVERY: 'text-[#0891b2]',
-      DELIVERED: 'text-[#15803d]',
-      COMPLETED: 'text-[#166534]',
-      CANCELLED: 'text-[#b42318]',
-      RETURNED: 'text-[#9333ea]',
-      DELIVERY_FAILED: 'text-[#c2410c]',
-      REFUNDED: 'text-[#7c2d12]'
-    };
-
-    return classes[status];
-  }
-
-  private loadOrder(orderId: string): void {
-    this.sub?.unsubscribe();
-    this.isLoading = true;
-    this.loadErrorMessage = '';
-
-    this.sub = this.ordersService.getOrderById(orderId).subscribe({
-      next: (order) => {
-        this.cdr.markForCheck();
-        this.order = this.applyVendorTrackingPolicy(order);
-        this.isLoading = false;
-
-        if (!this.order) {
-          this.stopPolling();
-          this.stopRealtimeTracking();
-          this.loadErrorMessage = this.currentLang === 'ar'
-            ? 'تعذر العثور على الطلب المطلوب أو أنك لا تملك صلاحية الوصول إليه.'
-            : 'The requested order was not found or you do not have access to it.';
-          return;
-        }
-
-        this.startPollingIfNeeded();
-        if (this.canReceiveLiveDriverTracking(this.order)) {
-          this.startRealtimeTracking(this.order.id);
-        } else {
-          this.stopRealtimeTracking();
-        }
-        this.scrollToTrackingIfRequested();
-      },
-      error: () => {
-        this.cdr.markForCheck();
-        this.order = null;
-        this.isLoading = false;
-        this.stopPolling();
-        this.stopRealtimeTracking();
-        this.loadErrorMessage = this.currentLang === 'ar'
-          ? 'حدث خطأ أثناء تحميل تفاصيل الطلب. حاول مرة أخرى.'
-          : 'Failed to load order details. Please try again.';
-      }
-    });
-  }
-
-  private startPollingIfNeeded(): void {
-    this.stopPolling();
-
-    if (!this.order) {
-      return;
-    }
-
-    const terminalStates: OrderStatus[] = ['DELIVERED', 'COMPLETED', 'CANCELLED', 'RETURNED', 'DELIVERY_FAILED', 'REFUNDED'];
-    if (terminalStates.includes(this.order.status)) {
-      return;
-    }
-
-    // SignalR is the primary update path. Polling remains as a conservative
-    // fallback so functionality survives proxy/WebSocket interruptions.
-    const pollInterval = this.isTrackingActive()
-      ? this.TRACKING_FALLBACK_POLL_INTERVAL_MS
-      : this.POLL_INTERVAL_MS;
-    const orderId = this.order.id;
-
-    this.pollSub = interval(pollInterval).pipe(
-      switchMap(() => this.ordersService.getOrderById(orderId))
-    ).subscribe((updated) => {
-      this.cdr.markForCheck();
-      if (!updated) {
-        return;
-      }
-
-      this.order = this.applyVendorTrackingPolicy(updated);
-
-      if (!this.canReceiveLiveDriverTracking(this.order)) {
-        this.stopRealtimeTracking();
-      }
-
-      if (terminalStates.includes(updated.status)) {
-        this.stopPolling();
-      }
-    });
-  }
-
-  private stopPolling(): void {
-    this.pollSub?.unsubscribe();
-    this.pollSub = null;
-  }
-
-  private startRealtimeTracking(orderId: string): void {
-    if (!this.canReceiveLiveDriverTracking(this.order)) {
-      this.stopRealtimeTracking();
-      return;
-    }
-
-    if (this.trackedOrderId === orderId) {
-      return;
-    }
-
-    this.stopRealtimeTracking();
-    this.trackedOrderId = orderId;
-
-    this.driverLocationSub = this.orderTrackingRealtime
-      .driverLocations()
-      .subscribe((payload) => this.applyRealtimeDriverLocation(payload));
-
-    this.statusChangeSub = this.orderTrackingRealtime
-      .statusChanges()
-      .subscribe((payload) => this.applyRealtimeStatusChange(payload));
-
-    void this.orderTrackingRealtime.subscribe(orderId).catch((error) => {
-      console.warn('Vendor order tracking subscription failed.', error);
-    });
-  }
-
-  private stopRealtimeTracking(): void {
-    this.driverLocationSub?.unsubscribe();
-    this.driverLocationSub = null;
-    this.statusChangeSub?.unsubscribe();
-    this.statusChangeSub = null;
-
-    if (this.trackedOrderId) {
-      void this.orderTrackingRealtime.unsubscribe(this.trackedOrderId);
-      this.trackedOrderId = null;
-    }
-  }
-
-  private applyRealtimeDriverLocation(payload: OrderTrackingDriverLocation): void {
-    if (!this.order || payload.orderId !== this.order.id) {
-      return;
-    }
-
-    // SignalR callbacks fire outside Angular's NgZone when the SDK is loaded
-    // dynamically from a CDN, so explicit re-entry is required to trigger
-    // change detection that re-renders the tracking map marker.
-    this.zone.run(() => {
-      if (!this.order || payload.orderId !== this.order.id) {
-        return;
-      }
-
-      if (!this.canReceiveLiveDriverTracking(this.order)) {
-        this.stopRealtimeTracking();
-        return;
-      }
-
-      this.order = {
-        ...this.order,
-        driverLiveLocation: {
-          lat: Number(payload.latitude),
-          lng: Number(payload.longitude),
-          accuracyMeters: payload.accuracyMeters ?? undefined,
-          recordedAtUtc: payload.recordedAtUtc
-        }
-      };
-    });
-  }
-
-  private canReceiveLiveDriverTracking(order: OrderDetail | null): boolean {
-    return order?.backendStatus === 'DriverAssigned';
-  }
-
-  private canReceiveLiveDriverTrackingStatus(status: string | null | undefined): boolean {
-    return status === 'DriverAssigned';
-  }
-
-  private applyVendorTrackingPolicy(order: OrderDetail | null): OrderDetail | null {
-    if (!order || this.canReceiveLiveDriverTracking(order)) {
-      return order;
-    }
-
-    return {
-      ...order,
-      driverLiveLocation: undefined
-    };
-  }
-
-  private applyRealtimeStatusChange(payload: OrderTrackingStatusChangedPayload): void {
-    if (!this.order || !this.orderId || payload.orderId !== this.orderId) {
-      return;
-    }
-
-    this.zone.run(() => {
-      if (!this.canReceiveLiveDriverTrackingStatus(payload.newStatus)) {
-        this.stopRealtimeTracking();
-        this.order = this.applyVendorTrackingPolicy(this.order);
-      }
-
-      // Re-fetch the order so derived state (timeline, driver assignment, etc.)
-      // is rebuilt server-side instead of mirroring backend logic on the client.
-      if (this.orderId) {
-        this.loadOrder(this.orderId);
-      }
-    });
-  }
-
-  private scrollToTrackingIfRequested(): void {
-    if (this.route.snapshot.fragment === 'tracking') {
-      this.scrollToTracking();
-    }
-  }
-
-  private resolveUpdateErrorMessage(error: HttpErrorResponse): string {
-    const detail = error.error?.detail;
-    if (typeof detail === 'string' && detail.trim()) {
-      return detail;
-    }
-
-    return this.translate.instant('COMMON.ERROR_OCCURRED');
-  }
-
-  private getStatusLabel(status: OrderStatus): { ar: string; en: string } {
-    const labels: Record<OrderStatus, { ar: string; en: string }> = {
-      NEW: { ar: 'طلب جديد', en: 'New order' },
-      CONFIRMED: { ar: 'تم التأكيد', en: 'Confirmed' },
-      IN_PROGRESS: { ar: 'قيد التجهيز', en: 'Preparing' },
-      READY_FOR_PICKUP: { ar: 'جاهز للاستلام', en: 'Ready for pickup' },
-      DRIVER_ASSIGNMENT_IN_PROGRESS: { ar: 'جارٍ البحث عن مندوب', en: 'Finding a driver' },
-      DRIVER_ASSIGNED: { ar: 'تم تعيين مندوب', en: 'Driver assigned' },
-      PICKED_UP: { ar: 'تم الاستلام من المتجر', en: 'Picked up' },
-      OUT_FOR_DELIVERY: { ar: 'في الطريق', en: 'On the way' },
-      DELIVERED: { ar: 'تم التوصيل', en: 'Delivered' },
-      COMPLETED: { ar: 'مكتمل', en: 'Completed' },
-      CANCELLED: { ar: 'ملغي', en: 'Cancelled' },
-      RETURNED: { ar: 'مرتجع', en: 'Returned' },
-      DELIVERY_FAILED: { ar: 'فشل التوصيل', en: 'Delivery failed' },
-      REFUNDED: { ar: 'تم الاسترداد', en: 'Refunded' }
-    };
-
-    return labels[status];
-  }
+ private readonly cdr = inject(ChangeDetectorRef);
+ order: OrderDetail | null = null;
+ orderId: string | null = null;
+ currentLang = 'ar';
+ isUpdatingStatus = false;
+ isConfirmingPickup = false;
+ isLoading = true;
+ loadErrorMessage = '';
+ otpDigits: string[] = ['', '', '', ''];
+ private sub: Subscription | null = null;
+ private langSub: Subscription | null = null;
+ private pollSub: Subscription | null = null;
+ private fragmentSub: Subscription | null = null;
+ private driverLocationSub: Subscription | null = null;
+ private statusChangeSub: Subscription | null = null;
+ private trackedOrderId: string | null = null;
+ private readonly POLL_INTERVAL_MS = 60000;
+ private readonly TRACKING_FALLBACK_POLL_INTERVAL_MS = 30000;
+
+ constructor(
+ private route: ActivatedRoute,
+ private ordersService: OrdersService,
+ private translate: TranslateService,
+ private orderTrackingRealtime: OrderTrackingRealtimeService,
+ private zone: NgZone,
+ private alertModalService: AlertModalService
+ ) {
+ this.currentLang = this.translate.currentLang || 'ar';
+ this.langSub = this.translate.onLangChange.subscribe((e) => {
+ this.cdr.markForCheck();
+ this.currentLang = e.lang;
+ });
+ }
+
+ ngOnInit(): void {
+ const id = this.route.snapshot.paramMap.get('id');
+ if (id) {
+ this.orderId = id;
+ this.loadOrder(id);
+ }
+
+ this.fragmentSub = this.route.fragment.subscribe((fragment) => {
+ this.cdr.markForCheck();
+ if (fragment === 'tracking') {
+ this.scrollToTracking();
+ }
+ });
+ }
+
+ resolveImageUrl(path: string | undefined, driverName?: string): string {
+ const fallbackUrl = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23004953'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+ if (!path) return fallbackUrl;
+ if (path.startsWith('http')) return path;
+ const cleanPath = path.replace(/\\/g, '/').replace(/^\//, '');
+ const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+ return `${baseUrl}/${cleanPath}`;
+ }
+
+ resolveProductImageUrl(path: string | undefined): string {
+ if (!path) {
+ return '/assets/images/placeholders/product.svg';
+ }
+
+ if (path.startsWith('http')) {
+ return path;
+ }
+
+ if (path.startsWith('assets/') || path.startsWith('/assets/')) {
+ return path.startsWith('/') ? path : `/${path}`;
+ }
+
+ const cleanPath = path.replace(/\\/g, '/').replace(/^\//, '');
+ const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '');
+ return `${baseUrl}/${cleanPath}`;
+ }
+
+ handleProductImageError(event: Event): void {
+ const img = event.target as HTMLImageElement;
+ img.src = '/assets/images/placeholders/product.svg';
+ }
+
+ handleImageError(event: Event, driverName?: string): void {
+ const img = event.target as HTMLImageElement;
+ img.src = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23004953'%3E%3Cpath d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/%3E%3C/svg%3E";
+ }
+
+ ngOnDestroy(): void {
+ this.sub?.unsubscribe();
+ this.langSub?.unsubscribe();
+ this.fragmentSub?.unsubscribe();
+ this.stopPolling();
+ this.stopRealtimeTracking();
+ }
+
+ canConfirm(): boolean {
+ return this.order?.backendStatus === 'PendingVendorAcceptance';
+ }
+
+ canPrepare(): boolean {
+ return this.order?.backendStatus === 'Accepted';
+ }
+
+ canMarkReady(): boolean {
+ return this.order?.backendStatus === 'Preparing';
+ }
+
+ isDispatchInProgress(): boolean {
+ return this.order?.backendStatus === 'ReadyForPickup' || this.order?.backendStatus === 'DriverAssignmentInProgress';
+ }
+
+ isTrackingActive(): boolean {
+ return this.canReceiveLiveDriverTracking(this.order);
+ }
+
+ isOrderCompleted(): boolean {
+ const status = this.order?.status;
+ return status === 'DELIVERED' || status === 'COMPLETED' || status === 'CANCELLED' || status === 'RETURNED' || status === 'DELIVERY_FAILED' || status === 'REFUNDED';
+ }
+
+ hasTrackableMapData(): boolean {
+ return!!(
+ this.order?.vendorLocation ||
+ this.order?.customerLocation ||
+ this.order?.driverLiveLocation
+ );
+ }
+
+ shouldShowLiveMap(): boolean {
+ return this.isTrackingActive() && this.hasTrackableMapData();
+ }
+
+ updateStatus(status: OrderStatus): void {
+ if (!this.order || this.isUpdatingStatus) {
+ return;
+ }
+
+ const orderId = this.order.id;
+ this.isUpdatingStatus = true;
+
+ this.ordersService.updateOrderStatus(orderId, status).subscribe({
+ next: (updated) => {
+ this.cdr.markForCheck();
+ this.order = this.applyVendorTrackingPolicy(updated);
+ this.isUpdatingStatus = false;
+ this.startPollingIfNeeded();
+ },
+ error: (error: HttpErrorResponse) => {
+ this.cdr.markForCheck();
+ this.isUpdatingStatus = false;
+ this.loadOrder(orderId);
+ void this.alertModalService.showAlert(this.resolveUpdateErrorMessage(error), 'COMMON.ERROR', 'danger');
+ }
+ });
+ }
+
+ confirmPickup(): void {
+ const code = this.otpDigits.join('');
+ if (!this.order || this.isConfirmingPickup || code.length < 4) {
+ return;
+ }
+
+ const orderId = this.order.id;
+ this.isConfirmingPickup = true;
+
+ this.ordersService.confirmPickupOtp(orderId, code).subscribe({
+ next: (updated) => {
+ this.cdr.markForCheck();
+ this.order = this.applyVendorTrackingPolicy(updated);
+ this.stopRealtimeTracking();
+ this.isConfirmingPickup = false;
+ this.otpDigits = ['', '', '', ''];
+ this.loadOrder(orderId);
+ },
+ error: (error: HttpErrorResponse) => {
+ this.cdr.markForCheck();
+ this.isConfirmingPickup = false;
+ this.otpDigits = ['', '', '', ''];
+ setTimeout(() => {
+ const first = document.querySelector<HTMLInputElement>('[data-otp-index="0"]');
+ first?.focus();
+ });
+ const detail = error.error?.detail;
+ const msg = typeof detail === 'string' && detail.trim() ? detail : (this.currentLang === 'ar' ? 'رمز غير صحيح' : 'Invalid code');
+ void this.alertModalService.showAlert(msg, 'COMMON.ERROR', 'danger');
+ }
+ });
+ }
+
+ onOtpDigitInput(event: Event, index: number): void {
+ const input = event.target as HTMLInputElement;
+ const value = input.value.replace(/[^0-9]/g, '');
+ input.value = value;
+ this.otpDigits[index] = value;
+
+ if (value && index < 3) {
+ const next = document.querySelector<HTMLInputElement>(`[data-otp-index="${index + 1}"]`);
+ next?.focus();
+ }
+
+ if (this.otpDigits.join('').length === 4) {
+ this.confirmPickup();
+ }
+ }
+
+ onOtpKeyDown(event: KeyboardEvent, index: number): void {
+ if (event.key === 'Backspace' &&!this.otpDigits[index] && index > 0) {
+ const prev = document.querySelector<HTMLInputElement>(`[data-otp-index="${index - 1}"]`);
+ if (prev) {
+ this.otpDigits[index - 1] = '';
+ prev.value = '';
+ prev.focus();
+ }
+ }
+ }
+
+ onOtpPaste(event: ClipboardEvent): void {
+ event.preventDefault();
+ const paste = event.clipboardData?.getData('text')?.replace(/[^0-9]/g, '') || '';
+ const digits = paste.slice(0, 4).split('');
+
+ for (let i = 0; i < 4; i++) {
+ this.otpDigits[i] = digits[i] || '';
+ const input = document.querySelector<HTMLInputElement>(`[data-otp-index="${i}"]`);
+ if (input) {
+ input.value = this.otpDigits[i];
+ }
+ }
+
+ const nextEmpty = this.otpDigits.findIndex((digit) =>!digit);
+ const focusIndex = nextEmpty === -1 ? 3 : nextEmpty;
+ const target = document.querySelector<HTMLInputElement>(`[data-otp-index="${focusIndex}"]`);
+ target?.focus();
+
+ if (this.otpDigits.join('').length === 4) {
+ this.confirmPickup();
+ }
+ }
+
+ retryLoad(): void {
+ if (!this.orderId) {
+ return;
+ }
+
+ this.loadOrder(this.orderId);
+ }
+
+ scrollToTracking(): void {
+ setTimeout(() => {
+ document.getElementById('tracking')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+ });
+ }
+
+ paymentMethodLabel(order: OrderDetail): string {
+ if (this.currentLang === 'ar') {
+ return order.paymentMethodType === 'CARD' ? 'بطاقة ائتمان' : 'نقدًا عند الاستلام';
+ }
+
+ return order.paymentMethodType === 'CARD' ? 'Credit card' : 'Cash on delivery';
+ }
+
+ paymentStatusLabel(order: OrderDetail): string {
+ const labels = this.currentLang === 'ar'
+ ? {
+ PENDING: 'بانتظار المعالجة',
+ PAID: 'مدفوع',
+ FAILED: 'فشل الدفع',
+ REFUNDED: 'مسترجع',
+ PARTIALLY_REFUNDED: 'استرجاع جزئي',
+ COD_PENDING: 'يدفع عند التسليم'
+ }
+ : {
+ PENDING: 'Pending',
+ PAID: 'Paid',
+ FAILED: 'Failed',
+ REFUNDED: 'Refunded',
+ PARTIALLY_REFUNDED: 'Partially refunded',
+ COD_PENDING: 'Pay on delivery'
+ };
+
+ return labels[order.paymentStatus] || order.paymentStatus;
+ }
+
+ currentStatusLabel(order: OrderDetail): string {
+ return this.currentLang === 'ar' ? this.getStatusLabel(order.status).ar : this.getStatusLabel(order.status).en;
+ }
+
+ driverCompanyLabel(order: OrderDetail): string {
+ return this.currentLang === 'ar'
+ ? order.driverCompanyAr || 'شركة التوصيل'
+ : order.driverCompanyEn || 'Delivery company';
+ }
+
+ sanitizePhone(phone: string): string {
+ return phone.replace(/[^\d+]/g, '').replace(/^\+/, '');
+ }
+
+ translateVehicleType(type: string | undefined): string {
+ if (!type) return '--';
+ if (this.currentLang === 'en') return type;
+ 
+ const lowerType = type.toLowerCase();
+ if (lowerType.includes('motorcycle') || lowerType.includes('bike') || lowerType.includes('scooter')) return 'دراجة نارية';
+ if (lowerType.includes('car')) return 'سيارة';
+ if (lowerType.includes('van')) return 'عربة نقل (فان)';
+ if (lowerType.includes('truck')) return 'شاحنة';
+ if (lowerType.includes('bicycle')) return 'دراجة هوائية';
+ 
+ const translations: Record<string, string> = {
+ 'sedan': 'سيارة (سيدان)',
+ 'suv': 'سيارة عائلية',
+ 'pickup': 'سيارة نقل (بيك أب)',
+ };
+ 
+ return translations[lowerType] || type;
+ }
+
+ timelineStepTitleKey(step: OrderTimelineEntry): string {
+ return `ORDERS.TIMELINE.STEPS.${step.status}.TITLE`;
+ }
+
+ timelineStepDescriptionKey(step: OrderTimelineEntry): string {
+ return `ORDERS.TIMELINE.STEPS.${step.status}.DESCRIPTION`;
+ }
+
+ timelineIcon(step: OrderTimelineEntry): string {
+ const icons: Record<OrderStatus, string> = {
+ NEW: 'receipt_long',
+ CONFIRMED: 'task_alt',
+ IN_PROGRESS: 'restaurant',
+ READY_FOR_PICKUP: 'inventory_2',
+ DRIVER_ASSIGNMENT_IN_PROGRESS: 'search',
+ DRIVER_ASSIGNED: 'delivery_truck_speed',
+ PICKED_UP: 'move_to_inbox',
+ OUT_FOR_DELIVERY: 'local_shipping',
+ DELIVERED: 'check_circle',
+ COMPLETED: 'check_circle',
+ CANCELLED: 'close',
+ RETURNED: 'undo',
+ DELIVERY_FAILED: 'warning',
+ REFUNDED: 'currency_exchange'
+ };
+
+ return icons[step.status] || 'radio_button_checked';
+ }
+
+ timelineIconFilled(step: OrderTimelineEntry, index: number): boolean {
+ if (step.status === 'DELIVERED' || step.status === 'COMPLETED') {
+ return step.isCompleted;
+ }
+
+ return this.isActiveTimelineStep(index);
+ }
+
+ getTimelineIconVariation(step: OrderTimelineEntry, index: number): string {
+ return this.timelineIconFilled(step, index)
+ ? "'FILL' 1, 'wght' 600"
+ : "'FILL' 0, 'wght' 400";
+ }
+
+ timelineNodeClass(step: OrderTimelineEntry, index: number): string[] {
+ const classes = ['timeline-node', this.timelineStatusClass(step.status)];
+
+ if (step.isCompleted) {
+ classes.push('timeline-node-completed');
+ }
+
+ if (this.isActiveTimelineStep(index)) {
+ classes.push('timeline-node-active');
+ }
+
+ if (!step.isCompleted) {
+ classes.push('timeline-node-pending');
+ }
+
+ return classes;
+ }
+
+ timelineTextClass(step: OrderTimelineEntry, index: number): string[] {
+ if (this.isActiveTimelineStep(index)) {
+ return ['timeline-text-active', this.timelineAccentTextClass(step.status)];
+ }
+
+ return step.isCompleted ? ['text-[#004953]'] : ['text-[#5f6b6e]'];
+ }
+
+ isActiveTimelineStep(index: number): boolean {
+ const timeline = this.order?.timeline ?? [];
+ const current = timeline[index];
+ const next = timeline[index + 1];
+
+ return!!current?.isCompleted &&!next?.isCompleted;
+ }
+
+ translateTimelineNote(note: string): string {
+ if (!note?.trim()) {
+ return '';
+ }
+
+ const normalized = note.trim().replace(/\.+$/, '');
+ if (normalized.toLowerCase().startsWith('customer cancellation reason:')) {
+ return normalized;
+ }
+
+ const key = this.resolveTimelineNoteKey(normalized);
+ if (key) {
+ const translated = this.translate.instant(key);
+ return translated!== key ? translated : normalized;
+ }
+
+ return normalized;
+ }
+
+ private resolveTimelineNoteKey(note: string): string | null {
+ const normalized = note.trim().toLowerCase();
+ const entries: Array<{ match: string; key: string }> = [
+ { match: 'auto-dispatch started', key: 'ORDERS.TIMELINE.NOTES.AUTO_DISPATCH_STARTED' },
+ { match: 'driver accepted delivery offer', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ACCEPTED_OFFER' },
+ { match: 'driver assigned via dispatch', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ASSIGNED_VIA_DISPATCH' },
+ { match: 'driver assigned by admin', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ASSIGNED_BY_ADMIN' },
+ { match: 'vendor confirmed pickup handoff via otp', key: 'ORDERS.TIMELINE.NOTES.VENDOR_CONFIRMED_PICKUP' },
+ { match: 'driver verified pickup otp', key: 'ORDERS.TIMELINE.NOTES.DRIVER_VERIFIED_PICKUP' },
+ { match: 'driver is on the way', key: 'ORDERS.TIMELINE.NOTES.DRIVER_ON_THE_WAY' },
+ { match: 'driver verified delivery otp', key: 'ORDERS.TIMELINE.NOTES.DRIVER_VERIFIED_DELIVERY' },
+ { match: 'cash on delivery selected', key: 'ORDERS.TIMELINE.NOTES.COD_SELECTED' },
+ { match: 'awaiting vendor response', key: 'ORDERS.TIMELINE.NOTES.AWAITING_VENDOR' },
+ { match: 'vendor accepted the order', key: 'ORDERS.TIMELINE.NOTES.VENDOR_ACCEPTED' },
+ { match: 'vendor started preparing', key: 'ORDERS.TIMELINE.NOTES.VENDOR_PREPARING' },
+ { match: 'order is ready for pickup', key: 'ORDERS.TIMELINE.NOTES.READY_FOR_PICKUP' },
+ { match: 'searching for drivers', key: 'ORDERS.TIMELINE.NOTES.SEARCHING_DRIVERS' },
+ { match: 'no drivers available', key: 'ORDERS.TIMELINE.NOTES.NO_DRIVERS' },
+ { match: 'delivery offer sent', key: 'ORDERS.TIMELINE.NOTES.OFFER_SENT' },
+ { match: 'driver rejected delivery offer', key: 'ORDERS.TIMELINE.NOTES.DRIVER_REJECTED' },
+ { match: 'cancelled by admin', key: 'ORDERS.TIMELINE.NOTES.CANCELLED_BY_ADMIN' },
+ { match: 'cancelled by customer', key: 'ORDERS.TIMELINE.NOTES.CANCELLED_BY_CUSTOMER' },
+ { match: 'order placed', key: 'ORDERS.TIMELINE.NOTES.ORDER_PLACED' },
+ { match: 'order confirmed', key: 'ORDERS.TIMELINE.NOTES.ORDER_CONFIRMED' },
+ { match: 'order picked up', key: 'ORDERS.TIMELINE.NOTES.ORDER_PICKED_UP' },
+ { match: 'order delivered', key: 'ORDERS.TIMELINE.NOTES.ORDER_DELIVERED' },
+ { match: 'pickup confirmed before customer arrival', key: 'ORDERS.TIMELINE.NOTES.PICKUP_CONFIRMED_EARLY' },
+ { match: 'awaiting automatic bank transfer confirmation', key: 'ORDERS.TIMELINE.NOTES.AWAITING_BANK_TRANSFER' },
+ { match: 'bank transfer proof uploaded', key: 'ORDERS.TIMELINE.NOTES.BANK_TRANSFER_UPLOADED' },
+ { match: 'bank transfer confirmed by', key: 'ORDERS.TIMELINE.NOTES.BANK_TRANSFER_CONFIRMED' }
+ ];
+
+ const matched = entries.find((entry) => normalized === entry.match || normalized.startsWith(`${entry.match} `));
+ return matched?.key ?? null;
+ }
+
+ private timelineStatusClass(status: OrderStatus): string {
+ const classes: Record<OrderStatus, string> = {
+ NEW: 'timeline-status-new',
+ CONFIRMED: 'timeline-status-confirmed',
+ IN_PROGRESS: 'timeline-status-preparing',
+ READY_FOR_PICKUP: 'timeline-status-ready',
+ DRIVER_ASSIGNMENT_IN_PROGRESS: 'timeline-status-dispatch',
+ DRIVER_ASSIGNED: 'timeline-status-driver',
+ PICKED_UP: 'timeline-status-picked',
+ OUT_FOR_DELIVERY: 'timeline-status-shipping',
+ DELIVERED: 'timeline-status-delivered',
+ COMPLETED: 'timeline-status-completed',
+ CANCELLED: 'timeline-status-cancelled',
+ RETURNED: 'timeline-status-returned',
+ DELIVERY_FAILED: 'timeline-status-failed',
+ REFUNDED: 'timeline-status-refunded'
+ };
+
+ return classes[status];
+ }
+
+ private timelineAccentTextClass(status: OrderStatus): string {
+ const classes: Record<OrderStatus, string> = {
+ NEW: 'text-[#0d5c63]',
+ CONFIRMED: 'text-[#0f766e]',
+ IN_PROGRESS: 'text-[#c77700]',
+ READY_FOR_PICKUP: 'text-[#0f8a7a]',
+ DRIVER_ASSIGNMENT_IN_PROGRESS: 'text-[#0b7285]',
+ DRIVER_ASSIGNED: 'text-[#2563eb]',
+ PICKED_UP: 'text-[#7c3aed]',
+ OUT_FOR_DELIVERY: 'text-[#0891b2]',
+ DELIVERED: 'text-[#15803d]',
+ COMPLETED: 'text-[#166534]',
+ CANCELLED: 'text-[#b42318]',
+ RETURNED: 'text-[#9333ea]',
+ DELIVERY_FAILED: 'text-[#c2410c]',
+ REFUNDED: 'text-[#7c2d12]'
+ };
+
+ return classes[status];
+ }
+
+ private loadOrder(orderId: string): void {
+ this.sub?.unsubscribe();
+ this.isLoading = true;
+ this.loadErrorMessage = '';
+
+ this.sub = this.ordersService.getOrderById(orderId).subscribe({
+ next: (order) => {
+ this.cdr.markForCheck();
+ this.order = this.applyVendorTrackingPolicy(order);
+ this.isLoading = false;
+
+ if (!this.order) {
+ this.stopPolling();
+ this.stopRealtimeTracking();
+ this.loadErrorMessage = this.currentLang === 'ar'
+ ? 'ما لقينا الطلب المطلوب أو أنك لا تملك صلاحية الوصول إليه.'
+ : 'The requested order was not found or you do not have access to it.';
+ return;
+ }
+
+ this.startPollingIfNeeded();
+ if (this.canReceiveLiveDriverTracking(this.order)) {
+ this.startRealtimeTracking(this.order.id);
+ } else {
+ this.stopRealtimeTracking();
+ }
+ this.scrollToTrackingIfRequested();
+ },
+ error: () => {
+ this.cdr.markForCheck();
+ this.order = null;
+ this.isLoading = false;
+ this.stopPolling();
+ this.stopRealtimeTracking();
+ this.loadErrorMessage = this.currentLang === 'ar'
+ ? 'صار خطأ أثناء تحميل تفاصيل الطلب. جرّب مرة ثانية.'
+ : 'Failed to load order details. Please try again.';
+ }
+ });
+ }
+
+ private startPollingIfNeeded(): void {
+ this.stopPolling();
+
+ if (!this.order) {
+ return;
+ }
+
+ const terminalStates: OrderStatus[] = ['DELIVERED', 'COMPLETED', 'CANCELLED', 'RETURNED', 'DELIVERY_FAILED', 'REFUNDED'];
+ if (terminalStates.includes(this.order.status)) {
+ return;
+ }
+
+ // SignalR is the primary update path. Polling remains as a conservative
+ // fallback so functionality survives proxy/WebSocket interruptions.
+ const pollInterval = this.isTrackingActive()
+ ? this.TRACKING_FALLBACK_POLL_INTERVAL_MS
+ : this.POLL_INTERVAL_MS;
+ const orderId = this.order.id;
+
+ this.pollSub = interval(pollInterval).pipe(
+ switchMap(() => this.ordersService.getOrderById(orderId))
+ ).subscribe((updated) => {
+ this.cdr.markForCheck();
+ if (!updated) {
+ return;
+ }
+
+ this.order = this.applyVendorTrackingPolicy(updated);
+
+ if (!this.canReceiveLiveDriverTracking(this.order)) {
+ this.stopRealtimeTracking();
+ }
+
+ if (terminalStates.includes(updated.status)) {
+ this.stopPolling();
+ }
+ });
+ }
+
+ private stopPolling(): void {
+ this.pollSub?.unsubscribe();
+ this.pollSub = null;
+ }
+
+ private startRealtimeTracking(orderId: string): void {
+ if (!this.canReceiveLiveDriverTracking(this.order)) {
+ this.stopRealtimeTracking();
+ return;
+ }
+
+ if (this.trackedOrderId === orderId) {
+ return;
+ }
+
+ this.stopRealtimeTracking();
+ this.trackedOrderId = orderId;
+
+ this.driverLocationSub = this.orderTrackingRealtime.driverLocations().subscribe((payload) => this.applyRealtimeDriverLocation(payload));
+
+ this.statusChangeSub = this.orderTrackingRealtime.statusChanges().subscribe((payload) => this.applyRealtimeStatusChange(payload));
+
+ void this.orderTrackingRealtime.subscribe(orderId).catch((error) => {
+ console.warn('Vendor order tracking subscription failed.', error);
+ });
+ }
+
+ private stopRealtimeTracking(): void {
+ this.driverLocationSub?.unsubscribe();
+ this.driverLocationSub = null;
+ this.statusChangeSub?.unsubscribe();
+ this.statusChangeSub = null;
+
+ if (this.trackedOrderId) {
+ void this.orderTrackingRealtime.unsubscribe(this.trackedOrderId);
+ this.trackedOrderId = null;
+ }
+ }
+
+ private applyRealtimeDriverLocation(payload: OrderTrackingDriverLocation): void {
+ if (!this.order || payload.orderId!== this.order.id) {
+ return;
+ }
+
+ // SignalR callbacks fire outside Angular's NgZone when the SDK is loaded
+ // dynamically from a CDN, so explicit re-entry is required to trigger
+ // change detection that re-renders the tracking map marker.
+ this.zone.run(() => {
+ if (!this.order || payload.orderId!== this.order.id) {
+ return;
+ }
+
+ if (!this.canReceiveLiveDriverTracking(this.order)) {
+ this.stopRealtimeTracking();
+ return;
+ }
+
+ this.order = {...this.order,
+ driverLiveLocation: {
+ lat: Number(payload.latitude),
+ lng: Number(payload.longitude),
+ accuracyMeters: payload.accuracyMeters ?? undefined,
+ recordedAtUtc: payload.recordedAtUtc
+ }
+ };
+ });
+ }
+
+ private canReceiveLiveDriverTracking(order: OrderDetail | null): boolean {
+ return order?.backendStatus === 'DriverAssigned';
+ }
+
+ private canReceiveLiveDriverTrackingStatus(status: string | null | undefined): boolean {
+ return status === 'DriverAssigned';
+ }
+
+ private applyVendorTrackingPolicy(order: OrderDetail | null): OrderDetail | null {
+ if (!order || this.canReceiveLiveDriverTracking(order)) {
+ return order;
+ }
+
+ return {...order,
+ driverLiveLocation: undefined
+ };
+ }
+
+ private applyRealtimeStatusChange(payload: OrderTrackingStatusChangedPayload): void {
+ if (!this.order ||!this.orderId || payload.orderId!== this.orderId) {
+ return;
+ }
+
+ this.zone.run(() => {
+ if (!this.canReceiveLiveDriverTrackingStatus(payload.newStatus)) {
+ this.stopRealtimeTracking();
+ this.order = this.applyVendorTrackingPolicy(this.order);
+ }
+
+ // Re-fetch the order so derived state (timeline, driver assignment, etc.)
+ // is rebuilt server-side instead of mirroring backend logic on the client.
+ if (this.orderId) {
+ this.loadOrder(this.orderId);
+ }
+ });
+ }
+
+ private scrollToTrackingIfRequested(): void {
+ if (this.route.snapshot.fragment === 'tracking') {
+ this.scrollToTracking();
+ }
+ }
+
+ private resolveUpdateErrorMessage(error: HttpErrorResponse): string {
+ const detail = error.error?.detail;
+ if (typeof detail === 'string' && detail.trim()) {
+ return detail;
+ }
+
+ return this.translate.instant('COMMON.ERROR_OCCURRED');
+ }
+
+ private getStatusLabel(status: OrderStatus): { ar: string; en: string } {
+ const labels: Record<OrderStatus, { ar: string; en: string }> = {
+ NEW: { ar: 'طلب جديد', en: 'New order' },
+ CONFIRMED: { ar: 'تم التأكيد', en: 'Confirmed' },
+ IN_PROGRESS: { ar: 'تحت التجهيز', en: 'Preparing' },
+ READY_FOR_PICKUP: { ar: 'جاهز للاستلام', en: 'Ready for pickup' },
+  DRIVER_ASSIGNMENT_IN_PROGRESS: { ar: 'نبحث عن مندوب', en: 'Finding a driver' },
+ DRIVER_ASSIGNED: { ar: 'تم تعيين مندوب', en: 'Driver assigned' },
+ PICKED_UP: { ar: 'تم الاستلام من المتجر', en: 'Picked up' },
+ OUT_FOR_DELIVERY: { ar: 'في الطريق', en: 'On the way' },
+ DELIVERED: { ar: 'تم التوصيل', en: 'Delivered' },
+ COMPLETED: { ar: 'مكتمل', en: 'Completed' },
+ CANCELLED: { ar: 'ملغي', en: 'Cancelled' },
+ RETURNED: { ar: 'مرتجع', en: 'Returned' },
+ DELIVERY_FAILED: { ar: 'فشل التوصيل', en: 'Delivery failed' },
+ REFUNDED: { ar: 'تم الاسترجاع', en: 'Refunded' }
+ };
+
+ return labels[status];
+ }
 }

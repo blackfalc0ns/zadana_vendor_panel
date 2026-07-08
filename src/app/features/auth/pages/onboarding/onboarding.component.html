@@ -1,799 +1,799 @@
 <div class="min-h-screen bg-slate-100 px-3 py-3 sm:px-4 lg:px-5" [dir]="isRTL ? 'rtl' : 'ltr'">
-  <div class="mx-auto max-w-[1120px] rounded-[22px] border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
-    <div class="border-b border-slate-200 px-4 py-3 sm:px-5 lg:px-6">
-      <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div class="flex items-center gap-3">
-          <div class="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50">
-            <img [src]="logoPath" alt="Zadana" class="h-9 w-9 object-contain" />
-          </div>
+ <div class="mx-auto max-w-[1120px] rounded-[22px] border border-slate-200 bg-white shadow-[0_14px_40px_rgba(15,23,42,0.06)]">
+ <div class="border-b border-slate-200 px-4 py-3 sm:px-5 lg:px-6">
+ <div class="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+ <div class="flex items-center gap-3">
+ <div class="flex h-12 w-12 items-center justify-center rounded-xl border border-slate-200 bg-slate-50">
+ <img [src]="logoPath" alt="Zadana" class="h-9 w-9 object-contain" />
+ </div>
 
-          <div>
-            <p class="text-[11px] font-black uppercase tracking-[0.28em] text-zadna-primary">{{ 'SIDEBAR.APP_NAME' | translate }}</p>
-            <h1 class="mt-1 text-lg font-black text-slate-950 sm:text-[22px]">{{ 'ONBOARDING.TITLE' | translate }}</h1>
-            <p class="mt-1 max-w-3xl text-[11px] font-bold leading-5 text-slate-500 sm:text-xs">{{ activeStepDescriptionKey | translate }}</p>
-          </div>
-        </div>
+ <div>
+ <p class="text-[11px] font-black uppercase tracking-[0.28em] text-zadna-primary">{{ 'SIDEBAR.APP_NAME' | translate }}</p>
+ <h1 class="mt-1 text-lg font-black text-slate-950 sm:text-[22px]">{{ 'ONBOARDING.TITLE' | translate }}</h1>
+ <p class="mt-1 max-w-3xl text-[11px] font-bold leading-5 text-slate-500 sm:text-xs">{{ activeStepDescriptionKey | translate }}</p>
+ </div>
+ </div>
 
-        <div class="flex flex-wrap items-center gap-2.5">
-          <app-badge variant="primary" size="sm" [dot]="true">
-            {{ reviewStatusLabelKey | translate }}
-          </app-badge>
+ <div class="flex flex-wrap items-center gap-2.5">
+ <app-badge variant="primary" size="sm" [dot]="true">
+ {{ reviewStatusLabelKey | translate }}
+ </app-badge>
 
-          <div class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 p-1">
-            <button type="button" (click)="switchLanguage('ar')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">{{ 'COMMON.ARABIC' | translate }}</button>
-            <button type="button" (click)="switchLanguage('en')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="!isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">{{ 'COMMON.ENGLISH' | translate }}</button>
-          </div>
-        </div>
-      </div>
+ <div class="inline-flex items-center rounded-full border border-slate-200 bg-slate-50 p-1">
+ <button type="button" (click)="switchLanguage('ar')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">{{ 'COMMON.ARABIC' | translate }}</button>
+ <button type="button" (click)="switchLanguage('en')" class="rounded-full px-3 py-1 text-[10px] font-black transition-all" [ngClass]="!isRTL ? 'bg-white text-zadna-primary shadow-sm' : 'text-slate-500'">{{ 'COMMON.ENGLISH' | translate }}</button>
+ </div>
+ </div>
+ </div>
 
-      <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
-        <div
-          *ngFor="let step of stepItems; trackBy: trackStep"
-          class="cursor-pointer transition-all duration-300"
-          (click)="setStep(step.id)"
-        >
-          <app-card 
-            [variant]="currentStep === step.id ? 'glass' : 'default'" 
-            padding="sm" 
-            [rounded]="'xl'"
-            [customClass]="'!border-2 ' + (currentStep === step.id ? '!border-zadna-primary/30' : (onboardingForm.get('step' + step.id)?.valid ? '!border-emerald-200 !bg-emerald-50/30' : '!border-slate-100'))"
-          >
-            <div class="flex items-start gap-2.5">
-              <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-black transition-all duration-300" 
-                [ngClass]="getStepIndexClasses(step.id)">
-                <ng-container *ngIf="onboardingForm.get('step' + step.id)?.valid; else stepNumber">
-                  <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
-                    <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.8"></path>
-                  </svg>
-                </ng-container>
-                <ng-template #stepNumber>{{ step.id }}</ng-template>
-              </span>
+ <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+ <div
+ *ngFor="let step of stepItems; trackBy: trackStep"
+ class="cursor-pointer transition-all duration-300"
+ (click)="setStep(step.id)"
+ >
+ <app-card 
+ [variant]="currentStep === step.id ? 'glass' : 'default'" 
+ padding="sm" 
+ [rounded]="'xl'"
+ [customClass]="'!border-2 ' + (currentStep === step.id ? '!border-zadna-primary/30' : (onboardingForm.get('step' + step.id)?.valid ? '!border-emerald-200!bg-emerald-50/30' : '!border-slate-100'))"
+ >
+ <div class="flex items-start gap-2.5">
+ <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-black transition-all duration-300" 
+ [ngClass]="getStepIndexClasses(step.id)">
+ <ng-container *ngIf="onboardingForm.get('step' + step.id)?.valid; else stepNumber">
+ <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+ <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.8"></path>
+ </svg>
+ </ng-container>
+ <ng-template #stepNumber>{{ step.id }}</ng-template>
+ </span>
 
-              <div class="min-w-0">
-                <span class="block text-xs font-black text-slate-900 truncate">{{ step.labelKey | translate }}</span>
-                <span class="mt-0.5 block text-[10px] font-bold leading-4 text-slate-500 truncate">{{ step.sectionKey | translate }}</span>
-              </div>
-            </div>
-          </app-card>
-        </div>
-      </div>
-    </div>
+ <div class="min-w-0">
+ <span class="block text-xs font-black text-slate-900 truncate">{{ step.labelKey | translate }}</span>
+ <span class="mt-0.5 block text-[10px] font-bold leading-4 text-slate-500 truncate">{{ step.sectionKey | translate }}</span>
+ </div>
+ </div>
+ </app-card>
+ </div>
+ </div>
+ </div>
 
-    <form [formGroup]="onboardingForm" class="px-4 py-4 sm:px-5 lg:px-6">
-      <div class="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_280px]">
-        <div class="space-y-4">
-          <div class="rounded-[18px] border border-slate-200 bg-slate-50/70 p-3">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-              <div>
-                <p class="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-slate-400">
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 text-zadna-primary" fill="none" stroke="currentColor">
-                    <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    <path d="M22 12A10 10 0 1 1 12 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                  </svg>
-                  {{ 'ONBOARDING.PROGRESS_LABEL' | translate }}
-                </p>
-                <p class="mt-1 text-[15px] font-black text-slate-950">{{ activeStep.sectionKey | translate }}</p>
-              </div>
-              <div class="rounded-lg bg-white px-2.5 py-1.5 text-[11px] font-black text-slate-700 shadow-sm">
-                {{ currentStep }} / {{ totalSteps }} • {{ progressPercentage }}%
-              </div>
-            </div>
+ <form [formGroup]="onboardingForm" class="px-4 py-4 sm:px-5 lg:px-6">
+ <div class="grid gap-4 lg:grid-cols-[minmax(0,1.45fr)_280px]">
+ <div class="space-y-4">
+ <div class="rounded-[18px] border border-slate-200 bg-slate-50/70 p-3">
+ <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+ <div>
+ <p class="flex items-center gap-2 text-[11px] font-black uppercase tracking-[0.24em] text-slate-400">
+ <svg viewBox="0 0 24 24" class="h-4 w-4 text-zadna-primary" fill="none" stroke="currentColor">
+ <path d="M12 6v6l4 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <path d="M22 12A10 10 0 1 1 12 2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ {{ 'ONBOARDING.PROGRESS_LABEL' | translate }}
+ </p>
+ <p class="mt-1 text-[15px] font-black text-slate-950">{{ activeStep.sectionKey | translate }}</p>
+ </div>
+ <div class="rounded-lg bg-white px-2.5 py-1.5 text-[11px] font-black text-slate-700 shadow-sm">
+ {{ currentStep }} / {{ totalSteps }} • {{ progressPercentage }}%
+ </div>
+ </div>
 
-            <div class="mt-4 h-2 overflow-hidden rounded-full bg-slate-200">
-              <div class="h-full rounded-full bg-zadna-primary" [style.width.%]="progressPercentage"></div>
-            </div>
-          </div>
+ <div class="mt-4 h-2 overflow-hidden rounded-full bg-slate-200">
+ <div class="h-full rounded-full bg-zadna-primary" [style.width.%]="progressPercentage"></div>
+ </div>
+ </div>
 
-          <div *ngIf="currentStep === 1" formGroupName="step1" class="space-y-6">
-            <app-card [variant]="'default'" padding="md" [rounded]="'xl'">
-              <app-section-header 
-                [title]="'ONBOARDING.STORE_CARD_TITLE' | translate" 
-                [description]="'ONBOARDING.STEP_DESCRIPTIONS.BASIC' | translate"
-              >
-                <span title class="flex items-center gap-2">
-                   <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
-                      <path d="M3 10.5 12 4l9 6.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                      <path d="M5 9.5V20h14V9.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
-                  </div>
-                  {{ 'ONBOARDING.STORE_CARD_TITLE' | translate }}
-                </span>
-              </app-section-header>
+ <div *ngIf="currentStep === 1" formGroupName="step1" class="space-y-6">
+ <app-card [variant]="'default'" padding="md" [rounded]="'xl'">
+ <app-section-header 
+ [title]="'ONBOARDING.STORE_CARD_TITLE' | translate" 
+ [description]="'ONBOARDING.STEP_DESCRIPTIONS.BASIC' | translate"
+ >
+ <span title class="flex items-center gap-2">
+ <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
+ <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+ <path d="M3 10.5 12 4l9 6.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <path d="M5 9.5V20h14V9.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ </div>
+ {{ 'ONBOARDING.STORE_CARD_TITLE' | translate }}
+ </span>
+ </app-section-header>
 
-              <div class="grid gap-4 md:grid-cols-2">
-                <app-input 
-                  formControlName="businessNameAr" 
-                  [label]="'ONBOARDING.FIELDS.STORE_AR'" 
-                  [placeholder]="'ONBOARDING.FIELDS.STORE_AR'"
-                  [customClass]="getReviewFieldClass('step1.businessNameAr')"
-                  [isRequired]="true"
-                  [error]="isInvalid('1', 'businessNameAr') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step1.businessNameAr')?.touched || false"
-                  dir="rtl"
-                ></app-input>
-                <p *ngIf="isRejectedField('step1.businessNameAr')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessNameAr') }}</p>
+ <div class="grid gap-4 md:grid-cols-2">
+ <app-input 
+ formControlName="businessNameAr" 
+ [label]="'ONBOARDING.FIELDS.STORE_AR'" 
+ [placeholder]="'ONBOARDING.FIELDS.STORE_AR'"
+ [customClass]="getReviewFieldClass('step1.businessNameAr')"
+ [isRequired]="true"
+ [error]="isInvalid('1', 'businessNameAr') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step1.businessNameAr')?.touched || false"
+ dir="rtl"
+ ></app-input>
+ <p *ngIf="isRejectedField('step1.businessNameAr')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessNameAr') }}</p>
 
-                <app-input 
-                  formControlName="businessNameEn" 
-                  [label]="'ONBOARDING.FIELDS.STORE_EN'" 
-                  [placeholder]="'ONBOARDING.FIELDS.STORE_EN'"
-                  [customClass]="getReviewFieldClass('step1.businessNameEn')"
-                  [isRequired]="true"
-                  [error]="isInvalid('1', 'businessNameEn') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step1.businessNameEn')?.touched || false"
-                  dir="ltr"
-                ></app-input>
-                <p *ngIf="isRejectedField('step1.businessNameEn')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessNameEn') }}</p>
+ <app-input 
+ formControlName="businessNameEn" 
+ [label]="'ONBOARDING.FIELDS.STORE_EN'" 
+ [placeholder]="'ONBOARDING.FIELDS.STORE_EN'"
+ [customClass]="getReviewFieldClass('step1.businessNameEn')"
+ [isRequired]="true"
+ [error]="isInvalid('1', 'businessNameEn') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step1.businessNameEn')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step1.businessNameEn')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessNameEn') }}</p>
 
-                <app-select 
-                  formControlName="businessType" 
-                  [label]="'ONBOARDING.FIELDS.BIZ_TYPE'" 
-                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_BIZ'"
-                  [customClass]="getReviewFieldClass('step1.businessType')"
-                  [options]="businessTypes"
-                  [isRequired]="true"
-                  [error]="isInvalid('1', 'businessType') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step1.businessType')?.touched || false"
-                ></app-select>
-                <p *ngIf="isRejectedField('step1.businessType')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessType') }}</p>
+ <app-select 
+ formControlName="businessType" 
+ [label]="'ONBOARDING.FIELDS.BIZ_TYPE'" 
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_BIZ'"
+ [customClass]="getReviewFieldClass('step1.businessType')"
+ [options]="businessTypes"
+ [isRequired]="true"
+ [error]="isInvalid('1', 'businessType') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step1.businessType')?.touched || false"
+ ></app-select>
+ <p *ngIf="isRejectedField('step1.businessType')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessType') }}</p>
 
-                <app-phone-input
-                  formControlName="contactPhone"
-                  [label]="'ONBOARDING.FIELDS.PHONE'"
-                  [customClass]="getReviewFieldClass('step1.contactPhone')"
-                  [isRequired]="true"
-                  [invalid]="isInvalid('1', 'contactPhone')"
-                  [error]="isInvalid('1', 'contactPhone') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step1.contactPhone')?.touched || false"
-                ></app-phone-input>
-                <p *ngIf="isRejectedField('step1.contactPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.contactPhone') }}</p>
+ <app-phone-input
+ formControlName="contactPhone"
+ [label]="'ONBOARDING.FIELDS.PHONE'"
+ [customClass]="getReviewFieldClass('step1.contactPhone')"
+ [isRequired]="true"
+ [invalid]="isInvalid('1', 'contactPhone')"
+ [error]="isInvalid('1', 'contactPhone') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step1.contactPhone')?.touched || false"
+ ></app-phone-input>
+ <p *ngIf="isRejectedField('step1.contactPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.contactPhone') }}</p>
 
-                <app-input 
-                  formControlName="description" 
-                  type="textarea"
-                  [rows]="3"
-                  [label]="'ONBOARDING.FIELDS.DESC'"
-                  [customClass]="(getReviewFieldClass('step1.description') + ' md:col-span-2').trim()"
-                  [error]="isInvalid('1', 'description') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step1.description')?.touched || false"
-                ></app-input>
-                <p *ngIf="isRejectedField('step1.description')" class="md:col-span-2 -mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.description') }}</p>
-              </div>
-            </app-card>
+ <app-input 
+ formControlName="description" 
+ type="textarea"
+ [rows]="3"
+ [label]="'ONBOARDING.FIELDS.DESC'"
+ [customClass]="(getReviewFieldClass('step1.description') + ' md:col-span-2').trim()"
+ [error]="isInvalid('1', 'description') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step1.description')?.touched || false"
+ ></app-input>
+ <p *ngIf="isRejectedField('step1.description')" class="md:col-span-2 -mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.description') }}</p>
+ </div>
+ </app-card>
 
-            <app-card [variant]="'default'" padding="md" [rounded]="'xl'">
-              <app-section-header 
-                [title]="'ONBOARDING.OWNER_CARD_TITLE' | translate" 
-              >
-                 <span title class="flex items-center gap-2">
-                   <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
-                      <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                      <circle cx="12" cy="8" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
-                    </svg>
-                  </div>
-                  {{ 'ONBOARDING.OWNER_CARD_TITLE' | translate }}
-                </span>
-              </app-section-header>
+ <app-card [variant]="'default'" padding="md" [rounded]="'xl'">
+ <app-section-header 
+ [title]="'ONBOARDING.OWNER_CARD_TITLE' | translate" 
+ >
+ <span title class="flex items-center gap-2">
+ <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+ <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+ <path d="M20 21a8 8 0 1 0-16 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <circle cx="12" cy="8" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+ </svg>
+ </div>
+ {{ 'ONBOARDING.OWNER_CARD_TITLE' | translate }}
+ </span>
+ </app-section-header>
 
-              <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                <app-input 
-                  formControlName="ownerName" 
-                  [label]="'ONBOARDING.FIELDS.OWNER_NAME'" 
-                  [placeholder]="'ONBOARDING.FIELDS.OWNER_NAME'"
-                  [customClass]="getReviewFieldClass('step1.ownerName')"
-                  [isRequired]="true"
-                  [error]="isInvalid('1', 'ownerName') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step1.ownerName')?.touched || false"
-                ></app-input>
-                <p *ngIf="isRejectedField('step1.ownerName')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerName') }}</p>
+ <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+ <app-input 
+ formControlName="ownerName" 
+ [label]="'ONBOARDING.FIELDS.OWNER_NAME'" 
+ [placeholder]="'ONBOARDING.FIELDS.OWNER_NAME'"
+ [customClass]="getReviewFieldClass('step1.ownerName')"
+ [isRequired]="true"
+ [error]="isInvalid('1', 'ownerName') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step1.ownerName')?.touched || false"
+ ></app-input>
+ <p *ngIf="isRejectedField('step1.ownerName')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerName') }}</p>
 
-                <app-input 
-                  formControlName="ownerEmail" 
-                  [label]="'ONBOARDING.FIELDS.OWNER_EMAIL'" 
-                  [placeholder]="'ONBOARDING.FIELDS.OWNER_EMAIL'"
-                  [customClass]="getReviewFieldClass('step1.ownerEmail')"
-                  [isRequired]="true"
-                  [error]="isInvalid('1', 'ownerEmail') ? 'LOGIN.ERR_EMAIL_INVALID' : ''"
-                  [isTouched]="onboardingForm.get('step1.ownerEmail')?.touched || false"
-                  dir="ltr"
-                ></app-input>
-                <p *ngIf="isRejectedField('step1.ownerEmail')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerEmail') }}</p>
+ <app-input 
+ formControlName="ownerEmail" 
+ [label]="'ONBOARDING.FIELDS.OWNER_EMAIL'" 
+ [placeholder]="'ONBOARDING.FIELDS.OWNER_EMAIL'"
+ [customClass]="getReviewFieldClass('step1.ownerEmail')"
+ [isRequired]="true"
+ [error]="isInvalid('1', 'ownerEmail') ? 'LOGIN.ERR_EMAIL_INVALID' : ''"
+ [isTouched]="onboardingForm.get('step1.ownerEmail')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step1.ownerEmail')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerEmail') }}</p>
 
-                <app-phone-input
-                  formControlName="ownerPhone"
-                  [label]="'ONBOARDING.FIELDS.OWNER_PHONE'"
-                  [customClass]="getReviewFieldClass('step1.ownerPhone')"
-                  [isRequired]="true"
-                  [invalid]="isInvalid('1', 'ownerPhone')"
-                  [error]="isInvalid('1', 'ownerPhone') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step1.ownerPhone')?.touched || false"
-                ></app-phone-input>
-                <p *ngIf="isRejectedField('step1.ownerPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerPhone') }}</p>
-              </div>
-            </app-card>
-          </div>
+ <app-phone-input
+ formControlName="ownerPhone"
+ [label]="'ONBOARDING.FIELDS.OWNER_PHONE'"
+ [customClass]="getReviewFieldClass('step1.ownerPhone')"
+ [isRequired]="true"
+ [invalid]="isInvalid('1', 'ownerPhone')"
+ [error]="isInvalid('1', 'ownerPhone') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step1.ownerPhone')?.touched || false"
+ ></app-phone-input>
+ <p *ngIf="isRejectedField('step1.ownerPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerPhone') }}</p>
+ </div>
+ </app-card>
+ </div>
 
-          <div *ngIf="currentStep === 2" formGroupName="step2">
-            <app-card variant="default" padding="md" rounded="xl">
-              <app-section-header 
-                [title]="'ONBOARDING.LOCATION_CARD_TITLE' | translate" 
-                [description]="'ONBOARDING.STEP_DESCRIPTIONS.LOCATION' | translate"
-              >
-                <span title class="flex items-center gap-2">
-                  <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
-                      <path d="M12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                      <circle cx="12" cy="10" r="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
-                    </svg>
-                  </div>
-                  {{ 'ONBOARDING.LOCATION_CARD_TITLE' | translate }}
-                </span>
-              </app-section-header>
+ <div *ngIf="currentStep === 2" formGroupName="step2">
+ <app-card variant="default" padding="md" rounded="xl">
+ <app-section-header 
+ [title]="'ONBOARDING.LOCATION_CARD_TITLE' | translate" 
+ [description]="'ONBOARDING.STEP_DESCRIPTIONS.LOCATION' | translate"
+ >
+ <span title class="flex items-center gap-2">
+ <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
+ <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+ <path d="M12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <circle cx="12" cy="10" r="2.5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+ </svg>
+ </div>
+ {{ 'ONBOARDING.LOCATION_CARD_TITLE' | translate }}
+ </span>
+ </app-section-header>
 
-              <div class="grid gap-4 md:grid-cols-2">
-                <app-select 
-                  formControlName="region" 
-                  [label]="'ONBOARDING.FIELDS.REGION'" 
-                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_REGION'"
-                  [customClass]="getReviewFieldClass('step2.region')"
-                  [options]="regions"
-                  [isRequired]="true"
-                  [error]="isInvalid('2', 'region') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step2.region')?.touched || false"
-                ></app-select>
-                <p *ngIf="isRejectedField('step2.region')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.region') }}</p>
+ <div class="grid gap-4 md:grid-cols-2">
+ <app-select 
+ formControlName="region" 
+ [label]="'ONBOARDING.FIELDS.REGION'" 
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_REGION'"
+ [customClass]="getReviewFieldClass('step2.region')"
+ [options]="regions"
+ [isRequired]="true"
+ [error]="isInvalid('2', 'region') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step2.region')?.touched || false"
+ ></app-select>
+ <p *ngIf="isRejectedField('step2.region')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.region') }}</p>
 
-                <app-select 
-                  formControlName="city" 
-                  [label]="'ONBOARDING.FIELDS.CITY'" 
-                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_CITY'"
-                  [customClass]="getReviewFieldClass('step2.city')"
-                  [options]="filteredCities"
-                  [isRequired]="true"
-                  [error]="isInvalid('2', 'city') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step2.city')?.touched || false"
-                ></app-select>
-                <p *ngIf="isRejectedField('step2.city')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.city') }}</p>
+ <app-select 
+ formControlName="city" 
+ [label]="'ONBOARDING.FIELDS.CITY'" 
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_CITY'"
+ [customClass]="getReviewFieldClass('step2.city')"
+ [options]="filteredCities"
+ [isRequired]="true"
+ [error]="isInvalid('2', 'city') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step2.city')?.touched || false"
+ ></app-select>
+ <p *ngIf="isRejectedField('step2.city')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.city') }}</p>
 
-                <app-input 
-                  formControlName="nationalAddress" 
-                  type="textarea"
-                  [rows]="3"
-                  [label]="'ONBOARDING.FIELDS.NATIONAL_ADDRESS'"
-                  [placeholder]="'ONBOARDING.PLACEHOLDERS.NAT_ADDRESS'"
-                  [customClass]="(getReviewFieldClass('step2.nationalAddress') + ' md:col-span-2').trim()"
-                  [error]="isInvalid('2', 'nationalAddress') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step2.nationalAddress')?.touched || false"
-                ></app-input>
-                <p *ngIf="isRejectedField('step2.nationalAddress')" class="md:col-span-2 -mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.nationalAddress') }}</p>
+ <app-input 
+ formControlName="nationalAddress" 
+ type="textarea"
+ [rows]="3"
+ [label]="'ONBOARDING.FIELDS.NATIONAL_ADDRESS'"
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.NAT_ADDRESS'"
+ [customClass]="(getReviewFieldClass('step2.nationalAddress') + ' md:col-span-2').trim()"
+ [error]="isInvalid('2', 'nationalAddress') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step2.nationalAddress')?.touched || false"
+ ></app-input>
+ <p *ngIf="isRejectedField('step2.nationalAddress')" class="md:col-span-2 -mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.nationalAddress') }}</p>
 
-                <div class="md:col-span-2 overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-sm">
-                  <div class="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p class="text-[11px] font-black uppercase tracking-[0.2em] text-zadna-primary">{{ 'ONBOARDING.MAP.EYEBROW' | translate }}</p>
-                      <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.MAP.TITLE' | translate }}</h3>
-                      <p class="mt-1 text-[11px] font-bold leading-5 text-slate-500">{{ 'ONBOARDING.MAP.DESC' | translate }}</p>
-                    </div>
+ <div class="md:col-span-2 overflow-hidden rounded-[22px] border border-slate-200 bg-white shadow-sm">
+ <div class="flex flex-col gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+ <div>
+ <p class="text-[11px] font-black uppercase tracking-[0.2em] text-zadna-primary">{{ 'ONBOARDING.MAP.EYEBROW' | translate }}</p>
+ <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.MAP.TITLE' | translate }}</h3>
+ <p class="mt-1 text-[11px] font-bold leading-5 text-slate-500">{{ 'ONBOARDING.MAP.DESC' | translate }}</p>
+ </div>
 
-                    <button type="button" (click)="useCurrentLocation()" [disabled]="isLocating"
-                      class="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-zadna-primary px-4 text-[11px] font-black text-white shadow-sm transition hover:bg-zadna-primaryDark disabled:cursor-not-allowed disabled:opacity-60">
-                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
-                        <path d="M12 2v3m0 14v3M2 12h3m14 0h3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                        <circle cx="12" cy="12" r="5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
-                      </svg>
-                      {{ (isLocating ? 'ONBOARDING.MAP.LOCATING' : 'ONBOARDING.MAP.USE_CURRENT') | translate }}
-                    </button>
-                  </div>
+ <button type="button" (click)="useCurrentLocation()" [disabled]="isLocating"
+ class="inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-zadna-primary px-4 text-[11px] font-black text-white shadow-sm transition hover:bg-zadna-primaryDark disabled:cursor-not-allowed disabled:opacity-60">
+ <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+ <path d="M12 2v3m0 14v3M2 12h3m14 0h3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <circle cx="12" cy="12" r="5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+ </svg>
+ {{ (isLocating ? 'ONBOARDING.MAP.LOCATING' : 'ONBOARDING.MAP.USE_CURRENT') | translate }}
+ </button>
+ </div>
 
-                  <!-- Interactive Leaflet Map -->
-                  <div id="leaflet-map-container" class="leaflet-map-wrapper"></div>
+ <!-- Interactive Leaflet Map -->
+ <div id="leaflet-map-container" class="leaflet-map-wrapper"></div>
 
-                  <div *ngIf="!hasBranchCoordinates" class="flex items-center gap-2 border-t border-slate-100 bg-slate-50/40 px-4 py-2.5">
-                    <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor">
-                      <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
-                      <path d="M12 8v4m0 4h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
-                    <p class="text-[11px] font-bold text-slate-500">{{ 'ONBOARDING.MAP.EMPTY_DESC' | translate }}</p>
-                  </div>
+ <div *ngIf="!hasBranchCoordinates" class="flex items-center gap-2 border-t border-slate-100 bg-slate-50/40 px-4 py-2.5">
+ <svg viewBox="0 0 24 24" class="h-4 w-4 shrink-0 text-slate-400" fill="none" stroke="currentColor">
+ <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
+ <path d="M12 8v4m0 4h.01" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ <p class="text-[11px] font-bold text-slate-500">{{ 'ONBOARDING.MAP.EMPTY_DESC' | translate }}</p>
+ </div>
 
-                  <div class="grid gap-4 p-4 md:grid-cols-2">
-                    <app-input
-                      formControlName="branchLatitude"
-                      [label]="'ONBOARDING.FIELDS.LATITUDE'"
-                      [placeholder]="'ONBOARDING.PLACEHOLDERS.LATITUDE'"
-                      [customClass]="getReviewFieldClass('step2.branchLatitude')"
-                      [isRequired]="true"
-                      [error]="isInvalid('2', 'branchLatitude') ? 'REGISTER.ERR_GENERAL' : ''"
-                      [isTouched]="onboardingForm.get('step2.branchLatitude')?.touched || false"
-                      dir="ltr"
-                    ></app-input>
-                    <p *ngIf="isRejectedField('step2.branchLatitude')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.branchLatitude') }}</p>
+ <div class="grid gap-4 p-4 md:grid-cols-2">
+ <app-input
+ formControlName="branchLatitude"
+ [label]="'ONBOARDING.FIELDS.LATITUDE'"
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.LATITUDE'"
+ [customClass]="getReviewFieldClass('step2.branchLatitude')"
+ [isRequired]="true"
+ [error]="isInvalid('2', 'branchLatitude') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step2.branchLatitude')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step2.branchLatitude')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.branchLatitude') }}</p>
 
-                    <app-input
-                      formControlName="branchLongitude"
-                      [label]="'ONBOARDING.FIELDS.LONGITUDE'"
-                      [placeholder]="'ONBOARDING.PLACEHOLDERS.LONGITUDE'"
-                      [customClass]="getReviewFieldClass('step2.branchLongitude')"
-                      [isRequired]="true"
-                      [error]="isInvalid('2', 'branchLongitude') ? 'REGISTER.ERR_GENERAL' : ''"
-                      [isTouched]="onboardingForm.get('step2.branchLongitude')?.touched || false"
-                      dir="ltr"
-                    ></app-input>
-                    <p *ngIf="isRejectedField('step2.branchLongitude')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.branchLongitude') }}</p>
+ <app-input
+ formControlName="branchLongitude"
+ [label]="'ONBOARDING.FIELDS.LONGITUDE'"
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.LONGITUDE'"
+ [customClass]="getReviewFieldClass('step2.branchLongitude')"
+ [isRequired]="true"
+ [error]="isInvalid('2', 'branchLongitude') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step2.branchLongitude')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step2.branchLongitude')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.branchLongitude') }}</p>
 
-                    <p *ngIf="locationError" class="md:col-span-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-700">
-                      {{ locationError }}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </app-card>
-          </div>
+ <p *ngIf="locationError" class="md:col-span-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-700">
+ {{ locationError }}
+ </p>
+ </div>
+ </div>
+ </div>
+ </app-card>
+ </div>
 
-          <div *ngIf="currentStep === 3" formGroupName="step3">
-            <app-card variant="default" padding="md" rounded="xl">
-               <app-section-header 
-                [title]="'ONBOARDING.LEGAL_CARD_TITLE' | translate" 
-                [description]="'ONBOARDING.STEP_DESCRIPTIONS.LEGAL' | translate"
-              >
-                <span title class="flex items-center gap-2">
-                  <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
-                      <path d="M12 3v18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                      <path d="M17 8H9.5a2.5 2.5 0 0 1 0-5H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
-                  </div>
-                  {{ 'ONBOARDING.LEGAL_CARD_TITLE' | translate }}
-                </span>
-              </app-section-header>
+ <div *ngIf="currentStep === 3" formGroupName="step3">
+ <app-card variant="default" padding="md" rounded="xl">
+ <app-section-header 
+ [title]="'ONBOARDING.LEGAL_CARD_TITLE' | translate" 
+ [description]="'ONBOARDING.STEP_DESCRIPTIONS.LEGAL' | translate"
+ >
+ <span title class="flex items-center gap-2">
+ <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-orange-50 text-orange-600">
+ <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+ <path d="M12 3v18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <path d="M17 8H9.5a2.5 2.5 0 0 1 0-5H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ </div>
+ {{ 'ONBOARDING.LEGAL_CARD_TITLE' | translate }}
+ </span>
+ </app-section-header>
 
-              <div class="grid gap-4 md:grid-cols-2">
-                <div>
-                  <app-input 
-                    formControlName="idNumber" 
-                    [label]="'ONBOARDING.FIELDS.ID_NUMBER'" 
-                    [placeholder]="'ONBOARDING.FIELDS.ID_NUMBER'"
-                    [customClass]="getReviewFieldClass('step3.idNumber')"
-                    [isRequired]="true"
-                    [error]="isInvalid('3', 'idNumber') ? 'REGISTER.ERR_GENERAL' : ''"
-                    [isTouched]="onboardingForm.get('step3.idNumber')?.touched || false"
-                    dir="ltr"
-                  ></app-input>
-                  <p *ngIf="isRejectedField('step3.idNumber')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.idNumber') }}</p>
-                </div>
+ <div class="grid gap-4 md:grid-cols-2">
+ <div>
+ <app-input 
+ formControlName="idNumber" 
+ [label]="'ONBOARDING.FIELDS.ID_NUMBER'" 
+ [placeholder]="'ONBOARDING.FIELDS.ID_NUMBER'"
+ [customClass]="getReviewFieldClass('step3.idNumber')"
+ [isRequired]="true"
+ [error]="isInvalid('3', 'idNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step3.idNumber')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step3.idNumber')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.idNumber') }}</p>
+ </div>
 
-                <div>
-                  <app-select 
-                    formControlName="nationality" 
-                    [label]="'ONBOARDING.FIELDS.NATIONALITY'" 
-                    [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_NAT'"
-                    [customClass]="getReviewFieldClass('step3.nationality')"
-                    [options]="nationalities"
-                    [isRequired]="true"
-                    [error]="isInvalid('3', 'nationality') ? 'REGISTER.ERR_GENERAL' : ''"
-                    [isTouched]="onboardingForm.get('step3.nationality')?.touched || false"
-                  ></app-select>
-                  <p *ngIf="isRejectedField('step3.nationality')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.nationality') }}</p>
-                </div>
+ <div>
+ <app-select 
+ formControlName="nationality" 
+ [label]="'ONBOARDING.FIELDS.NATIONALITY'" 
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_NAT'"
+ [customClass]="getReviewFieldClass('step3.nationality')"
+ [options]="nationalities"
+ [isRequired]="true"
+ [error]="isInvalid('3', 'nationality') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step3.nationality')?.touched || false"
+ ></app-select>
+ <p *ngIf="isRejectedField('step3.nationality')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.nationality') }}</p>
+ </div>
 
-                <div>
-                  <app-input 
-                    formControlName="commercialRegistrationNumber" 
-                    [label]="'ONBOARDING.FIELDS.CR_NUMBER'" 
-                    [placeholder]="'ONBOARDING.FIELDS.CR_NUMBER'"
-                    [customClass]="getReviewFieldClass('step3.commercialRegistrationNumber')"
-                    [isRequired]="true"
-                    [error]="isInvalid('3', 'commercialRegistrationNumber') ? 'REGISTER.ERR_GENERAL' : ''"
-                    [isTouched]="onboardingForm.get('step3.commercialRegistrationNumber')?.touched || false"
-                    dir="ltr"
-                  ></app-input>
-                  <p *ngIf="isRejectedField('step3.commercialRegistrationNumber')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.commercialRegistrationNumber') }}</p>
-                </div>
+ <div>
+ <app-input 
+ formControlName="commercialRegistrationNumber" 
+ [label]="'ONBOARDING.FIELDS.CR_NUMBER'" 
+ [placeholder]="'ONBOARDING.FIELDS.CR_NUMBER'"
+ [customClass]="getReviewFieldClass('step3.commercialRegistrationNumber')"
+ [isRequired]="true"
+ [error]="isInvalid('3', 'commercialRegistrationNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step3.commercialRegistrationNumber')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step3.commercialRegistrationNumber')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.commercialRegistrationNumber') }}</p>
+ </div>
 
-                <div>
-                  <app-input 
-                    formControlName="expiryDate" 
-                    type="date"
-                    [label]="'ONBOARDING.FIELDS.CR_EXPIRY'" 
-                    [placeholder]="'ONBOARDING.FIELDS.CR_EXPIRY'"
-                    [customClass]="getReviewFieldClass('step3.expiryDate')"
-                    [isRequired]="true"
-                    [error]="isInvalid('3', 'expiryDate') ? 'REGISTER.ERR_GENERAL' : ''"
-                    [isTouched]="onboardingForm.get('step3.expiryDate')?.touched || false"
-                    dir="ltr"
-                  ></app-input>
-                  <p *ngIf="isRejectedField('step3.expiryDate')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.expiryDate') }}</p>
-                </div>
+ <div>
+ <app-input 
+ formControlName="expiryDate" 
+ type="date"
+ [label]="'ONBOARDING.FIELDS.CR_EXPIRY'" 
+ [placeholder]="'ONBOARDING.FIELDS.CR_EXPIRY'"
+ [customClass]="getReviewFieldClass('step3.expiryDate')"
+ [isRequired]="true"
+ [error]="isInvalid('3', 'expiryDate') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step3.expiryDate')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step3.expiryDate')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.expiryDate') }}</p>
+ </div>
 
-                <div>
-                  <app-input 
-                    formControlName="taxId" 
-                    [label]="'ONBOARDING.FIELDS.TAX_ID'" 
-                    [placeholder]="'ONBOARDING.FIELDS.TAX_ID'"
-                    [customClass]="getReviewFieldClass('step3.taxId')"
-                    [isRequired]="true"
-                    [error]="isInvalid('3', 'taxId') ? 'REGISTER.ERR_GENERAL' : ''"
-                    [isTouched]="onboardingForm.get('step3.taxId')?.touched || false"
-                    dir="ltr"
-                  ></app-input>
-                  <p *ngIf="isRejectedField('step3.taxId')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.taxId') }}</p>
-                </div>
+ <div>
+ <app-input 
+ formControlName="taxId" 
+ [label]="'ONBOARDING.FIELDS.TAX_ID'" 
+ [placeholder]="'ONBOARDING.FIELDS.TAX_ID'"
+ [customClass]="getReviewFieldClass('step3.taxId')"
+ [isRequired]="true"
+ [error]="isInvalid('3', 'taxId') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step3.taxId')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step3.taxId')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.taxId') }}</p>
+ </div>
 
-                <div>
-                  <app-input 
-                    formControlName="licenseNumber" 
-                    [label]="'ONBOARDING.FIELDS.LICENSE'" 
-                    [placeholder]="'ONBOARDING.FIELDS.LICENSE'"
-                    [customClass]="getReviewFieldClass('step3.licenseNumber')"
-                    [error]="isInvalid('3', 'licenseNumber') ? 'REGISTER.ERR_GENERAL' : ''"
-                    [isTouched]="onboardingForm.get('step3.licenseNumber')?.touched || false"
-                    dir="ltr"
-                  ></app-input>
-                  <p *ngIf="isRejectedField('step3.licenseNumber')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.licenseNumber') }}</p>
-                </div>
-              </div>
-            </app-card>
-          </div>
+ <div>
+ <app-input 
+ formControlName="licenseNumber" 
+ [label]="'ONBOARDING.FIELDS.LICENSE'" 
+ [placeholder]="'ONBOARDING.FIELDS.LICENSE'"
+ [customClass]="getReviewFieldClass('step3.licenseNumber')"
+ [error]="isInvalid('3', 'licenseNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step3.licenseNumber')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step3.licenseNumber')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.licenseNumber') }}</p>
+ </div>
+ </div>
+ </app-card>
+ </div>
 
-          <div *ngIf="currentStep === 4" formGroupName="step4">
-            <app-card variant="default" padding="md" rounded="xl">
-               <app-section-header 
-                [title]="'ONBOARDING.BANK_CARD_TITLE' | translate" 
-                [description]="'ONBOARDING.STEP_DESCRIPTIONS.FINANCE' | translate"
-              >
-                <span title class="flex items-center gap-2">
-                  <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
-                      <path d="M3 10h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                      <path d="M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
-                  </div>
-                  {{ 'ONBOARDING.BANK_CARD_TITLE' | translate }}
-                </span>
-              </app-section-header>
+ <div *ngIf="currentStep === 4" formGroupName="step4">
+ <app-card variant="default" padding="md" rounded="xl">
+ <app-section-header 
+ [title]="'ONBOARDING.BANK_CARD_TITLE' | translate" 
+ [description]="'ONBOARDING.STEP_DESCRIPTIONS.FINANCE' | translate"
+ >
+ <span title class="flex items-center gap-2">
+ <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600">
+ <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+ <path d="M3 10h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <path d="M5 6h14a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ </div>
+ {{ 'ONBOARDING.BANK_CARD_TITLE' | translate }}
+ </span>
+ </app-section-header>
 
-              <div class="grid gap-4 md:grid-cols-2">
-                <app-select 
-                  formControlName="bankName" 
-                  [label]="'ONBOARDING.FIELDS.BANK_NAME'" 
-                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_BANK'"
-                  [customClass]="getReviewFieldClass('step4.bankName')"
-                  [options]="banks"
-                  [isRequired]="true"
-                  [error]="isInvalid('4', 'bankName') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step4.bankName')?.touched || false"
-                ></app-select>
-                <p *ngIf="isRejectedField('step4.bankName')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.bankName') }}</p>
+ <div class="grid gap-4 md:grid-cols-2">
+ <app-select 
+ formControlName="bankName" 
+ [label]="'ONBOARDING.FIELDS.BANK_NAME'" 
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_BANK'"
+ [customClass]="getReviewFieldClass('step4.bankName')"
+ [options]="banks"
+ [isRequired]="true"
+ [error]="isInvalid('4', 'bankName') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step4.bankName')?.touched || false"
+ ></app-select>
+ <p *ngIf="isRejectedField('step4.bankName')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.bankName') }}</p>
 
-                <app-select 
-                  formControlName="paymentCycle" 
-                  [label]="'ONBOARDING.FIELDS.PAYMENT_CYCLE'" 
-                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_PAYMENT'"
-                  [customClass]="getReviewFieldClass('step4.paymentCycle')"
-                  [options]="paymentCycles"
-                  [isRequired]="true"
-                  [error]="isInvalid('4', 'paymentCycle') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step4.paymentCycle')?.touched || false"
-                ></app-select>
-                <p *ngIf="isRejectedField('step4.paymentCycle')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.paymentCycle') }}</p>
+ <app-select 
+ formControlName="paymentCycle" 
+ [label]="'ONBOARDING.FIELDS.PAYMENT_CYCLE'" 
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_PAYMENT'"
+ [customClass]="getReviewFieldClass('step4.paymentCycle')"
+ [options]="paymentCycles"
+ [isRequired]="true"
+ [error]="isInvalid('4', 'paymentCycle') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step4.paymentCycle')?.touched || false"
+ ></app-select>
+ <p *ngIf="isRejectedField('step4.paymentCycle')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.paymentCycle') }}</p>
 
-                <app-input 
-                  formControlName="iban" 
-                  [label]="'ONBOARDING.FIELDS.IBAN'" 
-                  [placeholder]="'ONBOARDING.PLACEHOLDERS.IBAN'"
-                  [customClass]="getReviewFieldClass('step4.iban')"
-                  [isRequired]="true"
-                  [error]="isInvalid('4', 'iban') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step4.iban')?.touched || false"
-                  dir="ltr"
-                ></app-input>
-                <p *ngIf="isRejectedField('step4.iban')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.iban') }}</p>
+ <app-input 
+ formControlName="iban" 
+ [label]="'ONBOARDING.FIELDS.IBAN'" 
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.IBAN'"
+ [customClass]="getReviewFieldClass('step4.iban')"
+ [isRequired]="true"
+ [error]="isInvalid('4', 'iban') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step4.iban')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step4.iban')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.iban') }}</p>
 
-                <app-input 
-                  formControlName="swiftCode" 
-                  [label]="'ONBOARDING.FIELDS.SWIFT'" 
-                  [placeholder]="'ONBOARDING.PLACEHOLDERS.SWIFT'"
-                  [customClass]="getReviewFieldClass('step4.swiftCode')"
-                  [isRequired]="true"
-                  [error]="isInvalid('4', 'swiftCode') ? 'REGISTER.ERR_GENERAL' : ''"
-                  [isTouched]="onboardingForm.get('step4.swiftCode')?.touched || false"
-                  dir="ltr"
-                ></app-input>
-                <p *ngIf="isRejectedField('step4.swiftCode')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.swiftCode') }}</p>
-              </div>
-            </app-card>
-          </div>
+ <app-input 
+ formControlName="swiftCode" 
+ [label]="'ONBOARDING.FIELDS.SWIFT'" 
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.SWIFT'"
+ [customClass]="getReviewFieldClass('step4.swiftCode')"
+ [isRequired]="true"
+ [error]="isInvalid('4', 'swiftCode') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step4.swiftCode')?.touched || false"
+ dir="ltr"
+ ></app-input>
+ <p *ngIf="isRejectedField('step4.swiftCode')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.swiftCode') }}</p>
+ </div>
+ </app-card>
+ </div>
 
-          <div *ngIf="currentStep === 5" formGroupName="step5">
-            <app-card variant="default" padding="md" rounded="xl">
-               <app-section-header 
-                [title]="'ONBOARDING.DOCS_CARD_TITLE' | translate" 
-                [description]="'ONBOARDING.STEP_DESCRIPTIONS.DOCS' | translate"
-              >
-                <span title class="flex items-center gap-2">
-                  <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
-                    <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
-                      <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                    </svg>
-                  </div>
-                  {{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}
-                </span>
-              </app-section-header>
+ <div *ngIf="currentStep === 5" formGroupName="step5">
+ <app-card variant="default" padding="md" rounded="xl">
+ <app-section-header 
+ [title]="'ONBOARDING.DOCS_CARD_TITLE' | translate" 
+ [description]="'ONBOARDING.STEP_DESCRIPTIONS.DOCS' | translate"
+ >
+ <span title class="flex items-center gap-2">
+ <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
+ <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+ <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ </div>
+ {{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}
+ </span>
+ </app-section-header>
 
-              <div class="grid gap-4 lg:grid-cols-2">
-                <div [class]="getUploadCardClasses('5', 'hasLogo')">
-                  <input id="logoInput" type="file" accept="image/*" class="hidden" (change)="onLogoSelected($event)" />
-                  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ 'ONBOARDING.FIELDS.LOGO' | translate }}</p>
-                  <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.UPLOAD_LOGO_TITLE' | translate }}</h3>
-                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">{{ 'ONBOARDING.UPLOAD_LOGO_HELP' | translate }}</p>
+ <div class="grid gap-4 lg:grid-cols-2">
+ <div [class]="getUploadCardClasses('5', 'hasLogo')">
+ <input id="logoInput" type="file" accept="image/*" class="hidden" (change)="onLogoSelected($event)" />
+ <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ 'ONBOARDING.FIELDS.LOGO' | translate }}</p>
+ <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.UPLOAD_LOGO_TITLE' | translate }}</h3>
+ <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">{{ 'ONBOARDING.UPLOAD_LOGO_HELP' | translate }}</p>
 
-                  <div *ngIf="storeLogo; else emptyLogoState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                    <div class="min-w-0">
-                      <p class="truncate text-xs font-black text-slate-900">{{ storeLogo.name }}</p>
-                      <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(storeLogo) }} MB</p>
-                    </div>
-                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('logo')">
-                      {{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}
-                    </button>
-                  </div>
+ <div *ngIf="storeLogo; else emptyLogoState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+ <div class="min-w-0">
+ <p class="truncate text-xs font-black text-slate-900">{{ storeLogo.name }}</p>
+ <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(storeLogo) }} MB</p>
+ </div>
+ <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('logo')">
+ {{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}
+ </button>
+ </div>
 
-                  <ng-template #emptyLogoState>
-                    <div *ngIf="shouldShowExistingFile('logo')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                      <div class="min-w-0">
-                        <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingLogoUrl) }}</p>
-                        <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
-                      </div>
-                      <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('logoInput')">
-                        {{ isRTL ? 'استبدال' : 'Replace' }}
-                      </button>
-                    </div>
-                    <app-button 
-                      variant="primary" 
-                      size="sm" 
-                      customClass="mt-4 !rounded-xl" 
-                      (btnClick)="triggerFileInput('logoInput')"
-                    >
-                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
-                        <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                        <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                      </svg>
-                      {{ shouldShowExistingFile('logo') ? (isRTL ? 'استبدال الشعار' : 'Replace logo') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
-                    </app-button>
-                  </ng-template>
-                  <p *ngIf="isRejectedField('step5.logo')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.logo') }}</p>
-                </div>
+ <ng-template #emptyLogoState>
+ <div *ngIf="shouldShowExistingFile('logo')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+ <div class="min-w-0">
+ <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingLogoUrl) }}</p>
+ <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
+ </div>
+ <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('logoInput')">
+ {{ isRTL ? 'استبدال' : 'Replace' }}
+ </button>
+ </div>
+ <app-button 
+ variant="primary" 
+ size="sm" 
+ customClass="mt-4!rounded-xl" 
+ (btnClick)="triggerFileInput('logoInput')"
+ >
+ <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+ <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ {{ shouldShowExistingFile('logo') ? (isRTL ? 'استبدال الشعار' : 'Replace logo') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
+ </app-button>
+ </ng-template>
+ <p *ngIf="isRejectedField('step5.logo')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.logo') }}</p>
+ </div>
 
-                <div [class]="getUploadCardClasses('5', 'hasCRDoc')">
-                  <input id="crInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onCRDocSelected($event)" />
-                  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ 'ONBOARDING.FIELDS.CR_DOC' | translate }}</p>
-                  <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.UPLOAD_CR_TITLE' | translate }}</h3>
-                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">
-                    {{ isRTL ? 'ارفع نسخة PDF واضحة من السجل التجاري كما ستظهر لفريق الامتثال.' : 'Upload a clear PDF copy of the commercial registration for compliance review.' }}
-                  </p>
+ <div [class]="getUploadCardClasses('5', 'hasCRDoc')">
+ <input id="crInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onCRDocSelected($event)" />
+ <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ 'ONBOARDING.FIELDS.CR_DOC' | translate }}</p>
+ <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.UPLOAD_CR_TITLE' | translate }}</h3>
+ <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">
+ {{ isRTL ? 'ارفع نسخة PDF واضحة من السجل التجاري كما ستظهر لفريق الامتثال.' : 'Upload a clear PDF copy of the commercial registration for compliance review.' }}
+ </p>
 
-                  <div *ngIf="crDocument; else emptyCRState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                    <div class="min-w-0">
-                      <p class="truncate text-xs font-black text-slate-900">{{ crDocument.name }}</p>
-                      <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(crDocument) }} MB</p>
-                    </div>
-                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('cr')">{{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}</button>
-                  </div>
+ <div *ngIf="crDocument; else emptyCRState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+ <div class="min-w-0">
+ <p class="truncate text-xs font-black text-slate-900">{{ crDocument.name }}</p>
+ <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(crDocument) }} MB</p>
+ </div>
+ <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('cr')">{{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}</button>
+ </div>
 
-                  <ng-template #emptyCRState>
-                    <div *ngIf="shouldShowExistingFile('cr')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                      <div class="min-w-0">
-                        <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingCommercialUrl) }}</p>
-                        <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
-                      </div>
-                      <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('crInput')">
-                        {{ isRTL ? 'استبدال' : 'Replace' }}
-                      </button>
-                    </div>
-                    <app-button 
-                      variant="primary" 
-                      size="sm" 
-                      customClass="mt-4 !rounded-xl" 
-                      (btnClick)="triggerFileInput('crInput')"
-                    >
-                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
-                        <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                        <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                      </svg>
-                      {{ shouldShowExistingFile('cr') ? (isRTL ? 'استبدال المستند' : 'Replace file') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
-                    </app-button>
-                  </ng-template>
-                  <p *ngIf="isRejectedField('step5.commercial')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.commercial') }}</p>
-                </div>
+ <ng-template #emptyCRState>
+ <div *ngIf="shouldShowExistingFile('cr')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+ <div class="min-w-0">
+ <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingCommercialUrl) }}</p>
+ <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
+ </div>
+ <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('crInput')">
+ {{ isRTL ? 'استبدال' : 'Replace' }}
+ </button>
+ </div>
+ <app-button 
+ variant="primary" 
+ size="sm" 
+ customClass="mt-4!rounded-xl" 
+ (btnClick)="triggerFileInput('crInput')"
+ >
+ <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+ <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ {{ shouldShowExistingFile('cr') ? (isRTL ? 'استبدال المستند' : 'Replace file') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
+ </app-button>
+ </ng-template>
+ <p *ngIf="isRejectedField('step5.commercial')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.commercial') }}</p>
+ </div>
 
-                <div [class]="getUploadCardClasses('5', 'hasTaxDoc')">
-                  <input id="taxInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onTaxDocSelected($event)" />
-                  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ isRTL ? 'الشهادة الضريبية' : 'Tax certificate' }}</p>
-                  <h3 class="mt-1 text-sm font-black text-slate-950">{{ isRTL ? 'رفع الشهادة الضريبية' : 'Upload tax certificate' }}</h3>
-                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">
-                    {{ isRTL ? 'ملف PDF رسمي يوضح الرقم الضريبي وبيانات المنشأة الحالية.' : 'Official PDF showing the tax number and current business details.' }}
-                  </p>
+ <div [class]="getUploadCardClasses('5', 'hasTaxDoc')">
+ <input id="taxInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onTaxDocSelected($event)" />
+ <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ isRTL ? 'الشهادة الضريبية' : 'Tax certificate' }}</p>
+ <h3 class="mt-1 text-sm font-black text-slate-950">{{ isRTL ? 'رفع الشهادة الضريبية' : 'Upload tax certificate' }}</h3>
+ <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">
+ {{ isRTL ? 'ملف PDF رسمي يوضح الرقم الضريبي وبيانات المنشأة الحالية.' : 'Official PDF showing the tax number and current business details.' }}
+ </p>
 
-                  <div *ngIf="taxDocument; else emptyTaxState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                    <div class="min-w-0">
-                      <p class="truncate text-xs font-black text-slate-900">{{ taxDocument.name }}</p>
-                      <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(taxDocument) }} MB</p>
-                    </div>
-                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('tax')">
-                      {{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}
-                    </button>
-                  </div>
+ <div *ngIf="taxDocument; else emptyTaxState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+ <div class="min-w-0">
+ <p class="truncate text-xs font-black text-slate-900">{{ taxDocument.name }}</p>
+ <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(taxDocument) }} MB</p>
+ </div>
+ <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('tax')">
+ {{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}
+ </button>
+ </div>
 
-                  <ng-template #emptyTaxState>
-                    <div *ngIf="shouldShowExistingFile('tax')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                      <div class="min-w-0">
-                        <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingTaxUrl) }}</p>
-                        <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
-                      </div>
-                      <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('taxInput')">
-                        {{ isRTL ? 'استبدال' : 'Replace' }}
-                      </button>
-                    </div>
-                    <app-button
-                      variant="primary"
-                      size="sm"
-                      customClass="mt-4 !rounded-xl"
-                      (btnClick)="triggerFileInput('taxInput')"
-                    >
-                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
-                        <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                        <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                      </svg>
-                      {{ shouldShowExistingFile('tax') ? (isRTL ? 'استبدال المستند' : 'Replace file') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
-                    </app-button>
-                  </ng-template>
-                  <p *ngIf="isRejectedField('step5.tax')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.tax') }}</p>
-                </div>
+ <ng-template #emptyTaxState>
+ <div *ngIf="shouldShowExistingFile('tax')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+ <div class="min-w-0">
+ <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingTaxUrl) }}</p>
+ <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
+ </div>
+ <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('taxInput')">
+ {{ isRTL ? 'استبدال' : 'Replace' }}
+ </button>
+ </div>
+ <app-button
+ variant="primary"
+ size="sm"
+ customClass="mt-4!rounded-xl"
+ (btnClick)="triggerFileInput('taxInput')"
+ >
+ <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+ <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ {{ shouldShowExistingFile('tax') ? (isRTL ? 'استبدال المستند' : 'Replace file') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
+ </app-button>
+ </ng-template>
+ <p *ngIf="isRejectedField('step5.tax')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.tax') }}</p>
+ </div>
 
-                <div [class]="getUploadCardClasses('5', 'hasLicenseDoc')">
-                  <input id="licenseInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onLicenseDocSelected($event)" />
-                  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ isRTL ? 'الرخصة التشغيلية' : 'Operating license' }}</p>
-                  <h3 class="mt-1 text-sm font-black text-slate-950">{{ isRTL ? 'رفع الرخصة أو التصريح البلدي' : 'Upload license or municipal permit' }}</h3>
-                  <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">
-                    {{ isRTL ? 'ارفع مستند PDF الرسمي للرخصة حتى يظهر بنفس التنسيق في شاشة الامتثال.' : 'Upload the official license PDF so it appears consistently in compliance.' }}
-                  </p>
+ <div [class]="getUploadCardClasses('5', 'hasLicenseDoc')">
+ <input id="licenseInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onLicenseDocSelected($event)" />
+ <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ isRTL ? 'الرخصة التشغيلية' : 'Operating license' }}</p>
+ <h3 class="mt-1 text-sm font-black text-slate-950">{{ isRTL ? 'رفع الرخصة أو التصريح البلدي' : 'Upload license or municipal permit' }}</h3>
+ <p class="mt-1 text-[11px] font-bold leading-relaxed text-slate-500">
+ {{ isRTL ? 'ارفع مستند PDF الرسمي للرخصة حتى يظهر بنفس التنسيق في شاشة الامتثال.' : 'Upload the official license PDF so it appears consistently in compliance.' }}
+ </p>
 
-                  <div *ngIf="licenseDocument; else emptyLicenseState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                    <div class="min-w-0">
-                      <p class="truncate text-xs font-black text-slate-900">{{ licenseDocument.name }}</p>
-                      <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(licenseDocument) }} MB</p>
-                    </div>
-                    <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('license')">
-                      {{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}
-                    </button>
-                  </div>
+ <div *ngIf="licenseDocument; else emptyLicenseState" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+ <div class="min-w-0">
+ <p class="truncate text-xs font-black text-slate-900">{{ licenseDocument.name }}</p>
+ <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ getFileSizeInMb(licenseDocument) }} MB</p>
+ </div>
+ <button type="button" class="text-[11px] font-black text-red-500 hover:text-red-600 transition-colors" (click)="removeFile('license')">
+ {{ 'ONBOARDING.UPLOAD_REMOVE' | translate }}
+ </button>
+ </div>
 
-                  <ng-template #emptyLicenseState>
-                    <div *ngIf="shouldShowExistingFile('license')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
-                      <div class="min-w-0">
-                        <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingLicenseUrl) }}</p>
-                        <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
-                      </div>
-                      <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('licenseInput')">
-                        {{ isRTL ? 'استبدال' : 'Replace' }}
-                      </button>
-                    </div>
-                    <app-button
-                      variant="primary"
-                      size="sm"
-                      customClass="mt-4 !rounded-xl"
-                      (btnClick)="triggerFileInput('licenseInput')"
-                    >
-                      <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
-                        <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                        <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
-                      </svg>
-                      {{ shouldShowExistingFile('license') ? (isRTL ? 'استبدال المستند' : 'Replace file') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
-                    </app-button>
-                  </ng-template>
-                  <p *ngIf="isRejectedField('step5.license')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.license') }}</p>
-                </div>
-              </div>
-            </app-card>
-          </div>
-        </div>
+ <ng-template #emptyLicenseState>
+ <div *ngIf="shouldShowExistingFile('license')" class="mt-4 flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
+ <div class="min-w-0">
+ <p class="truncate text-xs font-black text-slate-900">{{ getExistingFileName(existingLicenseUrl) }}</p>
+ <p class="mt-0.5 text-[10px] font-bold text-slate-400">{{ isRTL ? 'الملف الحالي محفوظ' : 'Current file is preserved' }}</p>
+ </div>
+ <button type="button" class="text-[11px] font-black text-zadna-primary hover:text-zadna-primaryDark transition-colors" (click)="triggerFileInput('licenseInput')">
+ {{ isRTL ? 'استبدال' : 'Replace' }}
+ </button>
+ </div>
+ <app-button
+ variant="primary"
+ size="sm"
+ customClass="mt-4!rounded-xl"
+ (btnClick)="triggerFileInput('licenseInput')"
+ >
+ <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
+ <path d="M12 16V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <path d="m7 9 5-5 5 5" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ {{ shouldShowExistingFile('license') ? (isRTL ? 'استبدال المستند' : 'Replace file') : ('ONBOARDING.UPLOAD_ACTION' | translate) }}
+ </app-button>
+ </ng-template>
+ <p *ngIf="isRejectedField('step5.license')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.license') }}</p>
+ </div>
+ </div>
+ </app-card>
+ </div>
+ </div>
 
-        <aside class="space-y-2.5 lg:sticky lg:top-6 lg:self-start">
-          <section [class]="getPreviewCardClasses(isPreviewActive('store'))">
-            <div class="space-y-3">
-              <div class="flex items-center justify-between">
-                <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.STORE_CARD_TITLE' | translate }}</span>
-                <span class="rounded-full bg-white px-2 py-1 text-[10px] font-black text-slate-700 shadow-sm">{{ completionPercentage }}%</span>
-              </div>
-              <div class="space-y-2 text-sm font-bold text-slate-600">
-                <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ valueOrFallback(onboardingForm.get('step1.businessNameAr')?.value) }}</p>
-                <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step1.businessNameEn')?.value) }}</p>
-                <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(allCities, onboardingForm.get('step2.city')?.value) | translate }}</p>
-                <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step1.contactPhone')?.value) }}</p>
-              </div>
-            </div>
-          </section>
+ <aside class="space-y-2.5 lg:sticky lg:top-6 lg:self-start">
+ <section [class]="getPreviewCardClasses(isPreviewActive('store'))">
+ <div class="space-y-3">
+ <div class="flex items-center justify-between">
+ <span class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.STORE_CARD_TITLE' | translate }}</span>
+ <span class="rounded-full bg-white px-2 py-1 text-[10px] font-black text-slate-700 shadow-sm">{{ completionPercentage }}%</span>
+ </div>
+ <div class="space-y-2 text-sm font-bold text-slate-600">
+ <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ valueOrFallback(onboardingForm.get('step1.businessNameAr')?.value) }}</p>
+ <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step1.businessNameEn')?.value) }}</p>
+ <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(allCities, onboardingForm.get('step2.city')?.value) | translate }}</p>
+ <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step1.contactPhone')?.value) }}</p>
+ </div>
+ </div>
+ </section>
 
-          <section [class]="getPreviewCardClasses(isPreviewActive('legal'))">
-            <div class="space-y-2 text-sm font-bold text-slate-600">
-              <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.LEGAL_CARD_TITLE' | translate }}</p>
-              <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ valueOrFallback(onboardingForm.get('step1.ownerName')?.value) }}</p>
-              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step3.commercialRegistrationNumber')?.value) }}</p>
-              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step3.taxId')?.value) }}</p>
-            </div>
-          </section>
+ <section [class]="getPreviewCardClasses(isPreviewActive('legal'))">
+ <div class="space-y-2 text-sm font-bold text-slate-600">
+ <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.LEGAL_CARD_TITLE' | translate }}</p>
+ <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ valueOrFallback(onboardingForm.get('step1.ownerName')?.value) }}</p>
+ <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step3.commercialRegistrationNumber')?.value) }}</p>
+ <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ valueOrFallback(onboardingForm.get('step3.taxId')?.value) }}</p>
+ </div>
+ </section>
 
-          <section [class]="getPreviewCardClasses(isPreviewActive('bank'))">
-            <div class="space-y-2 text-sm font-bold text-slate-600">
-              <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.BANK_CARD_TITLE' | translate }}</p>
-              <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(banks, onboardingForm.get('step4.bankName')?.value) | translate }}</p>
-              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr') + ' break-all'">{{ valueOrFallback(onboardingForm.get('step4.iban')?.value) }}</p>
-              <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(paymentCycles, onboardingForm.get('step4.paymentCycle')?.value) | translate }}</p>
-            </div>
-          </section>
+ <section [class]="getPreviewCardClasses(isPreviewActive('bank'))">
+ <div class="space-y-2 text-sm font-bold text-slate-600">
+ <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.BANK_CARD_TITLE' | translate }}</p>
+ <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(banks, onboardingForm.get('step4.bankName')?.value) | translate }}</p>
+ <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr') + ' break-all'">{{ valueOrFallback(onboardingForm.get('step4.iban')?.value) }}</p>
+ <p [attr.dir]="getFieldDir('context')" [class]="getPreviewValueClasses('context')">{{ optionLabel(paymentCycles, onboardingForm.get('step4.paymentCycle')?.value) | translate }}</p>
+ </div>
+ </section>
 
-          <section [class]="getPreviewCardClasses(isPreviewActive('docs'))">
-            <div class="space-y-2 text-sm font-bold text-slate-600">
-              <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}</p>
-              <p [attr.dir]="storeLogo?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="storeLogo?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ storeLogo?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
-              <p [attr.dir]="crDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="crDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ crDocument?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
-              <p [attr.dir]="taxDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="taxDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ taxDocument?.name || (isRTL ? 'بانتظار ملف الشهادة الضريبية' : 'Tax certificate pending') }}</p>
-              <p [attr.dir]="licenseDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="licenseDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ licenseDocument?.name || (isRTL ? 'بانتظار ملف الرخصة' : 'License document pending') }}</p>
-              <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ syncedFromLabelKey | translate }}</p>
-            </div>
-          </section>
-        </aside>
-      </div>
+ <section [class]="getPreviewCardClasses(isPreviewActive('docs'))">
+ <div class="space-y-2 text-sm font-bold text-slate-600">
+ <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}</p>
+ <p [attr.dir]="storeLogo?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="storeLogo?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ storeLogo?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
+ <p [attr.dir]="crDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="crDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ crDocument?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
+ <p [attr.dir]="taxDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="taxDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ taxDocument?.name || (isRTL ? 'بانتظار ملف الشهادة الضريبية' : 'Tax certificate pending') }}</p>
+ <p [attr.dir]="licenseDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="licenseDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ licenseDocument?.name || (isRTL ? 'بانتظار ملف الرخصة' : 'License document pending') }}</p>
+ <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ syncedFromLabelKey | translate }}</p>
+ </div>
+ </section>
+ </aside>
+ </div>
 
-      <div *ngIf="isSubmitting && pendingUploadFileCount > 0" class="mt-6 rounded-2xl border border-cyan-100 bg-cyan-50/60 p-4">
-        <app-upload-progress [progress]="uploadProgress" [phase]="uploadPhase"></app-upload-progress>
-      </div>
+ <div *ngIf="isSubmitting && pendingUploadFileCount > 0" class="mt-6 rounded-2xl border border-cyan-100 bg-cyan-50/60 p-4">
+ <app-upload-progress [progress]="uploadProgress" [phase]="uploadPhase"></app-upload-progress>
+ </div>
 
-      <div class="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <app-button 
-          *ngIf="currentStep > 1" 
-          variant="outline" 
-          size="md" 
-          (btnClick)="prevStep()" 
-          [disabled]="isSubmitting"
-          customClass="!rounded-xl px-6"
-        >
-          {{ 'ONBOARDING.BTN_PREV' | translate }}
-        </app-button>
+ <div class="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-6 sm:flex-row sm:items-center sm:justify-between">
+ <app-button 
+ *ngIf="currentStep > 1" 
+ variant="outline" 
+ size="md" 
+ (btnClick)="prevStep()" 
+ [disabled]="isSubmitting"
+ customClass="!rounded-xl px-6"
+ >
+ {{ 'ONBOARDING.BTN_PREV' | translate }}
+ </app-button>
 
-        <div *ngIf="currentStep === 1" class="hidden sm:block"></div>
+ <div *ngIf="currentStep === 1" class="hidden sm:block"></div>
 
-        <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-          <div
-            *ngIf="submissionError"
-            class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 sm:min-w-[320px]">
-            {{ submissionError }}
-          </div>
+ <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+ <div
+ *ngIf="submissionError"
+ class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700 sm:min-w-[320px]">
+ {{ submissionError }}
+ </div>
 
-          <app-button 
-            *ngIf="currentStep < totalSteps" 
-            variant="primary" 
-            size="md" 
-            (btnClick)="nextStep()" 
-            [disabled]="isSubmitting"
-            customClass="!rounded-xl px-8 shadow-lg shadow-zadna-primary/20"
-          >
-            {{ 'ONBOARDING.BTN_NEXT' | translate }}
-          </app-button>
+ <app-button 
+ *ngIf="currentStep < totalSteps" 
+ variant="primary" 
+ size="md" 
+ (btnClick)="nextStep()" 
+ [disabled]="isSubmitting"
+ customClass="!rounded-xl px-8 shadow-lg shadow-zadna-primary/20"
+ >
+ {{ 'ONBOARDING.BTN_NEXT' | translate }}
+ </app-button>
 
-          <app-button 
-            *ngIf="currentStep === totalSteps" 
-            variant="primary" 
-            size="md" 
-            (btnClick)="onSubmit()" 
-            [isLoading]="isSubmitting"
-            customClass="!rounded-xl px-8 shadow-lg shadow-zadna-primary/20"
-          >
-             {{ (isEditMode ? 'ONBOARDING.BTN_RESUBMIT' : 'ONBOARDING.BTN_SUBMIT') | translate }}
-          </app-button>
-        </div>
-      </div>
-    </form>
-  </div>
+ <app-button 
+ *ngIf="currentStep === totalSteps" 
+ variant="primary" 
+ size="md" 
+ (btnClick)="onSubmit()" 
+ [isLoading]="isSubmitting"
+ customClass="!rounded-xl px-8 shadow-lg shadow-zadna-primary/20"
+ >
+ {{ (isEditMode ? 'ONBOARDING.BTN_RESUBMIT' : 'ONBOARDING.BTN_SUBMIT') | translate }}
+ </app-button>
+ </div>
+ </div>
+ </form>
+ </div>
 </div>
