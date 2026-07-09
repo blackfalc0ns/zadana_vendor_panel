@@ -679,22 +679,59 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }),
  switchMap((payload) => this.authService.registerVendor(payload))
  ).subscribe({
- next: () => {
+ next: (response) => {
  this.cdr.markForCheck();
  this.isSubmitting = false;
  const currentBizName = this.isRTL ? step1.businessNameAr : step1.businessNameEn;
  localStorage.setItem('onboarding_biz_name', currentBizName || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
+ const identifier = response.user?.email || draft.email;
+ const needsEmailVerification = response.isVerified === false ||
+ !(response.accessToken || response.tokens?.accessToken);
+ if (needsEmailVerification) {
+ void this.router.navigate(['/verify-email'], {
+ queryParams: identifier ? { identifier, sent: '1' } : { sent: '1' }
+ });
+ return;
+ }
+
  void this.router.navigate(['/submission-success']);
  },
  error: (error) => {
  this.cdr.markForCheck();
  this.isSubmitting = false;
+ if (this.isExistingAccountError(error)) {
+ const identifier = draft.email;
+ void this.router.navigate(['/verify-email'], {
+ queryParams: identifier ? { identifier, resend: '1' } : { resend: '1' }
+ });
+ return;
+ }
+
  this.submissionError = error?.error?.detail
  || error?.error?.message
  || error?.message
  || this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
  }
  });
+ }
+
+ private isExistingAccountError(error: unknown): boolean {
+ const code = this.resolveApiErrorCode(error);
+ return code === 'USER_ALREADY_EXISTS'
+ || code === 'DUPLICATE_EMAIL_OR_PHONE'
+ || code === 'DUPLICATE_EMAIL'
+ || code === 'DUPLICATE_PHONE';
+ }
+
+ private resolveApiErrorCode(error: unknown): string {
+ const payload = (error as { error?: Record<string, unknown> } | null)?.error;
+ const rawCode = payload?.['errorCode']
+ || payload?.['code']
+ || payload?.['type'];
+
+ return typeof rawCode === 'string'
+ ? rawCode.trim().replace(/[-\s]+/g, '_').toUpperCase()
+ : '';
  }
 
  trackStep(_index: number, step: OnboardingStepItem): number {

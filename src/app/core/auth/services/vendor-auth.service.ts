@@ -174,7 +174,7 @@ export class VendorAuthService {
     );
   }
 
-  registerVendor(payload: RegisterVendorPayload): Observable<VendorCurrentUser> {
+  registerVendor(payload: RegisterVendorPayload): Observable<VendorAuthResponse> {
     return from(this.acquireCsrfToken()).pipe(
       switchMap(() => this.http.post<VendorAuthResponse>(
         this.registerUrl,
@@ -189,7 +189,7 @@ export class VendorAuthService {
           throw new Error('Vendor user snapshot is missing from register response.');
         }
 
-        return response.user;
+        return response;
       })
     );
   }

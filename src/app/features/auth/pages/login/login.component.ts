@@ -32,6 +32,7 @@ const LOGIN_REQUEST_TIMEOUT_MS = 15000;
 export class LoginComponent implements OnInit, OnDestroy {
  private readonly cdr = inject(ChangeDetectorRef);
  private routeParamsSub?: Subscription;
+ private autoResendAttempted = false;
  loginForm!: FormGroup;
  verifyEmailForm!: FormGroup;
  isLoading = false;
@@ -92,6 +93,7 @@ export class LoginComponent implements OnInit, OnDestroy {
  }
 
  if (!this.isVerifyEmailMode) {
+ this.autoResendAttempted = false;
  this.cdr.markForCheck();
  return;
  }
@@ -100,6 +102,17 @@ export class LoginComponent implements OnInit, OnDestroy {
  if (identifier) {
  this.verifyEmailForm.patchValue({ identifier });
  this.loginForm.patchValue({ email: identifier });
+ }
+
+ if (params.get('sent') === '1') {
+ this.successMessage = this.isRTL
+ ? 'Ø£Ø±Ø³Ù„Ù†Ø§ Ø±Ù…Ø² Ø§Ù„ØªØ­Ù‚Ù‚ Ø¥Ù„Ù‰ Ø¨Ø±ÙŠØ¯Ùƒ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ.'
+ : 'We sent a verification code to your email.';
+ }
+
+ if (params.get('resend') === '1' && identifier && !this.autoResendAttempted) {
+ this.autoResendAttempted = true;
+ this.resendVerifyEmailOtp();
  }
 
  this.cdr.markForCheck();
@@ -147,7 +160,7 @@ export class LoginComponent implements OnInit, OnDestroy {
  if (this.isEmailVerificationRequired(error)) {
  const identifier = `${this.loginForm.get('email')?.value || ''}`.trim();
  void this.router.navigate(['/verify-email'], {
- queryParams: identifier ? { identifier } : undefined
+ queryParams: identifier ? { identifier, resend: '1' } : { resend: '1' }
  });
  this.cdr.markForCheck();
  return;
@@ -296,12 +309,14 @@ export class LoginComponent implements OnInit, OnDestroy {
  return false;
  }
 
- const code = `${error.error?.code || ''}`.trim().toLowerCase();
+ const code = `${error.error?.code || error.error?.errorCode || ''}`.trim().toLowerCase();
  if (code === 'accountemailnotverified' || code === 'account_email_not_verified') {
  return true;
  }
 
  const candidates = [
+ error.error?.code,
+ error.error?.errorCode,
  error.error?.detail,
  error.error?.message,
  error.error?.title
