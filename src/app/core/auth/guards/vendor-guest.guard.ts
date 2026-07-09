@@ -4,12 +4,13 @@ import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { catchError, map, of, timeout } from 'rxjs';
 import { VendorProfileService } from '../../../features/settings/services/vendor-profile.service';
 import { VendorAuthService } from '../services/vendor-auth.service';
+import { canAccessVendorDashboard, VendorActivationSnapshot } from '../utils/vendor-activation.util';
 
 const PROFILE_GUARD_TIMEOUT_MS = 2500;
 
-function resolveAuthenticatedRedirect(profile: { status: string; commercialAccessEnabled?: boolean }, router: Router): UrlTree {
+function resolveAuthenticatedRedirect(profile: VendorActivationSnapshot, router: Router): UrlTree {
   return router.createUrlTree([
-    profile.status === 'Active' || profile.commercialAccessEnabled
+    canAccessVendorDashboard(profile)
       ? '/dashboard'
       : '/submission-success'
   ]);

@@ -4,6 +4,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { catchError, map, of, timeout } from 'rxjs';
 import { VendorProfileService } from '../../../features/settings/services/vendor-profile.service';
 import { VendorAuthService } from '../services/vendor-auth.service';
+import { canAccessVendorDashboard } from '../utils/vendor-activation.util';
 
 const PROFILE_GUARD_TIMEOUT_MS = 6000;
 
@@ -28,7 +29,7 @@ export const vendorAuthGuard: CanActivateFn = () => {
   return profileService.loadProfileForGuard(false).pipe(
     timeout({ first: PROFILE_GUARD_TIMEOUT_MS }),
     map((profile) => {
-      if (profile.status === 'Active' || profile.commercialAccessEnabled) {
+      if (canAccessVendorDashboard(profile)) {
         return true;
       }
 
@@ -42,7 +43,7 @@ export const vendorAuthGuard: CanActivateFn = () => {
 
       const cachedProfile = profileService.getProfileSnapshot();
       if (profileService.hasCachedProfileSnapshot()) {
-        if (cachedProfile.status === 'Active' || cachedProfile.commercialAccessEnabled) {
+        if (canAccessVendorDashboard(cachedProfile)) {
           return of(true);
         }
 

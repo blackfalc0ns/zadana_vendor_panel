@@ -9,6 +9,7 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 import { VendorRequiredAction } from '../../../settings/models/vendor-profile.models';
 import { repairUtf8Mojibake, resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
+import { canAccessVendorDashboard } from '../../../../core/auth/utils/vendor-activation.util';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -90,7 +91,10 @@ export class SubmissionSuccessComponent implements OnInit {
   }
 
   get isActive(): boolean {
-    return this.status === 'Active' || this.reviewState === 'Verified';
+    return canAccessVendorDashboard({
+      status: this.status,
+      reviewState: this.reviewState
+    });
   }
 
   get showEditButton(): boolean {
@@ -113,7 +117,7 @@ export class SubmissionSuccessComponent implements OnInit {
       case 'Submitted':
         return 'ONBOARDING.SUCCESS_PAGE.STATUS_SUBMITTED';
       default:
-        return this.status === 'Active'
+        return this.isActive
           ? 'ONBOARDING.SUCCESS_PAGE.STATUS_ACTIVE'
           : 'ONBOARDING.SUCCESS_PAGE.STATUS_PENDING';
     }

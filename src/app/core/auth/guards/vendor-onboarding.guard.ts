@@ -4,6 +4,7 @@ import { CanActivateFn, Router } from '@angular/router';
 import { catchError, map, of } from 'rxjs';
 import { VendorProfileService } from '../../../features/settings/services/vendor-profile.service';
 import { VendorAuthService } from '../services/vendor-auth.service';
+import { canAccessVendorDashboard } from '../utils/vendor-activation.util';
 
 export const vendorOnboardingGuard: CanActivateFn = (route) => {
   const authService = inject(VendorAuthService);
@@ -22,7 +23,7 @@ export const vendorOnboardingGuard: CanActivateFn = (route) => {
 
     return profileService.loadProfileForGuard(true).pipe(
       map((profile) => {
-        if (profile.status === 'Active' || profile.commercialAccessEnabled) {
+        if (canAccessVendorDashboard(profile)) {
           return router.createUrlTree(['/dashboard']);
         }
 
