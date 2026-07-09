@@ -53,6 +53,7 @@ import {
 } from '../../models/staff-branches.models';
 import { StaffBranchesService } from '../../services/staff-branches.service';
 import { VendorAccessService } from '../../../../core/auth/services/vendor-access.service';
+import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
 import {
  BranchFilters,
  BranchWizardDraft,
@@ -241,7 +242,8 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  private readonly staffBranchesService: StaffBranchesService,
  private readonly vendorAccessService: VendorAccessService,
  private readonly translate: TranslateService,
- private readonly geographyService: GeographyService
+ private readonly geographyService: GeographyService,
+ private readonly alertModalService: AlertModalService
  ) {
  this.currentLang = this.translate.currentLang || 'ar';
  this.langSub = this.translate.onLangChange.subscribe((event) => {
@@ -552,7 +554,15 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  }
 
  get activeBranchOptions(): BranchVm[] {
- return this.branches.filter((branch) => branch.status!== 'archived');
+ return this.branches
+ .filter((branch) => branch.status !== 'archived')
+ .sort((left, right) => {
+ if (left.isPrimary !== right.isPrimary) {
+ return left.isPrimary ? -1 : 1;
+ }
+
+ return new Date(left.createdAt).getTime() - new Date(right.createdAt).getTime();
+ });
  }
 
  get hasActiveFilters(): boolean {
@@ -793,6 +803,14 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  openEmployeeInvite(): void {
  this.editingEmployee = null;
  this.employeeDraft = this.createEmptyEmployeeDraft();
+
+ const defaultBranch = this.branches.find((branch) => branch.isPrimary && branch.status !== 'archived')
+ ?? this.branches.find((branch) => branch.status !== 'archived');
+
+ if (defaultBranch) {
+ this.employeeDraft.branchIds = [defaultBranch.id];
+ }
+
  this.isEmployeeModalOpen = true;
  }
 
@@ -935,13 +953,23 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  });
  }
 
- deleteBranch(branch: BranchVm): void {
+ async deleteBranch(branch: BranchVm): Promise<void> {
  if (!this.canManageBranchLifecycle) {
  return;
  }
 
- const confirmed = window.confirm(
- this.translate.instant('STAFF_BRANCHES.CONFIRMATIONS.DELETE_BRANCH', { name: branch.name })
+ const confirmed = await this.alertModalService.showConfirm(
+ this.translate.instant('STAFF_BRANCHES.CONFIRMATIONS.DELETE_BRANCH', { name: branch.name }),
+ 'STAFF_BRANCHES.CONFIRMATIONS.DELETE_BRANCH_TITLE',
+ {
+ type: 'danger',
+ confirmText: 'COMMON.DELETE',
+ cancelText: 'COMMON.CANCEL',
+ titleIsTranslationKey: true,
+ messageIsTranslationKey: false,
+ confirmTextIsTranslationKey: true,
+ cancelTextIsTranslationKey: true
+ }
  );
 
  if (!confirmed) {
@@ -996,9 +1024,19 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  });
  }
 
- deleteInvitation(invitation: InvitationVm): void {
- const confirmed = window.confirm(
- this.translate.instant('STAFF_BRANCHES.CONFIRMATIONS.DELETE_INVITATION', { name: invitation.targetName })
+ async deleteInvitation(invitation: InvitationVm): Promise<void> {
+ const confirmed = await this.alertModalService.showConfirm(
+ this.translate.instant('STAFF_BRANCHES.CONFIRMATIONS.DELETE_INVITATION', { name: invitation.targetName }),
+ 'STAFF_BRANCHES.CONFIRMATIONS.DELETE_INVITATION_TITLE',
+ {
+ type: 'danger',
+ confirmText: 'COMMON.DELETE',
+ cancelText: 'COMMON.CANCEL',
+ titleIsTranslationKey: true,
+ messageIsTranslationKey: false,
+ confirmTextIsTranslationKey: true,
+ cancelTextIsTranslationKey: true
+ }
  );
 
  if (!confirmed) {
@@ -1017,9 +1055,19 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  });
  }
 
- deleteEmployee(employee: EmployeeVm): void {
- const confirmed = window.confirm(
- this.translate.instant('STAFF_BRANCHES.CONFIRMATIONS.DELETE_EMPLOYEE', { name: employee.fullName })
+ async deleteEmployee(employee: EmployeeVm): Promise<void> {
+ const confirmed = await this.alertModalService.showConfirm(
+ this.translate.instant('STAFF_BRANCHES.CONFIRMATIONS.DELETE_EMPLOYEE', { name: employee.fullName }),
+ 'STAFF_BRANCHES.CONFIRMATIONS.DELETE_EMPLOYEE_TITLE',
+ {
+ type: 'danger',
+ confirmText: 'COMMON.DELETE',
+ cancelText: 'COMMON.CANCEL',
+ titleIsTranslationKey: true,
+ messageIsTranslationKey: false,
+ confirmTextIsTranslationKey: true,
+ cancelTextIsTranslationKey: true
+ }
  );
 
  if (!confirmed) {
@@ -1632,14 +1680,25 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  }
 
  private showFlash(key: string, tone: 'success' | 'info'): void {
- this.flashMessage = this.translate.instant(key);
+ this.flashMessage = this.resolveTranslation(key);
  this.flashTone = tone;
 
  setTimeout(() => {
- if (this.flashMessage === this.translate.instant(key)) {
+ if (this.flashMessage === this.resolveTranslation(key)) {
  this.flashMessage = '';
  }
  }, 2800);
+ }
+
+ private resolveTranslation(key: string, params?: Record<string, unknown>): string {
+ const translated = this.translate.instant(key, params);
+ if (translated && translated !== key) {
+ return translated;
+ }
+
+ return this.currentLang === 'ar'
+ ? 'صار خطأ غير متوقع. جرّب مرة ثانية.'
+ : 'Something went wrong. Please try again.';
  }
 
  private syncFilterSignature(view: StaffView, filters: unknown): void {

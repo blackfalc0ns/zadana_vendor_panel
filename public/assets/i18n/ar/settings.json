@@ -410,11 +410,27 @@
         "FINANCE": "المالية"
       }
     },
+    "CONFIRMATIONS": {
+      "DELETE_BRANCH_TITLE": "حذف الفرع",
+      "DELETE_BRANCH": "هل أنت متأكد من حذف فرع \"{{name}}\"؟ لا يمكن التراجع عن هذا الإجراء.",
+      "DELETE_EMPLOYEE_TITLE": "حذف الموظف",
+      "DELETE_EMPLOYEE": "هل أنت متأكد من حذف الموظف \"{{name}}\"؟ سيتم إلغاء وصوله للوحة التاجر.",
+      "DELETE_INVITATION_TITLE": "حذف الدعوة",
+      "DELETE_INVITATION": "هل أنت متأكد من حذف دعوة \"{{name}}\"؟"
+    },
     "FEEDBACK": {
       "BRANCH_CREATED": "أضفنا الفرع وأرسلنا دعوة مدير الفرع على البريد.",
+      "BRANCH_DELETED": "حذفنا الفرع بنجاح.",
+      "BRANCH_DELETE_FAILED": "ما قدرنا نحذف الفرع. جرّب مرة ثانية.",
+      "BRANCH_DELETE_PRIMARY_FORBIDDEN": "ما يمديك تحذف الفرع الرئيسي.",
+      "BRANCH_DELETE_BLOCKED_PRODUCTS": "ما نقدر نحذف الفرع لأن فيه منتجات مرتبطة به.",
+      "BRANCH_DELETE_BLOCKED_ORDERS": "ما نقدر نحذف الفرع لأن فيه طلبات مرتبطة به.",
+      "BRANCH_DELETE_BLOCKED_STAFF": "ما نقدر نحذف الفرع لأن فيه موظفون لهم وصول عليه.",
+      "BRANCH_DELETE_BLOCKED_INVITATIONS": "ما نقدر نحذف الفرع لأن فيه دعوات مرتبطة به.",
       "PERMISSIONS_UPDATED": "حدّثنا صلاحيات الموظف.",
       "EMPLOYEE_CREATED": "أنشأنا الموظف بنجاح.",
       "EMPLOYEE_INVITED": "أرسلنا دعوة الموظف بنجاح.",
+      "EMPLOYEE_DELETED": "حذفنا الموظف بنجاح.",
       "EMPLOYEE_ACTIVATED": "فعّلنا الموظف.",
       "EMPLOYEE_SUSPENDED": "علّقنا الموظف.",
       "BRANCH_STATUS_UPDATED": "حدّثنا حالة الفرع.",
@@ -422,6 +438,7 @@
       "LINK_COPY_FALLBACK": "ما قدرنا ننسخ هنا، وتقدر تنسخ الرابط يدويًا.",
       "INVITATION_RESENT": "أعدنا إرسال الدعوة.",
       "INVITATION_REVOKED": "ألغينا الدعوة.",
+      "INVITATION_DELETED": "حذفنا الدعوة بنجاح.",
       "INVITATION_SEND_FAILED": "ما قدرنا نرسل بريد الدعوة. راجع البريد وإعدادات مزود الإرسال ثم جرّب مرة ثانية.",
       "INVITATION_ACTION_FAILED": "ما قدرنا تنفيذ إجراء الدعوة. جرّب مرة ثانية."
     },

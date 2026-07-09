@@ -21,7 +21,7 @@
         </button>
       }
 
-      @if (activeView === 'employees') {
+      @if (activeView === 'branches' || activeView === 'employees') {
         <button
           type="button"
           (click)="openEmployeeInvite()"
@@ -1035,7 +1035,7 @@
                       <span class="min-w-0 flex-1">
                         <span class="block text-[0.82rem] font-black text-slate-900">{{ branch.name }}</span>
                         <span class="mt-1 block text-[0.7rem] font-bold text-slate-500">
-                          {{ optionLabel(cities, branch.city) }} - {{ branch.managerName }}
+                          {{ branchTypeKey(branch) | translate }} · {{ optionLabel(cities, branch.city) }} - {{ branch.managerName }}
                         </span>
                       </span>
                     </label>

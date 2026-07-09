@@ -410,11 +410,27 @@
         "FINANCE": "Finance"
       }
     },
+    "CONFIRMATIONS": {
+      "DELETE_BRANCH_TITLE": "Delete branch",
+      "DELETE_BRANCH": "Are you sure you want to delete \"{{name}}\"? This action cannot be undone.",
+      "DELETE_EMPLOYEE_TITLE": "Delete employee",
+      "DELETE_EMPLOYEE": "Are you sure you want to delete \"{{name}}\"? Their vendor panel access will be removed.",
+      "DELETE_INVITATION_TITLE": "Delete invitation",
+      "DELETE_INVITATION": "Are you sure you want to delete the invitation for \"{{name}}\"?"
+    },
     "FEEDBACK": {
       "BRANCH_CREATED": "The new branch was added and a manager invitation was sent by email.",
+      "BRANCH_DELETED": "Branch deleted successfully.",
+      "BRANCH_DELETE_FAILED": "We could not delete this branch. Please try again.",
+      "BRANCH_DELETE_PRIMARY_FORBIDDEN": "The primary branch cannot be deleted.",
+      "BRANCH_DELETE_BLOCKED_PRODUCTS": "This branch cannot be deleted because products are assigned to it.",
+      "BRANCH_DELETE_BLOCKED_ORDERS": "This branch cannot be deleted because orders are assigned to it.",
+      "BRANCH_DELETE_BLOCKED_STAFF": "This branch cannot be deleted because staff members still have access to it.",
+      "BRANCH_DELETE_BLOCKED_INVITATIONS": "This branch cannot be deleted because invitations are still linked to it.",
       "PERMISSIONS_UPDATED": "Employee permissions were updated.",
       "EMPLOYEE_CREATED": "The employee was created successfully.",
       "EMPLOYEE_INVITED": "The employee invitation was sent successfully.",
+      "EMPLOYEE_DELETED": "Employee deleted successfully.",
       "EMPLOYEE_ACTIVATED": "The employee was activated.",
       "EMPLOYEE_SUSPENDED": "The employee was suspended.",
       "BRANCH_STATUS_UPDATED": "Branch status was updated.",
@@ -422,6 +438,7 @@
       "LINK_COPY_FALLBACK": "Copy failed here. You can still copy the link manually.",
       "INVITATION_RESENT": "Invitation resent successfully.",
       "INVITATION_REVOKED": "Invitation was revoked.",
+      "INVITATION_DELETED": "Invitation deleted successfully.",
       "INVITATION_SEND_FAILED": "The invitation email could not be sent. Check the address and email provider, then try again.",
       "INVITATION_ACTION_FAILED": "The invitation action could not be completed. Please try again."
     },
