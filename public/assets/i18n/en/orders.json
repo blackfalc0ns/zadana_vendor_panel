@@ -237,6 +237,7 @@
       "SUBTITLE": "Refine the current view by status, category, priority, or article type.",
       "RESET": "Reset",
       "SEARCH": "Search",
+      "STATUS": "Status",
       "CATEGORY": "Category",
       "PRIORITY": "Priority",
       "TYPE": "Type",

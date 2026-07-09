@@ -51,10 +51,111 @@
     </app-metric-card>
   </section>
 
+  @if (isFiltersExpanded) {
+    <app-filter-panel
+      [title]="'SUPPORT_CENTER.FILTERS.TITLE'"
+      [subtitle]="'SUPPORT_CENTER.FILTERS.SUBTITLE'"
+      [allowOverflowVisible]="true"
+      class="relative z-30 mb-6 block">
+      <div actions>
+        <button
+          type="button"
+          (click)="resetFilters()"
+          class="inline-flex items-center gap-2 rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-[0.72rem] font-black text-rose-600 transition hover:bg-rose-100">
+          {{ 'SUPPORT_CENTER.FILTERS.RESET' | translate }}
+        </button>
+      </div>
+
+      <div class="contents">
+        @if (activeView === 'support') {
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.SEARCH' | translate }}</span>
+            <input
+              type="text"
+              [(ngModel)]="supportFilters.search"
+              [placeholder]="'SUPPORT_CENTER.SEARCH.TICKETS' | translate"
+              class="h-11 w-full rounded-[16px] border border-slate-200/60 bg-white/60 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/40 focus:bg-white focus:ring-[3px] focus:ring-zadna-primary/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
+          </div>
+
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'COMMON.STATUS' | translate }}</span>
+            <app-searchable-select
+              [(ngModel)]="supportFilters.status"
+              [searchable]="false"
+              [allowClear]="false"
+              triggerClass="rounded-[16px]"
+              [options]="[{value: 'all', labelKey: 'SUPPORT_CENTER.FILTERS.ALL_STATUSES'}, {value: 'open', labelKey: 'SUPPORT_CENTER.STATUSES.OPEN'}, {value: 'in_progress', labelKey: 'SUPPORT_CENTER.STATUSES.IN_PROGRESS'}, {value: 'waiting_vendor', labelKey: 'SUPPORT_CENTER.STATUSES.WAITING_VENDOR'}, {value: 'resolved', labelKey: 'SUPPORT_CENTER.STATUSES.RESOLVED'}]"
+              [placeholder]="'SUPPORT_CENTER.FILTERS.STATUS'">
+            </app-searchable-select>
+          </div>
+
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.PRIORITY' | translate }}</span>
+            <app-searchable-select
+              [(ngModel)]="supportFilters.priority"
+              [searchable]="false"
+              [allowClear]="false"
+              triggerClass="rounded-[16px]"
+              [options]="mappedFilterPriorityOptions"
+              [placeholder]="'SUPPORT_CENTER.FILTERS.PRIORITY'">
+            </app-searchable-select>
+          </div>
+
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}</span>
+            <app-searchable-select
+              [(ngModel)]="supportFilters.category"
+              [searchable]="false"
+              [allowClear]="false"
+              triggerClass="rounded-[16px]"
+              [options]="mappedFilterCategoryOptions"
+              [placeholder]="'SUPPORT_CENTER.FILTERS.CATEGORY'">
+            </app-searchable-select>
+          </div>
+        } @else {
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.SEARCH' | translate }}</span>
+            <input
+              type="text"
+              [(ngModel)]="referenceFilters.search"
+              [placeholder]="'SUPPORT_CENTER.SEARCH.ARTICLES' | translate"
+              class="h-11 w-full rounded-[16px] border border-slate-200/60 bg-white/60 px-4 text-[0.8rem] font-bold text-slate-900 outline-none transition-all focus:border-zadna-primary/40 focus:bg-white focus:ring-[3px] focus:ring-zadna-primary/10 shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
+          </div>
+
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}</span>
+            <app-searchable-select
+              [(ngModel)]="referenceFilters.category"
+              [searchable]="false"
+              [allowClear]="false"
+              triggerClass="rounded-[16px]"
+              [options]="mappedFilterCategoryOptions"
+              [placeholder]="'SUPPORT_CENTER.FILTERS.CATEGORY'">
+            </app-searchable-select>
+          </div>
+
+          <div class="flex min-w-0 flex-col gap-2">
+            <span class="block min-h-[1rem] text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-400">{{ 'SUPPORT_CENTER.FILTERS.TYPE' | translate }}</span>
+            <app-searchable-select
+              [(ngModel)]="referenceFilters.type"
+              [searchable]="false"
+              [allowClear]="false"
+              triggerClass="rounded-[16px]"
+              [options]="mappedFilterTypeOptions"
+              [placeholder]="'SUPPORT_CENTER.FILTERS.TYPE'">
+            </app-searchable-select>
+          </div>
+        }
+      </div>
+    </app-filter-panel>
+  }
+
   <app-page-section-shell
     [title]="currentPanelTitle"
-    [subtitle]="currentPanelSubtitle">
-    <div actions class="flex w-full flex-nowrap items-center gap-3">
+    [subtitle]="currentPanelSubtitle"
+    [headerContainerClass]="'border-b border-slate-100 px-6 py-4'"
+    [headerContentClass]="'flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between'">
+    <div actions class="flex flex-wrap items-center gap-2">
       <div class="min-w-0 flex-1">
         <app-detail-tabs-nav
           [tabs]="viewTabs"
@@ -77,103 +178,6 @@
         }
       </button>
     </div>
-
-    @if (isFiltersExpanded) {
-      <section class="support-filters-panel">
-        <div class="support-filters-panel__header">
-          <div>
-            <p class="support-filters-panel__title">{{ 'SUPPORT_CENTER.FILTERS.TITLE' | translate }}</p>
-            <p class="support-filters-panel__subtitle">{{ 'SUPPORT_CENTER.FILTERS.SUBTITLE' | translate }}</p>
-          </div>
-          <button
-            type="button"
-            (click)="resetFilters()"
-            class="support-filters-panel__reset">
-            {{ 'SUPPORT_CENTER.FILTERS.RESET' | translate }}
-          </button>
-        </div>
-
-        <div class="support-filters-panel__grid">
-          @if (activeView === 'support') {
-            <label class="support-filter-field">
-              <span>{{ 'SUPPORT_CENTER.FILTERS.SEARCH' | translate }}</span>
-              <input
-                type="text"
-                [(ngModel)]="supportFilters.search"
-                [placeholder]="'SUPPORT_CENTER.SEARCH.TICKETS' | translate">
-            </label>
-
-            <label class="support-filter-field">
-              <span>{{ 'SUPPORT_CENTER.FILTERS.STATUS' | translate }}</span>
-              <app-searchable-select
-                [(ngModel)]="supportFilters.status"
-                [searchable]="false"
-                [allowClear]="false"
-                triggerClass="rounded-[16px]"
-                [options]="[{value: 'all', labelKey: 'SUPPORT_CENTER.FILTERS.ALL_STATUSES'}, {value: 'open', labelKey: 'SUPPORT_CENTER.STATUSES.OPEN'}, {value: 'in_progress', labelKey: 'SUPPORT_CENTER.STATUSES.IN_PROGRESS'}, {value: 'waiting_vendor', labelKey: 'SUPPORT_CENTER.STATUSES.WAITING_VENDOR'}, {value: 'resolved', labelKey: 'SUPPORT_CENTER.STATUSES.RESOLVED'}]"
-                [placeholder]="'SUPPORT_CENTER.FILTERS.STATUS'">
-              </app-searchable-select>
-            </label>
-
-            <label class="support-filter-field">
-              <span>{{ 'SUPPORT_CENTER.FILTERS.PRIORITY' | translate }}</span>
-              <app-searchable-select
-                [(ngModel)]="supportFilters.priority"
-                [searchable]="false"
-                [allowClear]="false"
-                triggerClass="rounded-[16px]"
-                [options]="mappedFilterPriorityOptions"
-                [placeholder]="'SUPPORT_CENTER.FILTERS.PRIORITY'">
-              </app-searchable-select>
-            </label>
-
-            <label class="support-filter-field">
-              <span>{{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}</span>
-              <app-searchable-select
-                [(ngModel)]="supportFilters.category"
-                [searchable]="false"
-                [allowClear]="false"
-                triggerClass="rounded-[16px]"
-                [options]="mappedFilterCategoryOptions"
-                [placeholder]="'SUPPORT_CENTER.FILTERS.CATEGORY'">
-              </app-searchable-select>
-            </label>
-          } @else {
-            <label class="support-filter-field">
-              <span>{{ 'SUPPORT_CENTER.FILTERS.SEARCH' | translate }}</span>
-              <input
-                type="text"
-                [(ngModel)]="referenceFilters.search"
-                [placeholder]="'SUPPORT_CENTER.SEARCH.ARTICLES' | translate">
-            </label>
-
-            <label class="support-filter-field">
-              <span>{{ 'SUPPORT_CENTER.FILTERS.CATEGORY' | translate }}</span>
-              <app-searchable-select
-                [(ngModel)]="referenceFilters.category"
-                [searchable]="false"
-                [allowClear]="false"
-                triggerClass="rounded-[16px]"
-                [options]="mappedFilterCategoryOptions"
-                [placeholder]="'SUPPORT_CENTER.FILTERS.CATEGORY'">
-              </app-searchable-select>
-            </label>
-
-            <label class="support-filter-field">
-              <span>{{ 'SUPPORT_CENTER.FILTERS.TYPE' | translate }}</span>
-              <app-searchable-select
-                [(ngModel)]="referenceFilters.type"
-                [searchable]="false"
-                [allowClear]="false"
-                triggerClass="rounded-[16px]"
-                [options]="mappedFilterTypeOptions"
-                [placeholder]="'SUPPORT_CENTER.FILTERS.TYPE'">
-              </app-searchable-select>
-            </label>
-          }
-        </div>
-      </section>
-    }
 
     @if (activeView === 'support') {
       <div class="support-content-panel">

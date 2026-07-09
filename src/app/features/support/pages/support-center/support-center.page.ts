@@ -19,6 +19,7 @@ import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedba
 import { AppMetricCardComponent } from '../../../../shared/components/ui/data-display/metric-card/metric-card.component';
 import { AppEmptyStateComponent } from '../../../../shared/components/ui/data-display/empty-state/empty-state.component';
 import { AppPageSectionShellComponent } from '../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
+import { AppFilterPanelComponent } from '../../../../shared/components/ui/layout/filter-panel/filter-panel.component';
 import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
 import {
  CreateSupportTicketInput,
@@ -52,9 +53,11 @@ import { CreateTicketDraft, ReferenceFilters, SupportFilters } from './support-c
  AppFlashBannerComponent,
  AppMetricCardComponent,
  AppEmptyStateComponent,
- AppPageSectionShellComponent,
- AppModalShellComponent
- , SearchableSelectComponent],
+    AppPageSectionShellComponent,
+    AppModalShellComponent,
+    AppFilterPanelComponent,
+    SearchableSelectComponent
+ ],
  templateUrl: './support-center.page.html',
  styleUrl: './support-center.page.scss'
 })
