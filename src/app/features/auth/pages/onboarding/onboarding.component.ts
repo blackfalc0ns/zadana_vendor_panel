@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { filter, forkJoin, from, map, of, switchMap, tap } from 'rxjs';
+import { filter, forkJoin, from, map, Observable, of, switchMap, tap } from 'rxjs';
 import * as L from 'leaflet';
 
 import {
@@ -41,6 +41,12 @@ import {
 import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
 import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
 
+type RegistrationUploadTokenResponse = {
+ token: string;
+ expiresAtUtc: string;
+ headerName: string;
+};
+
 @Component({
  changeDetection: ChangeDetectionStrategy.OnPush,
  selector: 'app-onboarding',
@@ -63,10 +69,18 @@ import { UploadProgressComponent } from '../../../../shared/components/ui/feedba
  styleUrls: ['./onboarding.component.scss']
 })
 export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
+ private static readonly registrationUploadDeviceIdKey = 'vendor_registration_upload_device_id';
+ private static readonly registrationUploadDirectories = new Set([
+ 'uploads/vendors/commercial-register',
+ 'uploads/vendors/tax-certificates',
+ 'uploads/vendors/licenses'
+ ]);
+
  private readonly cdr = inject(ChangeDetectorRef);
  uploadProgress = 0;
  uploadPhase: ImageUploadPhase = 'preparing';
  private readonly uploadProgressByKey = new Map<string, number>();
+ private registrationUploadToken?: RegistrationUploadTokenResponse;
  readonly logoPath = 'assets/images/logo/zadana-mark.svg';
  readonly stepItems: OnboardingStepItem[] = [
  {
@@ -1317,10 +1331,14 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  return preparedFile$.pipe(
  switchMap((preparedFile) => {
  onProgress?.({ percent: 15, phase: 'uploading' });
+ return this.resolveUploadHeaders(directory).pipe(map((headers) => ({ preparedFile, headers })));
+ }),
+ switchMap(({ preparedFile, headers }) => {
  const formData = new FormData();
  formData.append('file', preparedFile);
  formData.append('directory', directory);
  return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData, {
+ headers,
  observe: 'events',
  reportProgress: true
  }).pipe(
@@ -1343,6 +1361,56 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }),
  map((response) => response.url)
  );
+ }
+
+ private resolveUploadHeaders(directory: string): Observable<Record<string, string>> {
+ if (this.isEditMode || !this.requiresRegistrationUploadToken(directory)) {
+ return of({});
+ }
+
+ return this.getRegistrationUploadToken().pipe(
+ map((token) => ({
+ [token.headerName || 'X-Registration-Upload-Token']: token.token
+ }))
+ );
+ }
+
+ private requiresRegistrationUploadToken(directory: string): boolean {
+ return OnboardingComponent.registrationUploadDirectories.has(this.normalizeUploadDirectory(directory));
+ }
+
+ private getRegistrationUploadToken(): Observable<RegistrationUploadTokenResponse> {
+ const cached = this.registrationUploadToken;
+ if (cached && Date.parse(cached.expiresAtUtc) - Date.now() > 30000) {
+ return of(cached);
+ }
+
+ return this.http.post<RegistrationUploadTokenResponse>(
+ `${environment.apiUrl}/registration-upload-tokens/issue`,
+ { deviceId: this.getRegistrationUploadDeviceId() },
+ { headers: { 'X-Skip-Auth': 'true' } }
+ ).pipe(
+ tap((token) => {
+ this.registrationUploadToken = token;
+ })
+ );
+ }
+
+ private getRegistrationUploadDeviceId(): string {
+ const existing = localStorage.getItem(OnboardingComponent.registrationUploadDeviceIdKey);
+ if (existing) {
+ return existing;
+ }
+
+ const generated = typeof crypto !== 'undefined' && 'randomUUID' in crypto
+ ? crypto.randomUUID()
+ : `vendor-upload-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+ localStorage.setItem(OnboardingComponent.registrationUploadDeviceIdKey, generated);
+ return generated;
+ }
+
+ private normalizeUploadDirectory(directory: string): string {
+ return directory.replace(/\\/g, '/').replace(/\/+/g, '/').replace(/^\/|\/$/g, '').toLowerCase();
  }
 
  get pendingUploadFileCount(): number {
