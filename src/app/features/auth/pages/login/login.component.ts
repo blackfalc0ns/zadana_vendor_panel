@@ -105,9 +105,7 @@ export class LoginComponent implements OnInit, OnDestroy {
  }
 
  if (params.get('sent') === '1') {
- this.successMessage = this.isRTL
- ? 'Ø£Ø±Ø³Ù„Ù†Ø§ Ø±Ù…Ø² Ø§Ù„ØªØ­Ù‚Ù‚ Ø¥Ù„Ù‰ Ø¨Ø±ÙŠØ¯Ùƒ Ø§Ù„Ø¥Ù„ÙƒØªØ±ÙˆÙ†ÙŠ.'
- : 'We sent a verification code to your email.';
+ this.successMessage = this.translate.instant('VERIFY_EMAIL.SENT');
  }
 
  if (params.get('resend') === '1' && identifier && !this.autoResendAttempted) {
@@ -190,7 +188,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 
  if (this.verifyEmailForm.invalid) {
  this.verifyEmailForm.markAllAsTouched();
- this.errorMessage = this.isRTL ? 'تأكد من البريد الإلكتروني ورمز التحقق.' : 'Check the email and OTP code.';
+ this.errorMessage = this.translate.instant('VERIFY_EMAIL.INVALID_FORM');
  this.cdr.markForCheck();
  return;
  }
@@ -203,13 +201,13 @@ export class LoginComponent implements OnInit, OnDestroy {
  next: () => {
  this.cdr.markForCheck();
  this.isLoading = false;
- this.successMessage = this.isRTL ? 'فعّلنا البريد الإلكتروني بنجاح.' : 'Email verified successfully.';
+ this.successMessage = this.translate.instant('VERIFY_EMAIL.VERIFIED');
  void this.router.navigate(['/submission-success']);
  },
  error: (error) => {
  this.cdr.markForCheck();
  this.isLoading = false;
- this.errorMessage = this.resolvePlainError(error, this.isRTL ? 'ما قدرنا تأكيد الرمز.' : 'Could not verify the code.');
+ this.errorMessage = this.resolvePlainError(error, this.translate.instant('VERIFY_EMAIL.VERIFY_FAILED'));
  }
  });
  }
@@ -221,7 +219,7 @@ export class LoginComponent implements OnInit, OnDestroy {
  const identifierControl = this.verifyEmailForm.get('identifier');
  if (identifierControl?.invalid) {
  identifierControl.markAsTouched();
- this.errorMessage = this.isRTL ? 'اكتب البريد الإلكتروني أولا.' : 'Enter the email first.';
+ this.errorMessage = this.translate.instant('VERIFY_EMAIL.ENTER_EMAIL');
  return;
  }
 
@@ -232,12 +230,12 @@ export class LoginComponent implements OnInit, OnDestroy {
  next: (message) => {
  this.cdr.markForCheck();
  this.isResending = false;
-    this.successMessage = message || (this.isRTL ? 'أرسلنا رمز جديد.' : 'A new OTP has been sent.');
+    this.successMessage = message || this.translate.instant('VERIFY_EMAIL.RESEND_SUCCESS');
  },
  error: (error) => {
  this.cdr.markForCheck();
  this.isResending = false;
- this.errorMessage = this.resolvePlainError(error, this.isRTL ? 'ما قدرنا نرسل رمز جديد.' : 'Could not resend the OTP.');
+ this.errorMessage = this.resolvePlainError(error, this.translate.instant('VERIFY_EMAIL.RESEND_FAILED'));
  }
  });
  }

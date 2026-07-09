@@ -82,10 +82,10 @@
  <img src="assets/i18n/images/logo/logo-auth.png" width="800" height="309" alt="Zadna Logo" class="w-full h-full object-contain filter drop-shadow-[0_4px_8px_rgba(18,124,140,0.15)] z-10 transition-transform duration-500 hover:scale-110">
  </div>
  <h2 class="text-2xl font-black text-gray-900 tracking-tight mt-6 animate-puzzle-up stagger-5">
- {{ isVerifyEmailMode ? (isRTL ? 'تأكيد البريد الإلكتروني' : 'Verify email address') : ('LOGIN.WELCOME' | translate) }}
+ {{ isVerifyEmailMode ? ('VERIFY_EMAIL.TITLE' | translate) : ('LOGIN.WELCOME' | translate) }}
  </h2>
  <p *ngIf="isVerifyEmailMode" class="mt-2 max-w-sm text-center text-sm font-bold leading-7 text-gray-500">
- {{ isRTL ? 'أدخل رمز التحقق المرسل إلى بريدك الإلكتروني لإكمال تفعيل حساب التاجر.' : 'Enter the OTP sent to your email to activate your vendor account.' }}
+ {{ 'VERIFY_EMAIL.SUBTITLE' | translate }}
  </p>
  </div>
 
@@ -232,14 +232,14 @@
  <!-- OTP Input -->
  <div class="space-y-2 animate-puzzle-up stagger-7">
  <label for="otpCode" class="text-xs font-black text-gray-400 uppercase tracking-widest block ms-1">
- {{ isRTL ? 'رمز التحقق' : 'OTP code' }}
+ {{ 'VERIFY_EMAIL.OTP_CODE' | translate }}
  </label>
  <input id="otpCode" formControlName="otpCode" maxlength="4" inputmode="numeric" autocomplete="one-time-code" type="text" dir="ltr"
  [ngClass]="(verifyEmailForm.get('otpCode')?.touched || verifySubmitted) && verifyEmailForm.get('otpCode')?.invalid ? 'border-red-400 bg-red-50/20' : 'border-gray-100'"
  class="block w-full py-3 px-4 bg-gray-50/50 border-2 focus:border-zadna-primary/30 focus:bg-white text-center text-xl font-black tracking-[0.35em] text-gray-900 rounded-xl placeholder-gray-300 focus:outline-none focus:ring-4 focus:ring-zadna-primary/10 transition-all shadow-sm hover:shadow-md">
  <div *ngIf="(verifyEmailForm.get('otpCode')?.touched || verifySubmitted) && verifyEmailForm.get('otpCode')?.invalid" class="px-1 animate-puzzle-up">
  <span class="text-[10px] sm:text-xs font-bold text-red-500 flex items-center gap-1 mt-1">
- {{ isRTL ? 'اكتب كود التحقق المكون من 4 أرقام.' : 'Enter the 4-digit OTP code.' }}
+ {{ 'VERIFY_EMAIL.INVALID_FORM' | translate }}
  </span>
  </div>
  </div>
@@ -262,13 +262,13 @@
  </svg>
  </span>
  <span class="relative z-10 tracking-widest uppercase">
-                {{ isLoading ? (isRTL ? 'نتأكد...' : 'Verifying') : (isRTL ? 'تأكيد الرمز' : 'Verify code') }}
+                {{ (isLoading ? 'VERIFY_EMAIL.VERIFYING' : 'VERIFY_EMAIL.VERIFY_BUTTON') | translate }}
  </span>
  </button>
 
  <button type="button" (click)="resendVerifyEmailOtp()" [disabled]="isResending"
  class="mt-4 w-full rounded-xl border-2 border-gray-100 bg-white px-4 py-3 text-xs font-black uppercase tracking-widest text-zadna-primary transition-all hover:border-gray-200 hover:bg-gray-50 disabled:opacity-60">
-              {{ isResending ? (isRTL ? 'نرسل...' : 'Sending...') : (isRTL ? 'إعادة إرسال الرمز' : 'Resend OTP') }}
+              {{ (isResending ? 'VERIFY_EMAIL.RESENDING' : 'VERIFY_EMAIL.RESEND') | translate }}
  </button>
  </div>
  </form>
@@ -279,7 +279,7 @@
  {{ 'LOGIN.FORGOT_PASSWORD' | translate }}
  </a>
  <button *ngIf="isVerifyEmailMode" type="button" (click)="showLoginForm()" class="hover:text-zadna-primary transition-colors hover:underline underline-offset-4 decoration-2">
- {{ isRTL ? 'العودة لتسجيل الدخول' : 'Back to login' }}
+ {{ 'VERIFY_EMAIL.BACK_TO_LOGIN' | translate }}
  </button>
  
  <div *ngIf="!isVerifyEmailMode" class="flex flex-wrap items-center justify-center gap-1.5 mt-2">

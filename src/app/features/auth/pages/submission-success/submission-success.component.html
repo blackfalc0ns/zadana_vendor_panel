@@ -1,145 +1,123 @@
-<div class="min-h-screen bg-slate-50 flex items-center justify-center p-4" [dir]="isRTL ? 'rtl' : 'ltr'">
-  <div class="w-full max-w-2xl stagger-1 animate-in fade-in slide-in-from-bottom-5 duration-700">
-    
-    <div class="review-hero mb-8 overflow-hidden rounded-[32px] border border-amber-100/80 bg-[linear-gradient(135deg,#fffaf0_0%,#ffffff_48%,#f8fafc_100%)] p-5 shadow-[0_18px_50px_rgba(245,158,11,0.10)]">
-      <div class="grid items-center gap-6 md:grid-cols-[1.1fr_0.9fr]">
-        <div class="text-start" [class.text-right]="isRTL" [class.text-left]="!isRTL">
-          <div class="inline-flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3 py-1.5 text-[0.68rem] font-extrabold text-amber-700 shadow-sm">
-            <span class="h-2 w-2 rounded-full bg-amber-500 animate-pulse"></span>
+<div class="submission-page min-h-screen px-4 py-8 sm:px-6 lg:px-10" [dir]="isRTL ? 'rtl' : 'ltr'">
+  <main class="mx-auto flex w-full max-w-5xl flex-col gap-5">
+    <section class="status-hero" [ngClass]="stateClass">
+      <div class="status-hero__content">
+        <div class="flex flex-wrap items-center gap-3">
+          <app-badge [variant]="statusBadgeVariant" size="lg" [dot]="true">
             {{ statusLabelKey | translate }}
-          </div>
+          </app-badge>
 
-          <h3 class="mt-4 text-xl font-black tracking-tight text-slate-900 md:text-2xl">
-            {{ 'ONBOARDING.SUCCESS_PAGE.REVIEW_HERO_TITLE' | translate }}
-          </h3>
+          <span *ngIf="isProfileLoading" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.12em] text-slate-500">
+            <span class="material-symbols-outlined text-[16px] leading-none">sync</span>
+            {{ 'ONBOARDING.SUCCESS_PAGE.REFRESHING' | translate }}
+          </span>
+        </div>
 
-          <p class="mt-2 max-w-xl text-sm font-bold leading-6 text-slate-500">
-            {{ 'ONBOARDING.SUCCESS_PAGE.REVIEW_HERO_DESCRIPTION' | translate }}
+        <div class="mt-8 space-y-4">
+          <p class="text-xs font-black uppercase tracking-[0.22em] text-slate-400">{{ businessName }}</p>
+          <h1 class="max-w-2xl text-3xl font-black leading-tight tracking-tight text-slate-950 sm:text-4xl">
+            {{ heroTitleKey | translate }}
+          </h1>
+          <p class="max-w-2xl text-sm font-bold leading-7 text-slate-600 sm:text-base">
+            {{ heroDescriptionKey | translate }}
           </p>
         </div>
 
-        <div class="relative mx-auto flex w-full max-w-[320px] items-center justify-center">
-          <div class="review-orb review-orb-left"></div>
-          <div class="review-orb review-orb-right"></div>
+        <div class="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <app-button *ngIf="isActive" variant="primary" size="lg" customClass="w-full sm:w-auto !rounded-xl shadow-lg shadow-zadna-primary/20" (btnClick)="goDashboard()">
+            {{ 'ONBOARDING.SUCCESS_PAGE.GO_DASHBOARD' | translate }}
+            <span class="material-symbols-outlined ms-2 text-[20px]" [class.rotate-180]="isRTL">arrow_forward</span>
+          </app-button>
 
-          <div class="review-scene w-full">
-            <div class="review-window">
-              <div class="review-window__toolbar">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
+          <app-button *ngIf="showEditButton" variant="primary" size="lg" customClass="w-full sm:w-auto !rounded-xl shadow-lg shadow-zadna-primary/20" (btnClick)="goOnboardingEdit()">
+            {{ 'ONBOARDING.SUCCESS_PAGE.EDIT_RESUBMIT' | translate }}
+            <span class="material-symbols-outlined ms-2 text-[20px]">edit_note</span>
+          </app-button>
 
-              <div class="review-window__body">
-                <div class="review-card">
-                  <div class="review-card__status">
-                    <span class="review-card__dot"></span>
-                    <span>{{ statusLabelKey | translate }}</span>
-                  </div>
-
-                  <div class="review-card__title"></div>
-                  <div class="review-card__line review-card__line--short"></div>
-                  <div class="review-card__line"></div>
-                  <div class="review-card__line"></div>
-
-                  <div class="review-card__stamp">
-                    <span>{{ 'ONBOARDING.SUCCESS_PAGE.REVIEW_STAMP' | translate }}</span>
-                  </div>
-                </div>
-
-                <div class="review-magnifier">
-                  <div class="review-magnifier__glass">
-                    <div class="review-magnifier__check"></div>
-                  </div>
-                  <div class="review-magnifier__handle"></div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <app-button variant="outline" size="lg" customClass="w-full sm:w-auto !rounded-xl bg-white/90" (btnClick)="logout()">
+            {{ 'ONBOARDING.SUCCESS_PAGE.LOGOUT' | translate }}
+          </app-button>
         </div>
       </div>
-    </div>
 
-    <!-- Summary Card -->
-    <app-card [variant]="'default'" padding="lg" [rounded]="'xl'" customClass="shadow-xl bg-white/80 backdrop-blur-xl border-white/50 mb-8">
-      <div class="flex items-center justify-between mb-6 border-b border-slate-100 pb-4">
-        <h2 class="text-lg font-black text-slate-900">{{ 'ONBOARDING.SUMMARY.TITLE' | translate }}</h2>
-        <app-badge variant="warning" [dot]="true">
+      <div class="status-hero__visual" aria-hidden="true">
+        <div class="status-symbol">
+          <span class="material-symbols-outlined">{{ statusIcon }}</span>
+        </div>
+
+        <div class="review-document">
+          <div class="review-document__top"></div>
+          <div class="review-document__status">
+            <span></span>
+            {{ statusLabelKey | translate }}
+          </div>
+          <div class="review-document__line review-document__line--wide"></div>
+          <div class="review-document__line"></div>
+          <div class="review-document__line review-document__line--short"></div>
+          <div class="review-document__stamp">{{ stampLabelKey | translate }}</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid gap-3 md:grid-cols-4">
+      <div class="summary-tile md:col-span-2">
+        <span class="summary-label">{{ 'ONBOARDING.SUMMARY.BIZ_NAME' | translate }}</span>
+        <strong class="summary-value">{{ businessName }}</strong>
+      </div>
+
+      <div class="summary-tile">
+        <span class="summary-label">{{ 'ONBOARDING.SUMMARY.APP_ID' | translate }}</span>
+        <strong class="summary-value font-mono">{{ applicationId }}</strong>
+      </div>
+
+      <div class="summary-tile">
+        <span class="summary-label">{{ 'ONBOARDING.REG_DATE' | translate }}</span>
+        <strong class="summary-value">{{ today | date:'mediumDate' }}</strong>
+      </div>
+
+      <div class="summary-tile md:col-span-2">
+        <span class="summary-label">{{ 'ONBOARDING.SUMMARY.STATUS' | translate }}</span>
+        <strong class="summary-value inline-flex items-center gap-2" [ngClass]="summaryStatusClass">
+          <span class="h-2 w-2 rounded-full bg-current"></span>
           {{ statusLabelKey | translate }}
-        </app-badge>
+        </strong>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-y-6 gap-x-8">
-        <div class="space-y-1">
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ 'ONBOARDING.SUMMARY.BIZ_NAME' | translate }}</p>
-          <p class="text-base font-black text-slate-900">{{ businessName }}</p>
-        </div>
-        
-        <div class="space-y-1">
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ 'ONBOARDING.SUMMARY.APP_ID' | translate }}</p>
-          <p class="text-base font-black font-mono text-slate-900">{{ applicationId }}</p>
-        </div>
-
-        <div class="space-y-1">
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ 'ONBOARDING.REG_DATE' | translate }}</p>
-          <p class="text-base font-black text-slate-900">{{ today | date:'mediumDate' }}</p>
-        </div>
-
-        <div class="space-y-1">
-          <p class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ 'ONBOARDING.SUMMARY.STATUS' | translate }}</p>
-          <p class="text-base font-black text-emerald-600 flex items-center gap-2">
-            <span class="h-2 w-2 rounded-full bg-emerald-600 animate-pulse"></span>
-            {{ statusLabelKey | translate }}
-          </p>
-        </div>
+      <div class="summary-tile md:col-span-2">
+        <span class="summary-label">{{ 'ONBOARDING.SUCCESS_PAGE.LAST_CHECKED' | translate }}</span>
+        <strong class="summary-value">{{ lastCheckedAt ? (lastCheckedAt | date:'shortTime') : '-' }}</strong>
       </div>
+    </section>
 
-      <div *ngIf="rejectionReason" class="mt-6 rounded-2xl border border-rose-100 bg-rose-50 p-4">
-        <p class="text-[10px] font-black uppercase tracking-widest text-rose-500">{{ 'ONBOARDING.SUCCESS_PAGE.REJECTION_REASON' | translate }}</p>
-        <p class="mt-2 text-sm font-bold leading-6 text-rose-700">{{ localizeMessage(rejectionReason) }}</p>
+    <section class="status-note" [ngClass]="stateClass">
+      <span class="material-symbols-outlined">{{ isActive ? 'task_alt' : (showEditButton ? 'rule' : 'schedule') }}</span>
+      <div>
+        <h2 class="panel-title">{{ hintTitleKey | translate }}</h2>
+        <p class="panel-copy">{{ hintKey | translate }}</p>
       </div>
+    </section>
 
-      <div *ngIf="requiredActions.length" class="mt-6 rounded-2xl border border-amber-100 bg-amber-50 p-4">
-        <p class="text-[10px] font-black uppercase tracking-widest text-amber-700">{{ 'ONBOARDING.SUCCESS_PAGE.REQUIRED_ACTIONS_TITLE' | translate }}</p>
-        <ul class="mt-3 space-y-2 text-sm font-bold leading-6 text-amber-800">
-          <li *ngFor="let action of requiredActions" class="flex gap-2">
-            <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-amber-500"></span>
-            <span>{{ localizeMessage(action.message) }}</span>
-          </li>
+    <section *ngIf="profileLoadFailed" class="alert-panel alert-panel--info">
+      <span class="material-symbols-outlined">wifi_off</span>
+      <p class="panel-copy">{{ 'ONBOARDING.SUCCESS_PAGE.REFRESH_FAILED' | translate }}</p>
+    </section>
+
+    <section *ngIf="rejectionReason" class="alert-panel alert-panel--danger">
+      <span class="material-symbols-outlined">error</span>
+      <div>
+        <h2 class="panel-title">{{ 'ONBOARDING.SUCCESS_PAGE.REJECTION_REASON' | translate }}</h2>
+        <p class="panel-copy">{{ localizeMessage(rejectionReason) }}</p>
+      </div>
+    </section>
+
+    <section *ngIf="requiredActions.length" class="alert-panel alert-panel--warning">
+      <span class="material-symbols-outlined">assignment_late</span>
+      <div>
+        <h2 class="panel-title">{{ 'ONBOARDING.SUCCESS_PAGE.REQUIRED_ACTIONS_TITLE' | translate }}</h2>
+        <ul>
+          <li *ngFor="let action of requiredActions" class="panel-copy">{{ localizeMessage(action.message) }}</li>
         </ul>
       </div>
-
-      <!-- Hint box -->
-      <div class="mt-8 flex gap-3 p-4 rounded-2xl bg-amber-50 border border-amber-100/50">
-        <div class="h-5 w-5 shrink-0 text-amber-600 mt-0.5">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-            <circle cx="12" cy="12" r="10" stroke-width="2"></circle>
-            <path d="M12 8v4" stroke-width="2" stroke-linecap="round"></path>
-            <path d="M12 16h.01" stroke-width="2" stroke-linecap="round"></path>
-          </svg>
-        </div>
-        <p class="text-xs font-bold text-amber-800 leading-relaxed">
-          {{ (isActive ? 'ONBOARDING.SUCCESS_PAGE.PENDING_HINT' : 'ONBOARDING.SUCCESS_PAGE.NO_DASHBOARD_HINT') | translate }}
-        </p>
-      </div>
-    </app-card>
-
-    <!-- Footer Actions -->
-    <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-      <app-button *ngIf="isActive" variant="primary" size="lg" customClass="!rounded-2xl px-12 order-1 sm:order-2 w-full sm:w-auto shadow-xl shadow-zadna-primary/30" (btnClick)="goDashboard()">
-        {{ 'ONBOARDING.SUCCESS_PAGE.GO_DASHBOARD' | translate }}
-        <svg viewBox="0 0 24 24" class="h-4 w-4 ms-2" [class.rotate-180]="isRTL" fill="none" stroke="currentColor">
-          <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
-        </svg>
-      </app-button>
-
-      <app-button *ngIf="showEditButton" variant="primary" size="lg" customClass="!rounded-2xl px-12 order-1 sm:order-2 w-full sm:w-auto shadow-xl shadow-zadna-primary/30" (btnClick)="goOnboardingEdit()">
-        {{ 'ONBOARDING.SUCCESS_PAGE.EDIT_RESUBMIT' | translate }}
-      </app-button>
-
-      <app-button variant="outline" size="lg" customClass="!rounded-2xl px-12 order-2 sm:order-1 w-full sm:w-auto bg-white" (btnClick)="logout()">
-        {{ 'ONBOARDING.SUCCESS_PAGE.LOGOUT' | translate }}
-      </app-button>
-    </div>
-  </div>
+    </section>
+  </main>
 </div>

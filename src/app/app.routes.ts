@@ -33,7 +33,7 @@ export const routes: Routes = [
   {
     path: 'verify-email',
     canActivate: [vendorGuestGuard],
-    loadComponent: () => import('./features/auth/pages/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent)
+    loadComponent: () => import('./features/auth/pages/login/login.component').then((m) => m.LoginComponent)
   },
   {
     path: 'onboarding',
