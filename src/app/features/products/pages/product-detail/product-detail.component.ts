@@ -461,7 +461,6 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
  }
 
  onHandleImageChange(): void {
- console.log('Change image clicked');
  // Implement image upload logic here
  }
 

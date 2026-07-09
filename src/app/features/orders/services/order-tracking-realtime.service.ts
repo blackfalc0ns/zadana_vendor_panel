@@ -139,7 +139,6 @@ export class OrderTrackingRealtimeService {
     try {
       await this.hubConnection.invoke('SubscribeToOrder', orderId);
       this.subscribedOrders.add(orderId);
-      console.log('[OrderTracking] subscribed to order', orderId);
     } catch (error) {
       console.error('Failed to subscribe to order tracking group', orderId, error);
       throw error;
@@ -205,7 +204,8 @@ export class OrderTrackingRealtimeService {
 
       if (!this.hubConnection) {
         const connectionOptions = {
-          accessTokenFactory: () => this.authService.getToken() ?? ''
+          accessTokenFactory: () => this.authService.getToken() ?? '',
+          transport: signalR.HttpTransportType.LongPolling
         };
 
         this.hubConnection = new signalR.HubConnectionBuilder()
@@ -215,17 +215,14 @@ export class OrderTrackingRealtimeService {
           .build();
 
         this.hubConnection.on('ReceiveDriverLocation', (payload: OrderTrackingDriverLocation) => {
-          console.log('[OrderTracking] ReceiveDriverLocation', payload);
           this.driverLocation$.next(payload);
         });
 
         this.hubConnection.on('ReceiveOrderTrackingStatusChanged', (payload: OrderTrackingStatusChangedPayload) => {
-          console.log('[OrderTracking] ReceiveOrderTrackingStatusChanged', payload);
           this.statusChanged$.next(payload);
         });
 
         this.hubConnection.on('ReceiveOrderTrackingArrivalState', (payload: OrderTrackingArrivalStatePayload) => {
-          console.log('[OrderTracking] ReceiveOrderTrackingArrivalState', payload);
           this.arrivalState$.next(payload);
         });
 

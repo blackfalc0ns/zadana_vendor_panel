@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, catchError, finalize, firstValueFrom, map, of, shareReplay, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, finalize, firstValueFrom, from, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   RegisterVendorPayload,
@@ -9,6 +9,10 @@ import {
   VendorCurrentUser,
   VendorRegisterDraft
 } from '../models/vendor-auth.models';
+
+interface CsrfResponse {
+  csrfToken: string;
+}
 
 const IDLE_TIMEOUT_MS = 10 * 60 * 60 * 1000; // 10 hours
 const IDLE_ACTIVITY_EVENTS: ReadonlyArray<keyof WindowEventMap> = [
@@ -30,13 +34,15 @@ export class VendorAuthService {
 
   private readonly apiUrl = `${environment.apiUrl}/vendors/auth`;
   private readonly registerUrl = `${environment.apiUrl}/vendors/register`;
-  private readonly accessTokenKey = 'vendor_access_token';
-  private readonly refreshTokenKey = 'vendor_refresh_token';
+  private readonly legacyAccessTokenKey = 'vendor_access_token';
+  private readonly legacyRefreshTokenKey = 'vendor_refresh_token';
   private readonly userKey = 'vendor_current_user';
   private readonly draftKey = 'vendor_register_draft';
   private readonly skipAuthHeader = 'X-Skip-Auth';
 
   private readonly currentUserSubject = new BehaviorSubject<VendorCurrentUser | null>(this.readStoredUser());
+  private accessToken: string | null = null;
+  private csrfToken: string | null = null;
   private refreshRequest$?: Observable<string>;
   private idleTimerHandle: ReturnType<typeof setTimeout> | null = null;
   private idleListenersBound = false;
@@ -48,7 +54,9 @@ export class VendorAuthService {
     private readonly http: HttpClient,
     private readonly ngZone: NgZone,
     private readonly router: Router
-  ) {}
+  ) {
+    this.clearLegacyRegistrationDraft();
+  }
 
   get hasApiSession(): boolean {
     const token = this.getAccessToken();
@@ -97,23 +105,23 @@ export class VendorAuthService {
   }
 
   getAccessToken(): string | null {
-    return localStorage.getItem(this.accessTokenKey);
+    return this.accessToken;
   }
 
   getRefreshToken(): string | null {
-    return localStorage.getItem(this.refreshTokenKey);
+    return this.getLegacyRefreshToken();
   }
 
-  initializeSession(): Promise<void> {
-    const accessToken = this.getAccessToken();
-    if (!accessToken) {
-      this.clearPersistedSession();
-      return Promise.resolve();
-    }
+  getCsrfToken(): string | null {
+    return this.csrfToken;
+  }
 
-    if (this.isTokenExpired(accessToken)) {
-      this.forceLogoutForExpiredSession();
-      return Promise.resolve();
+  async initializeSession(): Promise<void> {
+    await this.acquireCsrfToken().catch(() => undefined);
+
+    const legacyAccessToken = this.safeLocalGet(this.legacyAccessTokenKey);
+    if (legacyAccessToken && !this.isTokenExpired(legacyAccessToken)) {
+      this.accessToken = legacyAccessToken;
     }
 
     if (this.requiresFreshLogin) {
@@ -121,12 +129,21 @@ export class VendorAuthService {
       return Promise.resolve();
     }
 
+    if (this.accessToken && this.isIdleTimedOut()) {
+      this.forceLogoutForExpiredSession();
+      return Promise.resolve();
+    }
+
+    const session$ = this.accessToken
+      ? this.bootstrapCurrentUser()
+      : this.refreshSession().pipe(switchMap(() => this.bootstrapCurrentUser()));
+
     return firstValueFrom(
-      this.bootstrapCurrentUser().pipe(
+      session$.pipe(
         map(() => void 0),
         tap(() => this.startIdleWatchdog()),
         catchError(() => {
-          this.forceLogoutForExpiredSession();
+          this.clearPersistedSession();
           return of(void 0);
         })
       )
@@ -134,10 +151,12 @@ export class VendorAuthService {
   }
 
   login(identifier: string, password: string): Observable<VendorCurrentUser> {
-    return this.http.post<VendorAuthResponse>(
-      `${this.apiUrl}/login`,
-      { identifier, password },
-      { headers: this.createSkipAuthHeaders() }
+    return from(this.acquireCsrfToken()).pipe(
+      switchMap(() => this.http.post<VendorAuthResponse>(
+        `${this.apiUrl}/login`,
+        { identifier, password },
+        { headers: this.createSkipAuthHeaders(), withCredentials: true }
+      ))
     ).pipe(
       tap((response) => this.persistSession(response)),
       tap((response) => {
@@ -156,10 +175,12 @@ export class VendorAuthService {
   }
 
   registerVendor(payload: RegisterVendorPayload): Observable<VendorCurrentUser> {
-    return this.http.post<VendorAuthResponse>(
-      this.registerUrl,
-      payload,
-      { headers: this.createSkipAuthHeaders() }
+    return from(this.acquireCsrfToken()).pipe(
+      switchMap(() => this.http.post<VendorAuthResponse>(
+        this.registerUrl,
+        payload,
+        { headers: this.createSkipAuthHeaders(), withCredentials: true }
+      ))
     ).pipe(
       tap((response) => this.persistSession(response)),
       tap(() => this.clearRegistrationDraft()),
@@ -177,7 +198,7 @@ export class VendorAuthService {
     return this.http.post<{ message?: string }>(
       `${this.apiUrl}/forgot-password`,
       { identifier },
-      { headers: this.createSkipAuthHeaders() }
+      { headers: this.createSkipAuthHeaders(), withCredentials: true }
     ).pipe(map((response) => response.message || 'Password reset OTP sent.'));
   }
 
@@ -185,7 +206,7 @@ export class VendorAuthService {
     return this.http.post<{ resetToken: string; expiresInSeconds: number; message?: string }>(
       `${this.apiUrl}/verify-reset-otp`,
       { identifier, otpCode },
-      { headers: this.createSkipAuthHeaders() }
+      { headers: this.createSkipAuthHeaders(), withCredentials: true }
     );
   }
 
@@ -193,15 +214,17 @@ export class VendorAuthService {
     return this.http.post<{ message?: string }>(
       `${this.apiUrl}/reset-password`,
       { identifier, resetToken, newPassword },
-      { headers: this.createSkipAuthHeaders() }
+      { headers: this.createSkipAuthHeaders(), withCredentials: true }
     ).pipe(map((response) => response.message || 'Password reset successful.'));
   }
 
   verifyEmailOtp(identifier: string, otpCode: string): Observable<VendorCurrentUser> {
-    return this.http.post<VendorAuthResponse>(
-      `${this.apiUrl}/verify-otp`,
-      { identifier, otpCode },
-      { headers: this.createSkipAuthHeaders() }
+    return from(this.acquireCsrfToken()).pipe(
+      switchMap(() => this.http.post<VendorAuthResponse>(
+        `${this.apiUrl}/verify-otp`,
+        { identifier, otpCode },
+        { headers: this.createSkipAuthHeaders(), withCredentials: true }
+      ))
     ).pipe(
       tap((response) => this.persistSession(response)),
       map((response) => {
@@ -218,7 +241,7 @@ export class VendorAuthService {
     return this.http.post<{ message?: string }>(
       `${this.apiUrl}/resend-otp`,
       { identifier },
-      { headers: this.createSkipAuthHeaders() }
+      { headers: this.createSkipAuthHeaders(), withCredentials: true }
     ).pipe(map((response) => response.message || 'OTP resent successfully.'));
   }
 
@@ -241,22 +264,20 @@ export class VendorAuthService {
   }
 
   refreshSession(): Observable<string> {
-    const refreshToken = this.getRefreshToken();
-    if (!refreshToken) {
-      return throwError(() => new Error('No refresh token available.'));
-    }
-
     if (this.refreshRequest$) {
       return this.refreshRequest$;
     }
 
-    this.refreshRequest$ = this.http.post<VendorAuthResponse>(
-      `${this.apiUrl}/refresh-token`,
-      { refreshToken },
-      { headers: this.createSkipAuthHeaders() }
+    const legacyRefreshToken = this.getLegacyRefreshToken();
+    this.refreshRequest$ = from(this.acquireCsrfToken()).pipe(
+      switchMap(() => this.http.post<VendorAuthResponse>(
+        `${this.apiUrl}/refresh-token`,
+        legacyRefreshToken ? { refreshToken: legacyRefreshToken } : {},
+        { headers: this.createSkipAuthHeaders(), withCredentials: true }
+      ))
     ).pipe(
       tap((response) => this.persistSession(response)),
-      map((response) => response.tokens?.accessToken || ''),
+      map((response) => this.resolveAccessToken(response)),
       tap((token) => {
         if (!token) {
           throw new Error('Refresh token response did not include a new access token.');
@@ -278,10 +299,14 @@ export class VendorAuthService {
   }
 
   logout(): Observable<void> {
-    const refreshToken = this.getRefreshToken();
-    const request$ = refreshToken
-      ? this.http.post<void>(`${this.apiUrl}/logout`, { refreshToken })
-      : of(void 0);
+    const legacyRefreshToken = this.getLegacyRefreshToken();
+    const request$ = from(this.acquireCsrfToken()).pipe(
+      switchMap(() => this.http.post<void>(
+        `${this.apiUrl}/logout`,
+        legacyRefreshToken ? { refreshToken: legacyRefreshToken } : {},
+        { withCredentials: true }
+      ))
+    );
 
     return request$.pipe(
       catchError(() => of(void 0)),
@@ -314,15 +339,27 @@ export class VendorAuthService {
     this.safeLocalSet(VendorAuthService.lastActivityStorageKey, Date.now().toString());
   }
 
+  async acquireCsrfToken(): Promise<string | null> {
+    try {
+      const response = await firstValueFrom(
+        this.http.get<CsrfResponse>(`${this.apiUrl}/csrf`, { withCredentials: true })
+      );
+      this.csrfToken = response?.csrfToken ?? null;
+      return this.csrfToken;
+    } catch {
+      return this.csrfToken;
+    }
+  }
+
   saveRegistrationDraft(draft: VendorRegisterDraft): void {
-    localStorage.setItem(this.draftKey, JSON.stringify({
+    sessionStorage.setItem(this.draftKey, JSON.stringify({
       ...draft,
       createdAtUtc: draft.createdAtUtc || new Date().toISOString()
     }));
   }
 
   getRegistrationDraft(): VendorRegisterDraft | null {
-    const stored = localStorage.getItem(this.draftKey);
+    const stored = sessionStorage.getItem(this.draftKey);
     if (!stored) {
       return null;
     }
@@ -350,7 +387,8 @@ export class VendorAuthService {
   }
 
   clearRegistrationDraft(): void {
-    localStorage.removeItem(this.draftKey);
+    sessionStorage.removeItem(this.draftKey);
+    this.safeLocalRemove(this.draftKey);
   }
 
   createSkipAuthHeaders(): HttpHeaders {
@@ -371,13 +409,11 @@ export class VendorAuthService {
     this.clearLoginRequired();
     this.sessionExpiryRedirectPending = false;
 
-    if (response.tokens?.accessToken) {
-      localStorage.setItem(this.accessTokenKey, response.tokens.accessToken);
+    const accessToken = this.resolveAccessToken(response);
+    if (accessToken) {
+      this.accessToken = accessToken;
     }
-
-    if (response.tokens?.refreshToken) {
-      localStorage.setItem(this.refreshTokenKey, response.tokens.refreshToken);
-    }
+    this.clearLegacyTokenStorage();
 
     if (response.user) {
       this.persistUser(response.user);
@@ -429,13 +465,30 @@ export class VendorAuthService {
   }
 
   private clearPersistedSession(): void {
-    localStorage.removeItem(this.accessTokenKey);
-    localStorage.removeItem(this.refreshTokenKey);
+    this.accessToken = null;
+    this.clearLegacyTokenStorage();
     localStorage.removeItem(this.userKey);
     localStorage.removeItem('vendor_workspace_name');
     this.safeLocalRemove(VendorAuthService.lastActivityStorageKey);
     this.stopIdleWatchdog();
     this.currentUserSubject.next(null);
+  }
+
+  private resolveAccessToken(response: VendorAuthResponse): string {
+    return response.tokens?.accessToken || response.accessToken || '';
+  }
+
+  private getLegacyRefreshToken(): string | null {
+    return this.safeLocalGet(this.legacyRefreshTokenKey);
+  }
+
+  private clearLegacyTokenStorage(): void {
+    this.safeLocalRemove(this.legacyAccessTokenKey);
+    this.safeLocalRemove(this.legacyRefreshTokenKey);
+  }
+
+  private clearLegacyRegistrationDraft(): void {
+    this.safeLocalRemove(this.draftKey);
   }
 
   private redirectToLoginForExpiredSession(): void {

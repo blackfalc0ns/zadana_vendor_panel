@@ -29,6 +29,7 @@ export interface VendorTokenPair {
 }
 
 export interface VendorAuthResponse {
+  accessToken?: string | null;
   tokens?: VendorTokenPair | null;
   user?: VendorCurrentUser | null;
   isVerified?: boolean;

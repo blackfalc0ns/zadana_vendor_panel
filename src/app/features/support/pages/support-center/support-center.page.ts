@@ -18,7 +18,6 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
 import { AppMetricCardComponent } from '../../../../shared/components/ui/data-display/metric-card/metric-card.component';
 import { AppEmptyStateComponent } from '../../../../shared/components/ui/data-display/empty-state/empty-state.component';
-import { AppFilterPanelComponent } from '../../../../shared/components/ui/layout/filter-panel/filter-panel.component';
 import { AppPageSectionShellComponent } from '../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
 import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
 import {
@@ -53,11 +52,11 @@ import { CreateTicketDraft, ReferenceFilters, SupportFilters } from './support-c
  AppFlashBannerComponent,
  AppMetricCardComponent,
  AppEmptyStateComponent,
- AppFilterPanelComponent,
  AppPageSectionShellComponent,
  AppModalShellComponent
  , SearchableSelectComponent],
- templateUrl: './support-center.page.html'
+ templateUrl: './support-center.page.html',
+ styleUrl: './support-center.page.scss'
 })
 export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
  private readonly cdr = inject(ChangeDetectorRef);

@@ -743,18 +743,19 @@ export class AlertsCenterService {
 
  if (!this.hubConnection) {
  const connectionOptions = {
- accessTokenFactory: () => this.authService.getToken() ?? ''
+ accessTokenFactory: () => this.authService.getToken() ?? '',
+ transport: signalR.HttpTransportType.LongPolling
  };
 
  this.hubConnection = new signalR.HubConnectionBuilder().withUrl(this.hubUrl, connectionOptions).withAutomaticReconnect().configureLogging(environment.production ? signalR.LogLevel.Warning : signalR.LogLevel.Information).build();
 
  this.hubConnection.on('ReceiveNotification', (payload: RealtimeNotificationPayload) => {
  if (!payload?.id ||!payload.createdAtUtc) {
- this.debugLog('warn', 'Ignoring invalid vendor notification realtime payload.', payload);
+ this.debugLog('warn', 'Ignoring invalid vendor notification realtime payload.');
  return;
  }
 
- this.debugLog('info', 'Received vendor notification realtime payload.', payload);
+ this.debugLog('info', 'Received vendor notification realtime payload.');
  this.upsertRealtimeAlert(this.mapRealtimeNotification(payload));
  });
 
