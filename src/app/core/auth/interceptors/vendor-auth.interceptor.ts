@@ -89,10 +89,12 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
         || request.url.includes(VENDOR_AUTH_LOGOUT_PATH);
 
       if (error instanceof HttpErrorResponse && error.status === 400 && isStateChanging && !isVendorAuthCsrf) {
-        const message = (error.error as { code?: string; message?: string } | undefined)?.message ?? '';
+        const payload = error.error as { code?: string; errorCode?: string; message?: string } | undefined;
+        const message = payload?.message ?? '';
+        const code = `${payload?.code || payload?.errorCode || ''}`.trim().toUpperCase();
         const looksLikeCsrfFailure = /anti.?forgery|xsrf|csrf/i.test(message)
-          || (error.error as { code?: string } | undefined)?.code === 'ANTIFORGERY'
-          || (error.error as { code?: string } | undefined)?.code === 'INVALID_CSRF_TOKEN';
+          || code === 'ANTIFORGERY'
+          || code === 'INVALID_CSRF_TOKEN';
 
         if (looksLikeCsrfFailure) {
           return retryAfterCsrfRefresh(authorizedRequest, next, authService);
