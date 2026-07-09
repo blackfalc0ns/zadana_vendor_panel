@@ -330,9 +330,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  );
  }
  get regionOptions(): SearchableSelectOption[] {
- return this.buildFormOptions(
- this.optionsWithCurrent(this.regions, this.profileForm?.get('region')?.value || this.currentProfile.region)
- );
+ return this.buildFormOptions(this.regions);
  }
  get cityOptions(): SearchableSelectOption[] {
  const selectedRegion = this.profileForm?.get('region')?.value;
@@ -340,9 +338,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  ? this.cities.filter((c) => c.region === selectedRegion)
  : this.cities;
 
- return this.buildFormOptions(
- this.optionsWithCurrent(filteredCities, this.profileForm?.get('city')?.value || this.currentProfile.city)
- );
+ return this.buildFormOptions(filteredCities);
  }
  get nationalityOptions(): SearchableSelectOption[] {
  return this.buildFormOptions(
@@ -439,12 +435,12 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  };
 
  private loadGeographyOptions(): void {
- this.geographyService.getRegions().subscribe({
+ this.geographyService.getOperationalRegions().subscribe({
  next: (regions) => {
  this.cdr.markForCheck();
  this.regions = regions.map((region) => this.toRegionOption(region));
 
- forkJoin(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
+ forkJoin(regions.map((region) => this.geographyService.getOperationalCities(region.code))).subscribe((cityGroups) => {
  this.cdr.markForCheck();
  this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
  this.reconcileLookupSelections();
@@ -1122,11 +1118,27 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  }
 
  private normalizeRegion(value?: string | null): string {
- return this.normalizeSelectValue(this.regions, value);
+ if (!value) {
+ return '';
+ }
+
+ if (this.regions.length === 0) {
+ return value;
+ }
+
+ return this.findMatchingOption(this.regions, value)?.value ?? '';
  }
 
  private normalizeCity(value?: string | null): string {
- return this.normalizeSelectValue(this.cities, value);
+ if (!value) {
+ return '';
+ }
+
+ if (this.cities.length === 0) {
+ return value;
+ }
+
+ return this.findMatchingOption(this.cities, value)?.value ?? '';
  }
 
  private normalizeNationality(value?: string | null): string {

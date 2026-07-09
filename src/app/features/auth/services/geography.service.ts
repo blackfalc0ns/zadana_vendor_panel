@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable, shareReplay } from 'rxjs';
+import { Observable, map, of, shareReplay } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 
 export interface SaudiRegionDto {
@@ -21,6 +21,7 @@ export interface SaudiCityDto extends SaudiRegionDto {
   providedIn: 'root'
 })
 export class GeographyService {
+  private static readonly operationalRegionCodes = new Set<string>(['EASTERN']);
   private readonly apiUrl = `${environment.apiUrl}/geography`;
   private readonly skipAuthHeaders = new HttpHeaders({ 'X-Skip-Auth': 'true' });
   private regionsRequest$?: Observable<SaudiRegionDto[]>;
@@ -39,6 +40,12 @@ export class GeographyService {
     return this.regionsRequest$;
   }
 
+  getOperationalRegions(): Observable<SaudiRegionDto[]> {
+    return this.getRegions().pipe(
+      map((regions) => regions.filter((region) => this.isOperationalRegionCode(region.code)))
+    );
+  }
+
   getCities(regionCode: string): Observable<SaudiCityDto[]> {
     const normalizedCode = regionCode.trim().toUpperCase();
 
@@ -53,5 +60,21 @@ export class GeographyService {
     }
 
     return this.citiesRequests.get(normalizedCode)!;
+  }
+
+  getOperationalCities(regionCode: string): Observable<SaudiCityDto[]> {
+    const normalizedCode = regionCode.trim().toUpperCase();
+
+    if (!this.isOperationalRegionCode(normalizedCode)) {
+      return of([]);
+    }
+
+    return this.getCities(normalizedCode).pipe(
+      map((cities) => cities.filter((city) => this.isOperationalRegionCode(city.regionCode)))
+    );
+  }
+
+  private isOperationalRegionCode(regionCode?: string | null): boolean {
+    return GeographyService.operationalRegionCodes.has((regionCode || '').trim().toUpperCase());
   }
 }

@@ -160,8 +160,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  // Leaflet map
  private leafletMap: L.Map | null = null;
  private leafletMarker: L.Marker | null = null;
- private readonly defaultCenter: L.LatLngExpression = [24.7136, 46.6753]; // Riyadh
- private readonly defaultZoom = 6;
+ private readonly defaultCenter: L.LatLngExpression = [26.3927, 49.9777];
+ private readonly defaultZoom = 7;
 
  businessTypes: SelectOption[] = BUSINESS_TYPES;
  regions: RegionOption[] = [];
@@ -334,7 +334,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.leafletMap.setView([region.lat, region.lng], region.zoom);
  }
 
- this.geographyService.getCities(regionValue).subscribe({
+ this.geographyService.getOperationalCities(regionValue).subscribe({
  next: (cities) => {
  this.cdr.markForCheck();
  if (step2.get('region')?.value!== regionValue) {
@@ -875,7 +875,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  private loadRegions(): void {
- this.geographyService.getRegions().subscribe({
+ this.geographyService.getOperationalRegions().subscribe({
  next: (regions) => {
  this.cdr.markForCheck();
  this.regions = regions.map((region) => this.toRegionOption(region));

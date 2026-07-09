@@ -225,9 +225,9 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  private branchLocationMapElement: HTMLElement | null = null;
  private static leafletDefaultIconConfigured = false;
  private readonly defaultBranchMapView = {
- lat: 24.7136,
- lng: 46.6753,
- zoom: 6
+ lat: 26.3927,
+ lng: 49.9777,
+ zoom: 7
  };
  private lastFilterSignatures: Record<StaffView, string> = {
  branches: '',
@@ -1039,13 +1039,13 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  }
 
  private loadGeographyOptions(): void {
- this.geographySub = this.geographyService.getRegions().subscribe({
+ this.geographySub = this.geographyService.getOperationalRegions().subscribe({
  next: (regions) => {
  this.cdr.markForCheck();
  this.regionDirectory = regions;
  this.regions = regions.map((region) => this.toRegionOption(region));
 
- forkJoin(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
+ forkJoin(regions.map((region) => this.geographyService.getOperationalCities(region.code))).subscribe((cityGroups) => {
  this.cdr.markForCheck();
  this.cityDirectory = cityGroups.flat();
  this.cities = this.cityDirectory.map((city) => this.toCityOption(city));
@@ -1556,8 +1556,8 @@ export class StaffBranchesPageComponent implements OnInit, DoCheck, AfterViewChe
  phone: '',
  managerName: '',
  managerContact: '',
- region: 'CENTRAL',
- city: 'RIYADH',
+ region: 'EASTERN',
+ city: 'DAMMAM',
  addressLine: '',
  latitude: null,
  longitude: null,

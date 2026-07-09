@@ -148,12 +148,12 @@ export class BranchDetailComponent implements OnInit, OnDestroy {
  }
 
  private loadGeographyOptions(): void {
- this.geographySub = this.geographyService.getRegions().subscribe({
+ this.geographySub = this.geographyService.getOperationalRegions().subscribe({
  next: (regions) => {
  this.cdr.markForCheck();
  this.regions = regions.map((region) => this.toRegionOption(region));
 
- combineLatest(regions.map((region) => this.geographyService.getCities(region.code))).subscribe((cityGroups) => {
+ combineLatest(regions.map((region) => this.geographyService.getOperationalCities(region.code))).subscribe((cityGroups) => {
  this.cdr.markForCheck();
  this.cities = cityGroups.flat().map((city) => this.toCityOption(city));
  });
