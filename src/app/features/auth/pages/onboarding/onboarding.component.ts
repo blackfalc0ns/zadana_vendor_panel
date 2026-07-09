@@ -1364,12 +1364,18 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  private resolveUploadHeaders(directory: string): Observable<Record<string, string>> {
- if (this.isEditMode || !this.requiresRegistrationUploadToken(directory)) {
+ if (this.isEditMode) {
  return of({});
+ }
+
+ const publicUploadHeaders = { 'X-Skip-Auth': 'true' };
+ if (!this.requiresRegistrationUploadToken(directory)) {
+ return of(publicUploadHeaders);
  }
 
  return this.getRegistrationUploadToken().pipe(
  map((token) => ({
+ ...publicUploadHeaders,
  [token.headerName || 'X-Registration-Upload-Token']: token.token
  }))
  );

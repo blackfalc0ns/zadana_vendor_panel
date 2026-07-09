@@ -55,7 +55,7 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
     headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
-  if (isStateChanging && !isVendorAuthCsrf) {
+  if (isStateChanging && !isVendorAuthCsrf && !skipAuth) {
     const csrf = authService.getCsrfToken();
     if (csrf) {
       headers['X-XSRF-TOKEN'] = csrf;
@@ -99,7 +99,7 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
         }
       }
 
-      if (!isUnauthorized || isVendorAuthRequest) {
+      if (!isUnauthorized || isVendorAuthRequest || skipAuth) {
         return throwError(() => error);
       }
 
