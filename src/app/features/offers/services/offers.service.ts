@@ -131,7 +131,12 @@ export class OffersService {
  }
 
  buildCategoryCampaigns(categories: Category[], products: VendorProduct[]): CategoryCampaign[] {
- return categories.filter((category) => products.some((product) => product.categoryId === category.id)).slice(0, 3).map((category, index) => {
+ const flatCategories = this.flattenCategories(categories);
+ const eligibleCategories = flatCategories.filter((category) =>
+ products.some((product) => product.categoryId === category.id)
+ );
+
+ return eligibleCategories.slice(0, 3).map((category, index) => {
  const productsIncluded = products.filter((product) => product.categoryId === category.id).length;
  const discountPercentage = [12, 18, 9][index % 3];
 
@@ -170,6 +175,13 @@ export class OffersService {
  urgency: product.stockQty <= 5 ? 'critical' : 'warning'
  };
  });
+ }
+
+ private flattenCategories(categories: Category[]): Category[] {
+ return categories.flatMap((category) => [
+ category,
+ ...this.flattenCategories(category.subCategories || [])
+ ]);
  }
 
  private loadWorkspace(): void {

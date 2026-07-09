@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges, SimpleChanges, inject } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
@@ -34,6 +34,11 @@ import {
             <label class="space-y-2 md:col-span-2">
               <span class="text-[0.74rem] font-black text-slate-600">{{ 'OFFERS.CREATE.CATEGORY_FIELD' | translate }}</span>
               <app-searchable-select formControlName="categoryId" [options]="mappedCategoryOptions" [placeholder]="'OFFERS.CREATE.CATEGORY_PLACEHOLDER'"></app-searchable-select>
+              @if (mappedCategoryOptions.length === 0) {
+                <p class="text-[0.68rem] font-bold text-amber-700">
+                  {{ currentLang === 'ar' ? 'ما فيه تصنيفات فيها منتجات حالياً. أضف منتجات للمتجر أولاً.' : 'No categories with products are available yet. Add products to your store first.' }}
+                </p>
+              }
             </label>
 
             <label class="space-y-2">
@@ -95,7 +100,7 @@ import {
             <app-button variant="ghost" (btnClick)="handleClose()">
               {{ 'COMMON.CANCEL' | translate }}
             </app-button>
-            <app-button [disabled]="form.invalid" (btnClick)="submit()">
+            <app-button [disabled]="form.invalid || mappedCategoryOptions.length === 0" (btnClick)="submit()">
               {{ 'OFFERS.CREATE.SAVE_CATEGORY' | translate }}
             </app-button>
           </div>
@@ -140,7 +145,8 @@ import {
     }
   `]
 })
-export class CategoryCampaignModalComponent {
+export class CategoryCampaignModalComponent implements OnChanges {
+  private readonly cdr = inject(ChangeDetectorRef);
 
   get mappedCategoryOptions(): SearchableSelectOption[] {
     return this.categoryOptions.map((x: any) => ({
@@ -169,6 +175,12 @@ export class CategoryCampaignModalComponent {
       noteAr: ['', [Validators.required, Validators.minLength(4)]],
       noteEn: ['', [Validators.required, Validators.minLength(4)]]
     });
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['categoryOptions'] || changes['isOpen']) {
+      this.cdr.markForCheck();
+    }
   }
 
   get currentLang(): string {

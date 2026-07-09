@@ -555,13 +555,13 @@ export class OffersListComponent implements OnInit, OnDestroy {
  this.cdr.markForCheck();
  const products = productsResponse.items;
  this.vendorProducts = products;
- this.categories = categories;
- this.offersService.initializeDerivedCollections(categories, products);
+ this.categories = this.flattenCategories(categories);
+ this.offersService.initializeDerivedCollections(this.categories, products);
  this.productOffers = products.filter((product) => this.catalogService.hasActiveOffer(product));
  this.coupons = coupons;
  this.categoryCampaigns = categoryCampaigns.length
  ? categoryCampaigns
- : this.offersService.buildCategoryCampaigns(categories, products);
+ : this.offersService.buildCategoryCampaigns(this.categories, products);
  this.clearanceOffers = clearanceOffers.length
  ? clearanceOffers
  : this.offersService.buildClearanceOffers(products);
@@ -788,12 +788,31 @@ export class OffersListComponent implements OnInit, OnDestroy {
  }
 
  get campaignCreateOptions(): CategoryCampaignCreateOption[] {
- return this.categories.map((category) => ({
- categoryId: category.id,
- categoryNameAr: category.nameAr,
- categoryNameEn: category.nameEn,
- productsIncluded: this.vendorProducts.filter((product) => product.categoryId === category.id).length
- })).filter((category) => category.productsIncluded > 0);
+ const optionsByCategoryId = new Map<string, CategoryCampaignCreateOption>();
+
+ for (const product of this.vendorProducts) {
+ if (!product.categoryId) {
+ continue;
+ }
+
+ const existing = optionsByCategoryId.get(product.categoryId);
+ if (existing) {
+ existing.productsIncluded += 1;
+ continue;
+ }
+
+ const catalogCategory = this.categories.find((category) => category.id === product.categoryId);
+ optionsByCategoryId.set(product.categoryId, {
+ categoryId: product.categoryId,
+ categoryNameAr: catalogCategory?.nameAr || product.categoryNameAr || this.translate.instant('COMMON.NO_DATA'),
+ categoryNameEn: catalogCategory?.nameEn || product.categoryNameEn || this.translate.instant('COMMON.NO_DATA'),
+ productsIncluded: 1
+ });
+ }
+
+ return Array.from(optionsByCategoryId.values())
+ .filter((category) => category.productsIncluded > 0)
+ .sort((left, right) => right.productsIncluded - left.productsIncluded);
  }
 
  get clearanceCreateProducts(): VendorProduct[] {
@@ -1143,5 +1162,16 @@ export class OffersListComponent implements OnInit, OnDestroy {
  queryParamsHandling: 'merge',
  replaceUrl: false
  });
+ }
+
+ private flattenCategories(categories: Category[] | null | undefined): Category[] {
+ if (!categories?.length) {
+ return [];
+ }
+
+ return categories.flatMap((category) => [
+ category,
+ ...this.flattenCategories(category.subCategories || [])
+ ]);
  }
 }
