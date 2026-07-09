@@ -338,6 +338,10 @@ export class VendorProfileService {
   }
 
   uploadLegalDocument(documentType: VendorLegalDocumentType, file: File): Observable<VendorProfile> {
+    if (!this.authService.hasApiSession) {
+      return throwError(() => new Error('SESSION_EXPIRED'));
+    }
+
     const directoryMap: Record<VendorLegalDocumentType, string> = {
       commercial: 'uploads/vendors/commercial-register',
       tax: 'uploads/vendors/tax-certificates',

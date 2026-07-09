@@ -1194,6 +1194,10 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.submissionError = this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
  return;
  }
+ if (!this.authService.hasApiSession) {
+ this.submissionError = this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
+ return;
+ }
 
  this.isSubmitting = true;
  this.resetUploadProgress();

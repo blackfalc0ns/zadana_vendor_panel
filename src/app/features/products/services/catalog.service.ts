@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpEventType, HttpParams, HttpResponse } from '@angular/common/http';
-import { Observable, from, of } from 'rxjs';
+import { Observable, from, of, throwError } from 'rxjs';
 import { catchError, filter, map, switchMap, tap } from 'rxjs/operators';
 import { environment } from '../../../../environments/environment';
 import {
@@ -21,6 +21,7 @@ import {
   UnitOption,
   VendorProduct
 } from '../models/catalog.models';
+import { VendorAuthService } from '../../../core/auth/services/vendor-auth.service';
 
 interface MasterProductImageApi {
   url: string;
@@ -85,7 +86,10 @@ interface VendorProductApi {
 export class CatalogService {
   private readonly baseUrl = `${environment.apiUrl}/vendor`;
 
-  constructor(private readonly http: HttpClient) {}
+  constructor(
+    private readonly http: HttpClient,
+    private readonly authService: VendorAuthService
+  ) {}
 
   getMasterProducts(params: {
     searchTerm?: string;
@@ -170,6 +174,10 @@ export class CatalogService {
     directory: string,
     onProgress?: (progress: ImageUploadProgress) => void
   ): Observable<string> {
+    if (!this.authService.hasApiSession) {
+      return throwError(() => new Error('SESSION_EXPIRED'));
+    }
+
     onProgress?.({ percent: 3, phase: 'preparing' });
     const preparedFile$ = shouldOptimizeImageForUpload(file)
       ? from(optimizeImageForUpload(file))
