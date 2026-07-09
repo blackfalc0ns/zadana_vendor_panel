@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { filter, forkJoin, from, map, Observable, of, switchMap, tap } from 'rxjs';
+import { filter, forkJoin, from, map, Observable, of, switchMap, tap, timeout } from 'rxjs';
 import * as L from 'leaflet';
 
 import {
@@ -46,6 +46,8 @@ type RegistrationUploadTokenResponse = {
  expiresAtUtc: string;
  headerName: string;
 };
+
+const ONBOARDING_SUBMISSION_TIMEOUT_MS = 45000;
 
 @Component({
  changeDetection: ChangeDetectionStrategy.OnPush,
@@ -633,6 +635,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  taxDocumentUrl: this.taxDocument ? this.uploadFile(this.taxDocument, 'uploads/vendors/tax-certificates', this.trackUpload('tax')) : of<string | null>(null),
  licenseDocumentUrl: this.licenseDocument ? this.uploadFile(this.licenseDocument, 'uploads/vendors/licenses', this.trackUpload('license')) : of<string | null>(null)
  }).pipe(
+ tap(() => this.markSubmissionPhase()),
  map(({ logoUrl, commercialRegisterDocumentUrl, taxDocumentUrl, licenseDocumentUrl }) => {
  const payload: RegisterVendorPayload = {
  fullName: draft.fullName,
@@ -677,7 +680,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
  return payload;
  }),
- switchMap((payload) => this.authService.registerVendor(payload))
+ switchMap((payload) => this.authService.registerVendor(payload)),
+ timeout({ first: ONBOARDING_SUBMISSION_TIMEOUT_MS })
  ).subscribe({
  next: (response) => {
  this.cdr.markForCheck();
@@ -707,10 +711,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  return;
  }
 
- this.submissionError = error?.error?.detail
- || error?.error?.message
- || error?.message
- || this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
+ this.submissionError = this.resolveSubmissionError(error);
  }
  });
  }
@@ -732,6 +733,23 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  return typeof rawCode === 'string'
  ? rawCode.trim().replace(/[-\s]+/g, '_').toUpperCase()
  : '';
+ }
+
+ private markSubmissionPhase(): void {
+ this.uploadProgress = 100;
+ this.uploadPhase = 'submitting';
+ this.cdr.markForCheck();
+ }
+
+ private resolveSubmissionError(error: any): string {
+ if (error?.name === 'TimeoutError') {
+ return this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
+ }
+
+ return error?.error?.detail
+ || error?.error?.message
+ || error?.message
+ || this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
  }
 
  trackStep(_index: number, step: OnboardingStepItem): number {
@@ -1249,6 +1267,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  taxDocumentUrl: this.taxDocument ? this.uploadFile(this.taxDocument, 'uploads/vendors/tax-certificates', this.trackUpload('tax')) : of<string | null>(null),
  licenseDocumentUrl: this.licenseDocument ? this.uploadFile(this.licenseDocument, 'uploads/vendors/licenses', this.trackUpload('license')) : of<string | null>(null)
  }).pipe(
+ tap(() => this.markSubmissionPhase()),
  map(({ logoUrl, commercialRegisterDocumentUrl, taxDocumentUrl, licenseDocumentUrl }) => {
  const nextProfile = {...profile,
  storeNameAr: step1.businessNameAr,
@@ -1339,7 +1358,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  switchMap(({ nextProfile, dirtySections }) =>
  this.profileService.updateOnboardingProfileSelective(nextProfile, dirtySections)
  ),
- switchMap(() => this.profileService.submitForReview())
+ switchMap(() => this.profileService.submitForReview()),
+ timeout({ first: ONBOARDING_SUBMISSION_TIMEOUT_MS })
  ).subscribe({
  next: () => {
  this.cdr.markForCheck();
@@ -1351,10 +1371,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  error: (error) => {
  this.cdr.markForCheck();
  this.isSubmitting = false;
- this.submissionError = error?.error?.detail
- || error?.error?.message
- || error?.message
- || this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
+ this.submissionError = this.resolveSubmissionError(error);
  }
  });
  }

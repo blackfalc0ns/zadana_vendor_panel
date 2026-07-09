@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, catchError, finalize, firstValueFrom, from, map, of, shareReplay, switchMap, tap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, catchError, finalize, firstValueFrom, from, map, of, shareReplay, switchMap, tap, throwError, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
   RegisterVendorPayload,
@@ -15,6 +15,7 @@ interface CsrfResponse {
 }
 
 const IDLE_TIMEOUT_MS = 10 * 60 * 60 * 1000; // 10 hours
+const CSRF_TOKEN_TIMEOUT_MS = 10000;
 const IDLE_ACTIVITY_EVENTS: ReadonlyArray<keyof WindowEventMap> = [
   'mousemove',
   'mousedown',
@@ -342,7 +343,9 @@ export class VendorAuthService {
   async acquireCsrfToken(): Promise<string | null> {
     try {
       const response = await firstValueFrom(
-        this.http.get<CsrfResponse>(`${this.apiUrl}/csrf`, { withCredentials: true })
+        this.http.get<CsrfResponse>(`${this.apiUrl}/csrf`, { withCredentials: true }).pipe(
+          timeout({ first: CSRF_TOKEN_TIMEOUT_MS })
+        )
       );
       this.csrfToken = response?.csrfToken ?? null;
       return this.csrfToken;

@@ -9,7 +9,7 @@ const OPTIMIZABLE_IMAGE_TYPES = new Set([
   'image/bmp'
 ]);
 
-export type ImageUploadPhase = 'preparing' | 'uploading';
+export type ImageUploadPhase = 'preparing' | 'uploading' | 'submitting';
 
 export interface ImageUploadProgress {
   percent: number;
