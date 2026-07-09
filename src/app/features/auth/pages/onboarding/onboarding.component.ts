@@ -31,6 +31,7 @@ import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.se
 import { VendorProfile } from '../../../settings/models/vendor-profile.models';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 import { VendorReviewItem } from '../../../settings/models/vendor-profile.models';
+import { describeApiError } from '../../../../shared/utils/api-error.util';
 import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
 import {
  optimizeImageForUpload,
@@ -746,10 +747,9 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  return this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
  }
 
- return error?.error?.detail
- || error?.error?.message
- || error?.message
- || this.translate.instant('ONBOARDING.ERRORS.SUBMIT_FAILED');
+ return describeApiError(error, this.translate, {
+ fallbackKey: 'ONBOARDING.ERRORS.SUBMIT_FAILED'
+ });
  }
 
  trackStep(_index: number, step: OnboardingStepItem): number {
