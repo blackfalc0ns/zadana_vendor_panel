@@ -736,10 +736,10 @@
  <section [class]="getPreviewCardClasses(isPreviewActive('docs'))">
  <div class="space-y-2 text-sm font-bold text-slate-600">
  <p class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">{{ 'ONBOARDING.DOCS_CARD_TITLE' | translate }}</p>
- <p [attr.dir]="storeLogo?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="storeLogo?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ storeLogo?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
- <p [attr.dir]="crDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="crDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ crDocument?.name || ('ONBOARDING.UPLOAD_PENDING' | translate) }}</p>
- <p [attr.dir]="taxDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="taxDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ taxDocument?.name || (isRTL ? 'بانتظار ملف الشهادة الضريبية' : 'Tax certificate pending') }}</p>
- <p [attr.dir]="licenseDocument?.name ? getFieldDir('ltr') : getFieldDir('context')" [class]="licenseDocument?.name ? getPreviewValueClasses('ltr') + ' break-all' : getPreviewValueClasses('context')">{{ licenseDocument?.name || (isRTL ? 'بانتظار ملف الرخصة' : 'License document pending') }}</p>
+ <p [attr.dir]="getPreviewFileDir('logo')" [class]="getPreviewFileClasses('logo')">{{ getPreviewFileLabel('logo') }}</p>
+ <p [attr.dir]="getPreviewFileDir('cr')" [class]="getPreviewFileClasses('cr')">{{ getPreviewFileLabel('cr') }}</p>
+ <p [attr.dir]="getPreviewFileDir('tax')" [class]="getPreviewFileClasses('tax')">{{ getPreviewFileLabel('tax') }}</p>
+ <p [attr.dir]="getPreviewFileDir('license')" [class]="getPreviewFileClasses('license')">{{ getPreviewFileLabel('license') }}</p>
  <p [attr.dir]="getFieldDir('ltr')" [class]="getPreviewValueClasses('ltr')">{{ syncedFromLabelKey | translate }}</p>
  </div>
  </section>

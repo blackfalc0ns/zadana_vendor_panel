@@ -927,6 +927,68 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
  }
 
+ getPreviewFileLabel(type: 'logo' | 'cr' | 'tax' | 'license'): string {
+ const selectedFile = this.getSelectedPreviewFile(type);
+ if (selectedFile?.name) {
+ return selectedFile.name;
+ }
+
+ const existingName = this.getExistingFileName(this.getExistingPreviewFileUrl(type));
+ if (existingName) {
+ return existingName;
+ }
+
+ if (type === 'tax') {
+ return this.isRTL ? 'بانتظار ملف الشهادة الضريبية' : 'Tax certificate pending';
+ }
+
+ if (type === 'license') {
+ return this.isRTL ? 'بانتظار ملف الرخصة' : 'License document pending';
+ }
+
+ return this.translate.instant('ONBOARDING.UPLOAD_PENDING');
+ }
+
+ getPreviewFileDir(type: 'logo' | 'cr' | 'tax' | 'license'): 'ltr' | 'rtl' {
+ return this.hasPreviewFile(type) ? 'ltr' : this.getFieldDir('context');
+ }
+
+ getPreviewFileClasses(type: 'logo' | 'cr' | 'tax' | 'license'): string {
+ return this.hasPreviewFile(type)
+ ? `${this.getPreviewValueClasses('ltr')} break-all`
+ : this.getPreviewValueClasses('context');
+ }
+
+ private hasPreviewFile(type: 'logo' | 'cr' | 'tax' | 'license'): boolean {
+ return !!this.getSelectedPreviewFile(type)?.name || !!this.getExistingPreviewFileUrl(type);
+ }
+
+ private getSelectedPreviewFile(type: 'logo' | 'cr' | 'tax' | 'license'): File | null {
+ switch (type) {
+ case 'logo':
+ return this.storeLogo;
+ case 'cr':
+ return this.crDocument;
+ case 'tax':
+ return this.taxDocument;
+ case 'license':
+ return this.licenseDocument;
+ }
+ }
+
+ private getExistingPreviewFileUrl(type: 'logo' | 'cr' | 'tax' | 'license'): string | null {
+ switch (type) {
+ case 'logo':
+ return this.existingLogoUrl;
+ case 'cr':
+ return this.existingCommercialUrl;
+ case 'tax':
+ return this.existingTaxUrl;
+ case 'license':
+ return this.existingLicenseUrl;
+ }
+ }
+
  isPreviewActive(section: 'store' | 'legal' | 'bank' | 'docs'): boolean {
  if (section === 'store') {
  return this.currentStep === 1 || this.currentStep === 2;
