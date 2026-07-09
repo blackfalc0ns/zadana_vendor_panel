@@ -26,6 +26,7 @@ import {
  CreateCouponOfferPayload
 } from '../../models/offers.models';
 import { OffersService } from '../../services/offers.service';
+import { VendorAccessService } from '../../../../core/auth/services/vendor-access.service';
 import {
  CategoryCampaignFilters,
  ClearanceOfferFilters,
@@ -527,6 +528,7 @@ export class OffersListComponent implements OnInit, OnDestroy {
  constructor(
  private readonly catalogService: CatalogService,
  private readonly offersService: OffersService,
+ private readonly accessService: VendorAccessService,
  private readonly translate: TranslateService,
  private readonly route: ActivatedRoute,
  private readonly router: Router
@@ -765,6 +767,10 @@ export class OffersListComponent implements OnInit, OnDestroy {
  }
 
  get activeCreateActionLabel(): string | null {
+ if (!this.canManageOffers) {
+ return null;
+ }
+
  switch (this.activeView) {
  case 'coupons':
  return 'OFFERS.CREATE.COUPON_BUTTON';
@@ -775,6 +781,10 @@ export class OffersListComponent implements OnInit, OnDestroy {
  default:
  return null;
  }
+ }
+
+ get canManageOffers(): boolean {
+ return this.accessService.hasPermission('vendor_offers.edit');
  }
 
  get campaignCreateOptions(): CategoryCampaignCreateOption[] {
@@ -869,23 +879,29 @@ export class OffersListComponent implements OnInit, OnDestroy {
  this.isCouponModalOpen = this.activeView === 'coupons';
  this.isCategoryCampaignModalOpen = this.activeView === 'categories';
  this.isClearanceModalOpen = this.activeView === 'clearance';
+ this.cdr.markForCheck();
  }
 
  createCouponOffer(payload: CreateCouponOfferPayload): void {
  this.isSavingCoupon = true;
  this.couponSaveError = '';
+ this.cdr.markForCheck();
 
  this.offersService.createCouponOffer(payload).subscribe({
- next: () => {
- this.cdr.markForCheck();
+ next: (createdCoupon) => {
+ this.coupons = [
+ createdCoupon,
+ ...this.coupons.filter((coupon) => coupon.id !== createdCoupon.id)
+ ];
  this.isSavingCoupon = false;
  this.closeCouponModal();
  this.currentPages.coupons = 1;
+ this.cdr.markForCheck();
  },
  error: (error) => {
- this.cdr.markForCheck();
  this.isSavingCoupon = false;
  this.couponSaveError = this.describeCouponSaveError(error);
+ this.cdr.markForCheck();
  }
  });
  }
@@ -1057,11 +1073,25 @@ export class OffersListComponent implements OnInit, OnDestroy {
  : 'You do not have permission to create or edit coupons for this account.';
  }
 
- const detail = error.error?.detail;
- const title = error.error?.title;
+ const payload = error.error as { detail?: string; title?: string; message?: string; errorCode?: string; code?: string } | undefined;
+ const errorCode = `${payload?.errorCode || payload?.code || ''}`.trim().toUpperCase();
+
+ if (errorCode === 'DUPLICATE_COUPON_CODE') {
+ return this.currentLang === 'ar'
+ ? 'رمز الكوبون مستخدم بالفعل. جرّب رمزًا مختلفًا.'
+ : 'This coupon code is already in use. Try a different code.';
+ }
+
+ const detail = payload?.detail;
+ const title = payload?.title;
+ const message = payload?.message;
 
  if (typeof detail === 'string' && detail.trim()) {
  return detail;
+ }
+
+ if (typeof message === 'string' && message.trim()) {
+ return message;
  }
 
  if (typeof title === 'string' && title.trim()) {

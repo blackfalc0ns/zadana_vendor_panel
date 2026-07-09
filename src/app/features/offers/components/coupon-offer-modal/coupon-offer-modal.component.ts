@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef, OnChanges, SimpleChanges, inject } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, ValidatorFn, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
@@ -32,12 +32,18 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
  <form [formGroup]="form" class="grid gap-4 md:grid-cols-2" (ngSubmit)="submit()">
  <label class="space-y-2">
  <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'كود الكوبون' : 'Coupon code' }}</span>
- <input formControlName="code" type="text" class="offer-input" [placeholder]="'OFFERS.CREATE.COUPON_CODE_PLACEHOLDER' | translate">
+ <input formControlName="code" type="text" class="offer-input" [class.border-rose-300]="isFieldInvalid('code')" [placeholder]="'OFFERS.CREATE.COUPON_CODE_PLACEHOLDER' | translate">
+ @if (isFieldInvalid('code')) {
+ <p class="text-[0.68rem] font-bold text-rose-600">{{ getFieldError('code') }}</p>
+ }
  </label>
 
  <label class="space-y-2">
  <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'عنوان الكوبون' : 'Coupon title' }}</span>
- <input formControlName="title" type="text" class="offer-input" [placeholder]="currentLang === 'ar' ? 'مثال: خصم نهاية الأسبوع' : 'Example: Weekend discount'">
+ <input formControlName="title" type="text" class="offer-input" [class.border-rose-300]="isFieldInvalid('title')" [placeholder]="currentLang === 'ar' ? 'مثال: خصم نهاية الأسبوع' : 'Example: Weekend discount'">
+ @if (isFieldInvalid('title')) {
+ <p class="text-[0.68rem] font-bold text-rose-600">{{ getFieldError('title') }}</p>
+ }
  </label>
 
  <label class="space-y-2">
@@ -47,7 +53,10 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
 
  <label class="space-y-2">
  <span class="text-[0.74rem] font-black text-slate-600">{{ currentLang === 'ar' ? 'قيمة الخصم' : 'Discount value' }}</span>
- <input formControlName="value" type="number" class="offer-input" [placeholder]="'0'">
+ <input formControlName="value" type="number" min="1" class="offer-input" [class.border-rose-300]="isFieldInvalid('value')" [placeholder]="'0'">
+ @if (isFieldInvalid('value')) {
+ <p class="text-[0.68rem] font-bold text-rose-600">{{ getFieldError('value') }}</p>
+ }
  </label>
 
  <label class="space-y-2">
@@ -80,6 +89,11 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
  {{ 'OFFERS.CREATE.ACTIVE_COUPON' | translate }}
  </app-checkbox>
  </div>
+ @if (formValidationMessage) {
+ <div class="md:col-span-2 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-[0.78rem] font-bold text-amber-800">
+ {{ formValidationMessage }}
+ </div>
+ }
  @if (errorMessage) {
  <div class="md:col-span-2 rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-[0.78rem] font-bold text-rose-700">
  {{ errorMessage }}
@@ -135,7 +149,9 @@ import { CreateCouponOfferPayload } from '../../models/offers.models';
  }
  `]
 })
-export class CouponOfferModalComponent {
+export class CouponOfferModalComponent implements OnChanges {
+ private readonly cdr = inject(ChangeDetectorRef);
+
  @Input() isOpen = false;
  @Input() isSaving = false;
  @Input() errorMessage = '';
@@ -143,23 +159,30 @@ export class CouponOfferModalComponent {
  @Output() readonly saved = new EventEmitter<CreateCouponOfferPayload>();
 
  readonly form;
+ formValidationMessage = '';
 
  constructor(
  private readonly fb: FormBuilder,
  private readonly translate: TranslateService
  ) {
  this.form = this.fb.nonNullable.group({
- code: ['', [Validators.required, Validators.minLength(4)]],
- title: ['', [Validators.required, Validators.minLength(3)]],
+ code: ['', [Validators.required, Validators.maxLength(100)]],
+ title: ['', [Validators.required, Validators.maxLength(200)]],
  type: this.fb.nonNullable.control<'percentage' | 'fixed'>('percentage'),
  value: this.fb.nonNullable.control(10, [Validators.required, Validators.min(1)]),
  minOrder: this.fb.nonNullable.control(0, [Validators.required, Validators.min(0)]),
- usageLimit: this.fb.control<number | null>(100, [Validators.min(1)]),
+ usageLimit: this.fb.control<number | null>(100, [optionalMin(1)]),
  endsAt: this.fb.nonNullable.control(this.buildDefaultEndDate(), Validators.required),
- perUserLimit: this.fb.control<number | null>(null, [Validators.min(1)]),
- maxDiscountAmount: this.fb.control<number | null>(null, [Validators.min(1)]),
+ perUserLimit: this.fb.control<number | null>(null, [optionalMin(1)]),
+ maxDiscountAmount: this.fb.control<number | null>(null, [optionalMin(1)]),
  isActive: this.fb.nonNullable.control(true)
  });
+ }
+
+ ngOnChanges(changes: SimpleChanges): void {
+ if (changes['isSaving'] || changes['errorMessage'] || changes['isOpen']) {
+ this.cdr.markForCheck();
+ }
  }
 
  get currentLang(): string {
@@ -167,12 +190,23 @@ export class CouponOfferModalComponent {
  }
 
  submit(): void {
+ this.formValidationMessage = '';
+
  if (this.form.invalid || this.isSaving) {
  this.form.markAllAsTouched();
+ this.formValidationMessage = this.currentLang === 'ar'
+ ? 'راجع الحقول المطلوبة قبل حفظ الكوبون.'
+ : 'Review the required fields before saving the coupon.';
+ this.cdr.markForCheck();
  return;
  }
 
- this.saved.emit(this.form.getRawValue());
+ const raw = this.form.getRawValue();
+ this.saved.emit({
+ ...raw,
+ code: raw.code.trim(),
+ title: raw.title.trim()
+ });
  }
 
  handleClose(): void {
@@ -180,7 +214,34 @@ export class CouponOfferModalComponent {
  this.close.emit();
  }
 
+ isFieldInvalid(field: string): boolean {
+ const control = this.form.get(field);
+ return !!control && control.invalid && (control.touched || control.dirty);
+ }
+
+ getFieldError(field: string): string {
+ const control = this.form.get(field);
+ if (!control?.errors) {
+ return '';
+ }
+
+ if (control.errors['required']) {
+ return this.currentLang === 'ar' ? 'هذا الحقل مطلوب.' : 'This field is required.';
+ }
+
+ if (control.errors['min']) {
+ return this.currentLang === 'ar' ? 'القيمة لازم تكون أكبر من صفر.' : 'Value must be greater than zero.';
+ }
+
+ if (control.errors['maxlength']) {
+ return this.currentLang === 'ar' ? 'النص أطول من المسموح.' : 'Text is longer than allowed.';
+ }
+
+ return this.currentLang === 'ar' ? 'قيمة غير صالحة.' : 'Invalid value.';
+ }
+
  private resetForm(): void {
+ this.formValidationMessage = '';
  this.form.reset({
  code: '',
  title: '',
@@ -200,4 +261,15 @@ export class CouponOfferModalComponent {
  date.setDate(date.getDate() + 14);
  return date.toISOString().slice(0, 10);
  }
+}
+
+function optionalMin(minValue: number): ValidatorFn {
+ return (control) => {
+ const value = control.value;
+ if (value === null || value === undefined || value === '') {
+ return null;
+ }
+
+ return Validators.min(minValue)(control);
+ };
 }
