@@ -55,7 +55,7 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
     headers['Authorization'] = `Bearer ${accessToken}`;
   }
 
-  if (isStateChanging && !isVendorAuthCsrf && !skipAuth) {
+  if (isStateChanging && !isVendorAuthCsrf) {
     const csrf = authService.getCsrfToken();
     if (csrf) {
       headers['X-XSRF-TOKEN'] = csrf;

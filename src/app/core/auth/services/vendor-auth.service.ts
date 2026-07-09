@@ -66,12 +66,12 @@ export class VendorAuthService {
     }
 
     if (this.isTokenExpired(token)) {
-      this.forceLogoutForExpiredSession();
+      this.handleInvalidSessionSnapshot();
       return false;
     }
 
     if (this.isIdleTimedOut()) {
-      this.forceLogoutForExpiredSession();
+      this.handleInvalidSessionSnapshot();
       return false;
     }
 
@@ -131,7 +131,7 @@ export class VendorAuthService {
     }
 
     if (this.accessToken && this.isIdleTimedOut()) {
-      this.forceLogoutForExpiredSession();
+      this.handleInvalidSessionSnapshot();
       return Promise.resolve();
     }
 
@@ -183,15 +183,9 @@ export class VendorAuthService {
         { headers: this.createSkipAuthHeaders(), withCredentials: true }
       ))
     ).pipe(
-      tap((response) => this.persistSession(response)),
+      tap((response) => this.persistRegistrationResponse(response)),
       tap(() => this.clearRegistrationDraft()),
-      map((response) => {
-        if (!response.user) {
-          throw new Error('Vendor user snapshot is missing from register response.');
-        }
-
-        return response;
-      })
+      map((response) => response)
     );
   }
 
@@ -426,6 +420,15 @@ export class VendorAuthService {
     this.startIdleWatchdog();
   }
 
+  private persistRegistrationResponse(response: VendorAuthResponse): void {
+    if (this.hasUsableAccessToken(response)) {
+      this.persistSession(response);
+      return;
+    }
+
+    this.clearUnauthenticatedPublicFlowSession();
+  }
+
   private persistUser(user: VendorCurrentUser): void {
     localStorage.setItem(this.userKey, JSON.stringify(user));
 
@@ -477,8 +480,19 @@ export class VendorAuthService {
     this.currentUserSubject.next(null);
   }
 
+  private clearUnauthenticatedPublicFlowSession(): void {
+    this.clearPersistedSession();
+    this.clearLoginRequired();
+    this.sessionExpiryRedirectPending = false;
+  }
+
   private resolveAccessToken(response: VendorAuthResponse): string {
     return response.tokens?.accessToken || response.accessToken || '';
+  }
+
+  private hasUsableAccessToken(response: VendorAuthResponse): boolean {
+    const token = this.resolveAccessToken(response);
+    return !!token && !this.isTokenExpired(token);
   }
 
   private getLegacyRefreshToken(): string | null {
@@ -495,7 +509,7 @@ export class VendorAuthService {
   }
 
   private redirectToLoginForExpiredSession(): void {
-    if (this.router.url.startsWith('/submission-success')) {
+    if (this.isPublicAuthRoute(this.router.url)) {
       return;
     }
 
@@ -518,6 +532,26 @@ export class VendorAuthService {
         this.sessionExpiryRedirectPending = false;
       });
     });
+  }
+
+  private handleInvalidSessionSnapshot(): void {
+    if (this.isPublicAuthRoute(this.router.url)) {
+      this.clearUnauthenticatedPublicFlowSession();
+      return;
+    }
+
+    this.forceLogoutForExpiredSession();
+  }
+
+  private isPublicAuthRoute(url: string): boolean {
+    const path = (url || '').split('?')[0].split('#')[0];
+    return path === '/login'
+      || path === '/register'
+      || path === '/onboarding'
+      || path === '/verify-email'
+      || path === '/forgot-password'
+      || path === '/reset-password'
+      || path === '/submission-success';
   }
 
   private isTokenExpired(token: string): boolean {
@@ -578,7 +612,7 @@ export class VendorAuthService {
         }
 
         if (this.isTokenExpired(token) || this.isIdleTimedOut()) {
-          this.ngZone.run(() => this.forceLogoutForExpiredSession());
+          this.ngZone.run(() => this.handleInvalidSessionSnapshot());
           return;
         }
 
