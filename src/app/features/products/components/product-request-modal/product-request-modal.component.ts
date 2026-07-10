@@ -324,16 +324,9 @@ type CategoryRequestKind = 'category' | 'sub_category';
 
  @if (categoryDraftForm.get('isNew')?.value) {
  <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
- <select formControlName="requestKind" (change)="onRequestKindChanged()" class="h-11 w-full appearance-none rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none md:col-span-2">
- @for (requestKind of categoryRequestKindOptions; track requestKind) {
- <option [value]="requestKind">{{ getRequestKindTranslateKey(requestKind) | translate }}</option>
- }
- </select>
-
  <input type="text" formControlName="nameAr" class="h-11 w-full rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NEW_CATEGORY_AR' | translate">
  <input type="text" formControlName="nameEn" class="h-11 w-full rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NEW_CATEGORY_EN' | translate" dir="ltr">
 
- @if (requiresActivitySelection) {
  <app-searchable-select
  formControlName="activityId"
  [options]="activityDropdownOptions"
@@ -342,9 +335,7 @@ type CategoryRequestKind = 'category' | 'sub_category';
  [noResultsText]="'COMMON.NO_RESULTS'"
  (selectionChange)="categoryDraftForm; onActivityChanged()">
  </app-searchable-select>
- }
 
- @if (requiresSubActivitySelection) {
  <app-searchable-select
  formControlName="subActivityId"
  [disabled]="!categoryDraftForm.get('activityId')?.value"
@@ -354,9 +345,7 @@ type CategoryRequestKind = 'category' | 'sub_category';
  [noResultsText]="'COMMON.NO_RESULTS'"
  (selectionChange)="categoryDraftForm; onSubActivityChanged()">
  </app-searchable-select>
- }
 
- @if (requiresCategorySelection) {
  <app-searchable-select
  formControlName="categoryParentId"
  [options]="categoryParentDropdownOptions"
@@ -365,7 +354,6 @@ type CategoryRequestKind = 'category' | 'sub_category';
  [noResultsText]="'COMMON.NO_RESULTS'"
  (selectionChange)="categoryDraftForm">
  </app-searchable-select>
- }
 
  <input type="number" min="1" formControlName="displayOrder" class="h-11 w-full rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.DISPLAY_ORDER' | translate">
  </div>
@@ -487,7 +475,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  categoryId: [''],
  nameAr: [''],
  nameEn: [''],
- requestKind: ['category'],
+ requestKind: ['sub_category'],
  activityId: [''],
  subActivityId: [''],
  categoryParentId: [''],
@@ -542,7 +530,19 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  get categoryParentOptions(): Category[] {
- return this.flatCategories.filter(category => (category.level ?? 0) === 2);
+ const allLevelTwo = this.flatCategories.filter(category => (category.level ?? 0) === 2);
+ const subActivityId = this.categoryDraftForm.get('subActivityId')?.value as string | null;
+ const activityId = this.categoryDraftForm.get('activityId')?.value as string | null;
+
+ if (subActivityId) {
+ return allLevelTwo.filter(category => this.isCategoryUnderAncestor(category, subActivityId));
+ }
+
+ if (activityId) {
+ return allLevelTwo.filter(category => this.isCategoryUnderAncestor(category, activityId));
+ }
+
+ return allLevelTwo;
  }
 
  get categoryParentDropdownOptions(): SearchableSelectOption[] {
@@ -550,29 +550,18 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  get filteredBrandOptions(): BrandOption[] {
- const selectedCategoryId = this.requestForm.get('categoryId')?.value as string | null;
- return!selectedCategoryId
- ? this.brands
- : this.brands.filter(brand =>!brand.categoryId || brand.categoryId === selectedCategoryId);
+ return this.brands;
+ }
+
+ get filteredExistingCategoryOptions(): Category[] {
+ return this.flatCategories.filter(category => this.isProductAssignableCategory(category));
  }
 
  get brandDropdownOptions(): SearchableSelectOption[] {
  return this.filteredBrandOptions.map(brand => ({
  value: brand.id,
- label: this.currentLang === 'ar' ? brand.nameAr : brand.nameEn
+ label: this.getBrandOptionLabel(brand)
  }));
- }
-
- get filteredExistingCategoryOptions(): Category[] {
- const selectedBrandId = this.requestForm.get('brandId')?.value as string | null;
- const selectedBrand = selectedBrandId
- ? this.brands.find(brand => brand.id === selectedBrandId) || null
- : null;
- const levelThreeCategories = this.flatCategories.filter(category => this.isBrandAssignableCategory(category));
-
- return!selectedBrand?.categoryId
- ? levelThreeCategories
- : levelThreeCategories.filter(category => category.id === selectedBrand.categoryId);
  }
 
  get existingCategoryDropdownOptions(): SearchableSelectOption[] {
@@ -580,7 +569,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  get brandRequestCategoryOptions(): Category[] {
- return this.flatCategories.filter(category => this.isBrandAssignableCategory(category));
+ return this.flatCategories.filter(category => this.isNestedCategory(category));
  }
 
  get brandRequestCategoryDropdownOptions(): SearchableSelectOption[] {
@@ -621,19 +610,19 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  get requiresActivitySelection(): boolean {
- return this.selectedRequestKind === 'category';
+ return false;
  }
 
  get requiresSubActivitySelection(): boolean {
- return this.selectedRequestKind === 'category';
+ return false;
  }
 
  get requiresCategorySelection(): boolean {
- return this.selectedRequestKind === 'sub_category';
+ return !!this.categoryDraftForm.get('isNew')?.value;
  }
 
  get selectedRequestKind(): CategoryRequestKind {
- return (this.categoryDraftForm.get('requestKind')?.value || 'category') as CategoryRequestKind;
+ return 'sub_category';
  }
 
  loadData(): void {
@@ -673,7 +662,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  this.categoryDraftForm.patchValue({
  isNew: next,
  categoryId: '',
- requestKind: 'category',
+ requestKind: 'sub_category',
  activityId: '',
  subActivityId: '',
  categoryParentId: '',
@@ -683,6 +672,10 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  this.removeCategoryImage();
  this.applyCategoryDraftValidators(next);
  this.syncCategorySelectionValidator(next);
+ if (next) {
+ this.categoryDraftForm.patchValue({ requestKind: 'sub_category' });
+ this.autoSelectSingleCategoryParent();
+ }
  }
 
  saveBrandDraft(): void {
@@ -756,7 +749,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  this.categoryDraftForm.patchValue({
  nameAr: '',
  nameEn: '',
- requestKind: 'category',
+ requestKind: 'sub_category',
  activityId: '',
  subActivityId: '',
  categoryParentId: '',
@@ -765,7 +758,6 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  });
  this.removeCategoryImage();
  this.syncCategorySelectionValidator(false);
- this.syncBrandWithCategorySelection(categoryId);
  this.showCategorySelectionError = false;
  }
 
@@ -998,11 +990,14 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  onActivityChanged(): void {
- this.categoryDraftForm.patchValue({ subActivityId: '' });
+ this.categoryDraftForm.patchValue({ subActivityId: '', categoryParentId: '' });
+ this.autoSelectSingleCategoryParent();
  this.applyCategoryDraftValidators(true);
  }
 
  onSubActivityChanged(): void {
+ this.categoryDraftForm.patchValue({ categoryParentId: '' });
+ this.autoSelectSingleCategoryParent();
  this.applyCategoryDraftValidators(true);
  }
 
@@ -1028,7 +1023,8 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  return '';
  }
 
- return this.currentLang === 'ar' ? category.nameAr : category.nameEn;
+ const path = this.getCategoryPathLabel(category);
+ return path || (this.currentLang === 'ar' ? category.nameAr : category.nameEn);
  }
 
  getRequestKindTranslateKey(requestKind: CategoryRequestKind | string | null | undefined): string {
@@ -1146,9 +1142,9 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  en?.setValidators([Validators.required, Validators.minLength(2)]);
  requestKind?.setValidators([Validators.required]);
  order?.setValidators([Validators.required, Validators.min(1)]);
- activityId?.setValidators(this.requiresActivitySelection ? [Validators.required] : []);
- subActivityId?.setValidators([]);
- categoryParentId?.setValidators(this.requiresCategorySelection ? [Validators.required] : []);
+ activityId?.clearValidators();
+ subActivityId?.clearValidators();
+ categoryParentId?.setValidators([Validators.required]);
  } else {
  ar?.clearValidators();
  en?.clearValidators();
@@ -1184,21 +1180,48 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  private resolveRequestedParentCategoryId(): string | null {
- if (this.selectedRequestKind === 'sub_category') {
  return this.categoryDraftForm.get('categoryParentId')?.value || null;
  }
 
- return this.categoryDraftForm.get('subActivityId')?.value
- || this.categoryDraftForm.get('activityId')?.value
- || null;
- }
-
  private resolveRequestedTargetLevel(): CategoryLevelKey {
- return this.selectedRequestKind === 'sub_category' ? 'sub_category' : 'category';
+ return 'sub_category';
  }
 
- private isBrandAssignableCategory(category: Category): boolean {
- return (category.level ?? 0) === 2;
+ private isProductAssignableCategory(category: Category): boolean {
+ const level = category.level ?? 0;
+ return level === 2 || level === 3;
+ }
+
+ private isNestedCategory(category: Category): boolean {
+ return category.parentCategoryId != null && category.parentCategoryId !== '';
+ }
+
+ private isCategoryUnderAncestor(category: Category, ancestorId: string): boolean {
+ let current: Category | undefined = category;
+
+ while (current) {
+ if (current.id === ancestorId) {
+ return true;
+ }
+
+ const parentId = current.parentCategoryId;
+ current = parentId ? this.flatCategories.find(item => item.id === parentId) : undefined;
+ }
+
+ return false;
+ }
+
+ private autoSelectSingleCategoryParent(): void {
+ const options = this.categoryParentOptions;
+ if (options.length === 1) {
+ this.categoryDraftForm.patchValue({ categoryParentId: options[0].id });
+ }
+ }
+
+ private getBrandOptionLabel(brand: BrandOption): string {
+ const name = this.currentLang === 'ar' ? brand.nameAr : brand.nameEn;
+ const categoryName = this.currentLang === 'ar' ? brand.categoryNameAr : brand.categoryNameEn;
+ return categoryName ? `${name} · ${categoryName}` : name;
  }
 
  private toCategoryDropdownOptions(categories: Category[]): SearchableSelectOption[] {
@@ -1219,30 +1242,6 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  this.selectedBrandLabel = this.currentLang === 'ar' ? brand.nameAr : brand.nameEn;
-
- if (!brand.categoryId) {
- return;
- }
-
- const selectedCategoryId = this.requestForm.get('categoryId')?.value;
- if (!selectedCategoryId) {
- this.requestForm.patchValue({ categoryId: brand.categoryId }, { emitEvent: false });
- const category = this.flatCategories.find(item => item.id === brand.categoryId) || null;
- this.selectedCategoryLabel = this.getCategoryOptionLabel(category);
- this.selectedCategoryMeta = category?.displayOrder
- ? `${this.translate.instant('PRODUCTS.DISPLAY_ORDER')}: ${category.displayOrder}`
- : '';
- return;
- }
-
- if (selectedCategoryId!== brand.categoryId) {
- this.requestForm.patchValue({ categoryId: brand.categoryId }, { emitEvent: false });
- const category = this.flatCategories.find(item => item.id === brand.categoryId) || null;
- this.selectedCategoryLabel = this.getCategoryOptionLabel(category);
- this.selectedCategoryMeta = category?.displayOrder
- ? `${this.translate.instant('PRODUCTS.DISPLAY_ORDER')}: ${category.displayOrder}`
- : '';
- }
  }
 
  private syncBrandWithCategorySelection(categoryId: string | null): void {
@@ -1251,25 +1250,14 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  const category = this.flatCategories.find(item => item.id === categoryId) || null;
- if (category) {
+ if (!category) {
+ return;
+ }
+
  this.selectedCategoryLabel = this.getCategoryOptionLabel(category);
  this.selectedCategoryMeta = category.displayOrder
  ? `${this.translate.instant('PRODUCTS.DISPLAY_ORDER')}: ${category.displayOrder}`
  : '';
- }
-
- const selectedBrandId = this.requestForm.get('brandId')?.value;
- if (!selectedBrandId) {
- return;
- }
-
- const brand = this.brands.find(item => item.id === selectedBrandId);
- if (!brand?.categoryId || brand.categoryId === categoryId) {
- return;
- }
-
- this.requestForm.patchValue({ brandId: '' }, { emitEvent: false });
- this.selectedBrandLabel = '';
  }
 
  private flattenCategories(categories: Category[]): Category[] {
