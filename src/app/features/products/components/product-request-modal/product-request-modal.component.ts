@@ -1204,7 +1204,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  return true;
  }
 
- const parentId = current.parentCategoryId;
+ const parentId: string | null | undefined = current.parentCategoryId;
  current = parentId ? this.flatCategories.find(item => item.id === parentId) : undefined;
  }
 
