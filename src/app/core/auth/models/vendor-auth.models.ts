@@ -73,6 +73,7 @@ export interface RegisterVendorPayload {
   iban: string;
   swiftCode?: string | null;
   payoutCycle?: string | null;
+  payoutDay?: string | null;
   logoUrl?: string | null;
   commercialRegisterDocumentUrl?: string | null;
   taxDocumentUrl?: string | null;

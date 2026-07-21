@@ -479,6 +479,18 @@
  ></app-select>
  <p *ngIf="isRejectedField('step4.paymentCycle')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.paymentCycle') }}</p>
 
+ <app-select
+ formControlName="payoutDay"
+ [label]="'ONBOARDING.FIELDS.PAYOUT_DAY'"
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_PAYOUT_DAY'"
+ [customClass]="getReviewFieldClass('step4.payoutDay')"
+ [options]="payoutDays"
+ [isRequired]="true"
+ [error]="isInvalid('4', 'payoutDay') ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="onboardingForm.get('step4.payoutDay')?.touched || false"
+ ></app-select>
+ <p *ngIf="isRejectedField('step4.payoutDay')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.payoutDay') }}</p>
+
  <app-input 
  formControlName="iban" 
  [label]="'ONBOARDING.FIELDS.IBAN'" 

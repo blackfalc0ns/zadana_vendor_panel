@@ -39,6 +39,7 @@ interface VendorWorkspaceApi {
   idNumber?: string | null;
   nationality?: string | null;
   payoutCycle?: string | null;
+  payoutDay?: string | null;
   status: string;
   accountStatus: string;
   rejectionReason?: string | null;
@@ -422,7 +423,8 @@ export class VendorProfileService {
       accountHolderName: profile.ownerName,
       iban: profile.iban,
       swiftCode: profile.swiftCode || null,
-      payoutCycle: profile.payoutCycle
+      payoutCycle: profile.payoutCycle,
+      payoutDay: profile.payoutDay
     }).pipe(map((response) => this.unwrap(response)));
   }
 
@@ -602,6 +604,7 @@ export class VendorProfileService {
       iban: workspace.primaryBankAccount?.iban || '',
       swiftCode: workspace.primaryBankAccount?.swiftCode || '',
       payoutCycle: workspace.payoutCycle || '',
+      payoutDay: workspace.payoutDay || 'MONDAY',
       hasLogo: !!workspace.logoUrl,
       logoUrl: workspace.logoUrl || null,
       hasCRDoc: !!workspace.commercialRegisterDocumentUrl,
@@ -753,6 +756,7 @@ export class VendorProfileService {
       iban: '',
       swiftCode: '',
       payoutCycle: '',
+      payoutDay: 'MONDAY',
       hasLogo: false,
       logoUrl: null,
       hasCRDoc: false,

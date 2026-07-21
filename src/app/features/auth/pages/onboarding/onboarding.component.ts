@@ -11,6 +11,7 @@ import {
  BANKS,
  BUSINESS_TYPES,
  NATIONALITIES,
+ PAYOUT_DAYS,
  PAYMENT_CYCLES,
  SelectOption,
  RegionOption,
@@ -147,8 +148,9 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  banking: {
  bankName: '',
  iban: '',
- swiftCode: '',
- paymentCycle: ''
+  swiftCode: '',
+  paymentCycle: '',
+  payoutDay: 'MONDAY'
  },
  meta: {
  reviewStatusAr: '',
@@ -187,6 +189,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  nationalities: SelectOption[] = NATIONALITIES;
  banks: SelectOption[] = BANKS;
  paymentCycles: SelectOption[] = PAYMENT_CYCLES;
+ payoutDays: SelectOption[] = PAYOUT_DAYS;
 
  constructor(
  private fb: FormBuilder,
@@ -667,6 +670,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  iban: step4.iban,
  swiftCode: step4.swiftCode,
  payoutCycle: step4.paymentCycle,
+ payoutDay: step4.payoutDay,
  logoUrl,
  commercialRegisterDocumentUrl,
  taxDocumentUrl,
@@ -1102,7 +1106,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  bankName: ['', Validators.required],
  iban: ['', [Validators.required, Validators.pattern(/^SA[a-zA-Z0-9]{22}$/)]],
  swiftCode: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(11)]],
- paymentCycle: ['', Validators.required]
+ paymentCycle: ['', Validators.required],
+ payoutDay: ['MONDAY', Validators.required]
  }),
  step5: this.fb.group({
  hasLogo: [false],
@@ -1184,7 +1189,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  bankName: profile.bankName,
  iban: profile.iban,
  swiftCode: profile.swiftCode,
- paymentCycle: profile.payoutCycle
+ paymentCycle: profile.payoutCycle,
+ payoutDay: profile.payoutDay || 'MONDAY'
  },
  step5: {
  hasLogo: profile.hasLogo,
@@ -1230,7 +1236,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  bankName: this.vendorSeed.banking.bankName,
  iban: this.vendorSeed.banking.iban,
  swiftCode: this.vendorSeed.banking.swiftCode,
- paymentCycle: this.vendorSeed.banking.paymentCycle
+ paymentCycle: this.vendorSeed.banking.paymentCycle,
+ payoutDay: this.vendorSeed.banking.payoutDay || 'MONDAY'
  }
  });
 
@@ -1264,7 +1271,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  bankName: '',
  iban: '',
  swiftCode: '',
- paymentCycle: ''
+ paymentCycle: '',
+ payoutDay: 'MONDAY'
  },
  step5: {
  hasLogo: false,
@@ -1357,6 +1365,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  iban: step4.iban,
  swiftCode: step4.swiftCode,
  payoutCycle: step4.paymentCycle,
+ payoutDay: step4.payoutDay,
  logoUrl: logoUrl || profile.logoUrl || null,
  hasLogo:!!(logoUrl || profile.logoUrl),
  commercialRegisterDocumentUrl: commercialRegisterDocumentUrl || profile.commercialRegisterDocumentUrl || null,
@@ -1404,7 +1413,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  profile.bankName!== nextProfile.bankName ||
  profile.iban!== nextProfile.iban ||
  profile.swiftCode!== nextProfile.swiftCode ||
- profile.payoutCycle!== nextProfile.payoutCycle;
+ profile.payoutCycle!== nextProfile.payoutCycle ||
+ profile.payoutDay!== nextProfile.payoutDay;
 
  return {
  nextProfile,

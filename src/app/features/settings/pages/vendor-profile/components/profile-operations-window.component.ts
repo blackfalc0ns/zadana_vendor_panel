@@ -54,6 +54,20 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
 
  <label class="block">
  <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
+ {{ 'ONBOARDING.FIELDS.PAYOUT_DAY' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+ </span>
+ <app-searchable-select
+ formControlName="payoutDay"
+ [options]="payoutDayOptions"
+ [placeholder]="'ONBOARDING.PLACEHOLDERS.SELECT_PAYOUT_DAY'"
+ [error]="form.get('payoutDay')?.invalid && (form.get('payoutDay')?.touched || form.get('payoutDay')?.dirty) ? 'REGISTER.ERR_GENERAL' : ''"
+ [isTouched]="form.get('payoutDay')?.touched || form.get('payoutDay')?.dirty || false"
+ [isRequired]="true"
+ ></app-searchable-select>
+ </label>
+
+ <label class="block">
+ <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
  {{ 'ONBOARDING.FIELDS.IBAN' | translate }} <span class="text-rose-500 font-extrabold">*</span>
  </span>
  <input formControlName="iban" type="text" dir="ltr" [class]="fieldClass('iban', 'ltr')">
@@ -367,6 +381,7 @@ export class ProfileOperationsWindowComponent {
  @Input({ required: true }) form!: FormGroup;
  @Input() bankOptions: SearchableSelectOption[] = [];
  @Input() paymentCycleOptions: SearchableSelectOption[] = [];
+ @Input() payoutDayOptions: SearchableSelectOption[] = [];
  @Input() notificationSoundOptions: SearchableSelectOption[] = [];
  @Input() openDaysCount = 0;
  @Input() isSavingBanking = false;

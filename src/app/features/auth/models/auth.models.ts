@@ -34,6 +34,7 @@ export interface OnboardingSeedData {
     iban: string;
     swiftCode: string;
     paymentCycle: string;
+    payoutDay: string;
   };
   meta: {
     reviewStatusAr: string;

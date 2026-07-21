@@ -5,7 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { finalize, forkJoin, Subscription } from 'rxjs';
-import { BANKS, BUSINESS_TYPES, NATIONALITIES, PAYMENT_CYCLES, SelectOption, CityOption } from '../../../auth/constants/vendor-onboarding.constants';
+import { BANKS, BUSINESS_TYPES, NATIONALITIES, PAYOUT_DAYS, PAYMENT_CYCLES, SelectOption, CityOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
 import { VENDOR_NOTIFICATION_SOUND_OPTIONS } from '../../../../core/notifications/services/vendor-notification-sound.service';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
@@ -208,6 +208,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  [currentLang]="currentLang"
  [bankOptions]="bankOptions"
  [paymentCycleOptions]="paymentCycleOptions"
+ [payoutDayOptions]="payoutDayOptions"
  [notificationSoundOptions]="notificationSoundOptions"
  [openDaysCount]="openDaysCount"
  [isSavingBanking]="isSavingBanking"
@@ -316,11 +317,12 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  readonly fieldReviewBadgeClassesFn = (field: string) => this.fieldReviewBadgeClasses(field);
  readonly formatReviewDateFn = (value?: string | null) => this.formatReviewDate(value);
 
- buildFormOptions(options: any[]): SearchableSelectOption[] {
+ buildFormOptions(options: SelectOption[]): SearchableSelectOption[] {
  return options.map(opt => ({
  value: opt.value,
  labelKey: opt.labelKey,
- label: opt.label
+ label: opt.label,
+ disabled: opt.disabled
  }));
  }
 
@@ -347,8 +349,10 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  }
  get bankOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.banks); }
  get paymentCycleOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.paymentCycles); }
+ get payoutDayOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.payoutDays); }
  
  readonly businessTypes = BUSINESS_TYPES;
+ readonly payoutDays = PAYOUT_DAYS;
  regions: SelectOption[] = [];
  cities: CityOption[] = [];
  readonly nationalities = NATIONALITIES;
@@ -380,7 +384,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  {
  id: 'banking-section',
  labelKey: 'SETTINGS_PROFILE.SECTIONS.BANKING',
- fields: ['bankName', 'iban', 'swiftCode', 'payoutCycle']
+ fields: ['bankName', 'iban', 'swiftCode', 'payoutCycle', 'payoutDay']
  },
  {
  id: 'hours-section',
@@ -624,7 +628,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  'bankName',
  'iban',
  'swiftCode',
- 'payoutCycle'
+ 'payoutCycle',
+ 'payoutDay'
  ];
 
  const completed = controls.filter((key) => this.isFieldCompleted(key)).length;
@@ -1314,7 +1319,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  return;
  }
 
- const bankingControls = ['bankName', 'iban', 'swiftCode', 'payoutCycle'];
+ const bankingControls = ['bankName', 'iban', 'swiftCode', 'payoutCycle', 'payoutDay'];
  let invalid = false;
  bankingControls.forEach((controlName) => {
  const control = this.profileForm.get(controlName);
@@ -1341,7 +1346,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  bankName: formValue.bankName,
  iban: formValue.iban,
  swiftCode: formValue.swiftCode,
- payoutCycle: formValue.payoutCycle
+ payoutCycle: formValue.payoutCycle,
+ payoutDay: formValue.payoutDay
  };
 
  this.profileService.saveBankingSection(profile).pipe(finalize(() => {
@@ -1710,6 +1716,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  iban: ['', Validators.required],
  swiftCode: [''],
  payoutCycle: ['', Validators.required],
+ payoutDay: ['MONDAY', Validators.required],
  acceptOrders: [true],
  storeManualMode: ['online'],
  storeManualReason: [''],

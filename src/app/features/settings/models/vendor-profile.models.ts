@@ -70,6 +70,7 @@ export interface VendorProfile {
   iban: string;
   swiftCode: string;
   payoutCycle: string;
+  payoutDay: string;
   hasLogo: boolean;
   logoUrl?: string | null;
   hasCRDoc: boolean;

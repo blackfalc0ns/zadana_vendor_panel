@@ -7,6 +7,7 @@ export interface SelectOption {
   labelKey?: string;
   label?: string;
   value: any;
+  disabled?: boolean;
 }
 
 @Component({
@@ -38,7 +39,7 @@ export interface SelectOption {
           [class.ring-red-500]="isTouched && error"
         >
           <option value="" disabled selected>{{ placeholder | translate }}</option>
-          <option *ngFor="let option of options" [value]="option.value">
+          <option *ngFor="let option of options" [value]="option.value" [disabled]="option.disabled">
             {{ option.label || ((option.labelKey || '') | translate) }}
           </option>
         </select>

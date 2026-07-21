@@ -2,6 +2,7 @@
   value: string;
   labelKey?: string;
   label?: string;
+  disabled?: boolean;
   nameAr?: string;
   nameEn?: string;
 }
@@ -47,8 +48,17 @@ export const BANKS: SelectOption[] = [
 ];
 
 export const PAYMENT_CYCLES: SelectOption[] = [
-  { value: 'PER_ORDER_DIRECT_PAYOUT', labelKey: 'ONBOARDING.PAYMENT_CYCLES.PER_ORDER_DIRECT_PAYOUT' },
+  {
+    value: 'PER_ORDER_DIRECT_PAYOUT',
+    labelKey: 'ONBOARDING.PAYMENT_CYCLES.PER_ORDER_DIRECT_PAYOUT_COMING_SOON',
+    disabled: true
+  },
   { value: 'WEEKLY', labelKey: 'ONBOARDING.PAYMENT_CYCLES.WEEKLY' },
   { value: 'BIWEEKLY', labelKey: 'ONBOARDING.PAYMENT_CYCLES.BIWEEKLY' },
   { value: 'MONTHLY', labelKey: 'ONBOARDING.PAYMENT_CYCLES.MONTHLY' }
+];
+
+export const PAYOUT_DAYS: SelectOption[] = [
+  { value: 'MONDAY', labelKey: 'ONBOARDING.PAYOUT_DAYS.MONDAY' },
+  { value: 'THURSDAY', labelKey: 'ONBOARDING.PAYOUT_DAYS.THURSDAY' }
 ];
