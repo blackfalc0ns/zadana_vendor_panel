@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { filter, forkJoin, from, map, Observable, of, switchMap, tap, timeout } from 'rxjs';
+import { filter, finalize, forkJoin, from, map, Observable, of, switchMap, tap, timeout } from 'rxjs';
 import * as L from 'leaflet';
 
 import {
@@ -12,7 +12,9 @@ import {
  BUSINESS_TYPES,
  NATIONALITIES,
  PAYOUT_DAYS,
+ PAYOUT_DAY_VALUES,
  PAYMENT_CYCLES,
+ PayoutScheduleDay,
  SelectOption,
  RegionOption,
  CityOption
@@ -150,7 +152,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  iban: '',
   swiftCode: '',
   paymentCycle: '',
-  payoutDay: 'MONDAY'
+  payoutDay: PAYOUT_DAYS[0]?.value || 'SUNDAY'
  },
  meta: {
  reviewStatusAr: '',
@@ -165,6 +167,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  currentStep = 1;
  totalSteps = this.stepItems.length;
  isSubmitting = false;
+ isPayoutPreferenceLoading = false;
  submissionError = '';
  isEditMode = false;
  private currentProfile: VendorProfile | null = null;
@@ -189,7 +192,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  nationalities: SelectOption[] = NATIONALITIES;
  banks: SelectOption[] = BANKS;
  paymentCycles: SelectOption[] = PAYMENT_CYCLES;
- payoutDays: SelectOption[] = PAYOUT_DAYS;
+ payoutDays: SelectOption[] = [...PAYOUT_DAYS];
 
  constructor(
  private fb: FormBuilder,
@@ -209,6 +212,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  ngOnInit(): void {
  this.isEditMode = this.route.snapshot.queryParamMap.get('mode') === 'edit';
  this.initForm();
+ this.loadPayoutPreference();
  if (this.isEditMode) {
  this.relaxEditModeValidators();
  this.loadProfileForEdit();
@@ -245,6 +249,23 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.leafletMap.remove();
  this.leafletMap = null;
  }
+ }
+
+ private loadPayoutPreference(): void {
+ this.isPayoutPreferenceLoading = true;
+
+ this.profileService.getPayoutPreference().pipe(
+ finalize(() => {
+ this.isPayoutPreferenceLoading = false;
+ this.cdr.markForCheck();
+ })
+ ).subscribe({
+ next: (preference) => this.applyPayoutDayOptions(preference.availablePayoutDays, preference.payoutDay),
+ error: () => {
+ const fallback = this.profileService.getPayoutPreferenceSnapshot();
+ this.applyPayoutDayOptions(fallback.availablePayoutDays, fallback.payoutDay);
+ }
+ });
  }
 
  get isRTL(): boolean {
@@ -609,6 +630,11 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.stepItems.forEach((step) => this.getStepGroup(step.id).markAllAsTouched());
  this.submissionError = '';
 
+ if (this.isPayoutPreferenceLoading) {
+ this.submissionError = this.translate.instant('ONBOARDING.ERRORS.PAYOUT_DAY_OPTIONS_LOADING');
+ return;
+ }
+
  if (this.onboardingForm.invalid) {
  this.currentStep = this.stepItems.find((step) => this.getStepGroup(step.id).invalid)?.id ?? 1;
  return;
@@ -670,7 +696,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  iban: step4.iban,
  swiftCode: step4.swiftCode,
  payoutCycle: step4.paymentCycle,
- payoutDay: step4.payoutDay,
+ payoutDay: this.toApiPayoutDay(step4.payoutDay),
  logoUrl,
  commercialRegisterDocumentUrl,
  taxDocumentUrl,
@@ -1075,6 +1101,55 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  : (nameEn || nameAr || '');
  }
 
+ private get defaultPayoutDay(): PayoutScheduleDay {
+ return (this.payoutDays[0]?.value as PayoutScheduleDay | undefined) ?? PAYOUT_DAY_VALUES[0] ?? 'MONDAY';
+ }
+
+ private applyPayoutDayOptions(availablePayoutDays: PayoutScheduleDay[], preferredPayoutDay?: string | null): void {
+ this.payoutDays = availablePayoutDays
+ .map((day) => PAYOUT_DAYS.find((option) => option.value === day))
+ .filter((option): option is SelectOption =>!!option);
+
+ if (this.payoutDays.length === 0) {
+ this.payoutDays = [...PAYOUT_DAYS];
+ }
+
+ const payoutDayControl = this.getStepGroup(4).get('payoutDay');
+ const current = this.normalizePayoutDay(payoutDayControl?.value);
+ const nextPayoutDay = payoutDayControl?.dirty && current && this.isAllowedPayoutDay(current)
+ ? current
+ : this.resolveAllowedPayoutDay(null, preferredPayoutDay);
+ payoutDayControl?.setValue(nextPayoutDay, { emitEvent: false });
+ }
+
+ private resolveAllowedPayoutDay(value?: string | null, preferredPayoutDay?: string | null): PayoutScheduleDay {
+ const selected = this.normalizePayoutDay(value);
+ if (selected && this.isAllowedPayoutDay(selected)) {
+ return selected;
+ }
+
+ const preferred = this.normalizePayoutDay(preferredPayoutDay);
+ if (preferred && this.isAllowedPayoutDay(preferred)) {
+ return preferred;
+ }
+
+ return this.defaultPayoutDay;
+ }
+
+ private isAllowedPayoutDay(day: PayoutScheduleDay): boolean {
+ return this.payoutDays.some((option) => option.value === day);
+ }
+
+ private normalizePayoutDay(value?: string | null): PayoutScheduleDay | null {
+ const normalized = value?.trim().toUpperCase() as PayoutScheduleDay | undefined;
+ return normalized && PAYOUT_DAY_VALUES.includes(normalized) ? normalized : null;
+ }
+
+ private toApiPayoutDay(value?: string | null): string {
+ const payoutDay = this.resolveAllowedPayoutDay(value);
+ return `${payoutDay.charAt(0)}${payoutDay.slice(1).toLowerCase()}`;
+ }
+
  private initForm(): void {
  this.onboardingForm = this.fb.group({
  step1: this.fb.group({
@@ -1107,7 +1182,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  iban: ['', [Validators.required, Validators.pattern(/^SA[a-zA-Z0-9]{22}$/)]],
  swiftCode: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(11)]],
  paymentCycle: ['', Validators.required],
- payoutDay: ['MONDAY', Validators.required]
+ payoutDay: [this.defaultPayoutDay, Validators.required]
  }),
  step5: this.fb.group({
  hasLogo: [false],
@@ -1190,7 +1265,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  iban: profile.iban,
  swiftCode: profile.swiftCode,
  paymentCycle: profile.payoutCycle,
- payoutDay: profile.payoutDay || 'MONDAY'
+ payoutDay: this.resolveAllowedPayoutDay(profile.payoutDay)
  },
  step5: {
  hasLogo: profile.hasLogo,
@@ -1237,7 +1312,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  iban: this.vendorSeed.banking.iban,
  swiftCode: this.vendorSeed.banking.swiftCode,
  paymentCycle: this.vendorSeed.banking.paymentCycle,
- payoutDay: this.vendorSeed.banking.payoutDay || 'MONDAY'
+ payoutDay: this.resolveAllowedPayoutDay(this.vendorSeed.banking.payoutDay)
  }
  });
 
@@ -1272,7 +1347,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  iban: '',
  swiftCode: '',
  paymentCycle: '',
- payoutDay: 'MONDAY'
+ payoutDay: this.defaultPayoutDay
  },
  step5: {
  hasLogo: false,
@@ -1365,7 +1440,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  iban: step4.iban,
  swiftCode: step4.swiftCode,
  payoutCycle: step4.paymentCycle,
- payoutDay: step4.payoutDay,
+ payoutDay: this.resolveAllowedPayoutDay(step4.payoutDay),
  logoUrl: logoUrl || profile.logoUrl || null,
  hasLogo:!!(logoUrl || profile.logoUrl),
  commercialRegisterDocumentUrl: commercialRegisterDocumentUrl || profile.commercialRegisterDocumentUrl || null,

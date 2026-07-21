@@ -4,9 +4,15 @@ import { BehaviorSubject, Observable, catchError, forkJoin, map, of, switchMap, 
 import { environment } from '../../../../environments/environment';
 import { VendorAuthService } from '../../../core/auth/services/vendor-auth.service';
 import { VendorNotificationSoundService, normalizeVendorNotificationSound } from '../../../core/notifications/services/vendor-notification-sound.service';
+import { PAYOUT_DAY_VALUES, PayoutScheduleDay } from '../../auth/constants/vendor-onboarding.constants';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem, VendorReviewSummary } from '../models/vendor-profile.models';
 
 export type VendorLegalDocumentType = 'commercial' | 'tax' | 'license';
+
+export interface VendorPayoutPreference {
+  payoutDay: PayoutScheduleDay;
+  availablePayoutDays: PayoutScheduleDay[];
+}
 
 interface ApiEnvelope<T> {
   data?: T;
@@ -132,6 +138,8 @@ interface VendorStoreAvailabilityStateApi {
 interface VendorPayoutPreferenceApi {
   payoutDay?: string | null;
   PayoutDay?: string | null;
+  availablePayoutDays?: string[] | null;
+  AvailablePayoutDays?: string[] | null;
 }
 
 @Injectable({
@@ -142,9 +150,11 @@ export class VendorProfileService {
   private readonly apiUrl = `${environment.apiUrl}/vendors/profile`;
   private readonly storeAvailabilityUrl = `${environment.apiUrl}/vendor/workspace-state/store-availability`;
   private readonly profileSubject = new BehaviorSubject<VendorProfile>(this.getDefaultProfile());
+  private readonly payoutPreferenceSubject = new BehaviorSubject<VendorPayoutPreference>(this.getDefaultPayoutPreference());
   private hasLoaded = false;
 
   readonly profile$ = this.profileSubject.asObservable();
+  readonly payoutPreference$ = this.payoutPreferenceSubject.asObservable();
 
   constructor(
     private readonly http: HttpClient,
@@ -165,6 +175,7 @@ export class VendorProfileService {
       this.clearCachedProfile();
       this.hasLoaded = false;
       this.profileSubject.next(this.getDefaultProfile());
+      this.payoutPreferenceSubject.next(this.getDefaultPayoutPreference());
     });
   }
 
@@ -174,6 +185,10 @@ export class VendorProfileService {
 
   getProfileSnapshot(): VendorProfile {
     return this.profileSubject.value;
+  }
+
+  getPayoutPreferenceSnapshot(): VendorPayoutPreference {
+    return this.payoutPreferenceSubject.value;
   }
 
   hasCachedProfileSnapshot(): boolean {
@@ -269,9 +284,22 @@ export class VendorProfileService {
     );
   }
 
+  getPayoutPreference(): Observable<VendorPayoutPreference> {
+    return this.http.get<ApiEnvelope<VendorPayoutPreferenceApi> | VendorPayoutPreferenceApi>(`${this.apiUrl}/payout-preference`).pipe(
+      map((response) => this.unwrap(response)),
+      map((preference) => this.mapPayoutPreference(preference)),
+      tap((preference) => this.payoutPreferenceSubject.next(preference))
+    );
+  }
+
   saveBankingSection(profile: VendorProfile, persistPayoutDay = false): Observable<VendorProfile> {
     return this.updateBanking(profile, false).pipe(
-      switchMap(() => persistPayoutDay ? this.updatePayoutPreference(profile.payoutDay) : of(null)),
+      switchMap(() => persistPayoutDay
+        ? this.updatePayoutPreference(profile.payoutDay).pipe(
+          map((preference) => this.mapPayoutPreference(preference, profile.payoutDay)),
+          tap((preference) => this.payoutPreferenceSubject.next(preference))
+        )
+        : of(null)),
       switchMap(() => this.fetchProfile()),
       tap((next) => this.persistProfile(next))
     );
@@ -281,10 +309,11 @@ export class VendorProfileService {
     const normalizedPayoutDay = this.normalizePayoutDay(payoutDay);
 
     return this.updatePayoutPreference(normalizedPayoutDay).pipe(
-      map((preference) => this.normalizePayoutDay(preference.payoutDay ?? preference.PayoutDay ?? normalizedPayoutDay)),
-      map((nextPayoutDay) => ({
+      map((preference) => this.mapPayoutPreference(preference, normalizedPayoutDay)),
+      tap((preference) => this.payoutPreferenceSubject.next(preference)),
+      map((preference) => ({
         ...this.profileSubject.value,
-        payoutDay: nextPayoutDay
+        payoutDay: preference.payoutDay
       })),
       tap((profile) => this.persistProfile(profile))
     );
@@ -753,12 +782,71 @@ export class VendorProfileService {
     return typeof value === 'string' && value.trim() ? value.trim() : null;
   }
 
-  private normalizePayoutDay(value: string | null | undefined): 'MONDAY' | 'THURSDAY' {
-    return value?.trim().toUpperCase() === 'THURSDAY' ? 'THURSDAY' : 'MONDAY';
+  private mapPayoutPreference(
+    source: VendorPayoutPreferenceApi,
+    fallbackPayoutDay?: string | null
+  ): VendorPayoutPreference {
+    const fallback = this.normalizePayoutDay(fallbackPayoutDay ?? this.payoutPreferenceSubject.value.payoutDay);
+    const availablePayoutDays = this.normalizeAvailablePayoutDays(
+      source.availablePayoutDays ?? source.AvailablePayoutDays
+    );
+    const returnedPayoutDay = this.normalizePayoutDay(
+      source.payoutDay ?? source.PayoutDay,
+      fallback
+    );
+
+    return {
+      payoutDay: availablePayoutDays.includes(returnedPayoutDay)
+        ? returnedPayoutDay
+        : availablePayoutDays[0],
+      availablePayoutDays
+    };
   }
 
-  private toApiPayoutDay(value: string | null | undefined): 'Monday' | 'Thursday' {
-    return this.normalizePayoutDay(value) === 'THURSDAY' ? 'Thursday' : 'Monday';
+  private normalizeAvailablePayoutDays(values?: string[] | null): PayoutScheduleDay[] {
+    if (!Array.isArray(values)) {
+      return [...this.payoutPreferenceSubject.value.availablePayoutDays];
+    }
+
+    const normalizedDays: PayoutScheduleDay[] = [];
+    const seen = new Set<PayoutScheduleDay>();
+    values.forEach((value) => {
+      const day = this.tryNormalizePayoutDay(value);
+      if (day && !seen.has(day)) {
+        seen.add(day);
+        normalizedDays.push(day);
+      }
+    });
+
+    return normalizedDays.length > 0
+      ? normalizedDays
+      : [...this.payoutPreferenceSubject.value.availablePayoutDays];
+  }
+
+  private tryNormalizePayoutDay(value: string | null | undefined): PayoutScheduleDay | null {
+    const normalized = value?.trim().toUpperCase() as PayoutScheduleDay | undefined;
+    return normalized && PAYOUT_DAY_VALUES.includes(normalized) ? normalized : null;
+  }
+
+  private normalizePayoutDay(
+    value: string | null | undefined,
+    fallback: PayoutScheduleDay = 'MONDAY'
+  ): PayoutScheduleDay {
+    return this.tryNormalizePayoutDay(value) ?? fallback;
+  }
+
+  private toApiPayoutDay(value: string | null | undefined): string {
+    const normalized = this.normalizePayoutDay(value);
+    return `${normalized.charAt(0)}${normalized.slice(1).toLowerCase()}`;
+  }
+
+  private getDefaultPayoutPreference(): VendorPayoutPreference {
+    return {
+      payoutDay: 'MONDAY',
+      // Kept as a compatibility fallback until the API sends the complete
+      // availablePayoutDays contract. The API response drives the real list.
+      availablePayoutDays: ['MONDAY', 'THURSDAY']
+    };
   }
 
   private getDefaultProfile(): VendorProfile {

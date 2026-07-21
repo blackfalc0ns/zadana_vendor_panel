@@ -799,6 +799,7 @@
  variant="primary" 
  size="md" 
  (btnClick)="onSubmit()" 
+ [disabled]="isSubmitting || isPayoutPreferenceLoading"
  [isLoading]="isSubmitting"
  customClass="!rounded-xl px-8 shadow-lg shadow-zadna-primary/20"
  >

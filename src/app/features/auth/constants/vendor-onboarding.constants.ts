@@ -58,7 +58,28 @@ export const PAYMENT_CYCLES: SelectOption[] = [
   { value: 'MONTHLY', labelKey: 'ONBOARDING.PAYMENT_CYCLES.MONTHLY' }
 ];
 
-export const PAYOUT_DAYS: SelectOption[] = [
-  { value: 'MONDAY', labelKey: 'ONBOARDING.PAYOUT_DAYS.MONDAY' },
-  { value: 'THURSDAY', labelKey: 'ONBOARDING.PAYOUT_DAYS.THURSDAY' }
+export type PayoutScheduleDay =
+  | 'SUNDAY'
+  | 'MONDAY'
+  | 'TUESDAY'
+  | 'WEDNESDAY'
+  | 'THURSDAY'
+  | 'FRIDAY'
+  | 'SATURDAY';
+
+export const PAYOUT_DAY_VALUES: readonly PayoutScheduleDay[] = [
+  'SUNDAY',
+  'MONDAY',
+  'TUESDAY',
+  'WEDNESDAY',
+  'THURSDAY',
+  'FRIDAY',
+  'SATURDAY'
 ];
+
+// The API determines which of these days a vendor can select. This is only
+// the localized catalog used to render the returned values.
+export const PAYOUT_DAYS: SelectOption[] = PAYOUT_DAY_VALUES.map((value) => ({
+  value,
+  labelKey: `ONBOARDING.PAYOUT_DAYS.${value}`
+}));

@@ -5,7 +5,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SearchableSelectOption } from '../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { finalize, forkJoin, Subscription } from 'rxjs';
-import { BANKS, BUSINESS_TYPES, NATIONALITIES, PAYOUT_DAYS, PAYMENT_CYCLES, SelectOption, CityOption } from '../../../auth/constants/vendor-onboarding.constants';
+import { BANKS, BUSINESS_TYPES, NATIONALITIES, PAYOUT_DAYS, PAYOUT_DAY_VALUES, PAYMENT_CYCLES, PayoutScheduleDay, SelectOption, CityOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
 import { VENDOR_NOTIFICATION_SOUND_OPTIONS } from '../../../../core/notifications/services/vendor-notification-sound.service';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
@@ -212,6 +212,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  [notificationSoundOptions]="notificationSoundOptions"
  [openDaysCount]="openDaysCount"
  [isSavingBanking]="isSavingBanking"
+ [isPayoutPreferenceLoading]="isPayoutPreferenceLoading"
  [isSavingHours]="isSavingHours"
  [isSavingOperationsSettings]="isSavingOperationsSettings"
  [isSavingNotifications]="isSavingNotifications"
@@ -284,6 +285,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  isSaving = false;
  isSavingStoreAvailability = false;
  isSavingBanking = false;
+ isPayoutPreferenceLoading = false;
  isSavingHours = false;
  isSavingOperationsSettings = false;
  isSavingNotifications = false;
@@ -298,6 +300,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  currentProfile: VendorProfile;
  private langSub: Subscription;
  private profileSub?: Subscription;
+ private payoutPreferenceSub?: Subscription;
  readonly fieldClassFn = (controlName: string, mode?: 'context' | 'ltr' | 'rtl') => this.fieldClass(controlName, mode);
  readonly textareaClassFn = (controlName: string, mode?: 'context' | 'ltr' | 'rtl') => this.textareaClass(controlName, mode);
  readonly timeFieldClassFn = (isOpen: boolean) => this.timeFieldClass(isOpen);
@@ -352,7 +355,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  get payoutDayOptions(): SearchableSelectOption[] { return this.buildFormOptions(this.payoutDays); }
  
  readonly businessTypes = BUSINESS_TYPES;
- readonly payoutDays = PAYOUT_DAYS;
+ readonly payoutDayCatalog = PAYOUT_DAYS;
+ payoutDays: SelectOption[] = [...PAYOUT_DAYS];
  regions: SelectOption[] = [];
  cities: CityOption[] = [];
  readonly nationalities = NATIONALITIES;
@@ -535,6 +539,12 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
  this.loadGeographyOptions();
 
+ this.payoutPreferenceSub = this.profileService.payoutPreference$.subscribe((preference) => {
+ this.applyPayoutPreference(preference);
+ this.cdr.markForCheck();
+ });
+ this.reloadPayoutPreference();
+
  this.profileSub = this.profileService.getProfile().subscribe((profile) => {
  this.cdr.markForCheck();
  this.currentProfile = profile;
@@ -577,9 +587,27 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  });
  }
 
+ private reloadPayoutPreference(): void {
+ this.isPayoutPreferenceLoading = true;
+
+ this.profileService.getPayoutPreference().pipe(
+ finalize(() => {
+ this.isPayoutPreferenceLoading = false;
+ this.cdr.markForCheck();
+ })
+ ).subscribe({
+ error: (error) => {
+ // Keep the last known compatibility options when an older API deployment
+ // does not yet expose availablePayoutDays.
+ console.warn('Failed to load vendor payout-day options.', error);
+ }
+ });
+ }
+
  ngOnDestroy(): void {
  this.langSub.unsubscribe();
  this.profileSub?.unsubscribe();
+ this.payoutPreferenceSub?.unsubscribe();
  }
 
  get operatingHours(): FormArray {
@@ -1319,7 +1347,22 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  return;
  }
 
+ if (this.isPayoutPreferenceLoading) {
+ this.pageNotice = '';
+ this.pageError = this.currentLang === 'ar'
+ ? 'نحمّل أيام التحويل المتاحة، جرّب الحفظ بعد لحظة.'
+ : 'Loading the available payout days. Please try saving again in a moment.';
+ return;
+ }
+
  const formValue = this.profileForm.getRawValue();
+ if (!this.isPayoutDayAllowed(formValue.payoutDay)) {
+ this.pageNotice = '';
+ this.pageError = this.currentLang === 'ar'
+ ? 'اختر يومًا من أيام التحويل المتاحة.'
+ : 'Please choose one of the available payout days.';
+ return;
+ }
  const payoutDayChanged = this.isPayoutDayChanged(formValue.payoutDay);
  const bankingDetailsChanged = this.hasBankingDetailsChanged(formValue);
 
@@ -1797,7 +1840,9 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  city: this.normalizeCity(profile.city),
  nationality: this.normalizeNationality(profile.nationality),
  payoutCycle: this.normalizeSelectValue(this.paymentCycles, profile.payoutCycle),
- payoutDay: this.normalizePayoutDay(profile.payoutDay),
+ payoutDay: this.isPayoutPreferenceLoading
+ ? this.normalizePayoutDay(profile.payoutDay)
+ : this.resolveAllowedPayoutDay(profile.payoutDay),
  operatingHours: []
  }, { emitEvent: false });
 
@@ -1816,6 +1861,26 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  });
  }
 
+ private applyPayoutPreference(preference: { payoutDay: PayoutScheduleDay; availablePayoutDays: PayoutScheduleDay[] }): void {
+ this.payoutDays = preference.availablePayoutDays
+ .map((day) => this.payoutDayCatalog.find((option) => option.value === day))
+ .filter((option): option is SelectOption =>!!option);
+
+ if (this.payoutDays.length === 0) {
+ this.payoutDays = [...this.payoutDayCatalog];
+ }
+
+ const payoutDayControl = this.profileForm.get('payoutDay');
+ if (!payoutDayControl) {
+ return;
+ }
+
+ const currentPayoutDay = this.normalizePayoutDay(payoutDayControl.value);
+ if (!this.isPayoutDayAllowed(currentPayoutDay)) {
+ payoutDayControl.setValue(this.resolveAllowedPayoutDay(preference.payoutDay), { emitEvent: false });
+ }
+ }
+
  private isPayoutDayChanged(value: string | null | undefined): boolean {
  return this.normalizePayoutDay(value) !== this.normalizePayoutDay(this.profileService.getProfileSnapshot().payoutDay);
  }
@@ -1829,8 +1894,28 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  || this.normalizeBankingValue(formValue.payoutCycle).toUpperCase() !== this.normalizeBankingValue(profile.payoutCycle).toUpperCase();
  }
 
- private normalizePayoutDay(value: string | null | undefined): 'MONDAY' | 'THURSDAY' {
- return value?.trim().toUpperCase() === 'THURSDAY' ? 'THURSDAY' : 'MONDAY';
+ private isPayoutDayAllowed(value: string | null | undefined): boolean {
+ const normalized = this.normalizePayoutDay(value);
+ return this.payoutDays.some((option) => option.value === normalized);
+ }
+
+ private resolveAllowedPayoutDay(value: string | null | undefined): PayoutScheduleDay {
+ const normalized = this.normalizePayoutDay(value);
+ if (this.isPayoutDayAllowed(normalized)) {
+ return normalized;
+ }
+
+ const preferred = this.normalizePayoutDay(this.profileService.getPayoutPreferenceSnapshot().payoutDay);
+ if (this.isPayoutDayAllowed(preferred)) {
+ return preferred;
+ }
+
+ return (this.payoutDays[0]?.value as PayoutScheduleDay | undefined) ?? normalized;
+ }
+
+ private normalizePayoutDay(value: string | null | undefined): PayoutScheduleDay {
+ const normalized = value?.trim().toUpperCase() as PayoutScheduleDay | undefined;
+ return normalized && PAYOUT_DAY_VALUES.includes(normalized) ? normalized : 'MONDAY';
  }
 
  private normalizeBankingValue(value: string | null | undefined): string {
