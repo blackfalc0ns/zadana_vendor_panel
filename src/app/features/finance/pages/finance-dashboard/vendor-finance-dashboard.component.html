@@ -330,7 +330,7 @@
           </div>
 
           <div *ngFor="let alert of snapshot.alerts || []" 
-               class="rounded-[16px] p-3 transition-all duration-300 border hover:-translate-y-0.5 hover:shadow-sm cursor-pointer"
+               class="rounded-[16px] p-3 transition-all duration-300 border hover:-translate-y-0.5 hover:shadow-sm"
                [ngClass]="alert.severity === 'critical' ? 'bg-rose-50/50 border-rose-100 hover:bg-rose-50' : 'bg-slate-50/50 border-slate-100 hover:bg-white'">
             <div class="flex items-start gap-2.5">
               <div class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full"
@@ -345,10 +345,21 @@
                 <p class="text-[0.65rem] font-bold text-slate-500 leading-relaxed mb-2">
                   {{ alert.bodyKey | translate }}
                 </p>
-                <button class="text-[0.6rem] font-black tracking-widest uppercase flex items-center gap-1 transition-all hover:gap-1.5" [ngClass]="alert.severity === 'critical' ? 'text-rose-600' : 'text-zadna-primary'">
+                <button
+                  *ngIf="alert.id === 'balance-hold'; else staticAlertAction"
+                  type="button"
+                  (click)="reviewOrders()"
+                  class="text-[0.6rem] font-black tracking-widest uppercase flex items-center gap-1 transition-all hover:gap-1.5"
+                  [ngClass]="alert.severity === 'critical' ? 'text-rose-600' : 'text-zadna-primary'">
                   {{ alert.actionLabelKey | translate }}
                   <svg class="h-2.5 w-2.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
                 </button>
+                <ng-template #staticAlertAction>
+                  <span class="text-[0.6rem] font-black tracking-widest uppercase flex items-center gap-1" [ngClass]="alert.severity === 'critical' ? 'text-rose-600' : 'text-zadna-primary'">
+                    {{ alert.actionLabelKey | translate }}
+                    <svg class="h-2.5 w-2.5 rtl:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                  </span>
+                </ng-template>
               </div>
             </div>
           </div>

@@ -1319,6 +1319,57 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  return;
  }
 
+ const formValue = this.profileForm.getRawValue();
+ const payoutDayChanged = this.isPayoutDayChanged(formValue.payoutDay);
+ const bankingDetailsChanged = this.hasBankingDetailsChanged(formValue);
+
+ if (!payoutDayChanged && !bankingDetailsChanged) {
+ this.pageError = '';
+ this.pageNotice = this.currentLang === 'ar'
+ ? 'لا توجد تغييرات جديدة لحفظها.'
+ : 'There are no new banking changes to save.';
+ return;
+ }
+
+ if (!bankingDetailsChanged) {
+ const payoutDayControl = this.profileForm.get('payoutDay');
+ if (payoutDayControl?.invalid) {
+ payoutDayControl.markAsTouched();
+ this.pageNotice = '';
+ this.pageError = this.currentLang === 'ar'
+ ? 'اختر يوم التحويل قبل الحفظ.'
+ : 'Please select a payout day before saving.';
+ return;
+ }
+
+ this.isSavingBanking = true;
+ this.pageNotice = '';
+ this.pageError = '';
+
+ this.profileService.savePayoutPreference(formValue.payoutDay).pipe(finalize(() => {
+ this.isSavingBanking = false;
+ this.cdr.markForCheck();
+ })).subscribe({
+ next: () => {
+ this.cdr.markForCheck();
+ this.pageNotice = this.currentLang === 'ar'
+ ? 'تم حفظ يوم التحويل بنجاح.'
+ : 'Payout day was saved successfully.';
+ },
+ error: (error) => {
+ this.cdr.markForCheck();
+ console.error('Failed to save payout day preference.', error);
+ this.pageError = this.resolveErrorMessage(
+ error,
+ this.currentLang === 'ar'
+ ? 'ما قدرنا نحفظ يوم التحويل الحين.'
+ : 'Unable to save the payout day right now.'
+ );
+ }
+ });
+ return;
+ }
+
  const bankingControls = ['bankName', 'iban', 'swiftCode', 'payoutCycle', 'payoutDay'];
  let invalid = false;
  bankingControls.forEach((controlName) => {
@@ -1341,24 +1392,27 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  this.pageNotice = '';
  this.pageError = '';
 
- const formValue = this.profileForm.getRawValue();
  const profile: VendorProfile = {...this.profileService.getProfileSnapshot(),
  bankName: formValue.bankName,
  iban: formValue.iban,
  swiftCode: formValue.swiftCode,
  payoutCycle: formValue.payoutCycle,
- payoutDay: formValue.payoutDay
+ payoutDay: this.normalizePayoutDay(formValue.payoutDay)
  };
 
- this.profileService.saveBankingSection(profile).pipe(finalize(() => {
+ this.profileService.saveBankingSection(profile, payoutDayChanged).pipe(finalize(() => {
  this.isSavingBanking = false;
  this.cdr.markForCheck();
  })).subscribe({
  next: () => {
  this.cdr.markForCheck();
  this.pageNotice = this.currentLang === 'ar'
- ? 'أرسلنا بيانات التحويل للمراجعة. راح نطبقها بعد موافقة الإدارة.'
- : 'Banking details were sent for review and will apply after admin approval.';
+ ? (payoutDayChanged
+ ? 'أرسلنا بيانات البنك للمراجعة وحفظنا يوم التحويل.'
+ : 'أرسلنا بيانات التحويل للمراجعة. راح نطبقها بعد موافقة الإدارة.')
+ : (payoutDayChanged
+ ? 'Banking details were sent for review and the payout day was saved.'
+ : 'Banking details were sent for review and will apply after admin approval.');
  },
  error: (error) => {
  this.cdr.markForCheck();
@@ -1742,6 +1796,8 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  region: this.normalizeRegion(profile.region),
  city: this.normalizeCity(profile.city),
  nationality: this.normalizeNationality(profile.nationality),
+ payoutCycle: this.normalizeSelectValue(this.paymentCycles, profile.payoutCycle),
+ payoutDay: this.normalizePayoutDay(profile.payoutDay),
  operatingHours: []
  }, { emitEvent: false });
 
@@ -1758,6 +1814,27 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  to: [item.to],
  isOpen: [item.isOpen]
  });
+ }
+
+ private isPayoutDayChanged(value: string | null | undefined): boolean {
+ return this.normalizePayoutDay(value) !== this.normalizePayoutDay(this.profileService.getProfileSnapshot().payoutDay);
+ }
+
+ private hasBankingDetailsChanged(formValue: Pick<VendorProfile, 'bankName' | 'iban' | 'swiftCode' | 'payoutCycle'>): boolean {
+ const profile = this.profileService.getProfileSnapshot();
+
+ return this.normalizeBankingValue(formValue.bankName) !== this.normalizeBankingValue(profile.bankName)
+ || this.normalizeBankingValue(formValue.iban) !== this.normalizeBankingValue(profile.iban)
+ || this.normalizeBankingValue(formValue.swiftCode) !== this.normalizeBankingValue(profile.swiftCode)
+ || this.normalizeBankingValue(formValue.payoutCycle).toUpperCase() !== this.normalizeBankingValue(profile.payoutCycle).toUpperCase();
+ }
+
+ private normalizePayoutDay(value: string | null | undefined): 'MONDAY' | 'THURSDAY' {
+ return value?.trim().toUpperCase() === 'THURSDAY' ? 'THURSDAY' : 'MONDAY';
+ }
+
+ private normalizeBankingValue(value: string | null | undefined): string {
+ return value?.trim() || '';
  }
 
  private isControlInvalid(controlName: string): boolean {

@@ -389,6 +389,10 @@ export class VendorFinanceDashboardComponent implements OnInit {
  void this.alertModalService.showAlert(successMsg, 'COMMON.SUCCESS', 'success');
  }
 
+ reviewOrders(): void {
+ void this.router.navigate(['/orders']);
+ }
+
  getPeriodLabel(period: VendorFinancePeriod): string {
  return this.translate.instant(`VENDOR_FINANCE.PERIODS.${period.toUpperCase()}`);
  }

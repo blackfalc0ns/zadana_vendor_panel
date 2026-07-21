@@ -129,6 +129,11 @@ interface VendorStoreAvailabilityStateApi {
   updatedAtUtc?: string | null;
 }
 
+interface VendorPayoutPreferenceApi {
+  payoutDay?: string | null;
+  PayoutDay?: string | null;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -264,10 +269,24 @@ export class VendorProfileService {
     );
   }
 
-  saveBankingSection(profile: VendorProfile): Observable<VendorProfile> {
-    return this.updateBanking(profile).pipe(
+  saveBankingSection(profile: VendorProfile, persistPayoutDay = false): Observable<VendorProfile> {
+    return this.updateBanking(profile, false).pipe(
+      switchMap(() => persistPayoutDay ? this.updatePayoutPreference(profile.payoutDay) : of(null)),
       switchMap(() => this.fetchProfile()),
       tap((next) => this.persistProfile(next))
+    );
+  }
+
+  savePayoutPreference(payoutDay: string | null | undefined): Observable<VendorProfile> {
+    const normalizedPayoutDay = this.normalizePayoutDay(payoutDay);
+
+    return this.updatePayoutPreference(normalizedPayoutDay).pipe(
+      map((preference) => this.normalizePayoutDay(preference.payoutDay ?? preference.PayoutDay ?? normalizedPayoutDay)),
+      map((nextPayoutDay) => ({
+        ...this.profileSubject.value,
+        payoutDay: nextPayoutDay
+      })),
+      tap((profile) => this.persistProfile(profile))
     );
   }
 
@@ -417,14 +436,20 @@ export class VendorProfileService {
     }).pipe(map((response) => this.unwrap(response)));
   }
 
-  private updateBanking(profile: VendorProfile): Observable<VendorWorkspaceApi> {
+  private updateBanking(profile: VendorProfile, includePayoutDay = true): Observable<VendorWorkspaceApi> {
     return this.http.put<ApiEnvelope<VendorWorkspaceApi>>(`${this.apiUrl}/banking`, {
       bankName: profile.bankName,
       accountHolderName: profile.ownerName,
       iban: profile.iban,
       swiftCode: profile.swiftCode || null,
       payoutCycle: profile.payoutCycle,
-      payoutDay: profile.payoutDay
+      ...(includePayoutDay ? { payoutDay: this.toApiPayoutDay(profile.payoutDay) } : {})
+    }).pipe(map((response) => this.unwrap(response)));
+  }
+
+  private updatePayoutPreference(payoutDay: string | null | undefined): Observable<VendorPayoutPreferenceApi> {
+    return this.http.put<ApiEnvelope<VendorPayoutPreferenceApi>>(`${this.apiUrl}/payout-preference`, {
+      payoutDay: this.toApiPayoutDay(payoutDay)
     }).pipe(map((response) => this.unwrap(response)));
   }
 
@@ -604,7 +629,7 @@ export class VendorProfileService {
       iban: workspace.primaryBankAccount?.iban || '',
       swiftCode: workspace.primaryBankAccount?.swiftCode || '',
       payoutCycle: workspace.payoutCycle || '',
-      payoutDay: workspace.payoutDay || 'MONDAY',
+      payoutDay: this.normalizePayoutDay(workspace.payoutDay),
       hasLogo: !!workspace.logoUrl,
       logoUrl: workspace.logoUrl || null,
       hasCRDoc: !!workspace.commercialRegisterDocumentUrl,
@@ -726,6 +751,14 @@ export class VendorProfileService {
   private normalizeStoreManualReason(storeAvailability?: VendorStoreAvailabilityStateApi | null): string | null {
     const value = storeAvailability?.manual_reason ?? storeAvailability?.manualReason ?? null;
     return typeof value === 'string' && value.trim() ? value.trim() : null;
+  }
+
+  private normalizePayoutDay(value: string | null | undefined): 'MONDAY' | 'THURSDAY' {
+    return value?.trim().toUpperCase() === 'THURSDAY' ? 'THURSDAY' : 'MONDAY';
+  }
+
+  private toApiPayoutDay(value: string | null | undefined): 'Monday' | 'Thursday' {
+    return this.normalizePayoutDay(value) === 'THURSDAY' ? 'Thursday' : 'Monday';
   }
 
   private getDefaultProfile(): VendorProfile {
