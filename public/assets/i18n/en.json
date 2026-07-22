@@ -2639,7 +2639,10 @@
       "BATCH_ID": "Batch ID",
       "PAID": "Paid",
       "PROCESSING": "Processing",
-      "SCHEDULED": "Scheduled"
+      "SCHEDULED": "Scheduled",
+      "TRANSFER_DETAILS": "Transfer details",
+      "DOWNLOAD_PROOF": "Download transfer proof",
+      "PROOF_DOWNLOAD_FAILED": "Could not download transfer proof. Please try again."
     },
     "LEDGER": {
       "TITLE": "Period Transactions",

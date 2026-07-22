@@ -442,6 +442,7 @@
                 <th class="px-4 py-3 text-start font-black">{{ 'VENDOR_FINANCE.SETTLEMENTS.BATCH_ID' | translate }}</th>
                 <th class="px-4 py-3 text-start font-black">{{ 'COMMON.STATUS' | translate }}</th>
                 <th class="px-4 py-3 text-start font-black">{{ 'COMMON.DATE' | translate }}</th>
+                <th class="px-4 py-3 text-start font-black">{{ 'VENDOR_FINANCE.SETTLEMENTS.TRANSFER_DETAILS' | translate }}</th>
                 <th class="px-4 py-3 text-end font-black">{{ 'COMMON.TOTAL' | translate }}</th>
               </tr>
             </thead>
@@ -454,6 +455,21 @@
                   </span>
                 </td>
                 <td class="px-4 py-3 text-[0.7rem] font-bold text-slate-500">{{ formatDate(settlement.date) }}</td>
+                <td class="px-4 py-3">
+                  <div *ngIf="settlement.status === 'paid' && (settlement.transferReference || settlement.hasTransferProof)" class="flex flex-col gap-1">
+                    <span *ngIf="settlement.transferReference" class="text-[0.65rem] font-bold text-slate-600 font-inter" dir="ltr">
+                      {{ settlement.transferReference }}
+                    </span>
+                    <button
+                      *ngIf="settlement.hasTransferProof"
+                      type="button"
+                      (click)="downloadTransferProof(settlement)"
+                      class="inline-flex w-fit items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2 py-1 text-[0.62rem] font-black uppercase tracking-widest text-emerald-700 transition hover:bg-emerald-100">
+                      {{ 'VENDOR_FINANCE.SETTLEMENTS.DOWNLOAD_PROOF' | translate }}
+                    </button>
+                  </div>
+                  <span *ngIf="settlement.status !== 'paid' || (!settlement.transferReference && !settlement.hasTransferProof)" class="text-[0.65rem] font-bold text-slate-300">—</span>
+                </td>
                 <td class="px-4 py-3 text-end text-[0.8rem] font-black text-slate-800 font-inter">{{ formatCurrency(settlement.amount) }}</td>
               </tr>
             </tbody>

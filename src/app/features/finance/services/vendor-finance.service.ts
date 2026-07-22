@@ -113,6 +113,12 @@ export class VendorFinanceService {
     return this.http.get<VendorFinanceLedgerPage>(`${this.baseUrl}/ledger`, { params });
   }
 
+  downloadTransferProof(settlementId: string) {
+    return this.http.get(`${this.baseUrl}/settlements/${settlementId}/transfer-proof`, {
+      responseType: 'blob'
+    });
+  }
+
   private normalizeSnapshot(response: FinanceSnapshotApiResponse | null | undefined): VendorFinanceSnapshot {
     const source = response ?? {};
 
@@ -125,7 +131,7 @@ export class VendorFinanceService {
       financialLifecycleModeStr: String(source.financialLifecycleModeStr ?? source.FinancialLifecycleModeStr ?? ''),
       kpis: source.kpis ?? source.Kpis ?? [],
       trend: source.trend ?? source.Trend ?? [],
-      settlements: source.settlements ?? source.Settlements ?? [],
+      settlements: (source.settlements ?? source.Settlements ?? []).map((settlement) => this.normalizeSettlement(settlement)),
       ledger: source.ledger ?? source.Ledger ?? [],
       alerts: source.alerts ?? source.Alerts ?? [],
       branchScope: this.normalizeBranchScope(source.branchScope ?? source.BranchScope),
@@ -158,5 +164,19 @@ export class VendorFinanceService {
       vendorNet: Number(section.vendorNet ?? section.VendorNet ?? 0),
       ordersCount: Number(section.ordersCount ?? section.OrdersCount ?? 0)
     }));
+  }
+
+  private normalizeSettlement(settlement: VendorFinanceSnapshot['settlements'][number] & Record<string, unknown>): VendorFinanceSnapshot['settlements'][number] {
+    return {
+      id: String(settlement.id ?? settlement['Id'] ?? ''),
+      code: String(settlement.code ?? settlement['Code'] ?? ''),
+      date: String(settlement.date ?? settlement['Date'] ?? ''),
+      status: (settlement.status ?? settlement['Status'] ?? 'scheduled') as VendorFinanceSnapshot['settlements'][number]['status'],
+      amount: Number(settlement.amount ?? settlement['Amount'] ?? 0),
+      ordersCount: Number(settlement.ordersCount ?? settlement['OrdersCount'] ?? 0),
+      transferReference: (settlement.transferReference ?? settlement['TransferReference'] ?? null) as string | null,
+      hasTransferProof: !!(settlement.hasTransferProof ?? settlement['HasTransferProof']),
+      transferProofFileName: (settlement.transferProofFileName ?? settlement['TransferProofFileName'] ?? null) as string | null
+    };
   }
 }

@@ -716,7 +716,10 @@
       "BATCH_ID": "رقم الدفعة",
       "PAID": "مدفوع",
       "PROCESSING": "تحت المعالجة",
-      "SCHEDULED": "مجدول"
+      "SCHEDULED": "مجدول",
+      "TRANSFER_DETAILS": "تفاصيل التحويل",
+      "DOWNLOAD_PROOF": "تحميل إثبات التحويل",
+      "PROOF_DOWNLOAD_FAILED": "تعذّر تحميل إثبات التحويل. حاول مرة أخرى."
     },
     "LEDGER": {
       "TITLE": "أحدث المعاملات",

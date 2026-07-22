@@ -22,6 +22,9 @@ export interface VendorSettlement {
   status: 'scheduled' | 'processing' | 'paid';
   amount: number;
   ordersCount: number;
+  transferReference?: string | null;
+  hasTransferProof?: boolean;
+  transferProofFileName?: string | null;
 }
 
 export interface VendorLedgerEntry {

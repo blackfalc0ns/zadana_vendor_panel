@@ -471,6 +471,31 @@ export class VendorFinanceDashboardComponent implements OnInit {
  return 'VENDOR_FINANCE.SETTLEMENTS.SCHEDULED';
  }
 
+ downloadTransferProof(settlement: VendorSettlement): void {
+ if (!settlement.hasTransferProof || settlement.status !== 'paid') {
+ return;
+ }
+
+ this.financeService.downloadTransferProof(settlement.id).pipe(
+ takeUntilDestroyed(this.destroyRef)
+ ).subscribe({
+ next: (blob) => {
+ const url = URL.createObjectURL(blob);
+ const anchor = document.createElement('a');
+ anchor.href = url;
+ anchor.download = settlement.transferProofFileName?.trim() || `transfer-proof-${settlement.code}.pdf`;
+ anchor.click();
+ URL.revokeObjectURL(url);
+ },
+ error: () => {
+ this.alertModalService.error(
+ this.translate.instant('VENDOR_FINANCE.SETTLEMENTS.PROOF_DOWNLOAD_FAILED')
+ );
+ this.cdr.markForCheck();
+ }
+ });
+ }
+
  getLedgerLabel(entry: VendorLedgerEntry): string {
  return `VENDOR_FINANCE.LEDGER.${entry.type.toUpperCase()}`;
  }

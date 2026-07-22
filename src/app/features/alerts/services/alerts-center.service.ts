@@ -377,12 +377,19 @@ export class AlertsCenterService {
 
  if (item.type?.toLowerCase() === 'vendor_settlement_paid') {
  const transferReference = this.extractTransferReference(item.dataObject, item.data);
- if (transferReference) {
+ const hasTransferProof = this.extractBoolean(item.dataObject, item.data, 'hasTransferProof');
+ if (transferReference || hasTransferProof) {
+ const proofHintAr = hasTransferProof ? ' يمكنك تحميل إثبات التحويل من صفحة المحفظة.' : '';
+ const proofHintEn = hasTransferProof ? ' You can download the transfer proof from the finance page.' : '';
  return {
  title: defaultContent.title,
  summary: {
- ar: `${defaultContent.summary.ar} المرجع: ${transferReference}`,
- en: `${defaultContent.summary.en} Reference: ${transferReference}`
+ ar: transferReference
+ ? `${defaultContent.summary.ar} المرجع: ${transferReference}.${proofHintAr}`
+ : `${defaultContent.summary.ar}${proofHintAr}`,
+ en: transferReference
+ ? `${defaultContent.summary.en} Reference: ${transferReference}.${proofHintEn}`
+ : `${defaultContent.summary.en}${proofHintEn}`
  }
  };
  }
@@ -1023,6 +1030,21 @@ export class AlertsCenterService {
  const parsed = this.tryParseData(data);
  const fromData = parsed?.['transferReference'];
  return typeof fromData === 'string' && fromData.trim() ? fromData.trim() : null;
+ }
+
+ private extractBoolean(
+ dataObject: Record<string, unknown> | null | undefined,
+ data: string | null | undefined,
+ key: string
+ ): boolean {
+ const fromObject = dataObject?.[key];
+ if (typeof fromObject === 'boolean') {
+ return fromObject;
+ }
+
+ const parsed = this.tryParseData(data);
+ const fromData = parsed?.[key];
+ return typeof fromData === 'boolean' ? fromData : false;
  }
 
  private extractGuid(value: unknown): string | null {
