@@ -209,7 +209,8 @@
       "ERR_ACTIVE_ORDERS": "You cannot delete the account while you still have open orders.",
       "ERR_OPEN_DISPUTE": "You cannot delete the account while an open dispute or report is still active.",
       "ERR_ACTIVE_SETTLEMENT": "You cannot delete the account while a settlement or transfer is in progress.",
-      "ERR_ACTIVE_HOLD": "You cannot delete the account while wallet holds are active."
+      "ERR_ACTIVE_HOLD": "You cannot delete the account while wallet holds are active.",
+      "ERR_WALLET_BALANCE": "You cannot delete the account while the wallet still has a balance. Withdraw or clear it first."
     },
     "REVIEW_ITEMS": {
       "COMMERCIAL": "Commercial registration",
