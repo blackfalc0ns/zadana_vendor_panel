@@ -63,7 +63,7 @@
             (mouseenter)="onLinkHoverStart(item.label, $event)"
             (mousemove)="onLinkHoverMove($event)"
             (mouseleave)="hideCursorTooltip()"
-            (click)="onNavClick()"
+            (click)="onSidebarNavigate(item, $event)"
           >
             <span class="vendor-sidebar__link-icon">
               <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5" stroke="currentColor" [innerHTML]="item.icon"></svg>

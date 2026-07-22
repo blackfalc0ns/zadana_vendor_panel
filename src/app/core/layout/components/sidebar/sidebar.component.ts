@@ -109,18 +109,52 @@ export class SidebarComponent implements OnInit, OnDestroy, OnChanges {
  return item.route;
  }
 
+ private static readonly exactLinkActiveOptions = {
+ paths: 'exact' as const,
+ queryParams: 'ignored' as const,
+ fragment: 'ignored' as const,
+ matrixParams: 'ignored' as const
+ };
+
+ private static readonly subsetLinkActiveOptions = {
+ paths: 'subset' as const,
+ queryParams: 'ignored' as const,
+ fragment: 'ignored' as const,
+ matrixParams: 'ignored' as const
+ };
+
  getLinkActiveOptions(item: SidebarItem): {
  paths: 'exact' | 'subset';
  queryParams: 'ignored';
  fragment: 'ignored';
  matrixParams: 'ignored';
  } {
- return {
- paths: item.exact ? 'exact' : 'subset',
- queryParams: 'ignored',
- fragment: 'ignored',
- matrixParams: 'ignored'
- };
+ return item.exact
+ ? SidebarComponent.exactLinkActiveOptions
+ : SidebarComponent.subsetLinkActiveOptions;
+ }
+
+ onSidebarNavigate(item: SidebarItem, event: Event): void {
+ const currentPath = (this.router.url || '/').split('?')[0].split('#')[0];
+ const targetPath = item.route;
+ const alreadyOnRoute = item.exact
+ ? currentPath === targetPath
+ : currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
+
+ if (alreadyOnRoute && (!item.queryParams || this.queryParamsMatch(item.queryParams))) {
+ event.preventDefault();
+ event.stopPropagation();
+ this.onNavClick();
+ return;
+ }
+
+ this.onNavClick();
+ }
+
+ private queryParamsMatch(expected: Record<string, string>): boolean {
+ const tree = this.router.parseUrl(this.router.url);
+ const current = tree.queryParams;
+ return Object.entries(expected).every(([key, value]) => current[key] === value);
  }
 
  private rebuildMenuCategories(): void {
