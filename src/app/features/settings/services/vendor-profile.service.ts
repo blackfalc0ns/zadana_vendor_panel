@@ -386,6 +386,21 @@ export class VendorProfileService {
     );
   }
 
+  closeAccount(payload: {
+    confirmation: string;
+    password: string;
+    reason?: string | null;
+  }): Observable<{ message?: string; closed?: boolean }> {
+    return this.http.post<{ message?: string; closed?: boolean }>(
+      `${environment.apiUrl}/vendor/account/close`,
+      {
+        confirmation: payload.confirmation,
+        password: payload.password,
+        reason: payload.reason?.trim() || null
+      }
+    );
+  }
+
   uploadLegalDocument(documentType: VendorLegalDocumentType, file: File): Observable<VendorProfile> {
     if (!this.authService.hasApiSession) {
       return throwError(() => new Error('SESSION_EXPIRED'));

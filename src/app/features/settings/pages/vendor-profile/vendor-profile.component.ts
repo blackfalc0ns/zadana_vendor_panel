@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
@@ -7,6 +8,7 @@ import { SearchableSelectOption } from '../../../../shared/components/ui/form-co
 import { finalize, forkJoin, Subscription } from 'rxjs';
 import { BANKS, BUSINESS_TYPES, NATIONALITIES, PAYOUT_DAYS, PAYOUT_DAY_VALUES, PAYMENT_CYCLES, PayoutScheduleDay, SelectOption, CityOption } from '../../../auth/constants/vendor-onboarding.constants';
 import { GeographyService, SaudiCityDto, SaudiRegionDto } from '../../../auth/services/geography.service';
+import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
 import { VENDOR_NOTIFICATION_SOUND_OPTIONS } from '../../../../core/notifications/services/vendor-notification-sound.service';
 import { VendorOperatingHour, VendorProfile, VendorReviewAuditEntry, VendorReviewItem } from '../../models/vendor-profile.models';
 import { VendorLegalDocumentType, VendorProfileService } from '../../services/vendor-profile.service';
@@ -15,6 +17,7 @@ import { findReviewItemByCode, findReviewItemForField, PROFILE_DOCUMENT_REVIEW_C
 import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
 import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
+import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
 import { ProfileCommandCenterComponent } from './components/profile-command-center.component';
 import { ProfileWindowSwitcherComponent } from './components/profile-window-switcher.component';
 import { ProfileCoreWindowComponent } from './components/profile-core-window.component';
@@ -45,7 +48,9 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  imports: [
  CommonModule,
  ReactiveFormsModule,
+ TranslateModule,
  AppFlashBannerComponent,
+ AppModalShellComponent,
  ProfileCommandCenterComponent,
  ProfileWindowSwitcherComponent,
  ProfileCoreWindowComponent,
@@ -274,7 +279,100 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  (submit)="submitForReview()" />
  </div>
  </form>
+
+ <section
+ *ngIf="canCloseAccount"
+ class="mt-8 rounded-[24px] border border-rose-200/70 bg-rose-50/80 px-6 py-5 shadow-sm">
+ <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+ <div class="space-y-2">
+ <h3 class="text-[1rem] font-black text-rose-900">{{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.TITLE' | translate }}</h3>
+ <p class="max-w-2xl text-[0.8rem] font-semibold leading-6 text-rose-800/90">
+ {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.SUBTITLE' | translate }}
+ </p>
+ </div>
+ <button
+ type="button"
+ (click)="openCloseAccountModal()"
+ class="inline-flex items-center justify-center gap-2 rounded-[14px] bg-rose-600 px-5 py-2.5 text-[0.8rem] font-black text-white shadow-sm transition hover:bg-rose-700 focus:outline-none focus:ring-2 focus:ring-rose-600/30">
+ <span class="material-symbols-outlined text-[18px]">delete_forever</span>
+ {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.OPEN' | translate }}
+ </button>
+ </div>
+ </section>
  </ng-container>
+
+ <app-modal-shell
+ *ngIf="showCloseAccountModal"
+ title="SETTINGS_PROFILE.CLOSE_ACCOUNT.TITLE"
+ subtitle="SETTINGS_PROFILE.CLOSE_ACCOUNT.SUBTITLE"
+ [hasFooter]="true"
+ panelClass="max-w-lg"
+ (close)="closeCloseAccountModal()">
+ <div class="space-y-4">
+ <ul class="space-y-2 rounded-[16px] border border-rose-100 bg-rose-50/70 px-4 py-3 text-[0.78rem] font-semibold text-rose-900">
+ <li>• {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.WARNING_LOGIN' | translate }}</li>
+ <li>• {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.WARNING_PII' | translate }}</li>
+ <li>• {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.WARNING_HISTORY' | translate }}</li>
+ </ul>
+
+ <label class="block">
+ <span class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+ {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.CONFIRMATION_LABEL' | translate }}
+ </span>
+ <input
+ type="text"
+ [value]="closeAccountConfirmation"
+ (input)="onCloseAccountConfirmationInput($any($event.target).value)"
+ [placeholder]="'SETTINGS_PROFILE.CLOSE_ACCOUNT.CONFIRMATION_PLACEHOLDER' | translate"
+ class="w-full rounded-[12px] border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200"
+ dir="ltr" />
+ </label>
+
+ <label class="block">
+ <span class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+ {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.PASSWORD_LABEL' | translate }}
+ </span>
+ <input
+ type="password"
+ [value]="closeAccountPassword"
+ (input)="onCloseAccountPasswordInput($any($event.target).value)"
+ [placeholder]="'SETTINGS_PROFILE.CLOSE_ACCOUNT.PASSWORD_PLACEHOLDER' | translate"
+ class="w-full rounded-[12px] border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-900 outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200"
+ dir="ltr" />
+ </label>
+
+ <label class="block">
+ <span class="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-500">
+ {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.REASON_LABEL' | translate }}
+ </span>
+ <textarea
+ [value]="closeAccountReason"
+ (input)="onCloseAccountReasonInput($any($event.target).value)"
+ rows="2"
+ class="w-full rounded-[12px] border border-slate-200 bg-white px-3 py-2.5 text-sm font-semibold text-slate-900 outline-none focus:border-rose-400 focus:ring-2 focus:ring-rose-200"></textarea>
+ </label>
+
+ <p *ngIf="closeAccountError" class="text-[0.78rem] font-bold text-rose-600">{{ closeAccountError }}</p>
+ </div>
+
+ <div footer class="flex w-full flex-wrap items-center justify-end gap-3">
+ <button
+ type="button"
+ (click)="closeCloseAccountModal()"
+ [disabled]="isClosingAccount"
+ class="inline-flex items-center justify-center rounded-[12px] border border-slate-200 bg-white px-4 py-2.5 text-[0.78rem] font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-50">
+ {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.CANCEL' | translate }}
+ </button>
+ <button
+ type="button"
+ (click)="confirmCloseAccount()"
+ [disabled]="!canConfirmCloseAccount || isClosingAccount"
+ class="inline-flex items-center justify-center gap-2 rounded-[12px] bg-rose-600 px-4 py-2.5 text-[0.78rem] font-black text-white hover:bg-rose-700 disabled:pointer-events-none disabled:opacity-50">
+ <span *ngIf="isClosingAccount" class="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white"></span>
+ {{ 'SETTINGS_PROFILE.CLOSE_ACCOUNT.CONFIRM' | translate }}
+ </button>
+ </div>
+ </app-modal-shell>
  </div>
  </div>
  `
@@ -298,6 +396,12 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  activeTab = 'store-section';
  profileForm: FormGroup;
  currentProfile: VendorProfile;
+ showCloseAccountModal = false;
+ isClosingAccount = false;
+ closeAccountConfirmation = '';
+ closeAccountPassword = '';
+ closeAccountReason = '';
+ closeAccountError = '';
  private langSub: Subscription;
  private profileSub?: Subscription;
  private payoutPreferenceSub?: Subscription;
@@ -505,6 +609,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  constructor(
  private readonly fb: FormBuilder,
  private readonly profileService: VendorProfileService,
+ private readonly authService: VendorAuthService,
  private readonly translate: TranslateService,
  private readonly geographyService: GeographyService,
  private readonly route: ActivatedRoute,
@@ -1972,10 +2077,136 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
  private resolveErrorMessage(error: unknown, fallback: string): string {
  const apiError = error as { error?: { message?: string; Message?: string; title?: string; Title?: string } };
- return apiError?.error?.message
+ const raw = apiError?.error?.message
  || apiError?.error?.Message
  || apiError?.error?.title
  || apiError?.error?.Title
  || fallback;
+ return resolveLocalizedMessage(raw, this.currentLang) || fallback;
+ }
+
+ get canCloseAccount(): boolean {
+ return !this.authService.isVendorStaffSession;
+ }
+
+ get canConfirmCloseAccount(): boolean {
+ return this.closeAccountConfirmation.trim() === 'DELETE'
+ && this.closeAccountPassword.trim().length > 0;
+ }
+
+ openCloseAccountModal(): void {
+ if (!this.canCloseAccount) {
+ this.pageNotice = '';
+ this.pageError = this.translate.instant('SETTINGS_PROFILE.CLOSE_ACCOUNT.STAFF_BLOCKED');
+ return;
+ }
+
+ this.showCloseAccountModal = true;
+ this.isClosingAccount = false;
+ this.closeAccountConfirmation = '';
+ this.closeAccountPassword = '';
+ this.closeAccountReason = '';
+ this.closeAccountError = '';
+ this.cdr.markForCheck();
+ }
+
+ closeCloseAccountModal(): void {
+ if (this.isClosingAccount) {
+ return;
+ }
+
+ this.showCloseAccountModal = false;
+ this.closeAccountConfirmation = '';
+ this.closeAccountPassword = '';
+ this.closeAccountReason = '';
+ this.closeAccountError = '';
+ this.cdr.markForCheck();
+ }
+
+ onCloseAccountConfirmationInput(value: string): void {
+ this.closeAccountConfirmation = value;
+ this.closeAccountError = '';
+ this.cdr.markForCheck();
+ }
+
+ onCloseAccountPasswordInput(value: string): void {
+ this.closeAccountPassword = value;
+ this.closeAccountError = '';
+ this.cdr.markForCheck();
+ }
+
+ onCloseAccountReasonInput(value: string): void {
+ this.closeAccountReason = value;
+ this.cdr.markForCheck();
+ }
+
+ confirmCloseAccount(): void {
+ if (!this.canConfirmCloseAccount || this.isClosingAccount) {
+ return;
+ }
+
+ this.isClosingAccount = true;
+ this.closeAccountError = '';
+ this.cdr.markForCheck();
+
+ this.profileService.closeAccount({
+ confirmation: this.closeAccountConfirmation.trim(),
+ password: this.closeAccountPassword,
+ reason: this.closeAccountReason
+ }).pipe(finalize(() => {
+ this.isClosingAccount = false;
+ this.cdr.markForCheck();
+ })).subscribe({
+ next: () => {
+ this.showCloseAccountModal = false;
+ this.authService.logoutLocally();
+ },
+ error: (error: unknown) => {
+ if (this.isAccountAlreadyClosedError(error)) {
+ this.showCloseAccountModal = false;
+ this.authService.logoutLocally();
+ return;
+ }
+
+ this.closeAccountError = this.resolveCloseAccountError(error);
+ this.cdr.markForCheck();
+ }
+ });
+ }
+
+ private isAccountAlreadyClosedError(error: unknown): boolean {
+ if (!(error instanceof HttpErrorResponse)) {
+ return false;
+ }
+
+ const code = `${error.error?.code || error.error?.errorCode || ''}`.trim().toUpperCase();
+ return code === 'ACCOUNT_ALREADY_CLOSED' || code === 'ACCOUNT_CLOSED';
+ }
+
+ private resolveCloseAccountError(error: unknown): string {
+ if (!(error instanceof HttpErrorResponse)) {
+ return this.translate.instant('SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_GENERIC');
+ }
+
+ const code = `${error.error?.code || error.error?.errorCode || ''}`.trim().toUpperCase();
+ const byCode: Record<string, string> = {
+ ACCOUNT_CLOSE_CONFIRMATION_REQUIRED: 'SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_CONFIRMATION',
+ ACCOUNT_CLOSE_PASSWORD_REQUIRED: 'SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_PASSWORD_REQUIRED',
+ ACCOUNT_CLOSE_INVALID_PASSWORD: 'SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_INVALID_PASSWORD',
+ ACCOUNT_CLOSE_OWNER_ONLY: 'SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_OWNER_ONLY',
+ ACCOUNT_CLOSE_ACTIVE_ORDERS: 'SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_ACTIVE_ORDERS',
+ ACCOUNT_CLOSE_OPEN_DISPUTE: 'SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_OPEN_DISPUTE',
+ ACCOUNT_CLOSE_ACTIVE_SETTLEMENT: 'SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_ACTIVE_SETTLEMENT',
+ ACCOUNT_CLOSE_ACTIVE_HOLD: 'SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_ACTIVE_HOLD'
+ };
+
+ if (byCode[code]) {
+ return this.translate.instant(byCode[code]);
+ }
+
+ return this.resolveErrorMessage(
+ error,
+ this.translate.instant('SETTINGS_PROFILE.CLOSE_ACCOUNT.ERR_GENERIC')
+ );
  }
 }

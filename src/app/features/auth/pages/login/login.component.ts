@@ -299,7 +299,23 @@ export class LoginComponent implements OnInit, OnDestroy {
  'access denied': 'LOGIN.ERR_ACCOUNT_NOT_ALLOWED',
  'account email not verified': 'LOGIN.ERR_LOGIN_FAILED',
  'accountemailnotverified': 'LOGIN.ERR_LOGIN_FAILED',
- 'user not found': 'LOGIN.ERR_INVALID_CREDENTIALS'
+ 'user not found': 'LOGIN.ERR_INVALID_CREDENTIALS',
+ 'account_closed': 'LOGIN.ERR_ACCOUNT_CLOSED',
+ 'this account has been deleted.': 'LOGIN.ERR_ACCOUNT_CLOSED',
+ 'this account has been deleted': 'LOGIN.ERR_ACCOUNT_CLOSED',
+ 'account deleted.': 'LOGIN.ERR_ACCOUNT_CLOSED',
+ 'account deleted': 'LOGIN.ERR_ACCOUNT_CLOSED',
+ 'تم حذف هذا الحساب.': 'LOGIN.ERR_ACCOUNT_CLOSED',
+ 'تم حذف هذا الحساب': 'LOGIN.ERR_ACCOUNT_CLOSED'
+ };
+
+ private static readonly ERROR_CODE_MAP: Record<string, string> = {
+ account_closed: 'LOGIN.ERR_ACCOUNT_CLOSED',
+ accountclosed: 'LOGIN.ERR_ACCOUNT_CLOSED',
+ account_locked: 'LOGIN.ERR_ACCOUNT_LOCKED',
+ accountlocked: 'LOGIN.ERR_ACCOUNT_LOCKED',
+ account_not_allowed: 'LOGIN.ERR_ACCOUNT_NOT_ALLOWED',
+ accountnotallowed: 'LOGIN.ERR_ACCOUNT_NOT_ALLOWED'
  };
 
  private isEmailVerificationRequired(error: unknown): boolean {
@@ -372,6 +388,15 @@ export class LoginComponent implements OnInit, OnDestroy {
  * known i18n key. Returns null when no match is found.
  */
  private resolveServerMessageKey(error: HttpErrorResponse): string | null {
+ const code = `${error.error?.code || error.error?.errorCode || ''}`.trim().toLowerCase();
+ if (code) {
+ const byCode = LoginComponent.ERROR_CODE_MAP[code]
+ || LoginComponent.ERROR_CODE_MAP[code.replace(/_/g, '')];
+ if (byCode) {
+ return byCode;
+ }
+ }
+
  const candidates = [
  error.error?.detail,
  error.error?.message,
@@ -389,6 +414,15 @@ export class LoginComponent implements OnInit, OnDestroy {
 
  const key = LoginComponent.SERVER_MESSAGE_MAP[normalized];
  if (key) return key;
+
+ // Bilingual API messages: "ar|en"
+ if (normalized.includes('|')) {
+ const parts = normalized.split('|').map((part) => part.trim()).filter(Boolean);
+ for (const part of parts) {
+ const mapped = LoginComponent.SERVER_MESSAGE_MAP[part];
+ if (mapped) return mapped;
+ }
+ }
  }
 
  return null;
