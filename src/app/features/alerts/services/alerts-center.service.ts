@@ -375,6 +375,19 @@ export class AlertsCenterService {
  }
  };
 
+ if (item.type?.toLowerCase() === 'vendor_settlement_paid') {
+ const transferReference = this.extractTransferReference(item.dataObject, item.data);
+ if (transferReference) {
+ return {
+ title: defaultContent.title,
+ summary: {
+ ar: `${defaultContent.summary.ar} المرجع: ${transferReference}`,
+ en: `${defaultContent.summary.en} Reference: ${transferReference}`
+ }
+ };
+ }
+ }
+
  const auditType = this.parseVendorAuditType(item.type);
  if (!auditType) {
  return defaultContent;
@@ -996,6 +1009,20 @@ export class AlertsCenterService {
  private extractTargetUrl(data?: Record<string, unknown> | null): string | null {
  const targetUrl = data?.['targetUrl'];
  return typeof targetUrl === 'string' && targetUrl.trim() ? targetUrl.trim() : null;
+ }
+
+ private extractTransferReference(
+ dataObject?: Record<string, unknown> | null,
+ data?: string | null
+ ): string | null {
+ const fromObject = dataObject?.['transferReference'];
+ if (typeof fromObject === 'string' && fromObject.trim()) {
+ return fromObject.trim();
+ }
+
+ const parsed = this.tryParseData(data);
+ const fromData = parsed?.['transferReference'];
+ return typeof fromData === 'string' && fromData.trim() ? fromData.trim() : null;
  }
 
  private extractGuid(value: unknown): string | null {
