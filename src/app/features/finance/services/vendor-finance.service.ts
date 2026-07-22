@@ -27,8 +27,8 @@ interface FinanceSnapshotApiResponse {
   Kpis?: VendorFinanceSnapshot['kpis'];
   trend?: VendorFinanceSnapshot['trend'];
   Trend?: VendorFinanceSnapshot['trend'];
-  settlements?: VendorFinanceSnapshot['settlements'];
-  Settlements?: VendorFinanceSnapshot['settlements'];
+  settlements?: FinanceSettlementApiResponse[];
+  Settlements?: FinanceSettlementApiResponse[];
   ledger?: VendorFinanceSnapshot['ledger'];
   Ledger?: VendorFinanceSnapshot['ledger'];
   alerts?: VendorFinanceSnapshot['alerts'];
@@ -74,6 +74,27 @@ interface FinanceBranchSectionApiResponse {
   VendorNet?: number;
   ordersCount?: number;
   OrdersCount?: number;
+}
+
+interface FinanceSettlementApiResponse {
+  id?: string;
+  Id?: string;
+  code?: string;
+  Code?: string;
+  date?: string;
+  Date?: string;
+  status?: VendorFinanceSnapshot['settlements'][number]['status'] | string;
+  Status?: VendorFinanceSnapshot['settlements'][number]['status'] | string;
+  amount?: number;
+  Amount?: number;
+  ordersCount?: number;
+  OrdersCount?: number;
+  transferReference?: string | null;
+  TransferReference?: string | null;
+  hasTransferProof?: boolean;
+  HasTransferProof?: boolean;
+  transferProofFileName?: string | null;
+  TransferProofFileName?: string | null;
 }
 
 @Injectable({
@@ -166,17 +187,17 @@ export class VendorFinanceService {
     }));
   }
 
-  private normalizeSettlement(settlement: VendorFinanceSnapshot['settlements'][number] & Record<string, unknown>): VendorFinanceSnapshot['settlements'][number] {
+  private normalizeSettlement(settlement: FinanceSettlementApiResponse): VendorFinanceSnapshot['settlements'][number] {
     return {
-      id: String(settlement.id ?? settlement['Id'] ?? ''),
-      code: String(settlement.code ?? settlement['Code'] ?? ''),
-      date: String(settlement.date ?? settlement['Date'] ?? ''),
-      status: (settlement.status ?? settlement['Status'] ?? 'scheduled') as VendorFinanceSnapshot['settlements'][number]['status'],
-      amount: Number(settlement.amount ?? settlement['Amount'] ?? 0),
-      ordersCount: Number(settlement.ordersCount ?? settlement['OrdersCount'] ?? 0),
-      transferReference: (settlement.transferReference ?? settlement['TransferReference'] ?? null) as string | null,
-      hasTransferProof: !!(settlement.hasTransferProof ?? settlement['HasTransferProof']),
-      transferProofFileName: (settlement.transferProofFileName ?? settlement['TransferProofFileName'] ?? null) as string | null
+      id: String(settlement.id ?? settlement.Id ?? ''),
+      code: String(settlement.code ?? settlement.Code ?? ''),
+      date: String(settlement.date ?? settlement.Date ?? ''),
+      status: (settlement.status ?? settlement.Status ?? 'scheduled') as VendorFinanceSnapshot['settlements'][number]['status'],
+      amount: Number(settlement.amount ?? settlement.Amount ?? 0),
+      ordersCount: Number(settlement.ordersCount ?? settlement.OrdersCount ?? 0),
+      transferReference: settlement.transferReference ?? settlement.TransferReference ?? null,
+      hasTransferProof: !!(settlement.hasTransferProof ?? settlement.HasTransferProof),
+      transferProofFileName: settlement.transferProofFileName ?? settlement.TransferProofFileName ?? null
     };
   }
 }
