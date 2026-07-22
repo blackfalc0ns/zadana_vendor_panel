@@ -73,13 +73,13 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
 
   return next(authorizedRequest).pipe(
     retry({
-      count: request.method === 'GET' ? 2 : 0,
+      count: request.method === 'GET' ? 1 : 0,
       delay: (error: unknown, retryCount: number) => {
         if (!isTransientReadError(error)) {
           return throwError(() => error);
         }
 
-        return timer(250 * (2 ** (retryCount - 1)));
+        return timer(200 * retryCount);
       }
     }),
     catchError((error: unknown) => {
@@ -125,7 +125,6 @@ export const vendorAuthInterceptor: HttpInterceptorFn = (request, next) => {
 function isTransientReadError(error: unknown): boolean {
   return error instanceof HttpErrorResponse &&
     (error.status === 0 ||
-      error.status === 429 ||
       error.status === 502 ||
       error.status === 503 ||
       error.status === 504);

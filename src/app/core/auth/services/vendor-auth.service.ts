@@ -15,6 +15,7 @@ interface CsrfResponse {
 }
 
 const IDLE_TIMEOUT_MS = 10 * 60 * 60 * 1000; // 10 hours
+const IDLE_ACTIVITY_PERSIST_INTERVAL_MS = 30_000;
 const CSRF_TOKEN_TIMEOUT_MS = 10000;
 const IDLE_ACTIVITY_EVENTS: ReadonlyArray<keyof WindowEventMap> = [
   'mousemove',
@@ -48,6 +49,8 @@ export class VendorAuthService {
   private idleTimerHandle: ReturnType<typeof setTimeout> | null = null;
   private idleListenersBound = false;
   private sessionExpiryRedirectPending = false;
+  private lastActivityAtMs = 0;
+  private lastActivityPersistAtMs = 0;
 
   readonly currentUser$ = this.currentUserSubject.asObservable();
 
@@ -330,8 +333,20 @@ export class VendorAuthService {
     this.clearPersistedSession();
   }
 
-  touchActivity(): void {
-    this.safeLocalSet(VendorAuthService.lastActivityStorageKey, Date.now().toString());
+  touchActivity(forcePersist = false): void {
+    const now = Date.now();
+    this.lastActivityAtMs = now;
+
+    if (
+      !forcePersist &&
+      this.lastActivityPersistAtMs > 0 &&
+      now - this.lastActivityPersistAtMs < IDLE_ACTIVITY_PERSIST_INTERVAL_MS
+    ) {
+      return;
+    }
+
+    this.lastActivityPersistAtMs = now;
+    this.safeLocalSet(VendorAuthService.lastActivityStorageKey, now.toString());
   }
 
   async acquireCsrfToken(): Promise<string | null> {
@@ -416,7 +431,7 @@ export class VendorAuthService {
       this.persistUser(response.user);
     }
 
-    this.touchActivity();
+    this.touchActivity(true);
     this.startIdleWatchdog();
   }
 
@@ -570,19 +585,16 @@ export class VendorAuthService {
   }
 
   private isIdleTimedOut(): boolean {
-    const raw = this.safeLocalGet(VendorAuthService.lastActivityStorageKey);
-    if (!raw) {
-      this.touchActivity();
+    const lastKnown = this.lastActivityAtMs > 0
+      ? this.lastActivityAtMs
+      : Number(this.safeLocalGet(VendorAuthService.lastActivityStorageKey));
+
+    if (!Number.isFinite(lastKnown) || lastKnown <= 0) {
+      this.touchActivity(true);
       return false;
     }
 
-    const last = Number(raw);
-    if (!Number.isFinite(last)) {
-      this.touchActivity();
-      return false;
-    }
-
-    return Date.now() - last > IDLE_TIMEOUT_MS;
+    return Date.now() - lastKnown > IDLE_TIMEOUT_MS;
   }
 
   private startIdleWatchdog(): void {
@@ -591,7 +603,7 @@ export class VendorAuthService {
     }
 
     this.idleListenersBound = true;
-    this.touchActivity();
+    this.touchActivity(true);
 
     const handleActivity = () => this.touchActivity();
 
