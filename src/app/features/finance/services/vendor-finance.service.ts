@@ -140,6 +140,15 @@ export class VendorFinanceService {
     });
   }
 
+  exportStatement(period: VendorFinancePeriod, branchId?: string | null): Observable<Blob> {
+    let params = new HttpParams().set('period', period);
+    if (branchId?.trim()) {
+      params = params.set('branchId', branchId.trim());
+    }
+
+    return this.http.get(`${this.baseUrl}/statement`, { params, responseType: 'blob' });
+  }
+
   private normalizeSnapshot(response: FinanceSnapshotApiResponse | null | undefined): VendorFinanceSnapshot {
     const source = response ?? {};
 

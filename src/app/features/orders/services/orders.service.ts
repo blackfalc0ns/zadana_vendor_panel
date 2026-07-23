@@ -149,6 +149,28 @@ export class OrdersService {
  );
  }
 
+ exportOrders(filters?: {
+ search?: string;
+ status?: string;
+ paymentMethod?: string;
+ }): Observable<Blob> {
+ let params = new HttpParams();
+
+ if (filters?.search?.trim()) {
+ params = params.set('search', filters.search.trim());
+ }
+
+ if (filters?.status && filters.status !== 'ALL') {
+ params = params.set('status', filters.status);
+ }
+
+ if (filters?.paymentMethod && filters.paymentMethod !== 'ALL') {
+ params = params.set('paymentMethod', filters.paymentMethod);
+ }
+
+ return this.http.get(`${this.apiUrl}/export`, { params, responseType: 'blob' });
+ }
+
  getOrdersSummary(): Observable<{
  total: number;
  new: number;

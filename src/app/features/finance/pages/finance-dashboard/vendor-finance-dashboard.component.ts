@@ -18,6 +18,8 @@ import { VendorFinanceService } from '../../services/vendor-finance.service';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { ChartConfiguration } from 'chart.js';
 import { AlertModalService } from '../../../../core/notifications/services/alert-modal.service';
+import { ToastService } from '../../../../core/notifications/services/toast.service';
+import { ExportService } from '../../../../shared/utils/export';
 
 @Component({
  changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,6 +38,8 @@ export class VendorFinanceDashboardComponent implements OnInit {
  private route = inject(ActivatedRoute);
  private router = inject(Router);
  private alertModalService = inject(AlertModalService);
+ private readonly exportService = inject(ExportService);
+ private readonly toastService = inject(ToastService);
 
  snapshot: VendorFinanceSnapshot | null = null;
  ledgerPage: VendorFinanceLedgerPage | null = null;
@@ -471,6 +475,29 @@ export class VendorFinanceDashboardComponent implements OnInit {
  return 'VENDOR_FINANCE.SETTLEMENTS.SCHEDULED';
  }
 
+ downloadStatement(): void {
+ if (!this.snapshot) {
+ this.toastService.show({ type: 'warning', title: 'COMMON.EXPORT_EMPTY', message: '' });
+ return;
+ }
+
+ this.financeService.exportStatement(this.currentPeriod, this.selectedBranchId).pipe(
+ takeUntilDestroyed(this.destroyRef)
+ ).subscribe({
+ next: (blob) => {
+ this.exportService.downloadServerFile(
+ blob,
+ this.exportService.fileName(`vendor-finance-${this.currentPeriod}`, 'pdf')
+ );
+ this.toastService.show({ type: 'success', title: 'COMMON.EXPORT_SUCCESS', message: '' });
+ },
+ error: () => {
+ this.toastService.show({ type: 'error', title: 'COMMON.EXPORT_FAILED', message: '' });
+ this.cdr.markForCheck();
+ }
+ });
+ }
+
  downloadTransferProof(settlement: VendorSettlement): void {
  if (!settlement.hasTransferProof || settlement.status !== 'paid') {
  return;
@@ -480,12 +507,10 @@ export class VendorFinanceDashboardComponent implements OnInit {
  takeUntilDestroyed(this.destroyRef)
  ).subscribe({
  next: (blob) => {
- const url = URL.createObjectURL(blob);
- const anchor = document.createElement('a');
- anchor.href = url;
- anchor.download = settlement.transferProofFileName?.trim() || `transfer-proof-${settlement.code}.pdf`;
- anchor.click();
- URL.revokeObjectURL(url);
+ this.exportService.downloadServerFile(
+ blob,
+ settlement.transferProofFileName?.trim() || `transfer-proof-${settlement.code}.pdf`
+ );
  },
  error: () => {
  this.alertModalService.error(

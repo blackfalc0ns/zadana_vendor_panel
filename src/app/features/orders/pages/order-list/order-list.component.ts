@@ -12,6 +12,8 @@ import { OrderStatusBadgeComponent } from '../../components/order-status-badge/o
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
 import { AppPaginationComponent } from '../../../../shared/components/ui/navigation/pagination/pagination.component';
+import { ExportService } from '../../../../shared/utils/export';
+import { ToastService } from '../../../../core/notifications/services/toast.service';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -34,7 +36,17 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
         [title]="'ORDERS.LIST_TITLE' | translate"
         [description]="'ORDERS.LIST_SUBTITLE' | translate"
         customClass="mb-0"
-      ></app-page-header>
+      >
+        <div actions class="flex items-center gap-2">
+          <button
+            type="button"
+            (click)="onExport()"
+            class="inline-flex h-11 items-center justify-center gap-2 rounded-[16px] border border-slate-200 bg-white px-4 text-[0.78rem] font-black text-slate-700 transition hover:border-zadna-primary/30 hover:text-zadna-primary">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            {{ 'COMMON.EXPORT' | translate }}
+          </button>
+        </div>
+      </app-page-header>
 
       <section class="relative z-20 overflow-visible rounded-[28px] border border-slate-100 bg-white shadow-sm shadow-slate-200/50 p-5">
         <div class="flex flex-col gap-2 mb-4">
@@ -288,6 +300,8 @@ import { AppPaginationComponent } from '../../../../shared/components/ui/navigat
 })
 export class OrderListComponent implements OnInit, OnDestroy {
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly exportService = inject(ExportService);
+  private readonly toastService = inject(ToastService);
   orders: OrderListItem[] = [];
   isLoading = true;
   isRefreshing = false;
@@ -414,6 +428,27 @@ export class OrderListComponent implements OnInit, OnDestroy {
   onPageChange(page: number): void {
     this.currentPage = page;
     this.loadOrders();
+  }
+
+  onExport(): void {
+    if (!this.orders.length) {
+      this.toastService.show({ type: 'warning', title: 'COMMON.EXPORT_EMPTY', message: '' });
+      return;
+    }
+
+    this.ordersService.exportOrders({
+      search: this.searchTerm || undefined,
+      status: this.filters.status === 'ALL' ? undefined : this.filters.status,
+      paymentMethod: this.filters.paymentMethod === 'ALL' ? undefined : this.filters.paymentMethod
+    }).subscribe({
+      next: (blob) => {
+        this.exportService.downloadServerFile(blob, this.exportService.fileName('vendor-orders', 'xlsx'));
+        this.toastService.show({ type: 'success', title: 'COMMON.EXPORT_SUCCESS', message: '' });
+      },
+      error: () => {
+        this.toastService.show({ type: 'error', title: 'COMMON.EXPORT_FAILED', message: '' });
+      }
+    });
   }
 
   onFiltersChange(): void {
