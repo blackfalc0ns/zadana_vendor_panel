@@ -36,6 +36,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/pages/login/login.component').then((m) => m.LoginComponent)
   },
   {
+    path: 'legal/terms',
+    loadComponent: () => import('./features/legal/pages/vendor-terms/vendor-terms.component').then((m) => m.VendorTermsComponent)
+  },
+  {
     path: 'onboarding',
     canActivate: [vendorOnboardingGuard],
     loadComponent: () => import('./features/auth/pages/onboarding/onboarding.component').then((m) => m.OnboardingComponent)

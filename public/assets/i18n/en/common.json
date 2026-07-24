@@ -104,6 +104,8 @@
     "REVIEWS_DESC": "Review customer ratings & feedback",
     "SETTINGS": "Settings",
     "SETTINGS_DESC": "Control store settings & profile",
+    "TERMS": "Terms & Conditions",
+    "TERMS_DESC": "View Zadana vendor platform terms of use",
     "LOGOUT": "Logout",
     "NEW_BADGE": "NEW",
     "READY_STATUS": "Ready to work",
@@ -303,5 +305,17 @@
     "GO_DASHBOARD": "Back to Dashboard",
     "GO_BACK": "Go Back",
     "GO_LOGIN": "Sign In"
+  },
+  "LEGAL": {
+    "TERMS": {
+      "BADGE": "Legal",
+      "TITLE": "Vendor Terms & Conditions",
+      "INTRO": "These terms govern your use of the Vendor Panel and Zadana store services. Please read them carefully before creating an account or continuing to use the platform.",
+      "VERSION": "Version",
+      "EFFECTIVE": "Effective date",
+      "BACK": "Back",
+      "LOAD_ERROR": "We could not load the Terms & Conditions. Refresh the page and try again.",
+      "FOOTER": "Zadana — Vendor Terms & Conditions · Version 1.0"
+    }
   }
 }

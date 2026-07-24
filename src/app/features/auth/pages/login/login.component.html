@@ -291,6 +291,12 @@
  {{ 'LOGIN.CREATE_STORE_FREE' | translate }}
  </a>
  </div>
+ <a
+ *ngIf="!isVerifyEmailMode"
+ routerLink="/legal/terms"
+ class="mt-1 text-[11px] font-black text-slate-400 transition hover:text-zadna-primary hover:underline underline-offset-4">
+ {{ 'REGISTER.ACCEPT_TERMS_LINK' | translate }}
+ </a>
  </div>
 
  </div>

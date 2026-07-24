@@ -1348,7 +1348,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  storeName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
  email: ['', [Validators.required, comEmailValidator()]],
  password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100)]],
- confirmPassword: ['', [Validators.required]]
+ confirmPassword: ['', [Validators.required]],
+ acceptTerms: [false, Validators.requiredTrue]
  }, { validators: passwordMatchValidator() });
 
  this.onboardingForm = this.fb.group({

@@ -237,6 +237,28 @@
  </p>
  </div>
 
+ <label class="mt-5 flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 cursor-pointer select-none">
+ <input
+ type="checkbox"
+ formControlName="acceptTerms"
+ class="mt-0.5 h-4 w-4 rounded border-slate-300 text-zadna-primary focus:ring-zadna-primary/30" />
+ <span class="text-[12px] font-bold leading-relaxed text-slate-700">
+ {{ 'REGISTER.ACCEPT_TERMS_PREFIX' | translate }}
+ <a
+ routerLink="/legal/terms"
+ target="_blank"
+ rel="noopener"
+ class="font-black text-zadna-primary underline underline-offset-2 hover:text-zadna-primaryDark"
+ (click)="$event.stopPropagation()">
+ {{ 'REGISTER.ACCEPT_TERMS_LINK' | translate }}
+ </a>
+ {{ 'REGISTER.ACCEPT_TERMS_SUFFIX' | translate }}
+ </span>
+ </label>
+ <p *ngIf="isInvalid('account', 'acceptTerms')" class="mt-2 px-1 text-[10px] font-bold text-red-500 italic">
+ {{ 'REGISTER.ERR_ACCEPT_TERMS' | translate }}
+ </p>
+
  <div class="mt-6 flex flex-wrap items-center justify-center gap-1.5 text-xs font-bold text-slate-500">
  <span>{{ 'REGISTER.ALREADY_HAVE_ACCOUNT' | translate }}</span>
  <a routerLink="/login" class="text-zadna-primary hover:text-zadna-primaryDark hover:underline underline-offset-4">
