@@ -6,6 +6,10 @@ import { SearchableSelectComponent, SearchableSelectOption } from '../../../../.
 import { AppPageSectionShellComponent } from '../../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
 import { VendorReviewItem } from '../../../models/vendor-profile.models';
 import { VendorLegalDocumentType } from '../../../services/vendor-profile.service';
+import {
+  commercialRegistrationMinExpiryDate,
+  formatDateInputValue
+} from '../../../../../shared/constants/commercial-registration-expiry.validators';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -75,10 +79,10 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
               <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
                 {{ 'SETTINGS_PROFILE.FIELDS.EXPIRY_DATE' | translate }} <span class="text-rose-500 font-extrabold">*</span>
               </span>
-              <input formControlName="expiryDate" type="date" dir="ltr" [class]="fieldClass('expiryDate', 'ltr')">
+              <input formControlName="expiryDate" type="date" dir="ltr" [attr.min]="minCommercialRegistrationExpiry" [class]="fieldClass('expiryDate', 'ltr')">
               <p *ngIf="form.get('expiryDate')?.invalid && (form.get('expiryDate')?.touched || form.get('expiryDate')?.dirty)" 
                 class="text-[11px] font-semibold text-rose-500 mt-1.5 block px-1 animate-in fade-in slide-in-from-top-1 duration-200">
-                {{ 'REGISTER.ERR_GENERAL' | translate }}
+                {{ expiryDateErrorKey | translate }}
               </p>
             </label>
 
@@ -216,6 +220,30 @@ export class ProfileReviewWindowComponent {
     }
     if (errors['identityChecksum']) {
       return 'VALIDATION.IDENTITY_CHECKSUM';
+    }
+
+    return 'REGISTER.ERR_GENERAL';
+  }
+
+  get minCommercialRegistrationExpiry(): string {
+    return formatDateInputValue(commercialRegistrationMinExpiryDate());
+  }
+
+  get expiryDateErrorKey(): string {
+    const control = this.form?.get('expiryDate');
+    if (!control || !control.invalid || !(control.touched || control.dirty)) {
+      return 'REGISTER.ERR_GENERAL';
+    }
+
+    const errors = control.errors || {};
+    if (errors['required']) {
+      return 'VALIDATION.REQUIRED';
+    }
+    if (errors['expiryDateInvalid']) {
+      return 'VALIDATION.EXPIRY_DATE_INVALID';
+    }
+    if (errors['expiryDateTooSoon']) {
+      return 'VALIDATION.EXPIRY_DATE_MIN_ONE_MONTH';
     }
 
     return 'REGISTER.ERR_GENERAL';

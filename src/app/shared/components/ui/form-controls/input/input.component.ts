@@ -30,6 +30,8 @@ export class AppInputComponent implements ControlValueAccessor {
   @Input() customClass = '';
   @Input() inputClass = '';
   @Input() rows = 3;
+  @Input() min: string | null = null;
+  @Input() max: string | null = null;
 
   value: any = '';
   disabled = false;

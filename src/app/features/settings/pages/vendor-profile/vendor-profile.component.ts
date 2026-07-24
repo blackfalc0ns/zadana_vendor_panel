@@ -17,6 +17,7 @@ import { findReviewItemByCode, findReviewItemForField, PROFILE_DOCUMENT_REVIEW_C
 import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
 import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
 import { saudiIdentityNumberValidator } from '../../../../shared/constants/saudi-identity.validators';
+import { commercialRegistrationExpiryValidator } from '../../../../shared/constants/commercial-registration-expiry.validators';
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
 import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
 import { ProfileCommandCenterComponent } from './components/profile-command-center.component';
@@ -1918,7 +1919,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  nationality: ['', Validators.required],
  taxId: ['', Validators.required],
  commercialRegistrationNumber: ['', Validators.required],
- expiryDate: ['', Validators.required],
+ expiryDate: ['', [Validators.required, commercialRegistrationExpiryValidator()]],
  licenseNumber: [''],
  bankName: ['', Validators.required],
  iban: ['', Validators.required],

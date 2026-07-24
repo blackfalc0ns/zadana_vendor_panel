@@ -45,6 +45,11 @@ import {
 import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
 import { comEmailValidator, passwordMatchValidator } from '../../../../shared/constants/vendor-auth.validators';
 import { saudiIdentityNumberValidator } from '../../../../shared/constants/saudi-identity.validators';
+import {
+ commercialRegistrationExpiryValidator,
+ commercialRegistrationMinExpiryDate,
+ formatDateInputValue
+} from '../../../../shared/constants/commercial-registration-expiry.validators';
 import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
 import { GoogleCredentialProfile, GoogleIdentityService } from '../../../../core/auth/services/google-identity.service';
 
@@ -318,6 +323,10 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
  get isGoogleAuthConfigured(): boolean {
  return this.googleIdentity.isConfigured;
+ }
+
+ get commercialRegistrationMinExpiry(): string {
+ return formatDateInputValue(commercialRegistrationMinExpiryDate());
  }
 
  togglePassword(): void {
@@ -1035,6 +1044,12 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  if (errors['identityChecksum']) {
  return 'VALIDATION.IDENTITY_CHECKSUM';
  }
+ if (errors['expiryDateInvalid']) {
+ return 'VALIDATION.EXPIRY_DATE_INVALID';
+ }
+ if (errors['expiryDateTooSoon']) {
+ return 'VALIDATION.EXPIRY_DATE_MIN_ONE_MONTH';
+ }
  if (errors['mismatch']) {
  return 'REGISTER.ERR_MISMATCH';
  }
@@ -1333,7 +1348,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  idNumber: ['', [Validators.required, saudiIdentityNumberValidator()]],
  nationality: ['', Validators.required],
  commercialRegistrationNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
- expiryDate: ['', Validators.required],
+ expiryDate: ['', [Validators.required, commercialRegistrationExpiryValidator()]],
  taxId: ['', [Validators.required, Validators.pattern(/^3[0-9]{14}$/)]],
  licenseNumber: ['', [Validators.maxLength(100)]]
  }),

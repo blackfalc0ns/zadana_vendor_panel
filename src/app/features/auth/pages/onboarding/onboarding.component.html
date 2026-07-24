@@ -565,6 +565,7 @@
  [placeholder]="'ONBOARDING.FIELDS.CR_EXPIRY'"
  [customClass]="getReviewFieldClass('step3.expiryDate')"
  [isRequired]="true"
+ [min]="commercialRegistrationMinExpiry"
  [error]="fieldError('step3', 'expiryDate')"
  [isTouched]="onboardingForm.get('step3.expiryDate')?.touched || false"
  dir="ltr"
