@@ -1,7 +1,11 @@
+export type OnboardingFormKey = 'account' | 'step1' | 'step2' | 'step3' | 'step4' | 'step5';
+
 export interface OnboardingStepItem {
   id: number;
+  formKey: OnboardingFormKey;
   labelKey: string;
   sectionKey: string;
+  descriptionKey: string;
 }
 
 export interface OnboardingSeedData {

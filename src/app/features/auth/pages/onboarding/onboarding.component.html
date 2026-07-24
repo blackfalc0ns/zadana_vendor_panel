@@ -26,7 +26,7 @@
  </div>
  </div>
 
- <div class="mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5">
+ <div [class]="stepGridClass">
  <div
  *ngFor="let step of stepItems; trackBy: trackStep"
  class="cursor-pointer transition-all duration-300"
@@ -36,12 +36,12 @@
  [variant]="currentStep === step.id ? 'glass' : 'default'" 
  padding="sm" 
  [rounded]="'xl'"
- [customClass]="'!border-2 ' + (currentStep === step.id ? '!border-zadna-primary/30' : (onboardingForm.get('step' + step.id)?.valid ? '!border-emerald-200!bg-emerald-50/30' : '!border-slate-100'))"
+ [customClass]="'!border-2 ' + (currentStep === step.id ? '!border-zadna-primary/30' : (onboardingForm.get(step.formKey)?.valid ? '!border-emerald-200!bg-emerald-50/30' : '!border-slate-100'))"
  >
  <div class="flex items-start gap-2.5">
  <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border-2 text-[11px] font-black transition-all duration-300" 
  [ngClass]="getStepIndexClasses(step.id)">
- <ng-container *ngIf="onboardingForm.get('step' + step.id)?.valid; else stepNumber">
+ <ng-container *ngIf="onboardingForm.get(step.formKey)?.valid; else stepNumber">
  <svg viewBox="0 0 24 24" class="h-4 w-4" fill="none" stroke="currentColor">
  <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.8"></path>
  </svg>
@@ -84,7 +84,172 @@
  </div>
  </div>
 
- <div *ngIf="currentStep === 1" formGroupName="step1" class="space-y-6">
+ <div *ngIf="isFormStep('account')" formGroupName="account" class="space-y-6">
+ <app-card [variant]="'default'" padding="md" [rounded]="'xl'">
+ <app-section-header
+ [title]="'ONBOARDING.ACCOUNT_CARD_TITLE' | translate"
+ [description]="'ONBOARDING.STEP_DESCRIPTIONS.ACCOUNT' | translate"
+ >
+ <span title class="flex items-center gap-2">
+ <div class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-zadna-primary/10 text-zadna-primary">
+ <svg viewBox="0 0 24 24" class="h-5 w-5" fill="none" stroke="currentColor">
+ <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ <circle cx="9" cy="7" r="4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></circle>
+ <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+ </svg>
+ </div>
+ {{ 'ONBOARDING.ACCOUNT_CARD_TITLE' | translate }}
+ </span>
+ </app-section-header>
+
+ <div class="grid gap-4 md:grid-cols-2">
+ <app-input
+ formControlName="firstName"
+ [label]="'REGISTER.FIRST_NAME'"
+ [placeholder]="'REGISTER.FIRST_NAME'"
+ [isRequired]="true"
+ [error]="fieldError('account', 'firstName')"
+ [isTouched]="onboardingForm.get('account.firstName')?.touched || false"
+ ></app-input>
+
+ <app-input
+ formControlName="lastName"
+ [label]="'REGISTER.LAST_NAME'"
+ [placeholder]="'REGISTER.LAST_NAME'"
+ [isRequired]="true"
+ [error]="fieldError('account', 'lastName')"
+ [isTouched]="onboardingForm.get('account.lastName')?.touched || false"
+ ></app-input>
+
+ <app-input
+ formControlName="storeName"
+ [label]="'REGISTER.STORE_NAME'"
+ [placeholder]="'REGISTER.STORE_NAME'"
+ [isRequired]="true"
+ [error]="fieldError('account', 'storeName')"
+ [isTouched]="onboardingForm.get('account.storeName')?.touched || false"
+ customClass="md:col-span-2"
+ ></app-input>
+
+ <app-input
+ formControlName="email"
+ type="email"
+ [label]="'LOGIN.EMAIL'"
+ [placeholder]="'LOGIN.EMAIL_PLACEHOLDER'"
+ [isRequired]="true"
+ [error]="fieldError('account', 'email')"
+ [isTouched]="onboardingForm.get('account.email')?.touched || false"
+ customClass="md:col-span-2"
+ dir="ltr"
+ ></app-input>
+
+ <div class="space-y-2 md:col-span-2" *ngIf="!isGoogleSignup">
+ <label class="form-label-base">{{ 'LOGIN.PASSWORD' | translate }} <span class="text-red-500">*</span></label>
+ <div class="relative">
+ <input
+ formControlName="password"
+ [type]="showPassword ? 'text' : 'password'"
+ autocomplete="new-password"
+ class="form-input-base w-full !pe-11"
+ [class.ring-2]="isInvalid('account', 'password')"
+ [class.ring-red-500]="isInvalid('account', 'password')"
+ />
+ <button
+ type="button"
+ (click)="togglePassword()"
+ class="absolute inset-y-0 end-0 pe-4 flex items-center text-slate-400 hover:text-zadna-primary"
+ [attr.aria-label]="(showPassword ? 'AUTH.ACCESSIBILITY.HIDE' : 'AUTH.ACCESSIBILITY.SHOW') | translate"
+ >
+ <svg *ngIf="!showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+ </svg>
+ <svg *ngIf="showPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+ </svg>
+ </button>
+ </div>
+ <p *ngIf="fieldError('account', 'password')" class="px-1 text-[10px] font-bold text-red-500 italic">{{ fieldError('account', 'password') | translate }}</p>
+ </div>
+
+ <div class="space-y-2 md:col-span-2" *ngIf="!isGoogleSignup">
+ <label class="form-label-base">{{ 'REGISTER.CONFIRM_PASSWORD' | translate }} <span class="text-red-500">*</span></label>
+ <div class="relative">
+ <input
+ formControlName="confirmPassword"
+ [type]="showConfirmPassword ? 'text' : 'password'"
+ autocomplete="new-password"
+ class="form-input-base w-full !pe-11"
+ [class.ring-2]="isInvalid('account', 'confirmPassword') || !!accountGroupError()"
+ [class.ring-red-500]="isInvalid('account', 'confirmPassword') || !!accountGroupError()"
+ />
+ <button
+ type="button"
+ (click)="toggleConfirmPassword()"
+ class="absolute inset-y-0 end-0 pe-4 flex items-center text-slate-400 hover:text-zadna-primary"
+ [attr.aria-label]="(showConfirmPassword ? 'AUTH.ACCESSIBILITY.HIDE' : 'AUTH.ACCESSIBILITY.SHOW') | translate"
+ >
+ <svg *ngIf="!showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+ </svg>
+ <svg *ngIf="showConfirmPassword" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+ <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"></path>
+ </svg>
+ </button>
+ </div>
+ <p *ngIf="fieldError('account', 'confirmPassword') || accountGroupError()" class="px-1 text-[10px] font-bold text-red-500 italic">
+ {{ (fieldError('account', 'confirmPassword') || accountGroupError()) | translate }}
+ </p>
+ </div>
+ </div>
+
+ <div *ngIf="isGoogleSignup" class="rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-[12px] font-bold text-emerald-800">
+ {{ 'REGISTER.GOOGLE_CONNECTED' | translate }}
+ </div>
+
+ <div *ngIf="!isGoogleSignup" class="pt-2">
+ <div class="mb-3 flex items-center justify-between gap-3">
+ <span class="h-px flex-1 bg-slate-200"></span>
+ <span class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ 'REGISTER.OR' | translate }}</span>
+ <span class="h-px flex-1 bg-slate-200"></span>
+ </div>
+
+ <button
+ type="button"
+ (click)="continueWithGoogle()"
+ [disabled]="isGoogleLoading || isSubmitting"
+ class="group flex w-full items-center justify-center rounded-xl border-2 border-slate-100 bg-white px-4 py-3.5 font-black text-slate-700 shadow-sm transition-all hover:border-slate-200 hover:bg-slate-50/50 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+ >
+ <svg class="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 48 48" aria-hidden="true">
+ <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
+ <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
+ <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
+ <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path>
+ </svg>
+ <span class="ms-3 text-xs uppercase tracking-widest">
+ {{ (isGoogleLoading ? 'REGISTER.GOOGLE_LOADING' : 'REGISTER.BTN_REGISTER_GOOGLE') | translate }}
+ </span>
+ </button>
+
+ <p *ngIf="googleError" class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-700">
+ {{ googleError }}
+ </p>
+ <p *ngIf="!isGoogleAuthConfigured" class="mt-2 text-center text-[10px] font-bold text-slate-400">
+ {{ 'REGISTER.ERR_GOOGLE_NOT_CONFIGURED' | translate }}
+ </p>
+ </div>
+
+ <div class="mt-6 flex flex-wrap items-center justify-center gap-1.5 text-xs font-bold text-slate-500">
+ <span>{{ 'REGISTER.ALREADY_HAVE_ACCOUNT' | translate }}</span>
+ <a routerLink="/login" class="text-zadna-primary hover:text-zadna-primaryDark hover:underline underline-offset-4">
+ {{ 'REGISTER.SIGN_IN' | translate }}
+ </a>
+ </div>
+ </app-card>
+ </div>
+
+ <div *ngIf="isFormStep('step1')" formGroupName="step1" class="space-y-6">
  <app-card [variant]="'default'" padding="md" [rounded]="'xl'">
  <app-section-header 
  [title]="'ONBOARDING.STORE_CARD_TITLE' | translate" 
@@ -108,7 +273,7 @@
  [placeholder]="'ONBOARDING.FIELDS.STORE_AR'"
  [customClass]="getReviewFieldClass('step1.businessNameAr')"
  [isRequired]="true"
- [error]="isInvalid('1', 'businessNameAr') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step1', 'businessNameAr')"
  [isTouched]="onboardingForm.get('step1.businessNameAr')?.touched || false"
  dir="rtl"
  ></app-input>
@@ -120,7 +285,7 @@
  [placeholder]="'ONBOARDING.FIELDS.STORE_EN'"
  [customClass]="getReviewFieldClass('step1.businessNameEn')"
  [isRequired]="true"
- [error]="isInvalid('1', 'businessNameEn') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step1', 'businessNameEn')"
  [isTouched]="onboardingForm.get('step1.businessNameEn')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -133,7 +298,7 @@
  [customClass]="getReviewFieldClass('step1.businessType')"
  [options]="businessTypes"
  [isRequired]="true"
- [error]="isInvalid('1', 'businessType') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step1', 'businessType')"
  [isTouched]="onboardingForm.get('step1.businessType')?.touched || false"
  ></app-select>
  <p *ngIf="isRejectedField('step1.businessType')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.businessType') }}</p>
@@ -143,8 +308,8 @@
  [label]="'ONBOARDING.FIELDS.PHONE'"
  [customClass]="getReviewFieldClass('step1.contactPhone')"
  [isRequired]="true"
- [invalid]="isInvalid('1', 'contactPhone')"
- [error]="isInvalid('1', 'contactPhone') ? 'REGISTER.ERR_GENERAL' : ''"
+ [invalid]="isInvalid('step1', 'contactPhone')"
+ [error]="fieldError('step1', 'contactPhone')"
  [isTouched]="onboardingForm.get('step1.contactPhone')?.touched || false"
  ></app-phone-input>
  <p *ngIf="isRejectedField('step1.contactPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.contactPhone') }}</p>
@@ -155,7 +320,7 @@
  [rows]="3"
  [label]="'ONBOARDING.FIELDS.DESC'"
  [customClass]="(getReviewFieldClass('step1.description') + ' md:col-span-2').trim()"
- [error]="isInvalid('1', 'description') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step1', 'description')"
  [isTouched]="onboardingForm.get('step1.description')?.touched || false"
  ></app-input>
  <p *ngIf="isRejectedField('step1.description')" class="md:col-span-2 -mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.description') }}</p>
@@ -184,7 +349,7 @@
  [placeholder]="'ONBOARDING.FIELDS.OWNER_NAME'"
  [customClass]="getReviewFieldClass('step1.ownerName')"
  [isRequired]="true"
- [error]="isInvalid('1', 'ownerName') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step1', 'ownerName')"
  [isTouched]="onboardingForm.get('step1.ownerName')?.touched || false"
  ></app-input>
  <p *ngIf="isRejectedField('step1.ownerName')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerName') }}</p>
@@ -195,7 +360,7 @@
  [placeholder]="'ONBOARDING.FIELDS.OWNER_EMAIL'"
  [customClass]="getReviewFieldClass('step1.ownerEmail')"
  [isRequired]="true"
- [error]="isInvalid('1', 'ownerEmail') ? 'LOGIN.ERR_EMAIL_INVALID' : ''"
+ [error]="fieldError('step1', 'ownerEmail')"
  [isTouched]="onboardingForm.get('step1.ownerEmail')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -206,8 +371,8 @@
  [label]="'ONBOARDING.FIELDS.OWNER_PHONE'"
  [customClass]="getReviewFieldClass('step1.ownerPhone')"
  [isRequired]="true"
- [invalid]="isInvalid('1', 'ownerPhone')"
- [error]="isInvalid('1', 'ownerPhone') ? 'REGISTER.ERR_GENERAL' : ''"
+ [invalid]="isInvalid('step1', 'ownerPhone')"
+ [error]="fieldError('step1', 'ownerPhone')"
  [isTouched]="onboardingForm.get('step1.ownerPhone')?.touched || false"
  ></app-phone-input>
  <p *ngIf="isRejectedField('step1.ownerPhone')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step1.ownerPhone') }}</p>
@@ -215,7 +380,7 @@
  </app-card>
  </div>
 
- <div *ngIf="currentStep === 2" formGroupName="step2">
+ <div *ngIf="isFormStep('step2')" formGroupName="step2">
  <app-card variant="default" padding="md" rounded="xl">
  <app-section-header 
  [title]="'ONBOARDING.LOCATION_CARD_TITLE' | translate" 
@@ -240,7 +405,7 @@
  [customClass]="getReviewFieldClass('step2.region')"
  [options]="regions"
  [isRequired]="true"
- [error]="isInvalid('2', 'region') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step2', 'region')"
  [isTouched]="onboardingForm.get('step2.region')?.touched || false"
  ></app-select>
  <p *ngIf="isRejectedField('step2.region')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.region') }}</p>
@@ -252,7 +417,7 @@
  [customClass]="getReviewFieldClass('step2.city')"
  [options]="filteredCities"
  [isRequired]="true"
- [error]="isInvalid('2', 'city') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step2', 'city')"
  [isTouched]="onboardingForm.get('step2.city')?.touched || false"
  ></app-select>
  <p *ngIf="isRejectedField('step2.city')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.city') }}</p>
@@ -264,7 +429,7 @@
  [label]="'ONBOARDING.FIELDS.NATIONAL_ADDRESS'"
  [placeholder]="'ONBOARDING.PLACEHOLDERS.NAT_ADDRESS'"
  [customClass]="(getReviewFieldClass('step2.nationalAddress') + ' md:col-span-2').trim()"
- [error]="isInvalid('2', 'nationalAddress') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step2', 'nationalAddress')"
  [isTouched]="onboardingForm.get('step2.nationalAddress')?.touched || false"
  ></app-input>
  <p *ngIf="isRejectedField('step2.nationalAddress')" class="md:col-span-2 -mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step2.nationalAddress') }}</p>
@@ -305,7 +470,7 @@
  [placeholder]="'ONBOARDING.PLACEHOLDERS.LATITUDE'"
  [customClass]="getReviewFieldClass('step2.branchLatitude')"
  [isRequired]="true"
- [error]="isInvalid('2', 'branchLatitude') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step2', 'branchLatitude')"
  [isTouched]="onboardingForm.get('step2.branchLatitude')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -317,7 +482,7 @@
  [placeholder]="'ONBOARDING.PLACEHOLDERS.LONGITUDE'"
  [customClass]="getReviewFieldClass('step2.branchLongitude')"
  [isRequired]="true"
- [error]="isInvalid('2', 'branchLongitude') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step2', 'branchLongitude')"
  [isTouched]="onboardingForm.get('step2.branchLongitude')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -332,7 +497,7 @@
  </app-card>
  </div>
 
- <div *ngIf="currentStep === 3" formGroupName="step3">
+ <div *ngIf="isFormStep('step3')" formGroupName="step3">
  <app-card variant="default" padding="md" rounded="xl">
  <app-section-header 
  [title]="'ONBOARDING.LEGAL_CARD_TITLE' | translate" 
@@ -353,11 +518,11 @@
  <div>
  <app-input 
  formControlName="idNumber" 
- [label]="'ONBOARDING.FIELDS.ID_NUMBER'" 
- [placeholder]="'ONBOARDING.FIELDS.ID_NUMBER'"
+ [label]="identityNumberLabelKey" 
+ [placeholder]="identityNumberLabelKey"
  [customClass]="getReviewFieldClass('step3.idNumber')"
  [isRequired]="true"
- [error]="isInvalid('3', 'idNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step3', 'idNumber')"
  [isTouched]="onboardingForm.get('step3.idNumber')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -372,7 +537,7 @@
  [customClass]="getReviewFieldClass('step3.nationality')"
  [options]="nationalities"
  [isRequired]="true"
- [error]="isInvalid('3', 'nationality') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step3', 'nationality')"
  [isTouched]="onboardingForm.get('step3.nationality')?.touched || false"
  ></app-select>
  <p *ngIf="isRejectedField('step3.nationality')" class="mt-1.5 text-[11px] font-bold text-red-600 leading-normal">{{ getRejectedFieldNote('step3.nationality') }}</p>
@@ -385,7 +550,7 @@
  [placeholder]="'ONBOARDING.FIELDS.CR_NUMBER'"
  [customClass]="getReviewFieldClass('step3.commercialRegistrationNumber')"
  [isRequired]="true"
- [error]="isInvalid('3', 'commercialRegistrationNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step3', 'commercialRegistrationNumber')"
  [isTouched]="onboardingForm.get('step3.commercialRegistrationNumber')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -400,7 +565,7 @@
  [placeholder]="'ONBOARDING.FIELDS.CR_EXPIRY'"
  [customClass]="getReviewFieldClass('step3.expiryDate')"
  [isRequired]="true"
- [error]="isInvalid('3', 'expiryDate') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step3', 'expiryDate')"
  [isTouched]="onboardingForm.get('step3.expiryDate')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -414,7 +579,7 @@
  [placeholder]="'ONBOARDING.FIELDS.TAX_ID'"
  [customClass]="getReviewFieldClass('step3.taxId')"
  [isRequired]="true"
- [error]="isInvalid('3', 'taxId') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step3', 'taxId')"
  [isTouched]="onboardingForm.get('step3.taxId')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -427,7 +592,7 @@
  [label]="'ONBOARDING.FIELDS.LICENSE'" 
  [placeholder]="'ONBOARDING.FIELDS.LICENSE'"
  [customClass]="getReviewFieldClass('step3.licenseNumber')"
- [error]="isInvalid('3', 'licenseNumber') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step3', 'licenseNumber')"
  [isTouched]="onboardingForm.get('step3.licenseNumber')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -437,7 +602,7 @@
  </app-card>
  </div>
 
- <div *ngIf="currentStep === 4" formGroupName="step4">
+ <div *ngIf="isFormStep('step4')" formGroupName="step4">
  <app-card variant="default" padding="md" rounded="xl">
  <app-section-header 
  [title]="'ONBOARDING.BANK_CARD_TITLE' | translate" 
@@ -462,7 +627,7 @@
  [customClass]="getReviewFieldClass('step4.bankName')"
  [options]="banks"
  [isRequired]="true"
- [error]="isInvalid('4', 'bankName') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step4', 'bankName')"
  [isTouched]="onboardingForm.get('step4.bankName')?.touched || false"
  ></app-select>
  <p *ngIf="isRejectedField('step4.bankName')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.bankName') }}</p>
@@ -474,7 +639,7 @@
  [customClass]="getReviewFieldClass('step4.paymentCycle')"
  [options]="paymentCycles"
  [isRequired]="true"
- [error]="isInvalid('4', 'paymentCycle') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step4', 'paymentCycle')"
  [isTouched]="onboardingForm.get('step4.paymentCycle')?.touched || false"
  ></app-select>
  <p *ngIf="isRejectedField('step4.paymentCycle')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.paymentCycle') }}</p>
@@ -486,7 +651,7 @@
  [customClass]="getReviewFieldClass('step4.payoutDay')"
  [options]="payoutDays"
  [isRequired]="true"
- [error]="isInvalid('4', 'payoutDay') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step4', 'payoutDay')"
  [isTouched]="onboardingForm.get('step4.payoutDay')?.touched || false"
  ></app-select>
  <p *ngIf="isRejectedField('step4.payoutDay')" class="-mt-2 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step4.payoutDay') }}</p>
@@ -497,7 +662,7 @@
  [placeholder]="'ONBOARDING.PLACEHOLDERS.IBAN'"
  [customClass]="getReviewFieldClass('step4.iban')"
  [isRequired]="true"
- [error]="isInvalid('4', 'iban') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step4', 'iban')"
  [isTouched]="onboardingForm.get('step4.iban')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -509,7 +674,7 @@
  [placeholder]="'ONBOARDING.PLACEHOLDERS.SWIFT'"
  [customClass]="getReviewFieldClass('step4.swiftCode')"
  [isRequired]="true"
- [error]="isInvalid('4', 'swiftCode') ? 'REGISTER.ERR_GENERAL' : ''"
+ [error]="fieldError('step4', 'swiftCode')"
  [isTouched]="onboardingForm.get('step4.swiftCode')?.touched || false"
  dir="ltr"
  ></app-input>
@@ -518,7 +683,7 @@
  </app-card>
  </div>
 
- <div *ngIf="currentStep === 5" formGroupName="step5">
+ <div *ngIf="isFormStep('step5')" formGroupName="step5">
  <app-card variant="default" padding="md" rounded="xl">
  <app-section-header 
  [title]="'ONBOARDING.DOCS_CARD_TITLE' | translate" 
@@ -535,7 +700,7 @@
  </app-section-header>
 
  <div class="grid gap-4 lg:grid-cols-2">
- <div [class]="getUploadCardClasses('5', 'hasLogo')">
+ <div [class]="getUploadCardClasses('step5', 'hasLogo')">
  <input id="logoInput" type="file" accept="image/*" class="hidden" (change)="onLogoSelected($event)" />
  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ 'ONBOARDING.FIELDS.LOGO' | translate }}</p>
  <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.UPLOAD_LOGO_TITLE' | translate }}</h3>
@@ -577,7 +742,7 @@
  <p *ngIf="isRejectedField('step5.logo')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.logo') }}</p>
  </div>
 
- <div [class]="getUploadCardClasses('5', 'hasCRDoc')">
+ <div [class]="getUploadCardClasses('step5', 'hasCRDoc')">
  <input id="crInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onCRDocSelected($event)" />
  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ 'ONBOARDING.FIELDS.CR_DOC' | translate }}</p>
  <h3 class="mt-1 text-sm font-black text-slate-950">{{ 'ONBOARDING.UPLOAD_CR_TITLE' | translate }}</h3>
@@ -619,7 +784,7 @@
  <p *ngIf="isRejectedField('step5.commercial')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.commercial') }}</p>
  </div>
 
- <div [class]="getUploadCardClasses('5', 'hasTaxDoc')">
+ <div [class]="getUploadCardClasses('step5', 'hasTaxDoc')">
  <input id="taxInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onTaxDocSelected($event)" />
  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ isRTL ? 'الشهادة الضريبية' : 'Tax certificate' }}</p>
  <h3 class="mt-1 text-sm font-black text-slate-950">{{ isRTL ? 'رفع الشهادة الضريبية' : 'Upload tax certificate' }}</h3>
@@ -663,7 +828,7 @@
  <p *ngIf="isRejectedField('step5.tax')" class="mt-3 text-[11px] font-bold text-red-600">{{ getRejectedFieldNote('step5.tax') }}</p>
  </div>
 
- <div [class]="getUploadCardClasses('5', 'hasLicenseDoc')">
+ <div [class]="getUploadCardClasses('step5', 'hasLicenseDoc')">
  <input id="licenseInput" type="file" accept=".pdf,application/pdf" class="hidden" (change)="onLicenseDocSelected($event)" />
  <p class="text-[10px] font-black uppercase tracking-[0.24em] text-slate-400">{{ isRTL ? 'الرخصة التشغيلية' : 'Operating license' }}</p>
  <h3 class="mt-1 text-sm font-black text-slate-950">{{ isRTL ? 'رفع الرخصة أو التصريح البلدي' : 'Upload license or municipal permit' }}</h3>

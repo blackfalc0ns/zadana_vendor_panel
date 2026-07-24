@@ -27,7 +27,7 @@ import { AppSelectComponent } from '../../../../shared/components/ui/form-contro
 import { AppCardComponent } from '../../../../shared/components/ui/card/card.component';
 import { AppBadgeComponent } from '../../../../shared/components/ui/feedback/badge/badge.component';
 import { AppSectionHeaderComponent } from '../../../../shared/components/ui/layout/section-header/section-header.component';
-import { OnboardingSeedData, OnboardingStepItem } from '../../models/auth.models';
+import { OnboardingFormKey, OnboardingSeedData, OnboardingStepItem } from '../../models/auth.models';
 import { environment } from '../../../../../environments/environment';
 import { RegisterVendorPayload } from '../../../../core/auth/models/vendor-auth.models';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
@@ -43,7 +43,10 @@ import {
  ImageUploadProgress
 } from '../../../../shared/utils/image-upload-optimizer';
 import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
+import { comEmailValidator, passwordMatchValidator } from '../../../../shared/constants/vendor-auth.validators';
+import { saudiIdentityNumberValidator } from '../../../../shared/constants/saudi-identity.validators';
 import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
+import { GoogleIdentityService } from '../../../../core/auth/services/google-identity.service';
 
 type RegistrationUploadTokenResponse = {
  token: string;
@@ -88,40 +91,13 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  private readonly uploadProgressByKey = new Map<string, number>();
  private registrationUploadToken?: RegistrationUploadTokenResponse;
  readonly logoPath = 'assets/images/logo/zadana-mark.svg';
- readonly stepItems: OnboardingStepItem[] = [
- {
- id: 1,
- labelKey: 'ONBOARDING.STEP_BASIC',
- sectionKey: 'ONBOARDING.SECTIONS.BASIC_INFO'
- },
- {
- id: 2,
- labelKey: 'ONBOARDING.STEP_LOCATION',
- sectionKey: 'ONBOARDING.SECTIONS.LOCATION'
- },
- {
- id: 3,
- labelKey: 'ONBOARDING.STEP_LEGAL',
- sectionKey: 'ONBOARDING.SECTIONS.LEGAL'
- },
- {
- id: 4,
- labelKey: 'ONBOARDING.STEP_FINANCE',
- sectionKey: 'ONBOARDING.SECTIONS.FINANCE'
- },
- {
- id: 5,
- labelKey: 'ONBOARDING.STEP_DOCS',
- sectionKey: 'ONBOARDING.SECTIONS.DOCS'
- }
- ];
- readonly stepDescriptionKeys: Record<number, string> = {
- 1: 'ONBOARDING.STEP_DESCRIPTIONS.BASIC',
- 2: 'ONBOARDING.STEP_DESCRIPTIONS.LOCATION',
- 3: 'ONBOARDING.STEP_DESCRIPTIONS.LEGAL',
- 4: 'ONBOARDING.STEP_DESCRIPTIONS.FINANCE',
- 5: 'ONBOARDING.STEP_DESCRIPTIONS.DOCS'
- };
+ stepItems: OnboardingStepItem[] = [];
+ showPassword = false;
+ showConfirmPassword = false;
+ isGoogleSignup = false;
+ isGoogleLoading = false;
+ googleError = '';
+ private googleIdToken: string | null = null;
  readonly vendorSeed: OnboardingSeedData = {
  store: {
  businessNameAr: '',
@@ -165,7 +141,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
  onboardingForm!: FormGroup;
  currentStep = 1;
- totalSteps = this.stepItems.length;
+ totalSteps = 5;
  isSubmitting = false;
  isPayoutPreferenceLoading = false;
  submissionError = '';
@@ -203,7 +179,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  private authService: VendorAuthService,
  private ngZone: NgZone,
  private geographyService: GeographyService,
- private profileService: VendorProfileService
+ private profileService: VendorProfileService,
+ private googleIdentity: GoogleIdentityService
  ) {
  const savedLang = localStorage.getItem('vendor_lang') || localStorage.getItem('lang') || 'ar';
  this.translate.use(savedLang);
@@ -211,6 +188,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
  ngOnInit(): void {
  this.isEditMode = this.route.snapshot.queryParamMap.get('mode') === 'edit';
+ this.stepItems = this.buildStepItems();
+ this.totalSteps = this.stepItems.length;
  this.initForm();
  this.loadPayoutPreference();
  if (this.isEditMode) {
@@ -218,6 +197,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.loadProfileForEdit();
  } else {
  this.patchSeedData();
+ this.restoreAccountProgress();
  }
  this.loadRegions();
 
@@ -237,6 +217,11 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  if (cityValue) {
  this.onCityChange(cityValue);
  }
+ });
+
+ this.onboardingForm.get('step3.nationality')?.valueChanges.subscribe(() => {
+ this.cdr.markForCheck();
+ this.onboardingForm.get('step3.idNumber')?.updateValueAndValidity({ emitEvent: false });
  });
  }
  ngAfterViewInit(): void {
@@ -274,11 +259,11 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  get activeStep(): OnboardingStepItem {
- return this.stepItems[this.currentStep - 1];
+ return this.stepItems[this.currentStep - 1] ?? this.stepItems[0];
  }
 
  get activeStepDescriptionKey(): string {
- return this.stepDescriptionKeys[this.currentStep];
+ return this.activeStep?.descriptionKey || 'ONBOARDING.STEP_DESCRIPTIONS.BASIC';
  }
 
  get progressPercentage(): number {
@@ -286,8 +271,41 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  get completionPercentage(): number {
- const completed = this.stepItems.filter((step) => this.getStepGroup(step.id).valid).length;
+ const completed = this.stepItems.filter((step) => this.getNavStepGroup(step.id).valid).length;
  return Math.round((completed / this.totalSteps) * 100);
+ }
+
+ get stepGridClass(): string {
+ return this.totalSteps > 5
+ ? 'mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-6'
+ : 'mt-4 grid gap-2 sm:grid-cols-2 xl:grid-cols-5';
+ }
+
+ isFormStep(formKey: OnboardingFormKey): boolean {
+ return this.activeStep?.formKey === formKey;
+ }
+
+ get identityNumberLabelKey(): string {
+ const nationality = this.onboardingForm?.get('step3.nationality')?.value;
+ if (nationality === 'SAUDI') {
+ return 'ONBOARDING.FIELDS.NATIONAL_ID';
+ }
+ if (nationality) {
+ return 'ONBOARDING.FIELDS.IQAMA_ID';
+ }
+ return 'ONBOARDING.FIELDS.ID_NUMBER';
+ }
+
+ get isGoogleAuthConfigured(): boolean {
+ return this.googleIdentity.isConfigured;
+ }
+
+ togglePassword(): void {
+ this.showPassword = !this.showPassword;
+ }
+
+ toggleConfirmPassword(): void {
+ this.showConfirmPassword = !this.showConfirmPassword;
  }
 
  get hasBranchCoordinates(): boolean {
@@ -327,16 +345,19 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  nextStep(): void {
- const currentGroup = this.getStepGroup(this.currentStep);
+ const currentGroup = this.getNavStepGroup(this.currentStep);
  if (currentGroup.invalid) {
  currentGroup.markAllAsTouched();
  return;
  }
 
+ if (this.activeStep.formKey === 'account') {
+ this.persistAccountDraft();
+ }
+
  if (this.currentStep < this.totalSteps) {
  this.currentStep++;
- // Reinitialise map when entering step 2
- if (this.currentStep === 2) {
+ if (this.activeStep.formKey === 'step2') {
  setTimeout(() => this.initLeafletMap(), 200);
  }
  }
@@ -345,16 +366,36 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  prevStep(): void {
  if (this.currentStep > 1) {
  this.currentStep--;
+ if (this.activeStep.formKey === 'step2') {
+ setTimeout(() => this.initLeafletMap(), 200);
+ }
  }
  }
 
  setStep(step: number): void {
- if (step >= 1 && step <= this.totalSteps) {
- this.currentStep = step;
- // Reinitialise map when navigating to step 2
- if (step === 2) {
- setTimeout(() => this.initLeafletMap(), 200);
+ if (step < 1 || step > this.totalSteps) {
+ return;
  }
+
+ if (step > this.currentStep) {
+ for (let id = 1; id < step; id++) {
+ const group = this.getNavStepGroup(id);
+ if (group.invalid) {
+ group.markAllAsTouched();
+ this.currentStep = id;
+ return;
+ }
+
+ const item = this.stepItems.find((entry) => entry.id === id);
+ if (item?.formKey === 'account') {
+ this.persistAccountDraft();
+ }
+ }
+ }
+
+ this.currentStep = step;
+ if (this.activeStep.formKey === 'step2') {
+ setTimeout(() => this.initLeafletMap(), 200);
  }
  }
 
@@ -627,7 +668,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  onSubmit(): void {
- this.stepItems.forEach((step) => this.getStepGroup(step.id).markAllAsTouched());
+ this.stepItems.forEach((step) => this.getNavStepGroup(step.id).markAllAsTouched());
  this.submissionError = '';
 
  if (this.isPayoutPreferenceLoading) {
@@ -635,8 +676,9 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  return;
  }
 
- if (this.onboardingForm.invalid) {
- this.currentStep = this.stepItems.find((step) => this.getStepGroup(step.id).invalid)?.id ?? 1;
+ const invalidStep = this.stepItems.find((step) => this.getNavStepGroup(step.id).invalid);
+ if (invalidStep) {
+ this.currentStep = invalidStep.id;
  return;
  }
 
@@ -645,10 +687,19 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  return;
  }
 
+ this.persistAccountDraft();
  const draft = this.authService.getValidRegistrationDraft();
- if (!draft) {
+ const account = this.onboardingForm.get('account')?.getRawValue();
+ const fullName = (draft?.fullName || `${account?.firstName || ''} ${account?.lastName || ''}`).trim();
+ const email = (draft?.email || account?.email || '').toString().trim();
+ const password = draft?.password || account?.password || '';
+ const preferredStoreName = draft?.preferredStoreName || account?.storeName || '';
+ const googleIdToken = draft?.googleIdToken || this.googleIdToken || '';
+ const isGoogleSignup = draft?.authProvider === 'google' || this.isGoogleSignup;
+
+ if (!fullName || !email || (!password && !googleIdToken)) {
  this.submissionError = this.translate.instant('ONBOARDING.ERRORS.START_FROM_REGISTER');
- void this.router.navigate(['/register']);
+ this.currentStep = 1;
  return;
  }
 
@@ -668,10 +719,11 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  tap(() => this.markSubmissionPhase()),
  map(({ logoUrl, commercialRegisterDocumentUrl, taxDocumentUrl, licenseDocumentUrl }) => {
  const payload: RegisterVendorPayload = {
- fullName: draft.fullName,
- email: draft.email,
+ fullName,
+ email,
  phone: step1.ownerPhone,
- password: draft.password,
+ password: isGoogleSignup ? null : password,
+ googleIdToken: isGoogleSignup ? googleIdToken : null,
  businessNameAr: step1.businessNameAr,
  businessNameEn: step1.businessNameEn,
  businessType: step1.businessType,
@@ -701,7 +753,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  commercialRegisterDocumentUrl,
  taxDocumentUrl,
  licenseDocumentUrl,
- branchName: draft.preferredStoreName || step1.businessNameEn || step1.businessNameAr,
+ branchName: preferredStoreName || step1.businessNameEn || step1.businessNameAr,
  branchAddressLine: step2.nationalAddress,
  branchLatitude: Number(step2.branchLatitude),
  branchLongitude: Number(step2.branchLongitude),
@@ -719,7 +771,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.isSubmitting = false;
  const currentBizName = this.isRTL ? step1.businessNameAr : step1.businessNameEn;
  localStorage.setItem('onboarding_biz_name', currentBizName || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
- const identifier = response.user?.email || draft.email;
+ const identifier = response.user?.email || email;
  const needsEmailVerification = response.isVerified === false ||
  !(response.accessToken || response.tokens?.accessToken);
  if (needsEmailVerification) {
@@ -735,7 +787,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.cdr.markForCheck();
  this.isSubmitting = false;
  if (this.isExistingAccountError(error)) {
- const identifier = draft.email;
+ const identifier = email;
  void this.router.navigate(['/verify-email'], {
  queryParams: identifier ? { identifier, resend: '1' } : { resend: '1' }
  });
@@ -834,7 +886,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
  getStepButtonClasses(stepId: number): string {
  const isCurrent = this.currentStep === stepId;
- const isComplete = this.onboardingForm.get(`step${stepId}`)?.valid;
+ const isComplete = this.getNavStepGroup(stepId)?.valid;
 
  if (isCurrent) {
  return 'border-zadna-primary bg-zadna-primary/5 shadow-sm';
@@ -849,7 +901,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
  getStepIndexClasses(stepId: number): string {
  const isCurrent = this.currentStep === stepId;
- const isComplete = this.onboardingForm.get(`step${stepId}`)?.valid;
+ const isComplete = this.getNavStepGroup(stepId)?.valid;
 
  if (isCurrent) {
  return 'border-zadna-primary bg-white text-zadna-primary';
@@ -868,12 +920,12 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  : 'rounded-3xl border border-slate-200 bg-white p-5';
  }
 
- getUploadCardClasses(step: string, field: string): string {
+ getUploadCardClasses(formKey: string, field: string): string {
  if (this.isRejectedCode(this.mapUploadFieldToReviewCode(field))) {
  return 'rounded-3xl border border-dashed border-red-300 bg-red-50/80 p-5';
  }
 
- return this.isInvalid(step, field)
+ return this.isInvalid(formKey, field)
  ? 'rounded-3xl border border-dashed border-red-300 bg-red-50/60 p-5'
  : 'rounded-3xl border border-dashed border-slate-300 bg-slate-50/70 p-5';
  }
@@ -883,7 +935,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  getCompletionLabel(stepId: number): string {
- if (this.getStepGroup(stepId).valid) {
+ if (this.getNavStepGroup(stepId).valid) {
  return 'ONBOARDING.STEP_STATUS.COMPLETE';
  }
 
@@ -915,9 +967,85 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  return value && value.trim() ? value : fallback;
  }
 
- isInvalid(step: string, field: string): boolean {
- const control = this.onboardingForm.get(`step${step}.${field}`);
+ isInvalid(formKey: string, field: string): boolean {
+ const control = this.onboardingForm.get(`${formKey}.${field}`);
  return!!(control && control.invalid && (control.dirty || control.touched));
+ }
+
+ fieldError(formKey: string, field: string): string {
+ const control = this.onboardingForm.get(`${formKey}.${field}`);
+ if (!control || !control.invalid || !(control.dirty || control.touched)) {
+ return '';
+ }
+
+ const errors = control.errors || {};
+ if (errors['required'] || errors['requiredTrue']) {
+ return 'VALIDATION.REQUIRED';
+ }
+ if (errors['email']) {
+ return 'VALIDATION.EMAIL_INVALID';
+ }
+ if (errors['comEmail']) {
+ return 'VALIDATION.EMAIL_COM';
+ }
+ if (errors['minlength']) {
+ return 'VALIDATION.MIN_LENGTH';
+ }
+ if (errors['maxlength']) {
+ return 'VALIDATION.MAX_LENGTH';
+ }
+ if (errors['min'] || errors['max']) {
+ return 'VALIDATION.RANGE';
+ }
+ if (errors['saudiMobilePhone']) {
+ return 'VALIDATION.SAUDI_PHONE';
+ }
+ if (errors['identityDigits']) {
+ return 'VALIDATION.IDENTITY_DIGITS';
+ }
+ if (errors['saudiNationalIdPrefix']) {
+ return 'VALIDATION.SAUDI_NATIONAL_ID';
+ }
+ if (errors['iqamaIdPrefix']) {
+ return 'VALIDATION.IQAMA_ID';
+ }
+ if (errors['identityPrefix']) {
+ return 'VALIDATION.IDENTITY_PREFIX';
+ }
+ if (errors['identityChecksum']) {
+ return 'VALIDATION.IDENTITY_CHECKSUM';
+ }
+ if (errors['mismatch']) {
+ return 'REGISTER.ERR_MISMATCH';
+ }
+ if (errors['pattern']) {
+ if (field === 'iban') {
+ return 'VALIDATION.IBAN';
+ }
+ if (field === 'taxId') {
+ return 'VALIDATION.TAX_ID';
+ }
+ if (field === 'commercialRegistrationNumber') {
+ return 'VALIDATION.TEN_DIGITS';
+ }
+ return 'VALIDATION.PATTERN';
+ }
+
+ return 'REGISTER.ERR_GENERAL';
+ }
+
+ accountGroupError(): string {
+ const group = this.onboardingForm.get('account');
+ if (!group?.errors?.['mismatch']) {
+ return '';
+ }
+
+ const confirm = group.get('confirmPassword');
+ if (confirm && (confirm.dirty || confirm.touched)) {
+ return 'REGISTER.ERR_MISMATCH';
+ }
+
+ return '';
  }
 
  isRejectedField(code: string): boolean {
@@ -1151,31 +1279,43 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  private initForm(): void {
+ const accountGroup = this.isEditMode
+ ? this.fb.group({})
+ : this.fb.group({
+ firstName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+ lastName: ['', [Validators.required, Validators.minLength(2), Validators.maxLength(50)]],
+ storeName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+ email: ['', [Validators.required, comEmailValidator()]],
+ password: ['', [Validators.required, Validators.minLength(8), Validators.maxLength(100)]],
+ confirmPassword: ['', [Validators.required]]
+ }, { validators: passwordMatchValidator() });
+
  this.onboardingForm = this.fb.group({
+ account: accountGroup,
  step1: this.fb.group({
- businessNameAr: ['', [Validators.required, Validators.minLength(3)]],
- businessNameEn: ['', [Validators.required, Validators.minLength(3)]],
+ businessNameAr: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+ businessNameEn: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
  businessType: ['', Validators.required],
  contactPhone: ['', [Validators.required, saudiMobilePhoneValidator()]],
  description: ['', [Validators.required, Validators.maxLength(500)]],
- ownerName: ['', [Validators.required, Validators.minLength(3)]],
- ownerEmail: ['', [Validators.required, Validators.email]],
+ ownerName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(200)]],
+ ownerEmail: ['', [Validators.required, comEmailValidator()]],
  ownerPhone: ['', [Validators.required, saudiMobilePhoneValidator()]]
  }),
  step2: this.fb.group({
  region: ['', Validators.required],
  city: ['', Validators.required],
- nationalAddress: ['', Validators.required],
+ nationalAddress: ['', [Validators.required, Validators.maxLength(500)]],
  branchLatitude: ['', [Validators.required, Validators.min(-90), Validators.max(90)]],
  branchLongitude: ['', [Validators.required, Validators.min(-180), Validators.max(180)]]
  }),
  step3: this.fb.group({
- idNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
+ idNumber: ['', [Validators.required, saudiIdentityNumberValidator()]],
  nationality: ['', Validators.required],
  commercialRegistrationNumber: ['', [Validators.required, Validators.pattern(/^[0-9]{10}$/)]],
  expiryDate: ['', Validators.required],
  taxId: ['', [Validators.required, Validators.pattern(/^3[0-9]{14}$/)]],
- licenseNumber: ['']
+ licenseNumber: ['', [Validators.maxLength(100)]]
  }),
  step4: this.fb.group({
  bankName: ['', Validators.required],
@@ -1281,50 +1421,15 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  private patchSeedData(): void {
- const draft = this.authService.getValidRegistrationDraft();
-
  this.onboardingForm.patchValue({
  step1: {
- businessNameAr: draft?.preferredStoreName || this.vendorSeed.store.businessNameAr,
- businessNameEn: draft?.preferredStoreName || this.vendorSeed.store.businessNameEn,
- businessType: this.vendorSeed.store.businessType,
- contactPhone: this.vendorSeed.store.contactPhone,
- description: this.vendorSeed.store.description,
- ownerName: draft?.fullName || this.vendorSeed.owner.fullName,
- ownerEmail: draft?.email || this.vendorSeed.owner.email,
- ownerPhone: this.vendorSeed.owner.phone
- },
- step2: {
- region: this.vendorSeed.store.region,
- city: this.vendorSeed.store.city,
- nationalAddress: this.vendorSeed.store.nationalAddress
- },
- step3: {
- idNumber: this.vendorSeed.owner.idNumber,
- nationality: this.vendorSeed.owner.nationality,
- commercialRegistrationNumber: this.vendorSeed.legal.commercialRegistrationNumber,
- expiryDate: this.vendorSeed.legal.expiryDate,
- taxId: this.vendorSeed.legal.taxId,
- licenseNumber: this.vendorSeed.legal.licenseNumber
- },
- step4: {
- bankName: this.vendorSeed.banking.bankName,
- iban: this.vendorSeed.banking.iban,
- swiftCode: this.vendorSeed.banking.swiftCode,
- paymentCycle: this.vendorSeed.banking.paymentCycle,
- payoutDay: this.resolveAllowedPayoutDay(this.vendorSeed.banking.payoutDay)
- }
- });
-
- this.onboardingForm.reset({
- step1: {
- businessNameAr: draft?.preferredStoreName || '',
- businessNameEn: draft?.preferredStoreName || '',
+ businessNameAr: '',
+ businessNameEn: '',
  businessType: '',
  contactPhone: '',
  description: '',
- ownerName: draft?.fullName || '',
- ownerEmail: draft?.email || '',
+ ownerName: '',
+ ownerEmail: '',
  ownerPhone: ''
  },
  step2: {
@@ -1357,11 +1462,237 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
  });
 
- // Reset localStorage if it was broken so the header updates immediately
  const stored = localStorage.getItem('onboarding_biz_name');
  if (stored && (stored.includes('Ã™') || stored.includes('Ã˜'))) {
  localStorage.removeItem('onboarding_biz_name');
  }
+ }
+
+ private buildStepItems(): OnboardingStepItem[] {
+ const businessSteps: Omit<OnboardingStepItem, 'id'>[] = [
+ {
+ formKey: 'step1',
+ labelKey: 'ONBOARDING.STEP_BASIC',
+ sectionKey: 'ONBOARDING.SECTIONS.BASIC_INFO',
+ descriptionKey: 'ONBOARDING.STEP_DESCRIPTIONS.BASIC'
+ },
+ {
+ formKey: 'step2',
+ labelKey: 'ONBOARDING.STEP_LOCATION',
+ sectionKey: 'ONBOARDING.SECTIONS.LOCATION',
+ descriptionKey: 'ONBOARDING.STEP_DESCRIPTIONS.LOCATION'
+ },
+ {
+ formKey: 'step3',
+ labelKey: 'ONBOARDING.STEP_LEGAL',
+ sectionKey: 'ONBOARDING.SECTIONS.LEGAL',
+ descriptionKey: 'ONBOARDING.STEP_DESCRIPTIONS.LEGAL'
+ },
+ {
+ formKey: 'step4',
+ labelKey: 'ONBOARDING.STEP_FINANCE',
+ sectionKey: 'ONBOARDING.SECTIONS.FINANCE',
+ descriptionKey: 'ONBOARDING.STEP_DESCRIPTIONS.FINANCE'
+ },
+ {
+ formKey: 'step5',
+ labelKey: 'ONBOARDING.STEP_DOCS',
+ sectionKey: 'ONBOARDING.SECTIONS.DOCS',
+ descriptionKey: 'ONBOARDING.STEP_DESCRIPTIONS.DOCS'
+ }
+ ];
+
+ if (this.isEditMode) {
+ return businessSteps.map((step, index) => ({ ...step, id: index + 1 }));
+ }
+
+ return [
+ {
+ id: 1,
+ formKey: 'account',
+ labelKey: 'ONBOARDING.STEP_ACCOUNT',
+ sectionKey: 'ONBOARDING.SECTIONS.ACCOUNT',
+ descriptionKey: 'ONBOARDING.STEP_DESCRIPTIONS.ACCOUNT'
+ },
+ ...businessSteps.map((step, index) => ({ ...step, id: index + 2 }))
+ ];
+ }
+
+ private restoreAccountProgress(): void {
+ const draft = this.authService.getValidRegistrationDraft();
+ if (!draft) {
+ return;
+ }
+
+ const nameParts = draft.fullName.trim().split(/\s+/);
+ const firstName = nameParts[0] || '';
+ const lastName = nameParts.slice(1).join(' ') || '';
+
+ if (draft.authProvider === 'google' && draft.googleIdToken) {
+ this.applyGoogleSignupMode({
+ idToken: draft.googleIdToken,
+ email: draft.email,
+ fullName: draft.fullName,
+ givenName: firstName,
+ familyName: lastName
+ }, draft.preferredStoreName || '');
+ return;
+ }
+
+ this.onboardingForm.get('account')?.patchValue({
+ firstName,
+ lastName,
+ storeName: draft.preferredStoreName || '',
+ email: draft.email,
+ password: draft.password || '',
+ confirmPassword: draft.password || ''
+ });
+
+ this.onboardingForm.get('step1')?.patchValue({
+ ownerName: draft.fullName,
+ ownerEmail: draft.email,
+ businessNameAr: draft.preferredStoreName || '',
+ businessNameEn: draft.preferredStoreName || ''
+ }, { emitEvent: false });
+
+ if (this.onboardingForm.get('account')?.valid) {
+ this.currentStep = 2;
+ }
+ }
+
+ private persistAccountDraft(): void {
+ const account = this.onboardingForm.get('account')?.getRawValue();
+ if (!account?.email) {
+ return;
+ }
+
+ if (!this.isGoogleSignup && !account?.password) {
+ return;
+ }
+
+ const fullName = `${account.firstName || ''} ${account.lastName || ''}`.trim();
+ this.authService.saveRegistrationDraft({
+ fullName,
+ email: String(account.email).trim(),
+ password: this.isGoogleSignup ? null : account.password,
+ preferredStoreName: account.storeName,
+ createdAtUtc: new Date().toISOString(),
+ authProvider: this.isGoogleSignup ? 'google' : 'password',
+ googleIdToken: this.isGoogleSignup ? this.googleIdToken : null
+ });
+
+ if (account.storeName) {
+ localStorage.setItem('onboarding_biz_name', account.storeName);
+ }
+
+ this.onboardingForm.get('step1')?.patchValue({
+ ownerName: fullName || this.onboardingForm.get('step1.ownerName')?.value,
+ ownerEmail: account.email,
+ businessNameAr: this.onboardingForm.get('step1.businessNameAr')?.value || account.storeName,
+ businessNameEn: this.onboardingForm.get('step1.businessNameEn')?.value || account.storeName
+ }, { emitEvent: false });
+ }
+
+ applyGoogleSignupMode(
+ profile: { idToken: string; email: string; fullName: string; givenName?: string; familyName?: string },
+ preferredStoreName = ''
+ ): void {
+ this.isGoogleSignup = true;
+ this.googleIdToken = profile.idToken;
+ this.googleError = '';
+
+ const firstName = profile.givenName || profile.fullName.trim().split(/\s+/)[0] || '';
+ const lastName = profile.familyName || profile.fullName.trim().split(/\s+/).slice(1).join(' ') || '';
+ const account = this.onboardingForm.get('account') as FormGroup;
+
+ account.patchValue({
+ firstName,
+ lastName,
+ email: profile.email,
+ storeName: preferredStoreName || account.get('storeName')?.value || '',
+ password: '',
+ confirmPassword: ''
+ });
+
+ ['password', 'confirmPassword'].forEach((field) => {
+ const control = account.get(field);
+ control?.clearValidators();
+ control?.updateValueAndValidity({ emitEvent: false });
+ });
+ account.clearValidators();
+ account.updateValueAndValidity({ emitEvent: false });
+ account.get('email')?.disable({ emitEvent: false });
+
+ this.onboardingForm.get('step1')?.patchValue({
+ ownerName: profile.fullName,
+ ownerEmail: profile.email
+ }, { emitEvent: false });
+
+ this.persistAccountDraft();
+
+ // Keep the user on the account step to enter store name, then continue onboarding.
+ const storeName = (preferredStoreName || account.get('storeName')?.value || '').toString().trim();
+ if (storeName && account.valid) {
+ this.currentStep = Math.max(this.currentStep, 2);
+ }
+
+ this.cdr.markForCheck();
+ }
+
+ async continueWithGoogle(): Promise<void> {
+ this.googleError = '';
+ this.isGoogleLoading = true;
+ this.cdr.markForCheck();
+
+ try {
+ const credential = await this.googleIdentity.requestCredential('signup');
+ this.authService.googleAuth(credential.idToken).subscribe({
+ next: (response) => {
+ this.isGoogleLoading = false;
+ this.cdr.markForCheck();
+
+ if (response.mode === 'login') {
+ void this.router.navigate(['/submission-success']);
+ return;
+ }
+
+ const profile = response.profile;
+ this.applyGoogleSignupMode({
+ idToken: credential.idToken,
+ email: profile?.email || credential.email,
+ fullName: profile?.fullName || credential.fullName,
+ givenName: profile?.givenName || credential.givenName || undefined,
+ familyName: profile?.familyName || credential.familyName || undefined
+ });
+ },
+ error: (error) => {
+ this.isGoogleLoading = false;
+ this.googleError = describeApiError(error, this.translate, {
+ fallbackKey: 'REGISTER.ERR_GOOGLE_FAILED'
+ });
+ this.cdr.markForCheck();
+ }
+ });
+ } catch (error) {
+ this.isGoogleLoading = false;
+ const code = error instanceof Error ? error.message : 'GOOGLE_FAILED';
+ const keyMap: Record<string, string> = {
+ GOOGLE_NOT_CONFIGURED: 'REGISTER.ERR_GOOGLE_NOT_CONFIGURED',
+ GOOGLE_PROMPT_DISMISSED: 'REGISTER.ERR_GOOGLE_CANCELLED',
+ GOOGLE_CANCELLED: 'REGISTER.ERR_GOOGLE_CANCELLED',
+ GOOGLE_TIMEOUT: 'REGISTER.ERR_GOOGLE_CANCELLED',
+ GOOGLE_SCRIPT_FAILED: 'REGISTER.ERR_GOOGLE_FAILED',
+ GOOGLE_UNAVAILABLE: 'REGISTER.ERR_GOOGLE_FAILED'
+ };
+ this.googleError = this.translate.instant(keyMap[code] || 'REGISTER.ERR_GOOGLE_FAILED');
+ this.cdr.markForCheck();
+ }
+ }
+
+ private getNavStepGroup(stepId: number): FormGroup {
+ const item = this.stepItems.find((step) => step.id === stepId);
+ const key = item?.formKey || `step${stepId}`;
+ return this.onboardingForm.get(key) as FormGroup;
  }
 
  private getStepGroup(step: number): FormGroup {

@@ -44,9 +44,6 @@ export const vendorOnboardingGuard: CanActivateFn = (route) => {
     return router.createUrlTree([authService.isVendorStaffSession ? '/dashboard' : '/submission-success']);
   }
 
-  if (!authService.hasValidRegistrationDraft()) {
-    return router.createUrlTree(['/register']);
-  }
-
+  // Guests start onboarding at the account step (register is merged into this flow).
   return true;
 };

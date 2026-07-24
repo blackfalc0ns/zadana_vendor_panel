@@ -9,7 +9,9 @@ import { AppButtonComponent } from '../../../../shared/components/ui/button/butt
 import { AppInputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { AppCardComponent } from '../../../../shared/components/ui/card/card.component';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
+import { GoogleIdentityService } from '../../../../core/auth/services/google-identity.service';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
+import { describeApiError } from '../../../../shared/utils/api-error.util';
 
 const LOGIN_REQUEST_TIMEOUT_MS = 15000;
 
@@ -36,6 +38,7 @@ export class LoginComponent implements OnInit, OnDestroy {
  loginForm!: FormGroup;
  verifyEmailForm!: FormGroup;
  isLoading = false;
+ isGoogleLoading = false;
  isResending = false;
  isVerifyEmailMode = false;
  showPassword = false;
@@ -50,8 +53,13 @@ export class LoginComponent implements OnInit, OnDestroy {
  private router: Router,
  private translate: TranslateService,
  private authService: VendorAuthService,
+ private googleIdentity: GoogleIdentityService,
  private profileService: VendorProfileService
  ) {}
+
+ get isGoogleAuthConfigured(): boolean {
+ return this.googleIdentity.isConfigured;
+ }
 
  ngOnInit(): void {
  const savedLang = localStorage.getItem('lang') || localStorage.getItem('vendor_lang') || 'ar';
@@ -120,6 +128,62 @@ export class LoginComponent implements OnInit, OnDestroy {
  togglePassword(): void {
  this.showPassword =!this.showPassword;
  this.cdr.markForCheck();
+ }
+
+ async continueWithGoogle(): Promise<void> {
+ if (this.isVerifyEmailMode || this.isLoading || this.isGoogleLoading) {
+ return;
+ }
+
+ this.errorMessage = '';
+ this.successMessage = '';
+ this.isGoogleLoading = true;
+ this.cdr.markForCheck();
+
+ try {
+ const credential = await this.googleIdentity.requestCredential('signin');
+ this.authService.googleAuth(credential.idToken).pipe(
+ finalize(() => {
+ this.isGoogleLoading = false;
+ this.cdr.markForCheck();
+ })
+ ).subscribe({
+ next: (response) => {
+ if (response.mode === 'login') {
+ void this.navigateAfterLogin();
+ return;
+ }
+
+ // New Google account — continue registration/onboarding with prefilled profile.
+ this.authService.saveRegistrationDraft({
+ fullName: response.profile?.fullName || credential.fullName,
+ email: response.profile?.email || credential.email,
+ password: null,
+ preferredStoreName: '',
+ createdAtUtc: new Date().toISOString(),
+ authProvider: 'google',
+ googleIdToken: credential.idToken
+ });
+ void this.router.navigate(['/onboarding']);
+ },
+ error: (error: unknown) => {
+ this.errorMessage = describeApiError(error, this.translate, {
+ fallbackKey: 'REGISTER.ERR_GOOGLE_FAILED'
+ });
+ }
+ });
+ } catch (error) {
+ this.isGoogleLoading = false;
+ const code = error instanceof Error ? error.message : 'GOOGLE_FAILED';
+ const keyMap: Record<string, string> = {
+ GOOGLE_NOT_CONFIGURED: 'REGISTER.ERR_GOOGLE_NOT_CONFIGURED',
+ GOOGLE_PROMPT_DISMISSED: 'REGISTER.ERR_GOOGLE_CANCELLED',
+ GOOGLE_CANCELLED: 'REGISTER.ERR_GOOGLE_CANCELLED',
+ GOOGLE_TIMEOUT: 'REGISTER.ERR_GOOGLE_CANCELLED'
+ };
+ this.errorMessage = this.translate.instant(keyMap[code] || 'REGISTER.ERR_GOOGLE_FAILED');
+ this.cdr.markForCheck();
+ }
  }
 
  onSubmit(): void {

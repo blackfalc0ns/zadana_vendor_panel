@@ -192,6 +192,41 @@ export class VendorAuthService {
     );
   }
 
+  googleAuth(idToken: string): Observable<{
+    mode: 'login' | 'continue_registration';
+    auth?: VendorAuthResponse | null;
+    profile?: {
+      email: string;
+      fullName: string;
+      givenName?: string | null;
+      familyName?: string | null;
+      subject: string;
+    } | null;
+  }> {
+    return from(this.acquireCsrfToken()).pipe(
+      switchMap(() => this.http.post<{
+        mode: 'login' | 'continue_registration';
+        auth?: VendorAuthResponse | null;
+        profile?: {
+          email: string;
+          fullName: string;
+          givenName?: string | null;
+          familyName?: string | null;
+          subject: string;
+        } | null;
+      }>(
+        `${this.apiUrl}/google`,
+        { idToken },
+        { headers: this.createSkipAuthHeaders(), withCredentials: true }
+      )),
+      tap((response) => {
+        if (response.mode === 'login' && response.auth) {
+          this.persistSession(response.auth);
+        }
+      })
+    );
+  }
+
   forgotPassword(identifier: string): Observable<string> {
     return this.http.post<{ message?: string }>(
       `${this.apiUrl}/forgot-password`,
@@ -456,7 +491,12 @@ export class VendorAuthService {
   }
 
   private isRegistrationDraftValid(draft: VendorRegisterDraft | null): draft is VendorRegisterDraft {
-    if (!draft?.fullName?.trim() || !draft.email?.trim() || !draft.password?.trim()) {
+    if (!draft?.fullName?.trim() || !draft.email?.trim()) {
+      return false;
+    }
+
+    const isGoogle = draft.authProvider === 'google' && !!draft.googleIdToken?.trim();
+    if (!isGoogle && !draft.password?.trim()) {
       return false;
     }
 

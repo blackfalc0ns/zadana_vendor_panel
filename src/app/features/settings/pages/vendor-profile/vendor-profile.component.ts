@@ -16,6 +16,7 @@ import { ProfileSectionNavItem, ProfileWorkspaceWindow, ProfileWorkspaceWindowId
 import { findReviewItemByCode, findReviewItemForField, PROFILE_DOCUMENT_REVIEW_CODES } from '../../utils/vendor-profile-review.utils';
 import { resolveLocalizedMessage } from '../../../../shared/utils/text-normalization.util';
 import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-phone.validators';
+import { saudiIdentityNumberValidator } from '../../../../shared/constants/saudi-identity.validators';
 import { AppFlashBannerComponent } from '../../../../shared/components/ui/feedback/flash-banner/flash-banner.component';
 import { AppModalShellComponent } from '../../../../shared/components/ui/overlay/modal-shell/modal-shell.component';
 import { ProfileCommandCenterComponent } from './components/profile-command-center.component';
@@ -665,6 +666,11 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  this.profileForm.get('city')?.setValue('', { emitEvent: false });
  }
  }
+ });
+
+ this.profileForm.get('nationality')?.valueChanges.subscribe(() => {
+ this.cdr.markForCheck();
+ this.profileForm.get('idNumber')?.updateValueAndValidity({ emitEvent: false });
  });
 
  this.reloadProfile();
@@ -1908,7 +1914,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  ownerName: ['', Validators.required],
  ownerEmail: ['', [Validators.required, Validators.email]],
  ownerPhone: ['', [Validators.required, saudiMobilePhoneValidator()]],
- idNumber: ['', Validators.required],
+ idNumber: ['', [Validators.required, saudiIdentityNumberValidator()]],
  nationality: ['', Validators.required],
  taxId: ['', Validators.required],
  commercialRegistrationNumber: ['', Validators.required],

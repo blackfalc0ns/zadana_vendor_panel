@@ -26,12 +26,12 @@ import { VendorLegalDocumentType } from '../../../services/vendor-profile.servic
           <div class="grid gap-4 p-5 md:grid-cols-2">
             <label class="block">
               <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">
-                {{ 'SETTINGS_PROFILE.FIELDS.ID_NUMBER' | translate }} <span class="text-rose-500 font-extrabold">*</span>
+                {{ identityNumberLabelKey | translate }} <span class="text-rose-500 font-extrabold">*</span>
               </span>
               <input formControlName="idNumber" type="text" dir="ltr" [class]="fieldClass('idNumber', 'ltr')">
-              <p *ngIf="form.get('idNumber')?.invalid && (form.get('idNumber')?.touched || form.get('idNumber')?.dirty)" 
+              <p *ngIf="identityNumberErrorKey"
                 class="text-[11px] font-semibold text-rose-500 mt-1.5 block px-1 animate-in fade-in slide-in-from-top-1 duration-200">
-                {{ 'REGISTER.ERR_GENERAL' | translate }}
+                {{ identityNumberErrorKey | translate }}
               </p>
             </label>
 
@@ -180,6 +180,46 @@ export class ProfileReviewWindowComponent {
 
   @Output() uploadClick = new EventEmitter<VendorLegalDocumentType>();
   @Output() documentSelected = new EventEmitter<{ event: Event; type: VendorLegalDocumentType }>();
+
+  get identityNumberLabelKey(): string {
+    const nationality = (this.form?.get('nationality')?.value || '').toString().trim().toUpperCase();
+    if (nationality === 'SAUDI') {
+      return 'ONBOARDING.FIELDS.NATIONAL_ID';
+    }
+    if (nationality) {
+      return 'ONBOARDING.FIELDS.IQAMA_ID';
+    }
+    return 'SETTINGS_PROFILE.FIELDS.ID_NUMBER';
+  }
+
+  get identityNumberErrorKey(): string {
+    const control = this.form?.get('idNumber');
+    if (!control || !control.invalid || !(control.touched || control.dirty)) {
+      return '';
+    }
+
+    const errors = control.errors || {};
+    if (errors['required']) {
+      return 'VALIDATION.REQUIRED';
+    }
+    if (errors['identityDigits']) {
+      return 'VALIDATION.IDENTITY_DIGITS';
+    }
+    if (errors['saudiNationalIdPrefix']) {
+      return 'VALIDATION.SAUDI_NATIONAL_ID';
+    }
+    if (errors['iqamaIdPrefix']) {
+      return 'VALIDATION.IQAMA_ID';
+    }
+    if (errors['identityPrefix']) {
+      return 'VALIDATION.IDENTITY_PREFIX';
+    }
+    if (errors['identityChecksum']) {
+      return 'VALIDATION.IDENTITY_CHECKSUM';
+    }
+
+    return 'REGISTER.ERR_GENERAL';
+  }
 
   normalizeArabic(value?: string | null): string {
     if (!value) {

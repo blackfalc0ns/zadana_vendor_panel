@@ -39,16 +39,19 @@ export interface VendorAuthResponse {
 export interface VendorRegisterDraft {
   fullName: string;
   email: string;
-  password: string;
+  password?: string | null;
   preferredStoreName?: string | null;
   createdAtUtc?: string | null;
+  authProvider?: 'password' | 'google' | null;
+  googleIdToken?: string | null;
 }
 
 export interface RegisterVendorPayload {
   fullName: string;
   email: string;
   phone: string;
-  password: string;
+  password?: string | null;
+  googleIdToken?: string | null;
   businessNameAr: string;
   businessNameEn: string;
   businessType: string;
