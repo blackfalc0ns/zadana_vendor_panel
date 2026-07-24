@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy } from '@angular/core';
-import { FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
+import { Component, EventEmitter, Input, Output, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { AbstractControl, FormArray, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { VendorNotificationSoundService } from '../../../../../core/notifications/services/vendor-notification-sound.service';
 import { SearchableSelectComponent, SearchableSelectOption } from '../../../../../shared/components/ui/form-controls/select/searchable-select.component';
 import { AppPageSectionShellComponent } from '../../../../../shared/components/ui/layout/page-section-shell/page-section-shell.component';
@@ -244,7 +244,7 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
  </div>
  </div>
 
- <div class="grid gap-4 lg:grid-cols-3">
+ <div class="grid gap-4 lg:grid-cols-2">
  <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md">
  <div class="flex items-start justify-between gap-3">
  <div>
@@ -253,20 +253,6 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
  </div>
  <label class="group relative flex cursor-pointer items-center justify-center">
  <input formControlName="emailNotificationsEnabled" type="checkbox" class="peer sr-only">
- <div class="h-6 w-11 rounded-full bg-slate-200 transition-colors peer-checked:bg-emerald-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500/20"></div>
- <div class="absolute left-[2px] top-[2px] h-5 w-5 rounded-full border border-slate-300 bg-white transition-all peer-checked:left-[22px] peer-checked:border-white shadow-sm"></div>
- </label>
- </div>
- </div>
-
- <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl p-6 shadow-sm transition-shadow hover:shadow-md">
- <div class="flex items-start justify-between gap-3">
- <div>
- <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.SMS' | translate }}</p>
- <p class="mt-1 text-[0.72rem] font-semibold text-slate-500">{{ 'SETTINGS_PROFILE.NOTIFICATIONS.SMS_HINT' | translate }}</p>
- </div>
- <label class="group relative flex cursor-pointer items-center justify-center">
- <input formControlName="smsNotificationsEnabled" type="checkbox" class="peer sr-only">
  <div class="h-6 w-11 rounded-full bg-slate-200 transition-colors peer-checked:bg-emerald-500 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-emerald-500/20"></div>
  <div class="absolute left-[2px] top-[2px] h-5 w-5 rounded-full border border-slate-300 bg-white transition-all peer-checked:left-[22px] peer-checked:border-white shadow-sm"></div>
  </label>
@@ -308,13 +294,22 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
  [subtitle]="'SETTINGS_PROFILE.SECTIONS.HOURS_HINT'"
  bodyClass="px-5 py-5">
  <div actions>
+ <div class="flex flex-wrap items-center gap-2">
+ <button
+ type="button"
+ (click)="applyOpen24Hours()"
+ class="inline-flex items-center justify-center gap-1.5 rounded-[8px] border border-emerald-200 bg-white px-3 py-1.5 text-[0.72rem] font-bold text-emerald-700 shadow-sm transition-colors hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-500/20">
+ <span class="material-symbols-outlined text-[16px]">schedule</span>
+ {{ 'SETTINGS_PROFILE.UI.SET_24_HOURS' | translate }}
+ </button>
  <span class="inline-flex items-center gap-1.5 rounded-[6px] bg-emerald-50 px-2.5 py-1 text-[0.7rem] font-bold text-emerald-700 border border-emerald-200">
  <span class="relative flex h-2 w-2">
  <span class="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
  <span class="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
  </span>
- {{ openDaysCount }} / {{ operatingHours.length }}
+ {{ displayedOpenDaysCount }} / {{ operatingHours.length }}
  </span>
+ </div>
  </div>
 
  <div formArrayName="operatingHours" class="grid gap-3">
@@ -334,7 +329,7 @@ import { AppPageSectionShellComponent } from '../../../../../shared/components/u
  <p class="text-sm font-bold text-slate-900">{{ hour.get('dayKey')?.value | translate }}</p>
  <p class="text-[0.7rem] font-bold"
  [ngClass]="hour.get('isOpen')?.value ? 'text-emerald-600' : 'text-slate-500'">
- {{ hour.get('isOpen')?.value ? ('SETTINGS_PROFILE.OPEN_NOW' | translate) : ('COMMON.CLOSE' | translate) }}
+ {{ hourStatusLabel(hour) }}
  </p>
  </div>
  </div>
@@ -397,12 +392,45 @@ export class ProfileOperationsWindowComponent {
  @Output() saveOperationsSettings = new EventEmitter<void>();
  @Output() saveNotifications = new EventEmitter<void>();
 
+ private readonly cdr = inject(ChangeDetectorRef);
+
  constructor(
- private readonly notificationSoundService: VendorNotificationSoundService
+ private readonly notificationSoundService: VendorNotificationSoundService,
+ private readonly translate: TranslateService
  ) {}
 
  get operatingHours(): FormArray {
  return this.form.get('operatingHours') as FormArray;
+ }
+
+ get displayedOpenDaysCount(): number {
+ return this.operatingHours.controls.filter((control) => !!control.get('isOpen')?.value).length;
+ }
+
+ applyOpen24Hours(): void {
+ this.operatingHours.controls.forEach((control) => {
+ control.patchValue({
+ isOpen: true,
+ from: '00:00',
+ to: '23:59'
+ });
+ control.markAsDirty();
+ });
+ this.cdr.markForCheck();
+ }
+
+ hourStatusLabel(hour: AbstractControl): string {
+ if (!hour.get('isOpen')?.value) {
+ return this.translate.instant('COMMON.CLOSE');
+ }
+
+ const from = String(hour.get('from')?.value || '');
+ const to = String(hour.get('to')?.value || '');
+ if (this.isTwentyFourHourRange(from, to)) {
+ return this.translate.instant('SETTINGS_PROFILE.UI.OPEN_24_HOURS');
+ }
+
+ return this.translate.instant('SETTINGS_PROFILE.OPEN_NOW');
  }
 
  isStoreOffline(): boolean {
@@ -418,5 +446,10 @@ export class ProfileOperationsWindowComponent {
 
  previewNotificationSound(): void {
  this.notificationSoundService.preview(this.form.get('notificationSound')?.value);
+ }
+
+ private isTwentyFourHourRange(from: string, to: string): boolean {
+ const normalize = (value: string) => value.trim().slice(0, 5);
+ return normalize(from) === '00:00' && normalize(to) === '23:59';
  }
 }

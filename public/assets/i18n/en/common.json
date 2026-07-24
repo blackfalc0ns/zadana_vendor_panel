@@ -70,7 +70,19 @@
     "VIEW_ALL": "View All",
     "DATE": "Date",
     "AMOUNT": "Amount",
-    "TOTAL": "Total"
+    "TOTAL": "Total",
+    "NO_RESULTS": "No matching results found.",
+    "SELECT_OPTION": "Select an option...",
+    "INFO": "Info",
+    "WARNING": "Warning",
+    "EXPORT": "Export",
+    "EXPORT_EMPTY": "Nothing to export.",
+    "EXPORT_SUCCESS": "Export completed successfully.",
+    "EXPORT_FAILED": "Could not export the file.",
+    "PROCESSING": "Processing...",
+    "NOT_SET": "Not set",
+    "SELECT": "Select...",
+    "SELECTED_ITEMS": "Selected items"
   },
   "SIDEBAR": {
     "APP_NAME": "Zadana",

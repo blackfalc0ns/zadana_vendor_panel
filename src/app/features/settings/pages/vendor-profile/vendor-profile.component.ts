@@ -1633,7 +1633,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  const formValue = this.profileForm.getRawValue();
  const profile: VendorProfile = {...this.profileService.getProfileSnapshot(),
  emailNotificationsEnabled: formValue.emailNotificationsEnabled,
- smsNotificationsEnabled: formValue.smsNotificationsEnabled,
+ smsNotificationsEnabled: false,
  newOrdersNotificationsEnabled: formValue.newOrdersNotificationsEnabled,
  notificationSound: formValue.notificationSound
  };

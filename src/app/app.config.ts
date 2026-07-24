@@ -12,7 +12,7 @@ import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
 import { ChunkLoadErrorHandler } from './core/services/chunk-load-error-handler';
 
-const TRANSLATION_ASSET_VERSION = '2026-07-24-google-auth-6';
+const TRANSLATION_ASSET_VERSION = '2026-07-24-category-leaf-1';
 
 function deepMergeTranslations(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
   const output: Record<string, unknown> = { ...target };
@@ -90,11 +90,8 @@ export function initializeTranslations(translate: TranslateService, http: HttpCl
       loader.loadFiles(savedLang, CustomTranslateLoader.essentialFiles).pipe(
         tap((essentialTranslations) => translate.setTranslation(savedLang, essentialTranslations, true)),
         switchMap(() => translate.use(savedLang)),
-        tap(() => {
-          loader.loadFiles(savedLang, CustomTranslateLoader.deferredFiles).pipe(
-            tap((deferredTranslations) => translate.setTranslation(savedLang, deferredTranslations, true))
-          ).subscribe();
-        })
+        switchMap(() => loader.loadFiles(savedLang, CustomTranslateLoader.deferredFiles)),
+        tap((deferredTranslations) => translate.setTranslation(savedLang, deferredTranslations, true))
       )
     ).then(() => undefined);
   };

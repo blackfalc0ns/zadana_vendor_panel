@@ -134,11 +134,18 @@ type CategoryRequestKind = 'category' | 'sub_category';
  @if (selectedCategoryMeta) {
  <p class="mt-1 text-[0.68rem] font-bold text-slate-400">{{ selectedCategoryMeta }}</p>
  }
+ @if (!canOpenCategoryModal) {
+ <p class="mt-1 text-[0.68rem] font-bold text-amber-600">{{ 'PRODUCTS.CATEGORY_REQUIRES_BRAND' | translate }}</p>
+ }
  @if (showCategorySelectionError) {
  <p class="mt-1 text-[0.68rem] font-bold text-rose-500">{{ 'PRODUCTS.CATEGORY_SELECTION_REQUIRED' | translate }}</p>
  }
  </div>
- <button type="button" (click)="isCategoryModalOpen = true" class="rounded-xl border border-slate-200 px-3 py-2 text-[0.72rem] font-black text-zadna-primary">
+ <button
+ type="button"
+ (click)="openCategoryModal()"
+ [disabled]="!canOpenCategoryModal"
+ class="rounded-xl border border-slate-200 px-3 py-2 text-[0.72rem] font-black text-zadna-primary disabled:cursor-not-allowed disabled:opacity-50">
  {{ 'PRODUCTS.OPEN_CATEGORY_MODAL' | translate }}
  </button>
  </div>
@@ -323,9 +330,14 @@ type CategoryRequestKind = 'category' | 'sub_category';
  </div>
 
  @if (categoryDraftForm.get('isNew')?.value) {
+ <div class="mt-4 rounded-2xl border border-cyan-200 bg-white px-4 py-3">
+ <p class="text-[0.72rem] font-black uppercase tracking-widest text-cyan-700">{{ 'PRODUCTS.CATEGORY_KIND_SUB_CATEGORY' | translate }}</p>
+ <p class="mt-1 text-[0.75rem] font-bold text-slate-600">{{ 'PRODUCTS.NEW_CATEGORY_LEAF_HINT' | translate }}</p>
+ </div>
+
  <div class="mt-4 grid grid-cols-1 gap-4 md:grid-cols-2">
- <input type="text" formControlName="nameAr" class="h-11 w-full rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NEW_CATEGORY_AR' | translate">
- <input type="text" formControlName="nameEn" class="h-11 w-full rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NEW_CATEGORY_EN' | translate" dir="ltr">
+ <input type="text" formControlName="nameAr" class="h-11 w-full rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NEW_SUB_CATEGORY_AR' | translate">
+ <input type="text" formControlName="nameEn" class="h-11 w-full rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NEW_SUB_CATEGORY_EN' | translate" dir="ltr">
 
  <app-searchable-select
  formControlName="activityId"
@@ -333,26 +345,27 @@ type CategoryRequestKind = 'category' | 'sub_category';
  [placeholder]="'PRODUCTS.SELECT_ACTIVITY'"
  [searchPlaceholder]="'COMMON.SEARCH'"
  [noResultsText]="'COMMON.NO_RESULTS'"
- (selectionChange)="categoryDraftForm; onActivityChanged()">
+ (selectionChange)="onActivityChanged()">
  </app-searchable-select>
 
  <app-searchable-select
  formControlName="subActivityId"
  [disabled]="!categoryDraftForm.get('activityId')?.value"
  [options]="subActivityDropdownOptions"
- [placeholder]="'PRODUCTS.SELECT_SUB_ACTIVITY_OPTIONAL'"
+ [placeholder]="'PRODUCTS.SELECT_SUB_ACTIVITY'"
  [searchPlaceholder]="'COMMON.SEARCH'"
  [noResultsText]="'COMMON.NO_RESULTS'"
- (selectionChange)="categoryDraftForm; onSubActivityChanged()">
+ (selectionChange)="onSubActivityChanged()">
  </app-searchable-select>
 
  <app-searchable-select
  formControlName="categoryParentId"
+ [disabled]="!categoryDraftForm.get('subActivityId')?.value"
  [options]="categoryParentDropdownOptions"
- [placeholder]="'PRODUCTS.SELECT_PARENT_CATEGORY'"
+ [placeholder]="'PRODUCTS.SELECT_PARENT_CATEGORY_FOR_SUB'"
  [searchPlaceholder]="'COMMON.SEARCH'"
  [noResultsText]="'COMMON.NO_RESULTS'"
- (selectionChange)="categoryDraftForm">
+ (selectionChange)="onCategoryParentChanged()">
  </app-searchable-select>
 
  <input type="number" min="1" formControlName="displayOrder" class="h-11 w-full rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.DISPLAY_ORDER' | translate">
@@ -362,7 +375,7 @@ type CategoryRequestKind = 'category' | 'sub_category';
  <div class="grid gap-3 md:grid-cols-2">
  <div>
  <p class="text-[0.7rem] font-black uppercase tracking-widest text-slate-400">{{ 'PRODUCTS.CATEGORY_REQUEST_KIND' | translate }}</p>
- <p class="mt-1 text-[0.82rem] font-bold text-slate-800">{{ getRequestKindTranslateKey(selectedRequestKind) | translate }}</p>
+ <p class="mt-1 text-[0.82rem] font-bold text-slate-800">{{ 'PRODUCTS.CATEGORY_KIND_SUB_CATEGORY' | translate }}</p>
  </div>
  <div>
  <p class="text-[0.7rem] font-black uppercase tracking-widest text-slate-400">{{ 'PRODUCTS.CATEGORY_PLACEMENT_PREVIEW' | translate }}</p>
@@ -491,7 +504,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  this.requestForm.patchValue({ nameAr: this.initialName, nameEn: this.initialName });
  }
 
- this.requestForm.get('brandId')?.valueChanges.subscribe(brandId => this.syncCategoryWithBrandSelection(brandId || null));
+ this.requestForm.get('brandId')?.valueChanges.subscribe(brandId => this.syncCategoryWithBrandSelection(brandId || null, true));
  this.requestForm.get('categoryId')?.valueChanges.subscribe(categoryId => this.syncBrandWithCategorySelection(categoryId || null));
 
  this.loadData();
@@ -534,15 +547,26 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  const subActivityId = this.categoryDraftForm.get('subActivityId')?.value as string | null;
  const activityId = this.categoryDraftForm.get('activityId')?.value as string | null;
 
- if (subActivityId) {
- return allLevelTwo.filter(category => this.isCategoryUnderAncestor(category, subActivityId));
+ if (!subActivityId) {
+ return [];
  }
 
+ let scoped = allLevelTwo.filter(category => this.isCategoryUnderAncestor(category, subActivityId));
  if (activityId) {
- return allLevelTwo.filter(category => this.isCategoryUnderAncestor(category, activityId));
+ scoped = scoped.filter(category => this.isCategoryUnderAncestor(category, activityId));
  }
 
- return allLevelTwo;
+ const brand = this.getSelectedBrand();
+ if (!brand) {
+ return scoped;
+ }
+
+ const linkedIds = this.getBrandLinkedCategoryIds(brand);
+ if (linkedIds.size === 0) {
+ return scoped;
+ }
+
+ return scoped.filter((category) => this.isBrandRelatedToParentCategory(category, linkedIds));
  }
 
  get categoryParentDropdownOptions(): SearchableSelectOption[] {
@@ -550,11 +574,27 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  get filteredBrandOptions(): BrandOption[] {
+ const categoryId = this.requestForm.get('categoryId')?.value as string | null;
+ if (!categoryId || this.categoryDraftForm.get('isNew')?.value) {
  return this.brands;
  }
 
+ return this.brands.filter((brand) => this.doesBrandMatchCategory(brand, categoryId));
+ }
+
  get filteredExistingCategoryOptions(): Category[] {
- return this.flatCategories.filter(category => this.isProductAssignableCategory(category));
+ const assignable = this.flatCategories.filter(category => this.isProductAssignableCategory(category));
+ const brand = this.getSelectedBrand();
+ if (!brand) {
+ return [];
+ }
+
+ const linkedIds = this.getBrandLinkedCategoryIds(brand);
+ if (linkedIds.size === 0) {
+ return assignable;
+ }
+
+ return assignable.filter((category) => this.doesCategoryMatchBrandLinks(category, linkedIds));
  }
 
  get brandDropdownOptions(): SearchableSelectOption[] {
@@ -574,6 +614,10 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
 
  get brandRequestCategoryDropdownOptions(): SearchableSelectOption[] {
  return this.toCategoryDropdownOptions(this.brandRequestCategoryOptions);
+ }
+
+ get canOpenCategoryModal(): boolean {
+ return !!this.getSelectedBrand() || !!this.brandDraftForm.get('isNew')?.value;
  }
 
  get measurementUnitOptions(): SearchableSelectOption[] {
@@ -650,6 +694,13 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  this.isCategoryModalOpen = false;
  }
 
+ openCategoryModal(): void {
+ if (!this.canOpenCategoryModal) {
+ return;
+ }
+ this.isCategoryModalOpen = true;
+ }
+
  toggleBrandDraftMode(): void {
  const next =!this.brandDraftForm.get('isNew')?.value;
  this.brandDraftForm.patchValue({ isNew: next, brandId: '', categoryId: '', logoUrl: '' });
@@ -663,6 +714,8 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  isNew: next,
  categoryId: '',
  requestKind: 'sub_category',
+ nameAr: '',
+ nameEn: '',
  activityId: '',
  subActivityId: '',
  categoryParentId: '',
@@ -674,6 +727,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  this.syncCategorySelectionValidator(next);
  if (next) {
  this.categoryDraftForm.patchValue({ requestKind: 'sub_category' });
+ this.prefillHierarchyFromBrand();
  this.autoSelectSingleCategoryParent();
  }
  }
@@ -694,6 +748,25 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  ? this.brandDraftForm.get('nameAr')?.value
  : this.brandDraftForm.get('nameEn')?.value;
  this.requestForm.patchValue({ brandId: '' });
+
+ const brandCategoryId = this.brandDraftForm.get('categoryId')?.value as string | null;
+ if (brandCategoryId) {
+ const brandCategory = this.flatCategories.find((item) => item.id === brandCategoryId) || null;
+ if (brandCategory && this.isProductAssignableCategory(brandCategory)) {
+ this.requestForm.patchValue({ categoryId: brandCategoryId });
+ this.categoryDraftForm.patchValue({ isNew: false, categoryId: brandCategoryId });
+ this.syncCategorySelectionValidator(false);
+ this.selectedCategoryLabel = this.getCategoryOptionLabel(brandCategory);
+ this.selectedCategoryMeta = brandCategory.displayOrder
+ ? `${this.translate.instant('PRODUCTS.DISPLAY_ORDER')}: ${brandCategory.displayOrder}`
+ : '';
+ this.showCategorySelectionError = false;
+ } else {
+ this.clearCategorySelection();
+ }
+ } else {
+ this.clearCategorySelection();
+ }
  } else {
  const brandId = this.brandDraftForm.get('brandId')?.value;
  const brand = this.brands.find(item => item.id === brandId);
@@ -705,6 +778,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  this.selectedBrandLabel = this.currentLang === 'ar' ? brand.nameAr : brand.nameEn;
  this.brandDraftForm.patchValue({ categoryId: '', nameAr: '', nameEn: '', logoUrl: '' });
  this.removeBrandImage();
+ this.syncCategoryWithBrandSelection(brandId, true);
  }
 
  this.closeBrandModal();
@@ -729,7 +803,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  ? this.categoryDraftForm.get('nameAr')?.value
  : this.categoryDraftForm.get('nameEn')?.value;
  this.selectedCategoryMeta = [
- `${this.translate.instant('PRODUCTS.CATEGORY_REQUEST_KIND')}: ${this.translate.instant(this.getRequestKindTranslateKey(this.selectedRequestKind))}`,
+ `${this.translate.instant('PRODUCTS.CATEGORY_REQUEST_KIND')}: ${this.translate.instant('PRODUCTS.CATEGORY_KIND_SUB_CATEGORY')}`,
  previewPath ? `${this.translate.instant('PRODUCTS.CATEGORY_PLACEMENT_PREVIEW')}: ${previewPath}` : '',
  `${this.translate.instant('PRODUCTS.DISPLAY_ORDER')}: ${order}`
  ].filter(Boolean).join(' • ');
@@ -991,6 +1065,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
 
  onActivityChanged(): void {
  this.categoryDraftForm.patchValue({ subActivityId: '', categoryParentId: '' });
+ this.autoSelectSingleSubActivity();
  this.autoSelectSingleCategoryParent();
  this.applyCategoryDraftValidators(true);
  }
@@ -998,6 +1073,10 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  onSubActivityChanged(): void {
  this.categoryDraftForm.patchValue({ categoryParentId: '' });
  this.autoSelectSingleCategoryParent();
+ this.applyCategoryDraftValidators(true);
+ }
+
+ onCategoryParentChanged(): void {
  this.applyCategoryDraftValidators(true);
  }
 
@@ -1142,9 +1221,10 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  en?.setValidators([Validators.required, Validators.minLength(2)]);
  requestKind?.setValidators([Validators.required]);
  order?.setValidators([Validators.required, Validators.min(1)]);
- activityId?.clearValidators();
- subActivityId?.clearValidators();
+ activityId?.setValidators([Validators.required]);
+ subActivityId?.setValidators([Validators.required]);
  categoryParentId?.setValidators([Validators.required]);
+ this.categoryDraftForm.get('requestKind')?.setValue('sub_category', { emitEvent: false });
  } else {
  ar?.clearValidators();
  en?.clearValidators();
@@ -1211,6 +1291,88 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  return false;
  }
 
+ private isBrandRelatedToParentCategory(parent: Category, linkedIds: Set<string>): boolean {
+ if (linkedIds.has(parent.id) || this.doesCategoryMatchBrandLinks(parent, linkedIds)) {
+ return true;
+ }
+
+ return Array.from(linkedIds).some((linkedId) => {
+ const linked = this.flatCategories.find((item) => item.id === linkedId);
+ return !!linked && this.isCategoryUnderAncestor(linked, parent.id);
+ });
+ }
+
+ private prefillHierarchyFromBrand(): void {
+ const brand = this.getSelectedBrand();
+ if (!brand) {
+ return;
+ }
+
+ const linkedIds = this.getBrandLinkedCategoryIds(brand);
+ if (linkedIds.size === 0) {
+ return;
+ }
+
+ const preferredParent = this.resolvePreferredParentFromBrandLinks(linkedIds);
+ if (!preferredParent) {
+ return;
+ }
+
+ const path = this.getCategoryAncestorPath(preferredParent);
+ const activity = path.find((item) => (item.level ?? 0) === 0) || null;
+ const subActivity = path.find((item) => (item.level ?? 0) === 1) || null;
+
+ this.categoryDraftForm.patchValue({
+ activityId: activity?.id || '',
+ subActivityId: subActivity?.id || '',
+ categoryParentId: preferredParent.id,
+ requestKind: 'sub_category'
+ });
+ }
+
+ private resolvePreferredParentFromBrandLinks(linkedIds: Set<string>): Category | null {
+ const linkedCategories = Array.from(linkedIds)
+ .map((id) => this.flatCategories.find((item) => item.id === id) || null)
+ .filter((item): item is Category => !!item);
+
+ const levelTwo = linkedCategories.find((item) => (item.level ?? 0) === 2);
+ if (levelTwo) {
+ return levelTwo;
+ }
+
+ for (const linked of linkedCategories) {
+ if ((linked.level ?? 0) > 2) {
+ const parent = linked.parentCategoryId
+ ? this.flatCategories.find((item) => item.id === linked.parentCategoryId) || null
+ : null;
+ if (parent && (parent.level ?? 0) === 2) {
+ return parent;
+ }
+ }
+ }
+
+ return null;
+ }
+
+ private getCategoryAncestorPath(category: Category): Category[] {
+ const path: Category[] = [];
+ let current: Category | undefined = category;
+ while (current) {
+ path.unshift(current);
+ const parentId: string | null | undefined = current.parentCategoryId;
+ current = parentId ? this.flatCategories.find((item) => item.id === parentId) : undefined;
+ }
+ return path;
+ }
+
+ private autoSelectSingleSubActivity(): void {
+ const options = this.subActivityOptions;
+ if (options.length === 1) {
+ this.categoryDraftForm.patchValue({ subActivityId: options[0].id });
+ this.autoSelectSingleCategoryParent();
+ }
+ }
+
  private autoSelectSingleCategoryParent(): void {
  const options = this.categoryParentOptions;
  if (options.length === 1) {
@@ -1231,8 +1393,80 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }));
  }
 
- private syncCategoryWithBrandSelection(brandId: string | null): void {
+ private getSelectedBrand(): BrandOption | null {
+ if (this.brandDraftForm.get('isNew')?.value) {
+ const categoryId = this.brandDraftForm.get('categoryId')?.value as string | null;
+ if (!categoryId) {
+ return null;
+ }
+
+ return {
+ id: '',
+ nameAr: this.brandDraftForm.get('nameAr')?.value || '',
+ nameEn: this.brandDraftForm.get('nameEn')?.value || '',
+ categoryId,
+ categoryIds: [categoryId]
+ };
+ }
+
+ const brandId = this.requestForm.get('brandId')?.value as string | null;
+ return brandId ? this.brands.find((item) => item.id === brandId) || null : null;
+ }
+
+ private getBrandLinkedCategoryIds(brand: BrandOption): Set<string> {
+ return new Set([
+ ...(brand.categoryIds || []),
+ ...(brand.categoryId ? [brand.categoryId] : []),
+ ...(brand.categories || []).map((item) => item.categoryId)
+ ].filter(Boolean));
+ }
+
+ private doesBrandMatchCategory(brand: BrandOption, categoryId: string): boolean {
+ const linkedIds = this.getBrandLinkedCategoryIds(brand);
+ if (linkedIds.size === 0) {
+ return true;
+ }
+
+ const category = this.flatCategories.find((item) => item.id === categoryId) || null;
+ if (!category) {
+ return linkedIds.has(categoryId);
+ }
+
+ return this.doesCategoryMatchBrandLinks(category, linkedIds);
+ }
+
+ private doesCategoryMatchBrandLinks(category: Category, linkedIds: Set<string>): boolean {
+ if (linkedIds.has(category.id)) {
+ return true;
+ }
+
+ return Array.from(linkedIds).some((linkedId) => this.isCategoryUnderAncestor(category, linkedId));
+ }
+
+ private clearCategorySelection(): void {
+ this.requestForm.patchValue({ categoryId: '' }, { emitEvent: false });
+ this.categoryDraftForm.patchValue({
+ isNew: false,
+ categoryId: '',
+ nameAr: '',
+ nameEn: '',
+ requestKind: 'sub_category',
+ activityId: '',
+ subActivityId: '',
+ categoryParentId: '',
+ displayOrder: 1,
+ imageUrl: ''
+ }, { emitEvent: false });
+ this.syncCategorySelectionValidator(false);
+ this.selectedCategoryLabel = '';
+ this.selectedCategoryMeta = '';
+ }
+
+ private syncCategoryWithBrandSelection(brandId: string | null, forceReset = false): void {
  if (!brandId) {
+ if (forceReset) {
+ this.clearCategorySelection();
+ }
  return;
  }
 
@@ -1242,6 +1476,38 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  this.selectedBrandLabel = this.currentLang === 'ar' ? brand.nameAr : brand.nameEn;
+
+ const currentCategoryId = this.requestForm.get('categoryId')?.value as string | null;
+ const linkedIds = this.getBrandLinkedCategoryIds(brand);
+ const currentCategory = currentCategoryId
+ ? this.flatCategories.find((item) => item.id === currentCategoryId) || null
+ : null;
+ const currentMatches = !!currentCategory
+ && (linkedIds.size === 0 || this.doesCategoryMatchBrandLinks(currentCategory, linkedIds));
+
+ if (currentMatches && !forceReset) {
+ return;
+ }
+
+ const matchingCategories = this.flatCategories.filter((category) =>
+ this.isProductAssignableCategory(category)
+ && (linkedIds.size === 0 || this.doesCategoryMatchBrandLinks(category, linkedIds))
+ );
+
+ if (matchingCategories.length === 1) {
+ const category = matchingCategories[0];
+ this.requestForm.patchValue({ categoryId: category.id }, { emitEvent: false });
+ this.categoryDraftForm.patchValue({ isNew: false, categoryId: category.id }, { emitEvent: false });
+ this.syncCategorySelectionValidator(false);
+ this.selectedCategoryLabel = this.getCategoryOptionLabel(category);
+ this.selectedCategoryMeta = category.displayOrder
+ ? `${this.translate.instant('PRODUCTS.DISPLAY_ORDER')}: ${category.displayOrder}`
+ : '';
+ this.showCategorySelectionError = false;
+ return;
+ }
+
+ this.clearCategorySelection();
  }
 
  private syncBrandWithCategorySelection(categoryId: string | null): void {
@@ -1258,6 +1524,17 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  this.selectedCategoryMeta = category.displayOrder
  ? `${this.translate.instant('PRODUCTS.DISPLAY_ORDER')}: ${category.displayOrder}`
  : '';
+
+ const brandId = this.requestForm.get('brandId')?.value as string | null;
+ if (!brandId) {
+ return;
+ }
+
+ const brand = this.brands.find((item) => item.id === brandId) || null;
+ if (brand && !this.doesBrandMatchCategory(brand, categoryId)) {
+ this.requestForm.patchValue({ brandId: '' }, { emitEvent: false });
+ this.selectedBrandLabel = '';
+ }
  }
 
  private flattenCategories(categories: Category[]): Category[] {

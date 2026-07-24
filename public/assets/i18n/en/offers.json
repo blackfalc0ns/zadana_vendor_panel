@@ -96,7 +96,8 @@
       "NO_LOW_STOCK_PRODUCTS_HINT": "Lower stock levels or update quantities from the products page first.",
       "SAVE_COUPON": "Save Coupon",
       "SAVE_CATEGORY": "Save Campaign",
-      "SAVE_CLEARANCE": "Save Clearance Offer"
+      "SAVE_CLEARANCE": "Save Clearance Offer",
+      "TYPE": "Discount type"
     },
     "TABLE": {
       "PRODUCT": "Product",

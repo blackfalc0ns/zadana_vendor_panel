@@ -732,12 +732,18 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.persistAccountDraft();
  const draft = this.authService.getValidRegistrationDraft();
  const account = this.onboardingForm.get('account')?.getRawValue();
+ const step1 = this.getStepGroup(1).getRawValue();
  const fullName = (draft?.fullName || `${account?.firstName || ''} ${account?.lastName || ''}`).trim();
- const email = (draft?.email || account?.email || '').toString().trim();
- const password = draft?.password || account?.password || '';
- const preferredStoreName = draft?.preferredStoreName || account?.storeName || '';
  const googleIdToken = draft?.googleIdToken || this.googleIdToken || '';
  const isGoogleSignup = draft?.authProvider === 'google' || this.isGoogleSignup;
+ const email = (
+ isGoogleSignup
+ ? (draft?.email || account?.email || step1.ownerEmail || '')
+ : (draft?.email || account?.email || '')
+ ).toString().trim();
+ const ownerEmail = (isGoogleSignup ? email : (step1.ownerEmail || email)).toString().trim();
+ const password = draft?.password || account?.password || '';
+ const preferredStoreName = draft?.preferredStoreName || account?.storeName || '';
 
  if (!fullName || !email || (!password && !googleIdToken)) {
  this.submissionError = this.translate.instant('ONBOARDING.ERRORS.START_FROM_REGISTER');
@@ -745,9 +751,16 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  return;
  }
 
+ if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || !email.toLowerCase().endsWith('.com')) {
+ this.submissionError = this.translate.instant('VALIDATION.EMAIL_COM');
+ this.currentStep = this.stepItems.find((step) => step.formKey === 'step1')?.id
+ || this.stepItems.find((step) => step.formKey === 'account')?.id
+ || 1;
+ return;
+ }
+
  this.isSubmitting = true;
  this.resetUploadProgress();
- const step1 = this.getStepGroup(1).getRawValue();
  const step2 = this.getStepGroup(2).getRawValue();
  const step3 = this.getStepGroup(3).getRawValue();
  const step4 = this.getStepGroup(4).getRawValue();
@@ -771,12 +784,12 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  businessType: step1.businessType,
  commercialRegistrationNumber: step3.commercialRegistrationNumber,
  commercialRegistrationExpiryDate: step3.expiryDate || null,
- contactEmail: step1.ownerEmail,
+ contactEmail: ownerEmail,
  contactPhone: step1.contactPhone,
  descriptionAr: step1.description,
  descriptionEn: step1.description,
  ownerName: step1.ownerName,
- ownerEmail: step1.ownerEmail,
+ ownerEmail,
  ownerPhone: step1.ownerPhone,
  idNumber: step3.idNumber,
  nationality: step3.nationality,
@@ -1633,12 +1646,20 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  localStorage.setItem('onboarding_biz_name', account.storeName);
  }
 
+ const ownerEmailControl = this.onboardingForm.get('step1.ownerEmail');
+ const wasOwnerEmailDisabled = !!ownerEmailControl?.disabled;
+ ownerEmailControl?.enable({ emitEvent: false });
+
  this.onboardingForm.get('step1')?.patchValue({
  ownerName: fullName || this.onboardingForm.get('step1.ownerName')?.value,
  ownerEmail: account.email,
  businessNameAr: this.onboardingForm.get('step1.businessNameAr')?.value || account.storeName,
  businessNameEn: this.onboardingForm.get('step1.businessNameEn')?.value || account.storeName
  }, { emitEvent: false });
+
+ if (wasOwnerEmailDisabled || this.isGoogleSignup) {
+ ownerEmailControl?.disable({ emitEvent: false });
+ }
  }
 
  applyGoogleSignupMode(
@@ -1652,15 +1673,26 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  const firstName = profile.givenName || profile.fullName.trim().split(/\s+/)[0] || '';
  const lastName = profile.familyName || profile.fullName.trim().split(/\s+/).slice(1).join(' ') || '';
  const account = this.onboardingForm.get('account') as FormGroup;
+ const email = profile.email.trim();
+ const emailControl = account.get('email');
+ const ownerEmailControl = this.onboardingForm.get('step1.ownerEmail');
+ const ownerNameControl = this.onboardingForm.get('step1.ownerName');
+
+ emailControl?.enable({ emitEvent: false });
+ ownerEmailControl?.enable({ emitEvent: false });
 
  account.patchValue({
  firstName,
  lastName,
- email: profile.email,
+ email,
  storeName: preferredStoreName || account.get('storeName')?.value || '',
  password: '',
  confirmPassword: ''
- });
+ }, { emitEvent: false });
+
+ emailControl?.setValue(email, { emitEvent: false });
+ ownerNameControl?.setValue(profile.fullName, { emitEvent: false });
+ ownerEmailControl?.setValue(email, { emitEvent: false });
 
  ['password', 'confirmPassword'].forEach((field) => {
  const control = account.get(field);
@@ -1669,13 +1701,8 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  });
  account.clearValidators();
  account.updateValueAndValidity({ emitEvent: false });
- account.get('email')?.disable({ emitEvent: false });
-
- this.onboardingForm.get('step1')?.patchValue({
- ownerName: profile.fullName,
- ownerEmail: profile.email
- }, { emitEvent: false });
- this.onboardingForm.get('step1.ownerEmail')?.disable({ emitEvent: false });
+ emailControl?.disable({ emitEvent: false });
+ ownerEmailControl?.disable({ emitEvent: false });
 
  this.persistAccountDraft();
 

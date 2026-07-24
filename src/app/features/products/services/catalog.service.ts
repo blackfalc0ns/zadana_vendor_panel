@@ -160,7 +160,8 @@ export class CatalogService {
   }
 
   getBrands(): Observable<BrandOption[]> {
-    return this.http.get<BrandOption[]>(`${this.baseUrl}/catalog/brands`).pipe(
+    return this.http.get<any[]>(`${this.baseUrl}/catalog/brands`).pipe(
+      map((brands) => (brands || []).map((brand) => this.mapBrandOption(brand))),
       catchError(() => of([]))
     );
   }
@@ -339,6 +340,35 @@ export class CatalogService {
 
   hasActiveOffer(product: VendorProduct): boolean {
     return !!product.compareAtPrice && product.compareAtPrice > product.sellingPrice;
+  }
+
+  private mapBrandOption(brand: any): BrandOption {
+    const categories = Array.isArray(brand?.categories)
+      ? brand.categories.map((item: any) => ({
+          categoryId: String(item.categoryId || item.CategoryId || ''),
+          categoryNameAr: item.categoryNameAr ?? item.CategoryNameAr ?? null,
+          categoryNameEn: item.categoryNameEn ?? item.CategoryNameEn ?? null
+        })).filter((item: { categoryId: string }) => !!item.categoryId)
+      : [];
+
+    const categoryIds = Array.from(new Set([
+      ...(Array.isArray(brand?.categoryIds) ? brand.categoryIds.map((id: any) => String(id)) : []),
+      ...categories.map((item: { categoryId: string }) => item.categoryId),
+      ...(brand?.categoryId ? [String(brand.categoryId)] : [])
+    ].filter(Boolean)));
+
+    return {
+      id: String(brand?.id || ''),
+      nameAr: brand?.nameAr || '',
+      nameEn: brand?.nameEn || '',
+      logoUrl: brand?.logoUrl || undefined,
+      categoryId: brand?.categoryId ? String(brand.categoryId) : null,
+      categoryIds,
+      categories,
+      categoryNameAr: brand?.categoryNameAr || categories[0]?.categoryNameAr || undefined,
+      categoryNameEn: brand?.categoryNameEn || categories[0]?.categoryNameEn || undefined,
+      isActive: brand?.isActive ?? true
+    };
   }
 
   private mapMasterProduct(item: MasterProductApi): MasterProduct {

@@ -96,7 +96,8 @@
       "NO_LOW_STOCK_PRODUCTS_HINT": "أضف منتجًا بمخزون منخفض أو حدّث الكميات من صفحة المنتجات أولًا.",
       "SAVE_COUPON": "حفظ الكوبون",
       "SAVE_CATEGORY": "حفظ الحملة",
-      "SAVE_CLEARANCE": "حفظ عرض الفلترة"
+      "SAVE_CLEARANCE": "حفظ عرض الفلترة",
+      "TYPE": "نوع الخصم"
     },
     "TABLE": {
       "PRODUCT": "المنتج",

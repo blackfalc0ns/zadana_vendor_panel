@@ -1,4 +1,4 @@
-﻿{
+{
   "PRODUCTS": {
     "LIST_TITLE": "Product Management",
     "LIST_SUBTITLE": "View and edit your product stock and prices",
@@ -31,7 +31,8 @@
       "MEASUREMENT_UNIT": "Measurement unit",
       "ALL_MEASUREMENT_UNITS": "All measurement units",
       "SIZE_VALUE": "Size value",
-      "ALL_SIZES": "All sizes"
+      "ALL_SIZES": "All sizes",
+      "TYPE": "Request type"
     },
     "HEADER_PRODUCT": "Product",
     "HEADER_CATEGORY": "Category",
@@ -88,17 +89,19 @@
     "REQUEST_MISSING_BRAND": "Brand not listed?",
     "REQUEST_MISSING_BRAND_HINT": "Turn this on if the product belongs to a brand that does not exist yet.",
     "REQUEST_MISSING_CATEGORY": "Category not listed?",
-    "REQUEST_MISSING_CATEGORY_HINT": "Turn this on if you need a completely new category for this product.",
+    "REQUEST_MISSING_CATEGORY_HINT": "Turn this on to add a new subcategory (last hierarchy level) under a parent category.",
     "OPEN_BRAND_MODAL": "Brand",
     "OPEN_CATEGORY_MODAL": "Category",
     "BRAND_MODAL_TITLE": "Brand Selection",
     "BRAND_MODAL_DESC": "Pick an existing brand or create a new one.",
     "SELECT_BRAND_CATEGORY": "Select the brand category...",
     "CATEGORY_MODAL_TITLE": "Category Selection",
-    "CATEGORY_MODAL_DESC": "Pick an existing category or add a new one with hierarchy details.",
+    "CATEGORY_MODAL_DESC": "Category is linked to the brand. Pick a category tied to the selected brand, or add a new subcategory (last level).",
+    "CATEGORY_REQUIRES_BRAND": "Select a brand first to see its linked categories.",
     "ADD_NEW_BRAND": "Add New Brand",
-    "ADD_NEW_CATEGORY": "Add New Category",
+    "ADD_NEW_CATEGORY": "Add New Subcategory",
     "SELECT_PARENT_CATEGORY": "Select parent category...",
+    "SELECT_PARENT_CATEGORY_FOR_SUB": "Select parent category for the subcategory...",
     "SELECT_ACTIVITY": "Select activity...",
     "SELECT_SUB_ACTIVITY": "Select sub-activity...",
     "SELECT_SUB_ACTIVITY_OPTIONAL": "Select sub-activity (optional)...",
@@ -108,6 +111,7 @@
     "CATEGORY_PLACEMENT_PENDING": "Select the hierarchy first",
     "CATEGORY_KIND_CATEGORY": "Category",
     "CATEGORY_KIND_SUB_CATEGORY": "Sub-category",
+    "NEW_CATEGORY_LEAF_HINT": "New categories are always created as a subcategory (last level). Choose activity, sub-activity, then the parent category.",
     "DISPLAY_ORDER": "Display Order",
     "BRAND_IMAGE": "Brand Image",
     "CATEGORY_IMAGE": "Category Image",
@@ -115,6 +119,8 @@
     "REMOVE_IMAGE": "Remove Image",
     "NEW_CATEGORY_AR": "New Category Name in Arabic",
     "NEW_CATEGORY_EN": "New Category Name in English",
+    "NEW_SUB_CATEGORY_AR": "Subcategory name in Arabic",
+    "NEW_SUB_CATEGORY_EN": "Subcategory name in English",
     "DESCRIPTION": "Description",
     "DESCRIPTION_AR": "Arabic Description",
     "DESCRIPTION_EN": "English Description",
@@ -281,6 +287,10 @@
   "CATALOG": {
     "STATUS_PENDING": "Pending",
     "STATUS_APPROVED": "Approved",
-    "STATUS_REJECTED": "Rejected"
+    "STATUS_REJECTED": "Rejected",
+    "CATEGORY_L1": "Main category",
+    "CATEGORY_L2": "Subcategory",
+    "CATEGORY_L3": "Level 3 category",
+    "SELECTED_PATH": "Selected path"
   }
 }

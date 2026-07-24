@@ -1,4 +1,4 @@
-﻿{
+{
   "SETTINGS_PROFILE": {
     "TITLE": "Vendor profile",
     "SUBTITLE": "Manage the store profile, legal file, banking setup, and review status from one workspace.",
@@ -51,7 +51,9 @@
       "VERIFICATION_SUMMARY": "Verification summary",
       "BANK_PROFILE": "Bank profile",
       "REQUIRED_DOCUMENTS": "Required documents",
-      "SAVE_SECTION": "Save this section"
+      "SAVE_SECTION": "Save this section",
+      "SET_24_HOURS": "Set 24 hours",
+      "OPEN_24_HOURS": "Open 24 hours"
     },
     "SECTIONS": {
       "STORE": "Store details",
@@ -491,7 +493,10 @@
       "SUCCESS_EYEBROW": "Access ready",
       "SUCCESS_TITLE": "Your account is active",
       "SUCCESS_BODY": "You can now sign in with the invited email and the password you just created.",
-      "LOGIN": "Go to login"
+      "LOGIN": "Go to login",
+      "ROLE_NOT_CONFIGURED": "This invitation role is not configured. Contact support.",
+      "STAFF_ALREADY_EXISTS": "This staff member already exists on the vendor account.",
+      "USER_ALREADY_EXISTS": "This email is already registered. Sign in or use another email."
     },
     "DETAILS": {
       "BRANCH": {
@@ -559,6 +564,11 @@
           "SENT": "Invitation sent"
         }
       }
+    },
+    "FIELDS": {
+      "BRANCH_TYPE": "Branch type",
+      "CITY": "City",
+      "REGION": "Region"
     }
   },
   "REVIEWS": {

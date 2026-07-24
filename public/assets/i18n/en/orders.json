@@ -213,7 +213,8 @@
     "STATUS": {
       "IN_PROGRESS": "Preparing",
       "REFUNDED": "Refunded"
-    }
+    },
+    "TOTAL": "Total"
   },
   "SUPPORT_CENTER": {
     "TITLE": "Support & Reference Center",
@@ -360,6 +361,10 @@
       "MESSAGE_SENT": "Your reply was sent to the ticket.",
       "MESSAGE_SEND_FAILED": "Your reply could not be sent. Please try again.",
       "SEED_RESET": "The demo support workspace was reset."
+    },
+    "FIELDS": {
+      "CATEGORY": "Category",
+      "PRIORITY": "Priority"
     }
   },
   "VENDOR_DISPUTES": {
@@ -576,7 +581,14 @@
       "REASON_CODE": "Reason code",
       "REFUND_METHOD": "Refund method",
       "COST_BEARER": "Cost bearer",
-      "CLOSED_AT": "Closed at"
+      "CLOSED_AT": "Closed at",
+      "UPLOAD_SUCCESS": "File uploaded successfully.",
+      "UPLOAD_FAILED": "Could not upload the file. Please try again."
+    },
+    "DECISION_NOTE": {
+      "STATUS": {
+        "APPROVED_RETURN": "Return approved"
+      }
     }
   }
 }

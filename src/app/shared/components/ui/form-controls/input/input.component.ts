@@ -1,4 +1,4 @@
-import { Component, Input, forwardRef, ChangeDetectionStrategy } from '@angular/core';
+import { Component, Input, forwardRef, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR, ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
@@ -19,6 +19,8 @@ import { TranslateModule } from '@ngx-translate/core';
   ]
 })
 export class AppInputComponent implements ControlValueAccessor {
+  private readonly cdr = inject(ChangeDetectorRef);
+
   @Input() label = '';
   @Input() placeholder = '';
   @Input() type = 'text';
@@ -40,7 +42,8 @@ export class AppInputComponent implements ControlValueAccessor {
   onTouched: any = () => {};
 
   writeValue(value: any): void {
-    this.value = value;
+    this.value = value ?? '';
+    this.cdr.markForCheck();
   }
 
   registerOnChange(fn: any): void {
@@ -53,9 +56,13 @@ export class AppInputComponent implements ControlValueAccessor {
 
   setDisabledState(isDisabled: boolean): void {
     this.disabled = isDisabled;
+    this.cdr.markForCheck();
   }
 
   onInput(event: Event): void {
+    if (this.disabled) {
+      return;
+    }
     const val = (event.target as HTMLInputElement).value;
     this.value = val;
     this.onChange(val);

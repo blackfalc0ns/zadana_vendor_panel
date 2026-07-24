@@ -31,7 +31,8 @@
       "MEASUREMENT_UNIT": "وحدة القياس",
       "ALL_MEASUREMENT_UNITS": "كل وحدات القياس",
       "SIZE_VALUE": "قيمة الحجم",
-      "ALL_SIZES": "كل الأحجام"
+      "ALL_SIZES": "كل الأحجام",
+      "TYPE": "نوع الطلب"
     },
     "HEADER_PRODUCT": "المنتج",
     "HEADER_CATEGORY": "التصنيف",
@@ -88,17 +89,19 @@
     "REQUEST_MISSING_BRAND": "العلامة التجارية غير موجودة؟",
     "REQUEST_MISSING_BRAND_HINT": "فعّل هذا الخيار إذا كان المنتج يتبع علامة تجارية غير موجودة الحين.",
     "REQUEST_MISSING_CATEGORY": "التصنيف غير موجود؟",
-    "REQUEST_MISSING_CATEGORY_HINT": "فعّل هذا الخيار إذا كنت تحتاج إنشاء تصنيف جديد بالكامل لهذا المنتج.",
+    "REQUEST_MISSING_CATEGORY_HINT": "فعّل هذا الخيار لإضافة تصنيف فرعي جديد (آخر مستوى في التسلسل) تحت التصنيف الأب.",
     "OPEN_BRAND_MODAL": "العلامات التجارية",
     "OPEN_CATEGORY_MODAL": "التصنيف",
     "BRAND_MODAL_TITLE": "اختيار العلامة التجارية",
     "BRAND_MODAL_DESC": "اختر علامة تجارية موجودة أو أضف علامة جديدة.",
     "SELECT_BRAND_CATEGORY": "اختر التصنيف التابع للعلامة...",
     "CATEGORY_MODAL_TITLE": "اختيار التصنيف",
-    "CATEGORY_MODAL_DESC": "اختر تصنيفًا موجودًا أو أضف تصنيفًا جديدًا مع تفاصيل التسلسل.",
+    "CATEGORY_MODAL_DESC": "التصنيف مربوط بالعلامة التجارية. اختر تصنيفًا تابعًا للعلامة أو أضف تصنيفًا فرعيًا جديدًا (آخر مستوى).",
+    "CATEGORY_REQUIRES_BRAND": "اختر العلامة التجارية أولًا عشان يظهر التصنيف المرتبط بها.",
     "ADD_NEW_BRAND": "إضافة علامة تجارية جديدة",
-    "ADD_NEW_CATEGORY": "إضافة تصنيف جديد",
+    "ADD_NEW_CATEGORY": "إضافة تصنيف فرعي جديد",
     "SELECT_PARENT_CATEGORY": "اختر التصنيف الأب...",
+    "SELECT_PARENT_CATEGORY_FOR_SUB": "اختر التصنيف الأب للتصنيف الفرعي...",
     "SELECT_ACTIVITY": "اختر النشاط...",
     "SELECT_SUB_ACTIVITY": "اختر النشاط الفرعي...",
     "SELECT_SUB_ACTIVITY_OPTIONAL": "اختر النشاط الفرعي إن وجد...",
@@ -108,6 +111,7 @@
     "CATEGORY_PLACEMENT_PENDING": "اختر التسلسل أولاً",
     "CATEGORY_KIND_CATEGORY": "تصنيف",
     "CATEGORY_KIND_SUB_CATEGORY": "تصنيف فرعي",
+    "NEW_CATEGORY_LEAF_HINT": "التصنيف الجديد بيتضاف دائمًا كتصنيف فرعي (آخر مستوى). اختر النشاط ثم النشاط الفرعي ثم التصنيف الأب.",
     "DISPLAY_ORDER": "ترتيب العرض",
     "BRAND_IMAGE": "صورة العلامة التجارية",
     "CATEGORY_IMAGE": "صورة التصنيف",
@@ -115,6 +119,8 @@
     "REMOVE_IMAGE": "حذف الصورة",
     "NEW_CATEGORY_AR": "اسم التصنيف الجديد بالعربية",
     "NEW_CATEGORY_EN": "اسم التصنيف الجديد بالإنجليزية",
+    "NEW_SUB_CATEGORY_AR": "اسم التصنيف الفرعي بالعربية",
+    "NEW_SUB_CATEGORY_EN": "اسم التصنيف الفرعي بالإنجليزية",
     "DESCRIPTION": "الوصف",
     "DESCRIPTION_AR": "الوصف بالعربية",
     "DESCRIPTION_EN": "الوصف بالإنجليزية",
@@ -281,6 +287,10 @@
   "CATALOG": {
     "STATUS_PENDING": "تحت المراجعة",
     "STATUS_APPROVED": "مقبول",
-    "STATUS_REJECTED": "مرفوض"
+    "STATUS_REJECTED": "مرفوض",
+    "CATEGORY_L1": "التصنيف الرئيسي",
+    "CATEGORY_L2": "التصنيف الفرعي",
+    "CATEGORY_L3": "تصنيف المستوى الثالث",
+    "SELECTED_PATH": "المسار المختار"
   }
 }

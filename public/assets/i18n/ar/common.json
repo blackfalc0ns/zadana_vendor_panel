@@ -70,7 +70,19 @@
     "VIEW_ALL": "عرض الكل",
     "DATE": "التاريخ",
     "AMOUNT": "المبلغ",
-    "TOTAL": "الإجمالي"
+    "TOTAL": "الإجمالي",
+    "NO_RESULTS": "ما لقينا نتائج مطابقة.",
+    "SELECT_OPTION": "اختر خيارًا...",
+    "INFO": "معلومة",
+    "WARNING": "تحذير",
+    "EXPORT": "تصدير",
+    "EXPORT_EMPTY": "لا توجد بيانات للتصدير.",
+    "EXPORT_SUCCESS": "تم التصدير بنجاح.",
+    "EXPORT_FAILED": "تعذر تصدير الملف.",
+    "PROCESSING": "جارٍ المعالجة...",
+    "NOT_SET": "غير محدد",
+    "SELECT": "اختر...",
+    "SELECTED_ITEMS": "العناصر المحددة"
   },
   "SIDEBAR": {
     "APP_NAME": "زادنا",
