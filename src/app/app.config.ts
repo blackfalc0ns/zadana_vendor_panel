@@ -12,7 +12,31 @@ import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
 import { ChunkLoadErrorHandler } from './core/services/chunk-load-error-handler';
 
-const TRANSLATION_ASSET_VERSION = '2026-07-24-google-auth-1';
+const TRANSLATION_ASSET_VERSION = '2026-07-24-google-auth-2';
+
+function deepMergeTranslations(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
+  const output: Record<string, unknown> = { ...target };
+  for (const key of Object.keys(source)) {
+    const sourceValue = source[key];
+    const targetValue = output[key];
+    if (
+      sourceValue &&
+      typeof sourceValue === 'object' &&
+      !Array.isArray(sourceValue) &&
+      targetValue &&
+      typeof targetValue === 'object' &&
+      !Array.isArray(targetValue)
+    ) {
+      output[key] = deepMergeTranslations(
+        targetValue as Record<string, unknown>,
+        sourceValue as Record<string, unknown>
+      );
+    } else {
+      output[key] = sourceValue;
+    }
+  }
+  return output;
+}
 
 // Custom Loader to guarantee compatibility and fix "0 arguments" error
 export class CustomTranslateLoader implements TranslateLoader {
@@ -41,7 +65,12 @@ export class CustomTranslateLoader implements TranslateLoader {
     );
 
     return forkJoin(requests).pipe(
-      map((jsonArray) => jsonArray.reduce((acc, current) => ({ ...acc, ...current }), {}))
+      map((jsonArray) =>
+        jsonArray.reduce<Record<string, unknown>>(
+          (acc, current) => deepMergeTranslations(acc, (current || {}) as Record<string, unknown>),
+          {}
+        )
+      )
     );
   }
 }

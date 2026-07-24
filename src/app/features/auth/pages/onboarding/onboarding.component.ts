@@ -343,7 +343,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  get reviewStatusLabelKey(): string {
- return 'DASHBOARD.STATUS_LIVE'; // Or similar status key
+ return 'COMMON.LIVE';
  }
 
  get syncedFromLabelKey(): string {

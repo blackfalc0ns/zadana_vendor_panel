@@ -38,7 +38,8 @@ export function describeApiError(
     return fallback;
   }
 
-  const codeMessage = translateErrorCode(extractErrorCode(body), translate, options.codePrefix);
+  const errorCode = extractErrorCode(body);
+  const codeMessage = translateErrorCode(errorCode, translate, options.codePrefix);
   if (codeMessage) {
     return codeMessage;
   }
@@ -47,7 +48,13 @@ export function describeApiError(
     return translate.instant('COMMON.API_ERRORS.NETWORK');
   }
 
+  // Prefer the API detail/message when a specific error code is present
+  // (e.g. GOOGLE_TOKEN_INVALID) instead of a generic permission string.
   if (candidate.status === 401 || candidate.status === 403) {
+    const specific = (body?.detail || body?.message || '').trim();
+    if (errorCode && specific) {
+      return specific;
+    }
     return translate.instant('COMMON.API_ERRORS.UNAUTHORIZED');
   }
 

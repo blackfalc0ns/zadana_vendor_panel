@@ -32,10 +32,16 @@ declare global {
   }
 }
 
+type CredentialCallback = (profile: GoogleCredentialProfile) => void;
+type ErrorCallback = (error: Error) => void;
+
 @Injectable({ providedIn: 'root' })
 export class GoogleIdentityService {
   private readonly platformId = inject(PLATFORM_ID);
   private scriptPromise: Promise<void> | null = null;
+  private initializedClientId: string | null = null;
+  private activeCredentialHandler: CredentialCallback | null = null;
+  private activeErrorHandler: ErrorCallback | null = null;
 
   get isConfigured(): boolean {
     return !!environment.googleClientId?.trim();
@@ -65,31 +71,14 @@ export class GoogleIdentityService {
     }
 
     await this.loadScript();
+    this.ensureInitialized(options.context);
+    this.activeCredentialHandler = options.onCredential;
+    this.activeErrorHandler = options.onError ?? null;
 
     const width = Math.max(
       Math.floor(host.getBoundingClientRect().width || host.parentElement?.getBoundingClientRect().width || 0),
       280
     );
-
-    window.google!.accounts.id.initialize({
-      client_id: environment.googleClientId,
-      callback: (response: { credential?: string }) => {
-        try {
-          if (!response?.credential) {
-            options.onError?.(new Error('GOOGLE_CANCELLED'));
-            return;
-          }
-          options.onCredential(this.decodeCredential(response.credential));
-        } catch (error) {
-          options.onError?.(error instanceof Error ? error : new Error('GOOGLE_DECODE_FAILED'));
-        }
-      },
-      auto_select: false,
-      cancel_on_tap_outside: true,
-      ux_mode: 'popup',
-      context: options.context,
-      use_fedcm_for_prompt: false
-    });
 
     host.replaceChildren();
     window.google!.accounts.id.renderButton(host, {
@@ -174,6 +163,36 @@ export class GoogleIdentityService {
         finish(error instanceof Error ? error : new Error('GOOGLE_FAILED'));
       });
     });
+  }
+
+  private ensureInitialized(context: GoogleAuthContext): void {
+    const clientId = environment.googleClientId.trim();
+    if (this.initializedClientId === clientId) {
+      return;
+    }
+
+    window.google!.accounts.id.initialize({
+      client_id: clientId,
+      callback: (response: { credential?: string }) => {
+        try {
+          if (!response?.credential) {
+            this.activeErrorHandler?.(new Error('GOOGLE_CANCELLED'));
+            return;
+          }
+          this.activeCredentialHandler?.(this.decodeCredential(response.credential));
+        } catch (error) {
+          this.activeErrorHandler?.(error instanceof Error ? error : new Error('GOOGLE_DECODE_FAILED'));
+        }
+      },
+      auto_select: false,
+      cancel_on_tap_outside: true,
+      ux_mode: 'popup',
+      context,
+      // Avoid One Tap prompt APIs; FedCM migration warnings + multi-init races.
+      use_fedcm_for_prompt: false
+    });
+
+    this.initializedClientId = clientId;
   }
 
   private decodeCredential(idToken: string): GoogleCredentialProfile {

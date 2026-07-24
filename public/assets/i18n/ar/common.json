@@ -54,6 +54,13 @@
       "UNAUTHORIZED": "ما عندك صلاحية لتنفيذ هذا الإجراء.",
       "CONFLICT": "ما قدرنا نكمل العملية بسبب تعارض في البيانات."
     },
+    "API_ERROR_CODES": {
+      "GOOGLE_TOKEN_INVALID": "تعذر التحقق من حساب جوجل. تأكد إن نفس حساب جوجل مضبوط على المنصة وجرّب مرة ثانية.",
+      "GOOGLE_AUTH_NOT_CONFIGURED": "تسجيل جوجل غير مفعّل على السيرفر حالياً.",
+      "GOOGLE_EMAIL_REQUIRED": "حساب جوجل ما فيه بريد إلكتروني صالح.",
+      "GOOGLE_EMAIL_NOT_VERIFIED": "بريد جوجل غير مؤكد. أكّد البريد من جوجل ثم جرّب مرة ثانية.",
+      "GOOGLE_TOKEN_REQUIRED": "رمز جوجل ناقص. أعد المحاولة."
+    },
     "STATUS_ACTIVE": "نشط",
     "STATUS_INACTIVE": "غير نشط",
     "FILTERS": "الفلاتر",
