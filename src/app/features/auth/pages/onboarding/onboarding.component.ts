@@ -218,11 +218,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  } else {
  this.patchSeedData();
  this.restoreAccountProgress();
- // Avoid authenticated API calls (and noisy 401s) during public signup.
- this.applyPayoutDayOptions(
- this.profileService.getPayoutPreferenceSnapshot().availablePayoutDays,
- this.profileService.getPayoutPreferenceSnapshot().payoutDay
- );
+ this.loadAvailablePayoutDays();
  }
  this.loadRegions();
 
@@ -271,6 +267,23 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  })
  ).subscribe({
  next: (preference) => this.applyPayoutDayOptions(preference.availablePayoutDays, preference.payoutDay),
+ error: () => {
+ const fallback = this.profileService.getPayoutPreferenceSnapshot();
+ this.applyPayoutDayOptions(fallback.availablePayoutDays, fallback.payoutDay);
+ }
+ });
+ }
+
+ private loadAvailablePayoutDays(): void {
+ this.isPayoutPreferenceLoading = true;
+
+ this.profileService.getAvailablePayoutDays().pipe(
+ finalize(() => {
+ this.isPayoutPreferenceLoading = false;
+ this.cdr.markForCheck();
+ })
+ ).subscribe({
+ next: (availablePayoutDays) => this.applyPayoutDayOptions(availablePayoutDays),
  error: () => {
  const fallback = this.profileService.getPayoutPreferenceSnapshot();
  this.applyPayoutDayOptions(fallback.availablePayoutDays, fallback.payoutDay);

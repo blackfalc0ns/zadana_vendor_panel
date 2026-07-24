@@ -292,6 +292,41 @@ export class VendorProfileService {
     );
   }
 
+  /**
+   * Public catalog of admin-enabled payout days (no auth).
+   * Used by guest onboarding so the preferred-day dropdown stays in sync.
+   */
+  getAvailablePayoutDays(): Observable<PayoutScheduleDay[]> {
+    return this.http.get<{
+      availablePayoutDays?: string[] | null;
+      AvailablePayoutDays?: string[] | null;
+    } | ApiEnvelope<{
+      availablePayoutDays?: string[] | null;
+      AvailablePayoutDays?: string[] | null;
+    }>>(
+      `${environment.apiUrl}/vendors/payout-days`,
+      { headers: this.authService.createSkipAuthHeaders(), withCredentials: true }
+    ).pipe(
+      map((response) => {
+        const payload = this.unwrap(response);
+        return this.normalizeAvailablePayoutDays(
+          payload.availablePayoutDays ?? payload.AvailablePayoutDays
+        );
+      }),
+      tap((availablePayoutDays) => {
+        const current = this.payoutPreferenceSubject.value;
+        this.payoutPreferenceSubject.next({
+          ...current,
+          availablePayoutDays,
+          payoutDay: availablePayoutDays.includes(current.payoutDay)
+            ? current.payoutDay
+            : availablePayoutDays[0] ?? current.payoutDay
+        });
+      }),
+      catchError(() => of([...this.payoutPreferenceSubject.value.availablePayoutDays]))
+    );
+  }
+
   saveBankingSection(profile: VendorProfile, persistPayoutDay = false): Observable<VendorProfile> {
     return this.updateBanking(profile, false).pipe(
       switchMap(() => persistPayoutDay
