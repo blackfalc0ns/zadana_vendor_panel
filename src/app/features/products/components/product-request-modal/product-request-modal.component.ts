@@ -252,11 +252,18 @@ type CategoryRequestKind = 'category' | 'sub_category';
  <app-searchable-select
  formControlName="categoryId"
  [options]="brandRequestCategoryDropdownOptions"
- [placeholder]="'PRODUCTS.SELECT_BRAND_CATEGORY'"
+ [placeholder]="'PRODUCTS.SELECT_BRAND_SUB_CATEGORY'"
  [searchPlaceholder]="'COMMON.SEARCH'"
  [noResultsText]="'COMMON.NO_RESULTS'"
  (selectionChange)="brandDraftForm">
  </app-searchable-select>
+ <p class="mt-2 text-[0.7rem] font-bold text-amber-700/90">{{ 'PRODUCTS.BRAND_SUB_CATEGORY_HINT' | translate }}</p>
+ @if (selectedBrandRequestCategoryPath) {
+ <div class="mt-3 rounded-xl border border-amber-200 bg-amber-50/80 px-3 py-2.5">
+ <p class="text-[0.65rem] font-black uppercase tracking-widest text-amber-700">{{ 'PRODUCTS.BRAND_CATEGORY_PATH' | translate }}</p>
+ <p class="mt-1 text-[0.8rem] font-bold text-slate-800">{{ selectedBrandRequestCategoryPath }}</p>
+ </div>
+ }
  </div>
  <input type="text" formControlName="nameAr" class="h-11 w-full rounded-xl border border-amber-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NEW_BRAND_AR' | translate">
  <input type="text" formControlName="nameEn" class="h-11 w-full rounded-xl border border-amber-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.NEW_BRAND_EN' | translate" dir="ltr">
@@ -370,6 +377,14 @@ type CategoryRequestKind = 'category' | 'sub_category';
 
  <input type="number" min="1" formControlName="displayOrder" class="h-11 w-full rounded-xl border border-cyan-200 bg-white px-4 text-[0.85rem] font-bold text-slate-900 outline-none" [placeholder]="'PRODUCTS.DISPLAY_ORDER' | translate">
  </div>
+
+ @if (selectedCategoryParentPath) {
+ <div class="mt-4 rounded-2xl border border-teal-200 bg-teal-50 px-4 py-3">
+ <p class="text-[0.68rem] font-black uppercase tracking-widest text-teal-700">{{ 'PRODUCTS.PARENT_CATEGORY_TARGET' | translate }}</p>
+ <p class="mt-1 text-[0.85rem] font-black text-teal-900">{{ selectedCategoryParentPath }}</p>
+ <p class="mt-1 text-[0.72rem] font-bold text-teal-800/80">{{ 'PRODUCTS.PARENT_CATEGORY_TARGET_HINT' | translate }}</p>
+ </div>
+ }
 
  <div class="mt-4 rounded-2xl border border-cyan-200/70 bg-white p-4">
  <div class="grid gap-3 md:grid-cols-2">
@@ -528,7 +543,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  get activityDropdownOptions(): SearchableSelectOption[] {
- return this.toCategoryDropdownOptions(this.activityOptions);
+ return this.toCategoryNameDropdownOptions(this.activityOptions);
  }
 
  get subActivityOptions(): Category[] {
@@ -539,7 +554,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  get subActivityDropdownOptions(): SearchableSelectOption[] {
- return this.toCategoryDropdownOptions(this.subActivityOptions);
+ return this.toCategoryNameDropdownOptions(this.subActivityOptions);
  }
 
  get categoryParentOptions(): Category[] {
@@ -570,7 +585,20 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  get categoryParentDropdownOptions(): SearchableSelectOption[] {
- return this.toCategoryDropdownOptions(this.categoryParentOptions);
+ // Parent options show the full path ending with the category the new subcategory will be added under.
+ return this.categoryParentOptions.map((category) => ({
+ value: category.id,
+ label: this.getCategoryPathLabel(category)
+ }));
+ }
+
+ get selectedCategoryParent(): Category | null {
+ const parentId = this.categoryDraftForm.get('categoryParentId')?.value as string | null;
+ return parentId ? this.flatCategories.find((item) => item.id === parentId) || null : null;
+ }
+
+ get selectedCategoryParentPath(): string {
+ return this.getCategoryPathLabel(this.selectedCategoryParent);
  }
 
  get filteredBrandOptions(): BrandOption[] {
@@ -609,11 +637,23 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  get brandRequestCategoryOptions(): Category[] {
- return this.flatCategories.filter(category => this.isNestedCategory(category));
+ // Brand links only to leaf subcategories (last hierarchy level).
+ return this.flatCategories
+ .filter((category) => this.isLeafSubCategory(category))
+ .sort((left, right) => this.getCategoryPathLabel(left).localeCompare(this.getCategoryPathLabel(right), this.currentLang === 'ar' ? 'ar' : 'en'));
  }
 
  get brandRequestCategoryDropdownOptions(): SearchableSelectOption[] {
- return this.toCategoryDropdownOptions(this.brandRequestCategoryOptions);
+ return this.brandRequestCategoryOptions.map((category) => ({
+ value: category.id,
+ label: this.getBrandCategoryPathLabel(category)
+ }));
+ }
+
+ get selectedBrandRequestCategoryPath(): string {
+ const categoryId = this.brandDraftForm.get('categoryId')?.value as string | null;
+ const category = categoryId ? this.flatCategories.find((item) => item.id === categoryId) || null : null;
+ return category ? this.getBrandCategoryPathLabel(category) : '';
  }
 
  get canOpenCategoryModal(): boolean {
@@ -1078,6 +1118,7 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
 
  onCategoryParentChanged(): void {
  this.applyCategoryDraftValidators(true);
+ this.selectedCategoryMeta = this.selectedCategoryParentPath;
  }
 
  getCategoryPathLabel(category: Category | null): string {
@@ -1113,18 +1154,17 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  }
 
  buildRequestedCategoryPathPreview(): string {
- const localizedName = this.currentLang === 'ar'
+ const localizedName = (this.currentLang === 'ar'
  ? this.categoryDraftForm.get('nameAr')?.value
- : this.categoryDraftForm.get('nameEn')?.value;
- const parentId = this.resolveRequestedParentCategoryId();
- const parent = parentId ? this.flatCategories.find(category => category.id === parentId) || null : null;
- const segments = parent ? this.getCategoryPathLabel(parent).split(' / ').filter(Boolean) : [];
-
- if (localizedName) {
- segments.push(localizedName);
+ : this.categoryDraftForm.get('nameEn')?.value)?.trim();
+ const parent = this.selectedCategoryParent;
+ if (!parent) {
+ return '';
  }
 
- return segments.join(' / ');
+ const parentPath = this.getCategoryPathLabel(parent);
+ const leafName = localizedName || this.translate.instant('PRODUCTS.NEW_SUB_CATEGORY_PLACEHOLDER');
+ return `${parentPath} / ${leafName}`;
  }
 
  get isSubmitDisabled(): boolean {
@@ -1276,6 +1316,37 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  return category.parentCategoryId != null && category.parentCategoryId !== '';
  }
 
+ /** Last hierarchy level (subcategory) — brand and product assignment target. */
+ private isLeafSubCategory(category: Category): boolean {
+ const level = category.level ?? 0;
+ if (level >= 3) {
+ return true;
+ }
+
+ if (level < 2) {
+ return false;
+ }
+
+ // Level-2 is a leaf only when it has no children (short trees).
+ return !this.flatCategories.some((item) => item.parentCategoryId === category.id);
+ }
+
+ /** Path for brand picker: ancestors first, subcategory (leaf) always last. */
+ private getBrandCategoryPathLabel(category: Category): string {
+ const path = this.getCategoryPathLabel(category);
+ const leafName = this.currentLang === 'ar' ? category.nameAr : category.nameEn;
+ if (!path) {
+ return leafName;
+ }
+
+ // Ensure the leaf subcategory is explicitly the last segment.
+ const segments = path.split(' / ').filter(Boolean);
+ if (segments[segments.length - 1] !== leafName) {
+ segments.push(leafName);
+ }
+ return segments.join(' / ');
+ }
+
  private isCategoryUnderAncestor(category: Category, ancestorId: string): boolean {
  let current: Category | undefined = category;
 
@@ -1390,6 +1461,13 @@ export class ProductRequestModalComponent implements OnInit, OnDestroy {
  return categories.map(category => ({
  value: category.id,
  label: this.getCategoryOptionLabel(category)
+ }));
+ }
+
+ private toCategoryNameDropdownOptions(categories: Category[]): SearchableSelectOption[] {
+ return categories.map((category) => ({
+ value: category.id,
+ label: this.currentLang === 'ar' ? category.nameAr : category.nameEn
  }));
  }
 
