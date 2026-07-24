@@ -1647,6 +1647,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  ownerName: profile.fullName,
  ownerEmail: profile.email
  }, { emitEvent: false });
+ this.onboardingForm.get('step1.ownerEmail')?.disable({ emitEvent: false });
 
  this.persistAccountDraft();
 
