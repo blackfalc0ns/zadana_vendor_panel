@@ -59,7 +59,10 @@
       "GOOGLE_AUTH_NOT_CONFIGURED": "تسجيل جوجل غير مفعّل على السيرفر حالياً.",
       "GOOGLE_EMAIL_REQUIRED": "حساب جوجل ما فيه بريد إلكتروني صالح.",
       "GOOGLE_EMAIL_NOT_VERIFIED": "بريد جوجل غير مؤكد. أكّد البريد من جوجل ثم جرّب مرة ثانية.",
-      "GOOGLE_TOKEN_REQUIRED": "رمز جوجل ناقص. أعد المحاولة."
+      "GOOGLE_TOKEN_REQUIRED": "رمز جوجل ناقص. أعد المحاولة.",
+      "GOOGLE_ACCOUNT_WRONG_APP": "هذا حساب جوجل مسجّل على تطبيق زادنا آخر. استخدم حساب جوجل مختلف أو سجّل من التطبيق الصحيح.",
+      "ACCOUNT_CLOSED": "تم إغلاق هذا الحساب.",
+      "ACCOUNT_LOGIN_DENIED": "ما نقدر نسجّل دخول هذا الحساب حالياً."
     },
     "STATUS_ACTIVE": "نشط",
     "STATUS_INACTIVE": "غير نشط",

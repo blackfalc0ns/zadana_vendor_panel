@@ -48,11 +48,11 @@ export function describeApiError(
     return translate.instant('COMMON.API_ERRORS.NETWORK');
   }
 
-  // Prefer the API detail/message when a specific error code is present
-  // (e.g. GOOGLE_TOKEN_INVALID) instead of a generic permission string.
+  // Prefer the API detail/message for auth failures so callers see the real reason
+  // (wrong app role, invalid Google token, etc.) instead of a generic permission string.
   if (candidate.status === 401 || candidate.status === 403) {
     const specific = (body?.detail || body?.message || '').trim();
-    if (errorCode && specific) {
+    if (specific) {
       return specific;
     }
     return translate.instant('COMMON.API_ERRORS.UNAUTHORIZED');

@@ -59,7 +59,10 @@
       "GOOGLE_AUTH_NOT_CONFIGURED": "Google sign-in is not enabled on the server yet.",
       "GOOGLE_EMAIL_REQUIRED": "Your Google account does not include a valid email address.",
       "GOOGLE_EMAIL_NOT_VERIFIED": "Your Google email is not verified. Verify it with Google and try again.",
-      "GOOGLE_TOKEN_REQUIRED": "The Google token is missing. Please try again."
+      "GOOGLE_TOKEN_REQUIRED": "The Google token is missing. Please try again.",
+      "GOOGLE_ACCOUNT_WRONG_APP": "This Google account is already registered for another Zadana app. Use a different Google account or open the correct app.",
+      "ACCOUNT_CLOSED": "This account has been closed.",
+      "ACCOUNT_LOGIN_DENIED": "This account cannot sign in right now."
     },
     "STATUS_ACTIVE": "Active",
     "STATUS_INACTIVE": "Inactive",

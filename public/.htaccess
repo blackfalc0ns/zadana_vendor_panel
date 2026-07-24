@@ -1,0 +1,4 @@
+# Google Identity popup needs to talk back to this opener.
+<IfModule mod_headers.c>
+  Header always set Cross-Origin-Opener-Policy "same-origin-allow-popups"
+</IfModule>

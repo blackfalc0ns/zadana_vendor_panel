@@ -12,7 +12,7 @@ import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
 import { ChunkLoadErrorHandler } from './core/services/chunk-load-error-handler';
 
-const TRANSLATION_ASSET_VERSION = '2026-07-24-google-auth-3';
+const TRANSLATION_ASSET_VERSION = '2026-07-24-google-auth-4';
 
 function deepMergeTranslations(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
   const output: Record<string, unknown> = { ...target };

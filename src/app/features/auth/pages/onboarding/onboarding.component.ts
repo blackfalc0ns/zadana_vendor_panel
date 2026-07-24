@@ -206,13 +206,18 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.stepItems = this.buildStepItems();
  this.totalSteps = this.stepItems.length;
  this.initForm();
- this.loadPayoutPreference();
  if (this.isEditMode) {
  this.relaxEditModeValidators();
  this.loadProfileForEdit();
+ this.loadPayoutPreference();
  } else {
  this.patchSeedData();
  this.restoreAccountProgress();
+ // Avoid authenticated API calls (and noisy 401s) during public signup.
+ this.applyPayoutDayOptions(
+ this.profileService.getPayoutPreferenceSnapshot().availablePayoutDays,
+ this.profileService.getPayoutPreferenceSnapshot().payoutDay
+ );
  }
  this.loadRegions();
 
