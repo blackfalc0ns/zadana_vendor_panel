@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, NgZone, ChangeDetectionStrategy, ChangeDetectorRef, inject, ElementRef, ViewChild } from '@angular/core';
 import { HttpClient, HttpEventType, HttpResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
@@ -46,7 +46,7 @@ import { saudiMobilePhoneValidator } from '../../../../shared/constants/saudi-ph
 import { comEmailValidator, passwordMatchValidator } from '../../../../shared/constants/vendor-auth.validators';
 import { saudiIdentityNumberValidator } from '../../../../shared/constants/saudi-identity.validators';
 import { UploadProgressComponent } from '../../../../shared/components/ui/feedback/upload-progress/upload-progress.component';
-import { GoogleIdentityService } from '../../../../core/auth/services/google-identity.service';
+import { GoogleCredentialProfile, GoogleIdentityService } from '../../../../core/auth/services/google-identity.service';
 
 type RegistrationUploadTokenResponse = {
  token: string;
@@ -98,6 +98,19 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  isGoogleLoading = false;
  googleError = '';
  private googleIdToken: string | null = null;
+ private googleButtonMounted = false;
+
+ @ViewChild('googleBtnHost')
+ set googleBtnHost(ref: ElementRef<HTMLElement> | undefined) {
+ if (!ref?.nativeElement || this.isGoogleSignup || this.isEditMode) {
+ return;
+ }
+ if (this.googleButtonMounted && ref.nativeElement.childElementCount > 0) {
+ return;
+ }
+ this.googleButtonMounted = true;
+ void this.mountGoogleButton(ref.nativeElement);
+ }
  readonly vendorSeed: OnboardingSeedData = {
  store: {
  businessNameAr: '',
@@ -1639,13 +1652,39 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.cdr.markForCheck();
  }
 
- async continueWithGoogle(): Promise<void> {
+ private async mountGoogleButton(host: HTMLElement): Promise<void> {
+ this.googleError = '';
+ try {
+ await this.googleIdentity.mountButton(host, {
+ context: 'signup',
+ onCredential: (profile) => this.handleGoogleCredential(profile),
+ onError: (error) => {
+ if (error.message === 'GOOGLE_CANCELLED') {
+ return;
+ }
+ const keyMap: Record<string, string> = {
+ GOOGLE_NOT_CONFIGURED: 'REGISTER.ERR_GOOGLE_NOT_CONFIGURED',
+ GOOGLE_TIMEOUT: 'REGISTER.ERR_GOOGLE_CANCELLED'
+ };
+ this.googleError = this.translate.instant(keyMap[error.message] || 'REGISTER.ERR_GOOGLE_FAILED');
+ this.cdr.markForCheck();
+ }
+ });
+ } catch {
+ this.googleError = this.translate.instant('REGISTER.ERR_GOOGLE_FAILED');
+ this.cdr.markForCheck();
+ }
+ }
+
+ private handleGoogleCredential(credential: GoogleCredentialProfile): void {
+ if (this.isGoogleLoading || this.isSubmitting || this.isGoogleSignup) {
+ return;
+ }
+
  this.googleError = '';
  this.isGoogleLoading = true;
  this.cdr.markForCheck();
 
- try {
- const credential = await this.googleIdentity.requestCredential('signup');
  this.authService.googleAuth(credential.idToken).subscribe({
  next: (response) => {
  this.isGoogleLoading = false;
@@ -1673,20 +1712,6 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.cdr.markForCheck();
  }
  });
- } catch (error) {
- this.isGoogleLoading = false;
- const code = error instanceof Error ? error.message : 'GOOGLE_FAILED';
- const keyMap: Record<string, string> = {
- GOOGLE_NOT_CONFIGURED: 'REGISTER.ERR_GOOGLE_NOT_CONFIGURED',
- GOOGLE_PROMPT_DISMISSED: 'REGISTER.ERR_GOOGLE_CANCELLED',
- GOOGLE_CANCELLED: 'REGISTER.ERR_GOOGLE_CANCELLED',
- GOOGLE_TIMEOUT: 'REGISTER.ERR_GOOGLE_CANCELLED',
- GOOGLE_SCRIPT_FAILED: 'REGISTER.ERR_GOOGLE_FAILED',
- GOOGLE_UNAVAILABLE: 'REGISTER.ERR_GOOGLE_FAILED'
- };
- this.googleError = this.translate.instant(keyMap[code] || 'REGISTER.ERR_GOOGLE_FAILED');
- this.cdr.markForCheck();
- }
  }
 
  private getNavStepGroup(stepId: number): FormGroup {

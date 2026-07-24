@@ -215,13 +215,11 @@
  <span class="h-px flex-1 bg-slate-200"></span>
  </div>
 
- <button
- type="button"
- (click)="continueWithGoogle()"
- [disabled]="isGoogleLoading || isSubmitting"
- class="group flex w-full items-center justify-center rounded-xl border-2 border-slate-100 bg-white px-4 py-3.5 font-black text-slate-700 shadow-sm transition-all hover:border-slate-200 hover:bg-slate-50/50 hover:shadow-md active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
- >
- <svg class="h-5 w-5 transition-transform group-hover:scale-110" viewBox="0 0 48 48" aria-hidden="true">
+ <div class="relative w-full" [class.opacity-60]="isGoogleLoading || isSubmitting">
+ <div
+ class="pointer-events-none flex w-full items-center justify-center rounded-xl border-2 border-slate-100 bg-white px-4 py-3.5 font-black text-slate-700 shadow-sm"
+ aria-hidden="true">
+ <svg class="h-5 w-5" viewBox="0 0 48 48" aria-hidden="true">
  <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path>
  <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path>
  <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path>
@@ -230,7 +228,13 @@
  <span class="ms-3 text-xs uppercase tracking-widest">
  {{ (isGoogleLoading ? 'REGISTER.GOOGLE_LOADING' : 'REGISTER.BTN_REGISTER_GOOGLE') | translate }}
  </span>
- </button>
+ </div>
+ <div
+ #googleBtnHost
+ class="absolute inset-0 z-10 overflow-hidden opacity-[0.02] [&_div]:!h-full [&_div]:!w-full"
+ [class.pointer-events-none]="isGoogleLoading || isSubmitting">
+ </div>
+ </div>
 
  <p *ngIf="googleError" class="mt-3 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-700">
  {{ googleError }}

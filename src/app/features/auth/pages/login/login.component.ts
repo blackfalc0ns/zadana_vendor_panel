@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -9,7 +9,7 @@ import { AppButtonComponent } from '../../../../shared/components/ui/button/butt
 import { AppInputComponent } from '../../../../shared/components/ui/form-controls/input/input.component';
 import { AppCardComponent } from '../../../../shared/components/ui/card/card.component';
 import { VendorAuthService } from '../../../../core/auth/services/vendor-auth.service';
-import { GoogleIdentityService } from '../../../../core/auth/services/google-identity.service';
+import { GoogleCredentialProfile, GoogleIdentityService } from '../../../../core/auth/services/google-identity.service';
 import { VendorProfileService } from '../../../settings/services/vendor-profile.service';
 import { describeApiError } from '../../../../shared/utils/api-error.util';
 
@@ -35,6 +35,7 @@ export class LoginComponent implements OnInit, OnDestroy {
  private readonly cdr = inject(ChangeDetectorRef);
  private routeParamsSub?: Subscription;
  private autoResendAttempted = false;
+ private googleButtonMounted = false;
  loginForm!: FormGroup;
  verifyEmailForm!: FormGroup;
  isLoading = false;
@@ -46,6 +47,15 @@ export class LoginComponent implements OnInit, OnDestroy {
  verifySubmitted = false;
  errorMessage = '';
  successMessage = '';
+
+ @ViewChild('googleBtnHost')
+ set googleBtnHost(ref: ElementRef<HTMLElement> | undefined) {
+ if (!ref?.nativeElement || this.googleButtonMounted || this.isVerifyEmailMode) {
+ return;
+ }
+ this.googleButtonMounted = true;
+ void this.mountGoogleButton(ref.nativeElement);
+ }
 
  constructor(
  private fb: FormBuilder,
@@ -130,7 +140,30 @@ export class LoginComponent implements OnInit, OnDestroy {
  this.cdr.markForCheck();
  }
 
- async continueWithGoogle(): Promise<void> {
+ private async mountGoogleButton(host: HTMLElement): Promise<void> {
+ try {
+ await this.googleIdentity.mountButton(host, {
+ context: 'signin',
+ onCredential: (profile) => this.handleGoogleCredential(profile),
+ onError: (error) => {
+ if (error.message === 'GOOGLE_CANCELLED') {
+ return;
+ }
+ const keyMap: Record<string, string> = {
+ GOOGLE_NOT_CONFIGURED: 'REGISTER.ERR_GOOGLE_NOT_CONFIGURED',
+ GOOGLE_TIMEOUT: 'REGISTER.ERR_GOOGLE_CANCELLED'
+ };
+ this.errorMessage = this.translate.instant(keyMap[error.message] || 'REGISTER.ERR_GOOGLE_FAILED');
+ this.cdr.markForCheck();
+ }
+ });
+ } catch {
+ this.errorMessage = this.translate.instant('REGISTER.ERR_GOOGLE_FAILED');
+ this.cdr.markForCheck();
+ }
+ }
+
+ private handleGoogleCredential(credential: GoogleCredentialProfile): void {
  if (this.isVerifyEmailMode || this.isLoading || this.isGoogleLoading) {
  return;
  }
@@ -140,8 +173,6 @@ export class LoginComponent implements OnInit, OnDestroy {
  this.isGoogleLoading = true;
  this.cdr.markForCheck();
 
- try {
- const credential = await this.googleIdentity.requestCredential('signin');
  this.authService.googleAuth(credential.idToken).pipe(
  finalize(() => {
  this.isGoogleLoading = false;
@@ -154,7 +185,6 @@ export class LoginComponent implements OnInit, OnDestroy {
  return;
  }
 
- // New Google account — continue registration/onboarding with prefilled profile.
  this.authService.saveRegistrationDraft({
  fullName: response.profile?.fullName || credential.fullName,
  email: response.profile?.email || credential.email,
@@ -172,18 +202,6 @@ export class LoginComponent implements OnInit, OnDestroy {
  });
  }
  });
- } catch (error) {
- this.isGoogleLoading = false;
- const code = error instanceof Error ? error.message : 'GOOGLE_FAILED';
- const keyMap: Record<string, string> = {
- GOOGLE_NOT_CONFIGURED: 'REGISTER.ERR_GOOGLE_NOT_CONFIGURED',
- GOOGLE_PROMPT_DISMISSED: 'REGISTER.ERR_GOOGLE_CANCELLED',
- GOOGLE_CANCELLED: 'REGISTER.ERR_GOOGLE_CANCELLED',
- GOOGLE_TIMEOUT: 'REGISTER.ERR_GOOGLE_CANCELLED'
- };
- this.errorMessage = this.translate.instant(keyMap[code] || 'REGISTER.ERR_GOOGLE_FAILED');
- this.cdr.markForCheck();
- }
  }
 
  onSubmit(): void {

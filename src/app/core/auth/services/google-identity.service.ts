@@ -11,6 +11,8 @@ export interface GoogleCredentialProfile {
   pictureUrl?: string | null;
 }
 
+export type GoogleAuthContext = 'signin' | 'signup';
+
 declare global {
   interface Window {
     google?: {
@@ -40,10 +42,80 @@ export class GoogleIdentityService {
   }
 
   /**
-   * Opens Google Identity flow and returns a verified ID token profile.
-   * Uses One Tap first, then falls back to an explicit popup button.
+   * Renders Google's official button into `host`.
+   * Put an invisible host over your custom-looking button so one click
+   * opens the Google account picker immediately (no intermediate modal).
    */
-  async requestCredential(context: 'signin' | 'signup' = 'signup'): Promise<GoogleCredentialProfile> {
+  async mountButton(
+    host: HTMLElement,
+    options: {
+      context: GoogleAuthContext;
+      onCredential: (profile: GoogleCredentialProfile) => void;
+      onError?: (error: Error) => void;
+    }
+  ): Promise<void> {
+    if (!isPlatformBrowser(this.platformId)) {
+      options.onError?.(new Error('GOOGLE_UNAVAILABLE'));
+      return;
+    }
+
+    if (!this.isConfigured) {
+      options.onError?.(new Error('GOOGLE_NOT_CONFIGURED'));
+      return;
+    }
+
+    await this.loadScript();
+
+    const width = Math.max(
+      Math.floor(host.getBoundingClientRect().width || host.parentElement?.getBoundingClientRect().width || 0),
+      280
+    );
+
+    window.google!.accounts.id.initialize({
+      client_id: environment.googleClientId,
+      callback: (response: { credential?: string }) => {
+        try {
+          if (!response?.credential) {
+            options.onError?.(new Error('GOOGLE_CANCELLED'));
+            return;
+          }
+          options.onCredential(this.decodeCredential(response.credential));
+        } catch (error) {
+          options.onError?.(error instanceof Error ? error : new Error('GOOGLE_DECODE_FAILED'));
+        }
+      },
+      auto_select: false,
+      cancel_on_tap_outside: true,
+      ux_mode: 'popup',
+      context: options.context,
+      use_fedcm_for_prompt: false
+    });
+
+    host.replaceChildren();
+    window.google!.accounts.id.renderButton(host, {
+      type: 'standard',
+      theme: 'outline',
+      size: 'large',
+      text: options.context === 'signup' ? 'signup_with' : 'signin_with',
+      shape: 'rectangular',
+      logo_alignment: 'left',
+      width,
+      locale: document.documentElement.lang || 'ar'
+    });
+
+    // Stretch the generated iframe/button to cover the facade.
+    const googleBtn = host.querySelector('div[role="button"]') as HTMLElement | null;
+    if (googleBtn) {
+      googleBtn.style.width = '100%';
+      googleBtn.style.height = '100%';
+    }
+  }
+
+  /**
+   * @deprecated Prefer mountButton for one-click popup UX.
+   * Kept for rare programmatic use; opens Google popup via an offscreen button click.
+   */
+  async requestCredential(context: GoogleAuthContext = 'signup'): Promise<GoogleCredentialProfile> {
     if (!isPlatformBrowser(this.platformId)) {
       throw new Error('GOOGLE_UNAVAILABLE');
     }
@@ -54,89 +126,29 @@ export class GoogleIdentityService {
 
     await this.loadScript();
 
-    try {
-      return await this.requestViaPrompt(context);
-    } catch (error) {
-      const code = error instanceof Error ? error.message : '';
-      if (code === 'GOOGLE_PROMPT_DISMISSED' || code === 'GOOGLE_TIMEOUT') {
-        return this.requestViaPopupButton(context);
-      }
-      throw error;
-    }
-  }
-
-  private requestViaPrompt(context: 'signin' | 'signup'): Promise<GoogleCredentialProfile> {
     return new Promise<GoogleCredentialProfile>((resolve, reject) => {
       let settled = false;
+      const host = document.createElement('div');
+      Object.assign(host.style, {
+        position: 'fixed',
+        left: '50%',
+        top: '50%',
+        width: '320px',
+        height: '44px',
+        transform: 'translate(-50%, -50%)',
+        opacity: '0.02',
+        zIndex: '100000',
+        overflow: 'hidden'
+      });
+      document.body.appendChild(host);
+
       const finish = (error?: Error, profile?: GoogleCredentialProfile) => {
         if (settled) {
           return;
         }
         settled = true;
         window.clearTimeout(timeoutId);
-        try {
-          window.google?.accounts.id.cancel();
-        } catch {
-          // ignore
-        }
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(profile!);
-      };
-
-      const timeoutId = window.setTimeout(() => {
-        finish(new Error('GOOGLE_TIMEOUT'));
-      }, 15000);
-
-      window.google!.accounts.id.initialize({
-        client_id: environment.googleClientId,
-        callback: (response: { credential?: string }) => {
-          try {
-            if (!response?.credential) {
-              finish(new Error('GOOGLE_CANCELLED'));
-              return;
-            }
-            finish(undefined, this.decodeCredential(response.credential));
-          } catch (error) {
-            finish(error instanceof Error ? error : new Error('GOOGLE_DECODE_FAILED'));
-          }
-        },
-        auto_select: false,
-        cancel_on_tap_outside: true,
-        context,
-        use_fedcm_for_prompt: true
-      });
-
-      window.google!.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          finish(new Error('GOOGLE_PROMPT_DISMISSED'));
-        }
-      });
-    });
-  }
-
-  private requestViaPopupButton(context: 'signin' | 'signup'): Promise<GoogleCredentialProfile> {
-    return new Promise<GoogleCredentialProfile>((resolve, reject) => {
-      let settled = false;
-      const overlay = document.createElement('div');
-      const panel = document.createElement('div');
-      const title = document.createElement('p');
-      const buttonHost = document.createElement('div');
-      const cancelBtn = document.createElement('button');
-
-      const cleanup = () => {
-        window.clearTimeout(timeoutId);
-        overlay.remove();
-      };
-
-      const finish = (error?: Error, profile?: GoogleCredentialProfile) => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        cleanup();
+        host.remove();
         if (error) {
           reject(error);
           return;
@@ -148,93 +160,18 @@ export class GoogleIdentityService {
         finish(new Error('GOOGLE_TIMEOUT'));
       }, 120000);
 
-      overlay.setAttribute('role', 'dialog');
-      overlay.setAttribute('aria-modal', 'true');
-      Object.assign(overlay.style, {
-        position: 'fixed',
-        inset: '0',
-        zIndex: '100000',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'rgba(15, 23, 42, 0.45)',
-        padding: '16px'
-      });
-
-      Object.assign(panel.style, {
-        width: 'min(100%, 380px)',
-        borderRadius: '18px',
-        background: '#fff',
-        padding: '24px',
-        boxShadow: '0 20px 50px rgba(15, 23, 42, 0.25)',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '16px',
-        fontFamily: 'inherit'
-      });
-
-      title.textContent = context === 'signup'
-        ? 'Continue with Google'
-        : 'Sign in with Google';
-      Object.assign(title.style, {
-        margin: '0',
-        fontSize: '15px',
-        fontWeight: '800',
-        color: '#0f172a',
-        textAlign: 'center'
-      });
-
-      cancelBtn.type = 'button';
-      cancelBtn.textContent = 'Cancel';
-      Object.assign(cancelBtn.style, {
-        border: 'none',
-        background: 'transparent',
-        color: '#64748b',
-        fontWeight: '700',
-        cursor: 'pointer',
-        fontSize: '12px'
-      });
-      cancelBtn.addEventListener('click', () => finish(new Error('GOOGLE_CANCELLED')));
-
-      overlay.addEventListener('click', (event) => {
-        if (event.target === overlay) {
-          finish(new Error('GOOGLE_CANCELLED'));
-        }
-      });
-
-      panel.appendChild(title);
-      panel.appendChild(buttonHost);
-      panel.appendChild(cancelBtn);
-      overlay.appendChild(panel);
-      document.body.appendChild(overlay);
-
-      window.google!.accounts.id.initialize({
-        client_id: environment.googleClientId,
-        callback: (response: { credential?: string }) => {
-          try {
-            if (!response?.credential) {
-              finish(new Error('GOOGLE_CANCELLED'));
-              return;
-            }
-            finish(undefined, this.decodeCredential(response.credential));
-          } catch (error) {
-            finish(error instanceof Error ? error : new Error('GOOGLE_DECODE_FAILED'));
-          }
-        },
-        auto_select: false,
-        ux_mode: 'popup',
-        context
-      });
-
-      window.google!.accounts.id.renderButton(buttonHost, {
-        type: 'standard',
-        theme: 'outline',
-        size: 'large',
-        text: context === 'signup' ? 'signup_with' : 'signin_with',
-        shape: 'rectangular',
-        logo_alignment: 'left',
-        width: 320
+      void this.mountButton(host, {
+        context,
+        onCredential: (profile) => finish(undefined, profile),
+        onError: (error) => finish(error)
+      }).then(() => {
+        // User still needs to click; expose the button briefly so the gesture works.
+        host.style.opacity = '1';
+        const btn = host.querySelector('div[role="button"]') as HTMLElement | null;
+        btn?.focus();
+        btn?.click();
+      }).catch((error) => {
+        finish(error instanceof Error ? error : new Error('GOOGLE_FAILED'));
       });
     });
   }
