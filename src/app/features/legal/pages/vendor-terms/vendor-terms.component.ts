@@ -4,7 +4,16 @@ import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit, inject }
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { take } from 'rxjs';
+import { catchError, of, take } from 'rxjs';
+import { environment } from '../../../../../environments/environment';
+
+interface PublicLegalDocumentDto {
+  documentType?: string;
+  contentAr?: string | null;
+  contentEn?: string | null;
+  version?: string | null;
+  effectiveAtUtc?: string | null;
+}
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,8 +49,8 @@ import { take } from 'rxjs';
         <div class="mb-6 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
           <p class="text-[13px] font-bold leading-relaxed text-slate-600">{{ 'LEGAL.TERMS.INTRO' | translate }}</p>
           <div class="mt-4 flex flex-wrap gap-2 text-[11px] font-black">
-            <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-slate-600">{{ 'LEGAL.TERMS.VERSION' | translate }}: 1.0</span>
-            <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-slate-600">{{ 'LEGAL.TERMS.EFFECTIVE' | translate }}: 2026-07-24</span>
+            <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-slate-600">{{ 'LEGAL.TERMS.VERSION' | translate }}: {{ versionLabel }}</span>
+            <span class="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-slate-600">{{ 'LEGAL.TERMS.EFFECTIVE' | translate }}: {{ effectiveLabel }}</span>
           </div>
         </div>
 
@@ -148,6 +157,8 @@ export class VendorTermsComponent implements OnInit {
   htmlContent: SafeHtml | null = null;
   isLoading = true;
   loadError = false;
+  versionLabel = '1.0';
+  effectiveLabel = '2026-07-24';
 
   get isRTL(): boolean {
     return (this.translate.currentLang || 'ar').startsWith('ar');
@@ -177,12 +188,36 @@ export class VendorTermsComponent implements OnInit {
     this.htmlContent = null;
     this.cdr.markForCheck();
 
+    this.http
+      .get<PublicLegalDocumentDto>(`${environment.apiUrl}/public/legal/VendorTerms`)
+      .pipe(
+        take(1),
+        catchError(() => of(null))
+      )
+      .subscribe({
+        next: (document) => {
+          const markdown = lang === 'ar'
+            ? (document?.contentAr ?? '').trim()
+            : (document?.contentEn ?? '').trim();
+
+          if (markdown) {
+            this.applyMarkdown(
+              markdown,
+              document?.version,
+              document?.effectiveAtUtc
+            );
+            return;
+          }
+
+          this.loadLocalFallback(lang);
+        }
+      });
+  }
+
+  private loadLocalFallback(lang: 'ar' | 'en'): void {
     this.http.get(`assets/legal/vendor_terms_${lang}.md`, { responseType: 'text' }).pipe(take(1)).subscribe({
       next: (markdown) => {
-        this.htmlContent = this.sanitizer.bypassSecurityTrustHtml(this.renderMarkdown(markdown));
-        this.isLoading = false;
-        this.loadError = false;
-        this.cdr.markForCheck();
+        this.applyMarkdown(markdown, '1.0', '2026-07-24');
       },
       error: () => {
         this.isLoading = false;
@@ -190,6 +225,26 @@ export class VendorTermsComponent implements OnInit {
         this.cdr.markForCheck();
       }
     });
+  }
+
+  private applyMarkdown(markdown: string, version?: string | null, effectiveAtUtc?: string | null): void {
+    this.htmlContent = this.sanitizer.bypassSecurityTrustHtml(this.renderMarkdown(markdown));
+    this.versionLabel = (version ?? '').trim() || '1.0';
+    this.effectiveLabel = this.formatEffectiveDate(effectiveAtUtc) || '2026-07-24';
+    this.isLoading = false;
+    this.loadError = false;
+    this.cdr.markForCheck();
+  }
+
+  private formatEffectiveDate(value?: string | null): string {
+    if (!value) {
+      return '';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value.slice(0, 10);
+    }
+    return date.toISOString().slice(0, 10);
   }
 
   private renderMarkdown(source: string): string {
