@@ -75,7 +75,8 @@
       "RECENT_SETTLEMENTS": "أحدث التسويات",
       "RECENT_LEDGER": "آخر الحركة المالية",
       "AWAITING_ACTION": "حالات تنتظر إجراء التاجر",
-      "RECENT_ESCALATIONS": "آخر التصعيدات"
+      "RECENT_ESCALATIONS": "آخر التصعيدات",
+      "ETA_HEALTH": "صحة التوصيل (ETA)"
     },
     "CHARTS": {
       "COUNT": "العدد",
@@ -263,12 +264,28 @@
       "NO_URGENT_ORDERS": "ما فيه طلبات عاجلة الحين.",
       "NO_CRITICAL_STOCK": "ما فيه منتجات ذات مخزون حرج الحين.",
       "NO_PENDING_REVIEWS": "ما فيه تقييمات منخفضة بانتظار الرد.",
-      "NO_STAFF_DISTRIBUTION": "ما فيه بيانات كافية عن توزيع الفريق حتى الحين."
+      "NO_STAFF_DISTRIBUTION": "ما فيه بيانات كافية عن توزيع الفريق حتى الحين.",
+      "NO_AWAITING_ACTION": "ما فيه حالات تنتظر إجراء منك الحين.",
+      "NO_ESCALATIONS": "ما فيه تصعيدات حديثة."
     },
     "OPERATIONS": {
       "PREP_EFFICIENCY": "كفاءة التجهيز (SLA)",
       "AVG_PREP_TIME": "متوسط وقت التجهيز",
+      "ON_TIME_RATE": "نسبة الالتزام بالوقت",
+      "AVG_DELIVERY_TIME": "متوسط وقت التوصيل",
+      "AVG_DISPATCH_LEAD": "متوسط وقت التسليم للمندوب",
+      "AVG_LAST_MILE": "متوسط الميل الأخير",
+      "BUFFER": "هامش الأمان المقترح",
+      "SAMPLE_SIZE": "حجم العينة",
       "MINUTES": "دقيقة"
+    },
+    "STAFF_ROLES": {
+      "OWNER": "مالك",
+      "MANAGER": "مدير",
+      "STAFF": "موظف",
+      "CASHIER": "كاشير",
+      "PREPARER": "مجهّز",
+      "VIEWER": "مشاهد"
     },
     "TABLES": {
       "SALES": "مبيعات"

@@ -75,7 +75,8 @@
       "RECENT_SETTLEMENTS": "Recent settlements",
       "RECENT_LEDGER": "Recent ledger activity",
       "AWAITING_ACTION": "Cases awaiting vendor action",
-      "RECENT_ESCALATIONS": "Recent escalations"
+      "RECENT_ESCALATIONS": "Recent escalations",
+      "ETA_HEALTH": "Delivery ETA health"
     },
     "CHARTS": {
       "COUNT": "Count",
@@ -263,12 +264,28 @@
       "NO_URGENT_ORDERS": "No urgent orders at the moment.",
       "NO_CRITICAL_STOCK": "No products with critical stock right now.",
       "NO_PENDING_REVIEWS": "No low-rating reviews waiting for a reply.",
-      "NO_STAFF_DISTRIBUTION": "No staff distribution data is available yet."
+      "NO_STAFF_DISTRIBUTION": "No staff distribution data is available yet.",
+      "NO_AWAITING_ACTION": "No cases are waiting for your action right now.",
+      "NO_ESCALATIONS": "No recent escalations."
     },
     "OPERATIONS": {
       "PREP_EFFICIENCY": "Prep Efficiency (SLA)",
       "AVG_PREP_TIME": "Avg Prep Time",
+      "ON_TIME_RATE": "On-time rate",
+      "AVG_DELIVERY_TIME": "Avg delivery time",
+      "AVG_DISPATCH_LEAD": "Avg dispatch lead",
+      "AVG_LAST_MILE": "Avg last-mile time",
+      "BUFFER": "Recommended buffer",
+      "SAMPLE_SIZE": "Sample size",
       "MINUTES": "minutes"
+    },
+    "STAFF_ROLES": {
+      "OWNER": "Owner",
+      "MANAGER": "Manager",
+      "STAFF": "Staff",
+      "CASHIER": "Cashier",
+      "PREPARER": "Preparer",
+      "VIEWER": "Viewer"
     },
     "TABLES": {
       "SALES": "sales"

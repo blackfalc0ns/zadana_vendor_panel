@@ -90,6 +90,17 @@ export interface VendorDashboardAlertItem {
   routeQuery: VendorDashboardRouteQuery;
 }
 
+export interface VendorDashboardEtaHealth {
+  onTimeRate: number;
+  averageDeliveryTimeMinutes: number;
+  averagePreparationTimeMinutes: number;
+  averageDispatchLeadMinutes: number;
+  averageLastMileMinutes: number;
+  recommendedBufferMinutes: number;
+  sampleSize: number;
+  calibrationSource: string;
+}
+
 export interface VendorDashboardOrdersSection {
   pendingOrders: number;
   lateOrders: number;
@@ -99,6 +110,7 @@ export interface VendorDashboardOrdersSection {
   lowStockCritical: number;
   prepEfficiencyScore: number;
   averagePrepTimeMinutes: number;
+  etaHealth: VendorDashboardEtaHealth;
   ordersTrend: VendorDashboardDualTrendPoint[];
   statusBreakdown: VendorDashboardBreakdownSlice[];
   funnel: VendorDashboardBreakdownSlice[];

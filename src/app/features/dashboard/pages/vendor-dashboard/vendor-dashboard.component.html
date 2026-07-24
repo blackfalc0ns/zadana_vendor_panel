@@ -295,11 +295,53 @@
               </div>
             </div>
 
+            <!-- ETA Health Quick View -->
+            <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm overflow-hidden flex flex-col h-full border-l-[3px] border-l-teal-500">
+              <div class="px-5 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                <div class="flex items-center gap-2">
+                  <span class="material-symbols-outlined text-teal-600 text-[18px]">speed</span>
+                  <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.SECTIONS.ETA_HEALTH' | translate }}</h3>
+                </div>
+                <span class="text-[0.65rem] font-bold text-slate-400">{{ 'DASHBOARD.OPERATIONS.SAMPLE_SIZE' | translate }}: {{ ov.ordersSection.etaHealth.sampleSize | number:'1.0-0' }}</span>
+              </div>
+              <div class="p-5 flex-1 flex flex-col justify-center gap-4">
+                <div>
+                  <p class="text-[0.7rem] font-bold uppercase tracking-wider text-slate-400 mb-1">{{ 'DASHBOARD.OPERATIONS.ON_TIME_RATE' | translate }}</p>
+                  <p class="text-3xl font-black text-teal-700 tabular-nums">{{ etaOnTimePercent(ov) }}%</p>
+                </div>
+                <div class="grid grid-cols-2 gap-3">
+                  <div class="rounded-xl bg-slate-50 px-3 py-2">
+                    <p class="text-[0.65rem] font-bold text-slate-400">{{ 'DASHBOARD.OPERATIONS.AVG_PREP_TIME' | translate }}</p>
+                    <p class="text-sm font-black text-slate-800 tabular-nums">{{ ov.ordersSection.etaHealth.averagePreparationTimeMinutes | number:'1.0-0' }} {{ 'DASHBOARD.OPERATIONS.MINUTES' | translate }}</p>
+                  </div>
+                  <div class="rounded-xl bg-slate-50 px-3 py-2">
+                    <p class="text-[0.65rem] font-bold text-slate-400">{{ 'DASHBOARD.OPERATIONS.AVG_DELIVERY_TIME' | translate }}</p>
+                    <p class="text-sm font-black text-slate-800 tabular-nums">{{ ov.ordersSection.etaHealth.averageDeliveryTimeMinutes | number:'1.0-0' }} {{ 'DASHBOARD.OPERATIONS.MINUTES' | translate }}</p>
+                  </div>
+                  <div class="rounded-xl bg-slate-50 px-3 py-2">
+                    <p class="text-[0.65rem] font-bold text-slate-400">{{ 'DASHBOARD.OPERATIONS.AVG_DISPATCH_LEAD' | translate }}</p>
+                    <p class="text-sm font-black text-slate-800 tabular-nums">{{ ov.ordersSection.etaHealth.averageDispatchLeadMinutes | number:'1.0-0' }} {{ 'DASHBOARD.OPERATIONS.MINUTES' | translate }}</p>
+                  </div>
+                  <div class="rounded-xl bg-slate-50 px-3 py-2">
+                    <p class="text-[0.65rem] font-bold text-slate-400">{{ 'DASHBOARD.OPERATIONS.BUFFER' | translate }}</p>
+                    <p class="text-sm font-black text-slate-800 tabular-nums">{{ ov.ordersSection.etaHealth.recommendedBufferMinutes | number:'1.0-0' }} {{ 'DASHBOARD.OPERATIONS.MINUTES' | translate }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
 
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <!-- Sales Trend -->
-            <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm lg:col-span-1">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.ORDER_FUNNEL' | translate }}</h3>
+                <span class="material-symbols-outlined text-slate-300">filter_alt</span>
+              </div>
+              <div class="h-[250px] relative">
+                <canvas baseChart [data]="charts.overviewOrderFunnel" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+            <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm lg:col-span-1">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.SALES_TREND' | translate }}</h3>
                 <span class="material-symbols-outlined text-slate-300">trending_up</span>
@@ -308,9 +350,7 @@
                 <canvas baseChart [data]="charts.overviewSalesVsOrders" [options]="dualAxisOptions" [type]="'bar'"></canvas>
               </div>
             </div>
-
-            <!-- Settlement Status -->
-            <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+            <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm lg:col-span-1">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.SETTLEMENT_STATUS' | translate }}</h3>
                 <span class="material-symbols-outlined text-slate-300">account_balance_wallet</span>
@@ -326,13 +366,13 @@
         <section *ngIf="shouldRenderTab('operations')" id="operations" class="dashboard-panel" [class.hidden]="activeTabId !== 'operations'">
           <app-panel-header [title]="'DASHBOARD.SECTIONS.OPERATIONS'" [subtitle]="'DASHBOARD.SECTIONS.OPERATIONS_HINT'"></app-panel-header>
           
-          <div class="grid grid-cols-2 gap-4 mb-6">
+          <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-4 mb-6">
             @for (card of operationsCards; track card.labelKey) {
               <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm flex flex-col justify-center">
                 <span class="text-[0.7rem] font-bold text-slate-400 uppercase tracking-wider mb-2">{{ card.labelKey | translate }}</span>
                 <div class="flex items-baseline gap-2">
                   <span class="text-2xl font-black text-slate-800">{{ formatMetricValue(card) }}</span>
-                  @if (card.labelKey === 'DASHBOARD.OPERATIONS.AVG_PREP_TIME') {
+                  @if (card.labelKey !== 'DASHBOARD.OPERATIONS.PREP_EFFICIENCY' && card.labelKey !== 'DASHBOARD.OPERATIONS.ON_TIME_RATE') {
                     <span class="text-xs font-bold text-slate-400">{{ 'DASHBOARD.OPERATIONS.MINUTES' | translate }}</span>
                   }
                 </div>
@@ -341,7 +381,7 @@
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-            <div class="lg:col-span-8 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+            <div class="lg:col-span-6 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.ORDERS_TREND' | translate }}</h3>
                 <span class="material-symbols-outlined text-slate-300">moving</span>
@@ -350,13 +390,22 @@
                 <canvas baseChart [data]="charts.operationsOrdersTrend" [options]="dualAxisOptions" [type]="'bar'"></canvas>
               </div>
             </div>
-            <div class="lg:col-span-4 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm flex flex-col">
+            <div class="lg:col-span-3 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm flex flex-col">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.ORDER_STATUS_BREAKDOWN' | translate }}</h3>
                 <span class="material-symbols-outlined text-slate-300">donut_large</span>
               </div>
               <div class="h-[300px] flex-1 relative">
                 <canvas baseChart [data]="charts.operationsOrderStatus" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+            <div class="lg:col-span-3 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm flex flex-col">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.ORDER_FUNNEL' | translate }}</h3>
+                <span class="material-symbols-outlined text-slate-300">filter_alt</span>
+              </div>
+              <div class="h-[300px] flex-1 relative">
+                <canvas baseChart [data]="charts.operationsOrderFunnel" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
               </div>
             </div>
           </div>
@@ -449,7 +498,7 @@
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-            <div class="lg:col-span-8 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+            <div class="lg:col-span-6 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.SALES_VS_ORDERS' | translate }}</h3>
                 <span class="material-symbols-outlined text-slate-300">monitoring</span>
@@ -458,13 +507,22 @@
                 <canvas baseChart [data]="charts.overviewSalesVsOrders" [options]="dualAxisOptions" [type]="'bar'"></canvas>
               </div>
             </div>
-            <div class="lg:col-span-4 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+            <div class="lg:col-span-3 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
               <div class="flex items-center justify-between mb-4">
                 <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.TOP_CATEGORIES' | translate }}</h3>
                 <span class="material-symbols-outlined text-slate-300">category</span>
               </div>
               <div class="h-[300px] relative">
                 <canvas baseChart [data]="charts.salesTopCategories" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+            <div class="lg:col-span-3 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.WEEKDAY_PERFORMANCE' | translate }}</h3>
+                <span class="material-symbols-outlined text-slate-300">calendar_view_week</span>
+              </div>
+              <div class="h-[300px]">
+                <canvas baseChart [data]="charts.salesWeekday" [options]="barChartOptions" [type]="'bar'"></canvas>
               </div>
             </div>
           </div>
@@ -613,13 +671,17 @@
             }
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-             <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm col-span-1 lg:col-span-1">
+             <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
                 <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.OFFERS_BY_TYPE' | translate }}</h3><span class="material-symbols-outlined text-slate-300">sell</span></div>
                 <div class="h-[250px]"><canvas baseChart [data]="charts.offersByType" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
              </div>
-             <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm col-span-1 lg:col-span-2">
+             <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
                 <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.DISCOUNT_BANDS' | translate }}</h3><span class="material-symbols-outlined text-slate-300">bar_chart</span></div>
                 <div class="h-[250px]"><canvas baseChart [data]="charts.discountBands" [options]="barChartOptions" [type]="'bar'"></canvas></div>
+             </div>
+             <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.OFFER_LINKED_PRODUCTS' | translate }}</h3><span class="material-symbols-outlined text-slate-300">link</span></div>
+                <div class="h-[250px] relative"><canvas baseChart [data]="charts.offersLinkedProducts" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
              </div>
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -655,13 +717,17 @@
             }
           </div>
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-6">
-            <div class="lg:col-span-8 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+            <div class="lg:col-span-6 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
               <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.SALES_VS_PAYOUTS' | translate }}</h3></div>
               <div class="h-[300px]"><canvas baseChart [data]="charts.financeSalesVsPayouts" [options]="dualAxisOptions" [type]="'bar'"></canvas></div>
             </div>
-            <div class="lg:col-span-4 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+            <div class="lg:col-span-3 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
                <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.SETTLEMENT_STATUS' | translate }}</h3></div>
                <div class="h-[300px] relative"><canvas baseChart [data]="charts.overviewSettlements" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
+            </div>
+            <div class="lg:col-span-3 bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+               <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.LEDGER_BREAKDOWN' | translate }}</h3></div>
+               <div class="h-[300px] relative"><canvas baseChart [data]="charts.financeLedgerBreakdown" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
             </div>
           </div>
           @if (ov.financeSection.branchRevenues.length > 0) {
@@ -737,10 +803,64 @@
                 <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.DISPUTES_BY_STATUS' | translate }}</h3></div>
                 <div class="h-[250px]"><canvas baseChart [data]="charts.disputeStatus" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
              </div>
-             <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm col-span-1 lg:col-span-2">
+             <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+                <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.DISPUTES_BY_TYPE' | translate }}</h3></div>
+                <div class="h-[250px]"><canvas baseChart [data]="charts.disputeType" [options]="doughnutOptions" [type]="'doughnut'"></canvas></div>
+             </div>
+             <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
                 <div class="flex items-center justify-between mb-4"><h3 class="text-sm font-bold">{{ 'DASHBOARD.CHARTS.DISPUTES_TREND' | translate }}</h3></div>
                 <div class="h-[250px]"><canvas baseChart [data]="charts.disputeTrend" [options]="barChartOptions" [type]="'line'"></canvas></div>
              </div>
+          </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm overflow-hidden">
+              <div class="px-5 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.SECTIONS.AWAITING_ACTION' | translate }}</h3>
+                <a routerLink="/disputes" class="text-xs font-bold text-zadna-primary hover:underline">{{ 'COMMON.OPEN' | translate }}</a>
+              </div>
+              <div class="p-2">
+                @if (ov.disputesSection.awaitingAction.length === 0) {
+                  <div class="flex flex-col items-center justify-center p-8 text-slate-400">
+                    <span class="material-symbols-outlined text-2xl mb-2 opacity-50">task_alt</span>
+                    <span class="text-xs font-semibold">{{ 'DASHBOARD.EMPTY.NO_AWAITING_ACTION' | translate }}</span>
+                  </div>
+                } @else {
+                  @for (item of ov.disputesSection.awaitingAction; track item.id) {
+                    <a [routerLink]="['/disputes', item.id]" class="flex justify-between items-center gap-3 p-3 rounded-xl hover:bg-slate-50">
+                      <div class="min-w-0 pr-2">
+                        <strong class="block text-sm text-slate-800 truncate">{{ translateDisputeType(item.type) }}</strong>
+                        <span class="text-xs text-slate-500">{{ translateDisputeStatus(item.status) }} · {{ formatDateTime(item.occurredAtUtc) }}</span>
+                      </div>
+                      <span class="shrink-0 text-[0.65rem] font-black uppercase tracking-wide rounded-md bg-rose-50 text-rose-700 px-2 py-1">{{ item.priority }}</span>
+                    </a>
+                  }
+                }
+              </div>
+            </div>
+            <div class="bg-white rounded-[20px] border border-slate-100 shadow-sm overflow-hidden">
+              <div class="px-5 py-4 border-b border-slate-50 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.SECTIONS.RECENT_ESCALATIONS' | translate }}</h3>
+                <a routerLink="/disputes" class="text-xs font-bold text-zadna-primary hover:underline">{{ 'COMMON.OPEN' | translate }}</a>
+              </div>
+              <div class="p-2">
+                @if (ov.disputesSection.recentEscalations.length === 0) {
+                  <div class="flex flex-col items-center justify-center p-8 text-slate-400">
+                    <span class="material-symbols-outlined text-2xl mb-2 opacity-50">verified</span>
+                    <span class="text-xs font-semibold">{{ 'DASHBOARD.EMPTY.NO_ESCALATIONS' | translate }}</span>
+                  </div>
+                } @else {
+                  @for (item of ov.disputesSection.recentEscalations; track item.id) {
+                    <a [routerLink]="['/disputes', item.id]" class="flex justify-between items-center gap-3 p-3 rounded-xl hover:bg-slate-50">
+                      <div class="min-w-0 pr-2">
+                        <strong class="block text-sm text-slate-800 truncate">{{ item.message || translateDisputeType(item.type) }}</strong>
+                        <span class="text-xs text-slate-500">{{ translateDisputeStatus(item.status) }} · {{ formatDateTime(item.occurredAtUtc) }}</span>
+                      </div>
+                      <span class="shrink-0 text-[0.65rem] font-black uppercase tracking-wide rounded-md bg-amber-50 text-amber-700 px-2 py-1">{{ translateDisputeType(item.type) }}</span>
+                    </a>
+                  }
+                }
+              </div>
+            </div>
           </div>
         </section>
 
@@ -754,6 +874,33 @@
                 <span class="text-3xl font-black text-slate-800">{{ formatMetricValue(card) }}</span>
               </div>
             }
+          </div>
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.BRANCH_STATUS' | translate }}</h3>
+                <span class="material-symbols-outlined text-slate-300">store</span>
+              </div>
+              <div class="h-[260px] relative">
+                <canvas baseChart [data]="charts.staffBranchStatus" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+              </div>
+            </div>
+            <div class="bg-white p-5 rounded-[20px] border border-slate-100 shadow-sm">
+              <div class="flex items-center justify-between mb-4">
+                <h3 class="text-sm font-bold text-slate-800">{{ 'DASHBOARD.CHARTS.STAFF_ROLE_DISTRIBUTION' | translate }}</h3>
+                <span class="material-symbols-outlined text-slate-300">group</span>
+              </div>
+              @if (ov.staffSection.staffRoleDistribution.length === 0) {
+                <div class="h-[260px] flex flex-col items-center justify-center text-slate-400">
+                  <span class="material-symbols-outlined text-2xl mb-2 opacity-50">badge</span>
+                  <span class="text-xs font-semibold">{{ 'DASHBOARD.EMPTY.NO_STAFF_DISTRIBUTION' | translate }}</span>
+                </div>
+              } @else {
+                <div class="h-[260px] relative">
+                  <canvas baseChart [data]="charts.staffRoleDistribution" [options]="doughnutOptions" [type]="'doughnut'"></canvas>
+                </div>
+              }
+            </div>
           </div>
         </section>
 

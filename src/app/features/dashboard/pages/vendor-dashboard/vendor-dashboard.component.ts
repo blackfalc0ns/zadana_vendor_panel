@@ -370,6 +370,7 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
  return [];
  }
 
+ const eta = this.overview.ordersSection.etaHealth;
  return [
  {
  labelKey: 'DASHBOARD.OPERATIONS.PREP_EFFICIENCY',
@@ -380,6 +381,27 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
  {
  labelKey: 'DASHBOARD.OPERATIONS.AVG_PREP_TIME',
  value: this.overview.ordersSection.averagePrepTimeMinutes,
+ format: 'number'
+ },
+ {
+ labelKey: 'DASHBOARD.OPERATIONS.ON_TIME_RATE',
+ value: eta.onTimeRate > 1 ? eta.onTimeRate / 100 : eta.onTimeRate,
+ format: 'percent',
+ tone: (eta.onTimeRate > 1 ? eta.onTimeRate : eta.onTimeRate * 100) < 80 ? 'warning' : 'success'
+ },
+ {
+ labelKey: 'DASHBOARD.OPERATIONS.AVG_DELIVERY_TIME',
+ value: eta.averageDeliveryTimeMinutes,
+ format: 'number'
+ },
+ {
+ labelKey: 'DASHBOARD.OPERATIONS.AVG_DISPATCH_LEAD',
+ value: eta.averageDispatchLeadMinutes,
+ format: 'number'
+ },
+ {
+ labelKey: 'DASHBOARD.OPERATIONS.AVG_LAST_MILE',
+ value: eta.averageLastMileMinutes,
  format: 'number'
  }
  ];
@@ -687,19 +709,27 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
  return {
  overviewSalesVsOrders: this.emptyBarChart(),
  overviewSettlements: this.emptyDoughnutChart(),
+ overviewOrderFunnel: this.emptyDoughnutChart(),
  operationsOrdersTrend: this.emptyBarChart(),
  operationsOrderStatus: this.emptyDoughnutChart(),
+ operationsOrderFunnel: this.emptyDoughnutChart(),
  salesTrend: this.emptyBarChart(),
  salesTopCategories: this.emptyDoughnutChart(),
+ salesWeekday: this.emptyBarChart(),
  inventoryStockHealth: this.emptyDoughnutChart(),
  inventoryRiskBar: this.emptyBarChart(),
  inventoryCatalogGrowth: this.emptyLineChart(),
  offersByType: this.emptyDoughnutChart(),
  discountBands: this.emptyBarChart(),
+ offersLinkedProducts: this.emptyDoughnutChart(),
  financeSalesVsPayouts: this.emptyBarChart(),
  financeSettlements: this.emptyDoughnutChart(),
+ financeLedgerBreakdown: this.emptyDoughnutChart(),
  disputeStatus: this.emptyDoughnutChart(),
- disputeTrend: this.emptyLineChart()
+ disputeType: this.emptyDoughnutChart(),
+ disputeTrend: this.emptyLineChart(),
+ staffBranchStatus: this.emptyDoughnutChart(),
+ staffRoleDistribution: this.emptyDoughnutChart()
  };
  }
 
@@ -716,27 +746,35 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
  'DASHBOARD.CHARTS.ORDERS'
  );
  this.charts.overviewSettlements = this.buildDoughnutChart(ov.financeSection.settlementStatusBreakdown, 'settlements');
+ this.charts.overviewOrderFunnel = this.buildDoughnutChart(ov.ordersSection.funnel, 'order-funnel');
  this.charts.operationsOrdersTrend = this.buildDualAxisChart(
  ov.ordersSection.ordersTrend,
  'DASHBOARD.CHARTS.ORDERS',
  'DASHBOARD.CHARTS.SALES'
  );
  this.charts.operationsOrderStatus = this.buildDoughnutChart(ov.ordersSection.statusBreakdown, 'order-status');
+ this.charts.operationsOrderFunnel = this.charts.overviewOrderFunnel;
  this.charts.salesTrend = this.charts.overviewSalesVsOrders;
  this.charts.salesTopCategories = this.buildDoughnutChart(ov.salesSection.data.topCategories, 'generic');
+ this.charts.salesWeekday = this.buildBarChart(ov.salesSection.data.weekdayPerformance, 'weekday');
  this.charts.inventoryStockHealth = this.buildDoughnutChart(ov.inventorySection.stockHealthDistribution, 'stock-health');
  this.charts.inventoryRiskBar = this.buildBarChart(this.buildRankedSlices(ov.inventorySection.inventoryRiskList), 'generic');
  this.charts.inventoryCatalogGrowth = this.buildLineChart(ov.inventorySection.catalogGrowth, 'DASHBOARD.CHARTS.PRODUCTS');
  this.charts.offersByType = this.buildDoughnutChart(ov.offersSection.offersByType, 'offer-types');
  this.charts.discountBands = this.buildBarChart(ov.offersSection.discountBands, 'discount-bands');
+ this.charts.offersLinkedProducts = this.buildDoughnutChart(ov.offersSection.linkedProductsByType, 'offer-types');
  this.charts.financeSalesVsPayouts = this.buildDualAxisChart(
  ov.financeSection.salesVsPayoutsTrend,
  'DASHBOARD.CHARTS.SALES',
  'DASHBOARD.CHARTS.PAYOUTS'
  );
  this.charts.financeSettlements = this.charts.overviewSettlements;
+ this.charts.financeLedgerBreakdown = this.buildDoughnutChart(ov.financeSection.ledgerTypeBreakdown, 'ledger');
  this.charts.disputeStatus = this.buildDoughnutChart(ov.disputesSection.statusBreakdown, 'dispute-status');
+ this.charts.disputeType = this.buildDoughnutChart(ov.disputesSection.typeBreakdown, 'dispute-type');
  this.charts.disputeTrend = this.buildLineChart(ov.disputesSection.disputeTrend, 'DASHBOARD.CHARTS.DISPUTES');
+ this.charts.staffBranchStatus = this.buildDoughnutChart(ov.staffSection.branchStatusBreakdown, 'branch-status');
+ this.charts.staffRoleDistribution = this.buildDoughnutChart(ov.staffSection.staffRoleDistribution, 'staff-role');
  }
 
  metricToneClass(tone: DashboardMetricCard['tone']): string {
@@ -905,6 +943,23 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
  return translated === key ? status : translated;
  }
 
+ translateDisputeStatus(status: string): string {
+ const key = `VENDOR_DISPUTES.STATUS.${normalizeVendorDisputeStatus(status).toUpperCase()}`;
+ const translated = this.translate.instant(key);
+ return translated === key ? status : translated;
+ }
+
+ translateDisputeType(type: string): string {
+ const key = `VENDOR_DISPUTES.TYPE.${normalizeVendorDisputeType(type).toUpperCase()}`;
+ const translated = this.translate.instant(key);
+ return translated === key ? type : translated;
+ }
+
+ etaOnTimePercent(overview = this.overview): number {
+ const rate = overview?.ordersSection.etaHealth.onTimeRate ?? 0;
+ return rate > 1 ? Math.round(rate) : Math.round(rate * 100);
+ }
+
  translateLedgerLabel(label: string): string {
  const memo = resolveVendorLedgerMemo(label);
  if (memo) {
@@ -1029,6 +1084,11 @@ export class VendorDashboardComponent implements OnInit, OnDestroy {
  return key === 'active'
  ? this.translate.instant('COMMON.STATUS_ACTIVE')
  : this.translate.instant('COMMON.STATUS_INACTIVE');
+ case 'staff-role': {
+ const roleKey = `DASHBOARD.STAFF_ROLES.${(key || '').toUpperCase().replace(/[^A-Z0-9]+/g, '_')}`;
+ const roleLabel = this.translate.instant(roleKey);
+ return roleLabel !== roleKey ? roleLabel : this.fallbackGenericLabel(key);
+ }
  default: {
  const normalizedKey = (key || '').trim().toUpperCase().replace(/[^A-Z0-9]+/g, '_');
  const chartLabelKey = `DASHBOARD.CHART_LABELS.${normalizedKey}`;
