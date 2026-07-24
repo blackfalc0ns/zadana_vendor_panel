@@ -48,9 +48,8 @@ export class GoogleIdentityService {
   }
 
   /**
-   * Renders Google's official button into `host`.
-   * Put an invisible host over your custom-looking button so one click
-   * opens the Google account picker immediately (no intermediate modal).
+   * Renders Google's official Sign in / Sign up button into `host`.
+   * The button must stay visible — GIS blocks clicks on near-invisible overlays.
    */
   async mountButton(
     host: HTMLElement,
@@ -75,12 +74,13 @@ export class GoogleIdentityService {
     this.activeCredentialHandler = options.onCredential;
     this.activeErrorHandler = options.onError ?? null;
 
-    const width = Math.max(
-      Math.floor(host.getBoundingClientRect().width || host.parentElement?.getBoundingClientRect().width || 0),
-      280
-    );
-
+    const width = await this.waitForHostWidth(host);
     host.replaceChildren();
+    host.style.position = 'relative';
+    host.style.minHeight = '44px';
+    host.style.width = '100%';
+    host.style.overflow = 'hidden';
+
     window.google!.accounts.id.renderButton(host, {
       type: 'standard',
       theme: 'outline',
@@ -92,77 +92,7 @@ export class GoogleIdentityService {
       locale: document.documentElement.lang || 'ar'
     });
 
-    // Stretch the generated iframe/button to cover the facade.
-    const googleBtn = host.querySelector('div[role="button"]') as HTMLElement | null;
-    if (googleBtn) {
-      googleBtn.style.width = '100%';
-      googleBtn.style.height = '100%';
-    }
-  }
-
-  /**
-   * @deprecated Prefer mountButton for one-click popup UX.
-   * Kept for rare programmatic use; opens Google popup via an offscreen button click.
-   */
-  async requestCredential(context: GoogleAuthContext = 'signup'): Promise<GoogleCredentialProfile> {
-    if (!isPlatformBrowser(this.platformId)) {
-      throw new Error('GOOGLE_UNAVAILABLE');
-    }
-
-    if (!this.isConfigured) {
-      throw new Error('GOOGLE_NOT_CONFIGURED');
-    }
-
-    await this.loadScript();
-
-    return new Promise<GoogleCredentialProfile>((resolve, reject) => {
-      let settled = false;
-      const host = document.createElement('div');
-      Object.assign(host.style, {
-        position: 'fixed',
-        left: '50%',
-        top: '50%',
-        width: '320px',
-        height: '44px',
-        transform: 'translate(-50%, -50%)',
-        opacity: '0.02',
-        zIndex: '100000',
-        overflow: 'hidden'
-      });
-      document.body.appendChild(host);
-
-      const finish = (error?: Error, profile?: GoogleCredentialProfile) => {
-        if (settled) {
-          return;
-        }
-        settled = true;
-        window.clearTimeout(timeoutId);
-        host.remove();
-        if (error) {
-          reject(error);
-          return;
-        }
-        resolve(profile!);
-      };
-
-      const timeoutId = window.setTimeout(() => {
-        finish(new Error('GOOGLE_TIMEOUT'));
-      }, 120000);
-
-      void this.mountButton(host, {
-        context,
-        onCredential: (profile) => finish(undefined, profile),
-        onError: (error) => finish(error)
-      }).then(() => {
-        // User still needs to click; expose the button briefly so the gesture works.
-        host.style.opacity = '1';
-        const btn = host.querySelector('div[role="button"]') as HTMLElement | null;
-        btn?.focus();
-        btn?.click();
-      }).catch((error) => {
-        finish(error instanceof Error ? error : new Error('GOOGLE_FAILED'));
-      });
-    });
+    this.stretchRenderedButton(host);
   }
 
   private ensureInitialized(context: GoogleAuthContext): void {
@@ -188,11 +118,73 @@ export class GoogleIdentityService {
       cancel_on_tap_outside: true,
       ux_mode: 'popup',
       context,
-      // Avoid One Tap prompt APIs; FedCM migration warnings + multi-init races.
       use_fedcm_for_prompt: false
     });
 
     this.initializedClientId = clientId;
+  }
+
+  private stretchRenderedButton(host: HTMLElement): void {
+    const apply = () => {
+      const wrapper = host.querySelector('div[role="button"]') as HTMLElement | null;
+      const iframe = host.querySelector('iframe') as HTMLIFrameElement | null;
+      if (wrapper) {
+        wrapper.style.width = '100%';
+        wrapper.style.height = '44px';
+        wrapper.style.maxWidth = '100%';
+      }
+      if (iframe) {
+        iframe.style.width = '100%';
+        iframe.style.height = '44px';
+        iframe.style.maxWidth = '100%';
+      }
+    };
+
+    apply();
+    // GIS injects the iframe asynchronously.
+    window.requestAnimationFrame(apply);
+    window.setTimeout(apply, 50);
+    window.setTimeout(apply, 250);
+  }
+
+  private waitForHostWidth(host: HTMLElement): Promise<number> {
+    const readWidth = () =>
+      Math.floor(
+        host.getBoundingClientRect().width ||
+          host.parentElement?.getBoundingClientRect().width ||
+          0
+      );
+
+    const immediate = readWidth();
+    if (immediate >= 200) {
+      return Promise.resolve(Math.min(immediate, 400));
+    }
+
+    return new Promise((resolve) => {
+      let settled = false;
+      const finish = (width: number) => {
+        if (settled) {
+          return;
+        }
+        settled = true;
+        observer.disconnect();
+        window.clearTimeout(timeoutId);
+        resolve(Math.min(Math.max(width, 280), 400));
+      };
+
+      const observer = new ResizeObserver(() => {
+        const width = readWidth();
+        if (width >= 200) {
+          finish(width);
+        }
+      });
+      observer.observe(host);
+      if (host.parentElement) {
+        observer.observe(host.parentElement);
+      }
+
+      const timeoutId = window.setTimeout(() => finish(readWidth() || 320), 1500);
+    });
   }
 
   private decodeCredential(idToken: string): GoogleCredentialProfile {
@@ -239,6 +231,10 @@ export class GoogleIdentityService {
     this.scriptPromise = new Promise<void>((resolve, reject) => {
       const existing = document.getElementById('google-identity-services') as HTMLScriptElement | null;
       if (existing) {
+        if (window.google?.accounts?.id) {
+          resolve();
+          return;
+        }
         existing.addEventListener('load', () => resolve());
         existing.addEventListener('error', () => reject(new Error('GOOGLE_SCRIPT_FAILED')));
         return;

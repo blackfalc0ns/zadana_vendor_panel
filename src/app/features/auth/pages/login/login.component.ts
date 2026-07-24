@@ -54,7 +54,9 @@ export class LoginComponent implements OnInit, OnDestroy {
  return;
  }
  this.googleButtonMounted = true;
- void this.mountGoogleButton(ref.nativeElement);
+ void this.mountGoogleButton(ref.nativeElement).catch(() => {
+ this.googleButtonMounted = false;
+ });
  }
 
  constructor(
