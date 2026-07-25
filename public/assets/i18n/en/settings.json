@@ -721,7 +721,9 @@
       "AVAILABLE_BALANCE": "Available Balance",
       "PENDING_SETTLEMENT": "Pending Settlement",
       "NEXT_PAYOUT": "Next Payout",
-      "HOLD_AMOUNT": "Hold Amount"
+      "HOLD_AMOUNT": "Hold Amount",
+      "CASH_TO_REMIT": "Cash due to platform",
+      "CASH_TO_REMIT_HINT": "Cash collected from pickup orders that must be remitted to the platform"
     },
     "KPIS": {
       "NET_SALES": "Net Sales",
@@ -731,7 +733,8 @@
       "GROSS_SALES": "Gross Sales",
       "VENDOR_PROFIT": "Vendor Profit",
       "PLATFORM_FEES": "Platform Fees",
-      "VENDOR_NET": "Vendor Net"
+      "VENDOR_NET": "Vendor Net",
+      "CASH_TO_REMIT": "Cash due to platform"
     },
     "CHART": {
       "TITLE": "Sales vs Payouts Trend",
