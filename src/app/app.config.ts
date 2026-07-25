@@ -13,7 +13,7 @@ import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.inte
 import { provideVendorAuthBootstrap } from './core/auth/initializers/vendor-auth.initializer';
 import { ChunkLoadErrorHandler } from './core/services/chunk-load-error-handler';
 
-const TRANSLATION_ASSET_VERSION = '2026-07-25-fulfillment-banner-1';
+const TRANSLATION_ASSET_VERSION = '2026-07-25-fulfillment-detect-2';
 
 function deepMergeTranslations(target: Record<string, unknown>, source: Record<string, unknown>): Record<string, unknown> {
   const output: Record<string, unknown> = { ...target };

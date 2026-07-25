@@ -871,7 +871,18 @@ export class OrdersService {
  }
 
  private mapFulfillmentType(value: string): OrderFulfillmentType {
- return value.trim().toLowerCase() === 'pickup' ? 'Pickup' : 'Delivery';
+ return this.parseFulfillmentType(value) ?? 'Delivery';
+ }
+
+ private parseFulfillmentType(value: unknown): OrderFulfillmentType | null {
+ const normalized = String(value ?? '').trim().toLowerCase();
+ if (normalized === 'pickup') {
+ return 'Pickup';
+ }
+ if (normalized === 'delivery') {
+ return 'Delivery';
+ }
+ return null;
  }
 
  private resolveFulfillmentType(
@@ -882,18 +893,20 @@ export class OrdersService {
  pickupNoShowDeadlineUtc?: string;
  }
  ): OrderFulfillmentType {
- const mapped = this.mapFulfillmentType(String(rawValue ?? ''));
- if (mapped === 'Pickup') {
- return 'Pickup';
+ // Trust an explicit API value — never override "delivery" with shared OTP fields.
+ const explicit = this.parseFulfillmentType(rawValue);
+ if (explicit) {
+ return explicit;
  }
 
- // Some responses omit/mislabel fulfillmentType; pickup payload fields are authoritative.
+ // Fallback only when fulfillmentType is missing/unknown.
+ // Do NOT treat driver handoff OTP "not_available" as a pickup signal —
+ // delivery orders commonly return that before a courier is assigned.
  const hasPickupSignals =
  !!pickupSignals.pickupBranch ||
  !!pickupSignals.pickupNoShowDeadlineUtc ||
  pickupSignals.pickupOtpStatus === 'pending' ||
- pickupSignals.pickupOtpStatus === 'verified' ||
- pickupSignals.pickupOtpStatus === 'not_available';
+ pickupSignals.pickupOtpStatus === 'verified';
 
  return hasPickupSignals ? 'Pickup' : 'Delivery';
  }

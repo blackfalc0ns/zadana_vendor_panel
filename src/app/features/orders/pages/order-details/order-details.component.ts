@@ -50,10 +50,10 @@ import { environment } from '../../../../../environments/environment';
  <div class="flex items-center gap-2">
  <span
  *ngIf="order"
- class="hidden sm:inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.12em]"
+ class="inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.12em]"
  [ngClass]="isPickupOrder()
- ? 'border-violet-200 bg-violet-50 text-violet-700'
- : 'border-sky-200 bg-sky-50 text-sky-700'">
+ ? 'border-violet-300 bg-violet-100 text-violet-800'
+ : 'border-sky-300 bg-sky-100 text-sky-800'">
  <span class="material-symbols-outlined text-[14px]">{{ isPickupOrder() ? 'storefront' : 'local_shipping' }}</span>
  {{ (isPickupOrder() ? 'ORDERS.FULFILLMENT_TYPE.PICKUP' : 'ORDERS.FULFILLMENT_TYPE.DELIVERY') | translate }}
  </span>
@@ -142,35 +142,35 @@ import { environment } from '../../../../../environments/environment';
 
  <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
  <div class="space-y-4 lg:col-span-8">
- <section class="surface-card overflow-hidden" [ngClass]="isPickupOrder() ? 'ring-1 ring-violet-100' : 'ring-1 ring-sky-100'">
+ <section class="surface-card overflow-hidden" [ngClass]="isPickupOrder() ? 'ring-2 ring-violet-200' : 'ring-2 ring-sky-200'">
  <div
- class="mb-4 flex flex-col gap-2 rounded-2xl border px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+ class="-mx-4 -mt-4 mb-5 flex flex-col gap-3 border-b px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
  [ngClass]="isPickupOrder()
- ? 'border-violet-200 bg-violet-50/80'
- : 'border-sky-200 bg-sky-50/80'">
+ ? 'border-violet-200 bg-gradient-to-l from-violet-100 to-violet-50'
+ : 'border-sky-200 bg-gradient-to-l from-sky-100 to-sky-50'">
  <div class="flex items-start gap-3">
  <span
- class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl"
- [ngClass]="isPickupOrder() ? 'bg-violet-100 text-violet-700' : 'bg-sky-100 text-sky-700'">
- <span class="material-symbols-outlined text-[22px]">{{ isPickupOrder() ? 'storefront' : 'local_shipping' }}</span>
+ class="mt-0.5 flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm"
+ [ngClass]="isPickupOrder() ? 'bg-violet-600 text-white' : 'bg-sky-600 text-white'">
+ <span class="material-symbols-outlined text-[24px]">{{ isPickupOrder() ? 'storefront' : 'local_shipping' }}</span>
  </span>
  <div>
  <p
- class="text-[0.72rem] font-black uppercase tracking-[0.14em]"
- [ngClass]="isPickupOrder() ? 'text-violet-700' : 'text-sky-700'">
+ class="text-[0.8rem] font-black tracking-[0.04em]"
+ [ngClass]="isPickupOrder() ? 'text-violet-900' : 'text-sky-900'">
  {{ (isPickupOrder() ? 'ORDERS.FULFILLMENT_BANNER.PICKUP_TITLE' : 'ORDERS.FULFILLMENT_BANNER.DELIVERY_TITLE') | translate }}
  </p>
- <p class="mt-1 text-[0.78rem] font-medium leading-5 text-[#3f484a]">
+ <p class="mt-1 text-[0.8rem] font-semibold leading-5" [ngClass]="isPickupOrder() ? 'text-violet-800/90' : 'text-sky-800/90'">
  {{ (isPickupOrder() ? 'ORDERS.FULFILLMENT_BANNER.PICKUP_DESC' : 'ORDERS.FULFILLMENT_BANNER.DELIVERY_DESC') | translate }}
  </p>
  </div>
  </div>
  <span
- class="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.12em]"
+ class="inline-flex w-fit items-center gap-1.5 rounded-full border px-3.5 py-2 text-[0.68rem] font-black tracking-[0.08em] shadow-sm"
  [ngClass]="isPickupOrder()
- ? 'border-violet-300 bg-white text-violet-700'
- : 'border-sky-300 bg-white text-sky-700'">
- <span class="material-symbols-outlined text-[14px]">{{ isPickupOrder() ? 'storefront' : 'local_shipping' }}</span>
+ ? 'border-violet-400 bg-white text-violet-800'
+ : 'border-sky-400 bg-white text-sky-800'">
+ <span class="material-symbols-outlined text-[16px]">{{ isPickupOrder() ? 'storefront' : 'local_shipping' }}</span>
  {{ (isPickupOrder() ? 'ORDERS.FULFILLMENT_TYPE.PICKUP' : 'ORDERS.FULFILLMENT_TYPE.DELIVERY') | translate }}
  </span>
  </div>
@@ -385,10 +385,16 @@ import { environment } from '../../../../../environments/environment';
  <span>{{ 'ORDERS.SUBTOTAL' | translate }}</span>
  <span class="font-numeric">{{ currentOrder.subtotal | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
  </div>
- <div class="money-row">
+ <div class="money-row" *ngIf="!isPickupOrder(); else pickupNoDeliveryFee">
  <span>{{ 'ORDERS.DELIVERY_FEE' | translate }}</span>
  <span class="font-numeric">{{ currentOrder.deliveryFee | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
  </div>
+ <ng-template #pickupNoDeliveryFee>
+ <div class="money-row">
+ <span>{{ 'ORDERS.FULFILLMENT_BANNER.PICKUP_FEE_LABEL' | translate }}</span>
+ <span class="font-numeric text-violet-700">{{ 'ORDERS.FULFILLMENT_BANNER.PICKUP_FEE_VALUE' | translate }}</span>
+ </div>
+ </ng-template>
  <div class="money-row">
  <span>{{ 'ORDERS.TAX' | translate }}</span>
  <span class="font-numeric">{{ currentOrder.tax | number:'1.2-2' }} {{ 'ORDERS.CURRENCY' | translate }}</span>
@@ -815,16 +821,15 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  return 'Delivery';
  }
 
- if (this.order.fulfillmentType === 'Pickup') {
- return 'Pickup';
+ // Prefer the mapped type from the API. Only infer when it is missing.
+ if (this.order.fulfillmentType === 'Pickup' || this.order.fulfillmentType === 'Delivery') {
+ return this.order.fulfillmentType;
  }
 
- // Fallback when API omits fulfillmentType but pickup fields are present.
  const looksLikePickup = !!this.order.pickupBranch
  || !!this.order.pickupNoShowDeadlineUtc
  || this.order.pickupOtpStatus === 'pending'
- || this.order.pickupOtpStatus === 'verified'
- || this.order.pickupOtpStatus === 'not_available';
+ || this.order.pickupOtpStatus === 'verified';
 
  return looksLikePickup ? 'Pickup' : 'Delivery';
  }
