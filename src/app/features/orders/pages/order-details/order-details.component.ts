@@ -806,7 +806,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  'OnTheWay'
  ];
 
- return readyLike.includes(this.order.backendStatus)
+ const backendStatus = this.order.backendStatus ?? '';
+ return readyLike.includes(backendStatus)
  && this.order.pickupOtpStatus === 'pending'
  && !this.isOtpLocked();
  }
