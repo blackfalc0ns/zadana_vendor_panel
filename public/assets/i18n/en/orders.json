@@ -48,8 +48,14 @@
       "ALL_FULFILLMENT_TYPES": "All types"
     },
     "FULFILLMENT_TYPE": {
-      "DELIVERY": "Delivery",
+      "DELIVERY": "Customer delivery",
       "PICKUP": "Store pickup"
+    },
+    "FULFILLMENT_BANNER": {
+      "PICKUP_TITLE": "Store pickup order",
+      "PICKUP_DESC": "The customer will collect from the branch — no courier is involved.",
+      "DELIVERY_TITLE": "Customer delivery order",
+      "DELIVERY_DESC": "After preparation, a courier is assigned to deliver to the customer address."
     },
     "PICKUP": {
       "OVERVIEW_HINT": "Live pickup order status, customer details, and branch handoff in one place.",
@@ -114,6 +120,10 @@
     "TAB_COMPLETED": "Completed",
     "DETAIL_TITLE": "Order Details",
     "DETAIL_TIMELINE": "Order Timeline",
+    "DETAIL_TIMELINE_PICKUP": "Store pickup tracking",
+    "DETAIL_TIMELINE_DELIVERY": "Customer delivery tracking",
+    "DETAIL_OVERVIEW_PICKUP": "Pickup order overview",
+    "DETAIL_OVERVIEW_DELIVERY": "Delivery order overview",
     "TIMELINE": {
       "CHANGED_AT": "Status changed at: {{datetime}}",
       "CURRENT_STEP": "Current stage",

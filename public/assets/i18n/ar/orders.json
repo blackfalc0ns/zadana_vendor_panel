@@ -48,8 +48,14 @@
       "ALL_FULFILLMENT_TYPES": "الكل"
     },
     "FULFILLMENT_TYPE": {
-      "DELIVERY": "توصيل",
-      "PICKUP": "استلام من التاجر"
+      "DELIVERY": "توصيل للعميل",
+      "PICKUP": "استلام من المتجر"
+    },
+    "FULFILLMENT_BANNER": {
+      "PICKUP_TITLE": "طلب استلام من المتجر",
+      "PICKUP_DESC": "العميل بيجي يستلم من الفرع — مفيش مندوب في المسار ده.",
+      "DELIVERY_TITLE": "طلب توصيل للعميل",
+      "DELIVERY_DESC": "بعد التجهيز بيتعيّن مندوب ويوصّل الطلب لعنوان العميل."
     },
     "PICKUP": {
       "OVERVIEW_HINT": "متابعة مباشرة لطلب الاستلام، بيانات العميل، وتسليم الطلب من الفرع.",
@@ -114,6 +120,10 @@
     "TAB_COMPLETED": "مكتملة",
     "DETAIL_TITLE": "تفاصيل الطلب",
     "DETAIL_TIMELINE": "تتبع حالة الطلب",
+    "DETAIL_TIMELINE_PICKUP": "تتبع استلام من المتجر",
+    "DETAIL_TIMELINE_DELIVERY": "تتبع التوصيل للعميل",
+    "DETAIL_OVERVIEW_PICKUP": "ملخص طلب الاستلام",
+    "DETAIL_OVERVIEW_DELIVERY": "ملخص طلب التوصيل",
     "TIMELINE": {
       "CHANGED_AT": "وقت تغيير الحالة: {{datetime}}",
       "CURRENT_STEP": "المرحلة الحالية",

@@ -7,7 +7,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, interval, switchMap } from 'rxjs';
 import { DriverTrackingMapComponent } from '../../components/driver-tracking-map/driver-tracking-map.component';
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
-import { OrderDetail, OrderStatus, OrderTimelineEntry, ConvertToDeliveryReason } from '../../models/orders.models';
+import { OrderDetail, OrderFulfillmentType, OrderStatus, OrderTimelineEntry, ConvertToDeliveryReason } from '../../models/orders.models';
 import { OrdersService } from '../../services/orders.service';
 import {
  OrderTrackingDriverLocation,
@@ -48,6 +48,15 @@ import { environment } from '../../../../../environments/environment';
  </div>
 
  <div class="flex items-center gap-2">
+ <span
+ *ngIf="order"
+ class="hidden sm:inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.12em]"
+ [ngClass]="isPickupOrder()
+ ? 'border-violet-200 bg-violet-50 text-violet-700'
+ : 'border-sky-200 bg-sky-50 text-sky-700'">
+ <span class="material-symbols-outlined text-[14px]">{{ isPickupOrder() ? 'storefront' : 'local_shipping' }}</span>
+ {{ (isPickupOrder() ? 'ORDERS.FULFILLMENT_TYPE.PICKUP' : 'ORDERS.FULFILLMENT_TYPE.DELIVERY') | translate }}
+ </span>
  <a
  *ngIf="orderId && isTrackingActive() && !isPickupOrder()"
  class="icon-shell"
@@ -133,10 +142,42 @@ import { environment } from '../../../../../environments/environment';
 
  <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
  <div class="space-y-4 lg:col-span-8">
- <section class="surface-card overflow-hidden">
+ <section class="surface-card overflow-hidden" [ngClass]="isPickupOrder() ? 'ring-1 ring-violet-100' : 'ring-1 ring-sky-100'">
+ <div
+ class="mb-4 flex flex-col gap-2 rounded-2xl border px-4 py-3 sm:flex-row sm:items-center sm:justify-between"
+ [ngClass]="isPickupOrder()
+ ? 'border-violet-200 bg-violet-50/80'
+ : 'border-sky-200 bg-sky-50/80'">
+ <div class="flex items-start gap-3">
+ <span
+ class="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl"
+ [ngClass]="isPickupOrder() ? 'bg-violet-100 text-violet-700' : 'bg-sky-100 text-sky-700'">
+ <span class="material-symbols-outlined text-[22px]">{{ isPickupOrder() ? 'storefront' : 'local_shipping' }}</span>
+ </span>
+ <div>
+ <p
+ class="text-[0.72rem] font-black uppercase tracking-[0.14em]"
+ [ngClass]="isPickupOrder() ? 'text-violet-700' : 'text-sky-700'">
+ {{ (isPickupOrder() ? 'ORDERS.FULFILLMENT_BANNER.PICKUP_TITLE' : 'ORDERS.FULFILLMENT_BANNER.DELIVERY_TITLE') | translate }}
+ </p>
+ <p class="mt-1 text-[0.78rem] font-medium leading-5 text-[#3f484a]">
+ {{ (isPickupOrder() ? 'ORDERS.FULFILLMENT_BANNER.PICKUP_DESC' : 'ORDERS.FULFILLMENT_BANNER.DELIVERY_DESC') | translate }}
+ </p>
+ </div>
+ </div>
+ <span
+ class="inline-flex w-fit items-center gap-1.5 rounded-full border px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.12em]"
+ [ngClass]="isPickupOrder()
+ ? 'border-violet-300 bg-white text-violet-700'
+ : 'border-sky-300 bg-white text-sky-700'">
+ <span class="material-symbols-outlined text-[14px]">{{ isPickupOrder() ? 'storefront' : 'local_shipping' }}</span>
+ {{ (isPickupOrder() ? 'ORDERS.FULFILLMENT_TYPE.PICKUP' : 'ORDERS.FULFILLMENT_TYPE.DELIVERY') | translate }}
+ </span>
+ </div>
+
  <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
  <div>
- <p class="eyebrow-label">{{ currentLang === 'ar' ? 'ملخص الطلب' : 'Order overview' }}</p>
+ <p class="eyebrow-label">{{ (isPickupOrder() ? 'ORDERS.DETAIL_OVERVIEW_PICKUP' : 'ORDERS.DETAIL_OVERVIEW_DELIVERY') | translate }}</p>
  <div class="mt-1.5 flex flex-wrap items-center gap-2.5">
  <h2 class="text-xl font-extrabold text-[#004953] md:text-[1.7rem]">
  {{ currentLang === 'ar' ? 'طلب' : 'Order' }}
@@ -144,8 +185,7 @@ import { environment } from '../../../../../environments/environment';
  </h2>
  <app-order-status-badge
  [status]="currentOrder.status"
- [fulfillmentType]="currentOrder.fulfillmentType"
- customClass="rounded-full border border-[#00626f]/10 bg-[#00626f]/5 px-3 py-1.5 text-[0.68rem] font-black"
+ [fulfillmentType]="resolvedFulfillmentType()"
  ></app-order-status-badge>
  </div>
  <p class="mt-2.5 max-w-2xl text-[0.82rem] leading-6 text-[#3f484a]">
@@ -156,6 +196,10 @@ import { environment } from '../../../../../environments/environment';
  <p class="mt-1 text-sm font-extrabold text-[#004953]">{{ currentOrder.pickupBranch.name }}</p>
  <p class="mt-1 text-[0.78rem] font-medium text-[#3f484a]">{{ currentOrder.pickupBranch.address }}</p>
  <p *ngIf="currentOrder.pickupBranch.hoursToday" class="mt-1 text-[0.72rem] font-bold text-violet-700">{{ currentOrder.pickupBranch.hoursToday }}</p>
+ </div>
+ <div *ngIf="!isPickupOrder() && currentOrder.customerAddress" class="mt-3 rounded-2xl border border-sky-100 bg-sky-50/70 px-4 py-3">
+ <p class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-sky-700">{{ 'ORDERS.DELIVERY_ADDRESS' | translate }}</p>
+ <p class="mt-1 text-sm font-extrabold text-[#004953]">{{ currentOrder.customerAddress }}</p>
  </div>
  <div *ngIf="isPickupOrder() && currentOrder.pickupNoShowDeadlineUtc && !isOrderCompleted()" class="mt-3 rounded-2xl border border-amber-100 bg-amber-50/80 px-4 py-3">
  <p class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-amber-700">{{ 'ORDERS.PICKUP.NO_SHOW_TITLE' | translate }}</p>
@@ -360,10 +404,12 @@ import { environment } from '../../../../../environments/environment';
  </div>
 
  <div class="space-y-4 lg:col-span-4">
- <section class="surface-card">
+ <section class="surface-card" [ngClass]="isPickupOrder() ? 'ring-1 ring-violet-100' : 'ring-1 ring-sky-100'">
  <h3 class="section-title">
- <span class="material-symbols-outlined text-[20px] text-[#00626f]">timeline</span>
- {{ 'ORDERS.DETAIL_TIMELINE' | translate }}
+ <span class="material-symbols-outlined text-[20px]" [ngClass]="isPickupOrder() ? 'text-violet-600' : 'text-sky-600'">
+ {{ isPickupOrder() ? 'storefront' : 'local_shipping' }}
+ </span>
+ {{ (isPickupOrder() ? 'ORDERS.DETAIL_TIMELINE_PICKUP' : 'ORDERS.DETAIL_TIMELINE_DELIVERY') | translate }}
  </h3>
 
  <div class="relative mt-6 ms-2 pb-2">
@@ -761,20 +807,26 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  isPickupOrder(): boolean {
+ return this.resolvedFulfillmentType() === 'Pickup';
+ }
+
+ resolvedFulfillmentType(): OrderFulfillmentType {
  if (!this.order) {
- return false;
+ return 'Delivery';
  }
 
  if (this.order.fulfillmentType === 'Pickup') {
- return true;
+ return 'Pickup';
  }
 
  // Fallback when API omits fulfillmentType but pickup fields are present.
- return !!this.order.pickupBranch
+ const looksLikePickup = !!this.order.pickupBranch
  || !!this.order.pickupNoShowDeadlineUtc
  || this.order.pickupOtpStatus === 'pending'
  || this.order.pickupOtpStatus === 'verified'
  || this.order.pickupOtpStatus === 'not_available';
+
+ return looksLikePickup ? 'Pickup' : 'Delivery';
  }
 
  visibleTimelineSteps(order: OrderDetail): OrderTimelineEntry[] {
