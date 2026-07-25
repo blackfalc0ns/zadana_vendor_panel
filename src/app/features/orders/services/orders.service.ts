@@ -145,6 +145,14 @@ export class OrdersService {
  'DELIVERED'
  ];
 
+ private static readonly VENDOR_PICKUP_TIMELINE_FLOW: OrderStatus[] = [
+ 'NEW',
+ 'CONFIRMED',
+ 'IN_PROGRESS',
+ 'READY_FOR_PICKUP',
+ 'DELIVERED'
+ ];
+
  private static readonly TERMINAL_STATUSES: OrderStatus[] = ['CANCELLED', 'DELIVERY_FAILED', 'REFUNDED'];
 
  private readonly apiUrl = `${environment.apiUrl}/vendor/orders`;
@@ -428,7 +436,11 @@ export class OrdersService {
  const paymentStatusValue = String(raw.paymentStatus ?? raw['PaymentStatus'] ?? '');
  const placedAtUtc = String(raw.placedAtUtc ?? raw['PlacedAtUtc'] ?? '');
 
- const status = this.mapBackendStatus(statusValue);
+ const fulfillmentType = this.mapFulfillmentType(String(raw.fulfillmentType ?? raw['FulfillmentType'] ?? ''));
+ const status = this.normalizeVendorStatusForFulfillment(
+ this.mapBackendStatus(statusValue),
+ fulfillmentType
+ );
  const paymentMethodType = this.mapPaymentMethod(paymentMethodValue);
 
  return {
@@ -443,7 +455,7 @@ export class OrdersService {
  paymentStatus: this.mapPaymentStatus(paymentStatusValue),
  paymentMethodType,
  fulfillmentStatus: this.mapFulfillmentStatus(status),
- fulfillmentType: this.mapFulfillmentType(String(raw.fulfillmentType ?? raw['FulfillmentType'] ?? '')),
+ fulfillmentType,
  paymentMethodLabel: this.mapPaymentMethodLabel(paymentMethodType),
  total: Number(raw.totalAmount ?? raw['TotalAmount'] ?? 0),
  itemCount: Number(raw.itemsCount ?? raw['ItemsCount'] ?? 0),
@@ -454,7 +466,11 @@ export class OrdersService {
 
  private mapDetail(item: VendorOrderDetailApiModel): OrderDetail {
  const raw = item as VendorOrderDetailApiModel & Record<string, unknown>;
- const status = this.mapBackendStatus(String(raw.status ?? raw['Status'] ?? ''));
+ const fulfillmentType = this.mapFulfillmentType(String(raw.fulfillmentType ?? raw['FulfillmentType'] ?? ''));
+ const status = this.normalizeVendorStatusForFulfillment(
+ this.mapBackendStatus(String(raw.status ?? raw['Status'] ?? '')),
+ fulfillmentType
+ );
  const paymentMethodType = this.mapPaymentMethod(String(raw.paymentMethod ?? raw['PaymentMethod'] ?? ''));
  const subtotal = Number(raw.subtotal ?? raw['Subtotal'] ?? 0);
  const deliveryFee = Number(raw.deliveryFee ?? raw['DeliveryFee'] ?? 0);
@@ -480,7 +496,7 @@ export class OrdersService {
  paymentStatus: this.mapPaymentStatus(String(raw.paymentStatus ?? raw['PaymentStatus'] ?? '')),
  paymentMethodType,
  fulfillmentStatus: this.mapFulfillmentStatus(status),
- fulfillmentType: this.mapFulfillmentType(String(raw.fulfillmentType ?? raw['FulfillmentType'] ?? '')),
+ fulfillmentType,
  paymentMethodLabel: this.mapPaymentMethodLabel(paymentMethodType),
  total: totalAmount,
  subtotal,
@@ -499,7 +515,8 @@ export class OrdersService {
  timeline: this.buildFullVendorTimeline(
  status,
  timeline,
- placedAtUtc
+ placedAtUtc,
+ fulfillmentType
  ),
  canConfirmPickup: Boolean(raw.canConfirmPickup ?? raw['CanConfirmPickup'] ?? false),
  pickupOtpStatus: this.mapPickupOtpStatus(raw.pickupOtpStatus ?? raw['PickupOtpStatus']),
@@ -618,36 +635,41 @@ export class OrdersService {
  private buildFullVendorTimeline(
  currentStatus: OrderStatus,
  rawTimeline: VendorOrderTimelineApiModel[],
- placedAtUtc: string
+ placedAtUtc: string,
+ fulfillmentType: OrderFulfillmentType = 'Delivery'
  ): OrderTimelineEntry[] {
+ const flow = fulfillmentType === 'Pickup'
+ ? OrdersService.VENDOR_PICKUP_TIMELINE_FLOW
+ : OrdersService.VENDOR_TIMELINE_FLOW;
  const parsedHistory = rawTimeline.map((item) => this.parseTimelineItem(item));
  const historyTimestamps = this.buildStatusTimestampMap(parsedHistory, placedAtUtc);
  const historyNotes = this.buildStatusNotesMap(parsedHistory);
  const isTerminal = OrdersService.TERMINAL_STATUSES.includes(currentStatus);
- const currentFlowRank = this.getFlowRank(currentStatus);
+ const currentFlowRank = this.getFlowRank(currentStatus, flow);
 
  let stepStatuses: OrderStatus[];
 
  if (currentStatus === 'REFUNDED') {
- stepStatuses = [...OrdersService.VENDOR_TIMELINE_FLOW, 'REFUNDED'];
+ stepStatuses = [...flow, 'REFUNDED'];
  } else if (currentStatus === 'CANCELLED' || currentStatus === 'DELIVERY_FAILED') {
- const maxReachedRank = this.resolveMaxReachedFlowRank(parsedHistory, currentStatus);
- stepStatuses = [...OrdersService.VENDOR_TIMELINE_FLOW.filter((status) => this.getFlowRank(status) <= maxReachedRank),
+ const maxReachedRank = this.resolveMaxReachedFlowRank(parsedHistory, currentStatus, flow);
+ stepStatuses = [
+ ...flow.filter((status) => this.getFlowRank(status, flow) <= maxReachedRank),
  currentStatus
  ];
  } else {
- stepStatuses = [...OrdersService.VENDOR_TIMELINE_FLOW];
+ stepStatuses = [...flow];
  }
 
  const completedThroughRank = isTerminal
  ? currentStatus === 'REFUNDED'
- ? this.getFlowRank('DELIVERED')
- : this.resolveMaxReachedFlowRank(parsedHistory, currentStatus)
+ ? this.getFlowRank('DELIVERED', flow)
+ : this.resolveMaxReachedFlowRank(parsedHistory, currentStatus, flow)
  : currentFlowRank;
 
  return stepStatuses.map((status) => {
- const label = this.getStatusLabel(status);
- const flowRank = this.getFlowRank(status);
+ const label = this.getStatusLabel(status, fulfillmentType);
+ const flowRank = this.getFlowRank(status, flow);
  const isTerminalStep = OrdersService.TERMINAL_STATUSES.includes(status);
  const isCompleted = isTerminalStep
  ? true
@@ -724,7 +746,10 @@ export class OrdersService {
  return undefined;
  }
 
- private getFlowRank(status: OrderStatus): number {
+ private getFlowRank(
+ status: OrderStatus,
+ flow: OrderStatus[] = OrdersService.VENDOR_TIMELINE_FLOW
+ ): number {
  if (status === 'CANCELLED' || status === 'DELIVERY_FAILED') {
  return 999;
  }
@@ -733,18 +758,25 @@ export class OrdersService {
  return 1000;
  }
 
- const index = OrdersService.VENDOR_TIMELINE_FLOW.indexOf(status);
+ // Courier statuses on pickup orders collapse to the ready step.
+ if (flow === OrdersService.VENDOR_PICKUP_TIMELINE_FLOW &&
+ ['DRIVER_ASSIGNMENT_IN_PROGRESS', 'DRIVER_ASSIGNED', 'PICKED_UP', 'OUT_FOR_DELIVERY'].includes(status)) {
+ return flow.indexOf('READY_FOR_PICKUP');
+ }
+
+ const index = flow.indexOf(status);
  return index >= 0 ? index : -1;
  }
 
  private resolveMaxReachedFlowRank(
  historyEntries: OrderTimelineEntry[],
- currentStatus: OrderStatus
+ currentStatus: OrderStatus,
+ flow: OrderStatus[] = OrdersService.VENDOR_TIMELINE_FLOW
  ): number {
- const ranks = historyEntries.map((entry) => this.getFlowRank(entry.status)).filter((rank) => rank >= 0);
+ const ranks = historyEntries.map((entry) => this.getFlowRank(entry.status, flow)).filter((rank) => rank >= 0);
 
  if (!OrdersService.TERMINAL_STATUSES.includes(currentStatus)) {
- ranks.push(this.getFlowRank(currentStatus));
+ ranks.push(this.getFlowRank(currentStatus, flow));
  }
 
  return ranks.length ? Math.max(...ranks) : 0;
@@ -954,17 +986,39 @@ export class OrdersService {
  }
  }
 
- private getStatusLabel(status: OrderStatus): { ar: string; en: string } {
+ private normalizeVendorStatusForFulfillment(
+ status: OrderStatus,
+ fulfillmentType: OrderFulfillmentType
+ ): OrderStatus {
+ if (fulfillmentType !== 'Pickup') {
+ return status;
+ }
+
+ if (['DRIVER_ASSIGNMENT_IN_PROGRESS', 'DRIVER_ASSIGNED', 'PICKED_UP', 'OUT_FOR_DELIVERY'].includes(status)) {
+ return 'READY_FOR_PICKUP';
+ }
+
+ return status;
+ }
+
+ private getStatusLabel(
+ status: OrderStatus,
+ fulfillmentType: OrderFulfillmentType = 'Delivery'
+ ): { ar: string; en: string } {
  const labels: Record<OrderStatus, { ar: string; en: string }> = {
  NEW: { ar: 'طلب جديد', en: 'New order' },
  CONFIRMED: { ar: 'مؤكد', en: 'Confirmed' },
  IN_PROGRESS: { ar: 'تحت التجهيز', en: 'Preparing' },
- READY_FOR_PICKUP: { ar: 'جاهز للاستلام', en: 'Ready for pickup' },
-  DRIVER_ASSIGNMENT_IN_PROGRESS: { ar: 'نبحث عن مندوب', en: 'Finding a driver' },
+ READY_FOR_PICKUP: fulfillmentType === 'Pickup'
+ ? { ar: 'جاهز لاستلام العميل', en: 'Ready for customer pickup' }
+ : { ar: 'جاهز للاستلام', en: 'Ready for pickup' },
+ DRIVER_ASSIGNMENT_IN_PROGRESS: { ar: 'نبحث عن مندوب', en: 'Finding a driver' },
  DRIVER_ASSIGNED: { ar: 'مُعيّن له مندوب', en: 'Driver assigned' },
  PICKED_UP: { ar: 'مستلم من المتجر', en: 'Picked up' },
  OUT_FOR_DELIVERY: { ar: 'في الطريق', en: 'On the way' },
- DELIVERED: { ar: 'مسلّم', en: 'Delivered' },
+ DELIVERED: fulfillmentType === 'Pickup'
+ ? { ar: 'تم استلام العميل', en: 'Collected by customer' }
+ : { ar: 'مسلّم', en: 'Delivered' },
  COMPLETED: { ar: 'مكتمل', en: 'Completed' },
  CANCELLED: { ar: 'ملغي', en: 'Cancelled' },
  RETURNED: { ar: 'مرتجع', en: 'Returned' },

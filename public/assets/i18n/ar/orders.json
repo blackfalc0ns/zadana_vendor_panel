@@ -176,6 +176,36 @@
           "DESCRIPTION": "استرجعنا قيمة الطلب للعميل."
         }
       },
+      "STEPS_PICKUP": {
+        "NEW": {
+          "TITLE": "طلب جديد",
+          "DESCRIPTION": "طلب استلام من الفرع بانتظار قبولك."
+        },
+        "CONFIRMED": {
+          "TITLE": "مؤكد",
+          "DESCRIPTION": "قبلت الطلب وبدأ التجهيز داخل الفرع."
+        },
+        "IN_PROGRESS": {
+          "TITLE": "تحت التجهيز",
+          "DESCRIPTION": "يجري تجهيز منتجات طلب الاستلام."
+        },
+        "READY_FOR_PICKUP": {
+          "TITLE": "جاهز لاستلام العميل",
+          "DESCRIPTION": "الطلب جاهز وينتظر حضور العميل للفرع بكود الاستلام."
+        },
+        "DELIVERED": {
+          "TITLE": "تم استلام العميل",
+          "DESCRIPTION": "العميل استلم الطلب من الفرع بنجاح."
+        },
+        "CANCELLED": {
+          "TITLE": "ملغي",
+          "DESCRIPTION": "تم إلغاء طلب الاستلام."
+        },
+        "REFUNDED": {
+          "TITLE": "مسترجع",
+          "DESCRIPTION": "استرجعنا قيمة طلب الاستلام للعميل."
+        }
+      },
       "NOTES": {
         "AUTO_DISPATCH_STARTED": "بدأ البحث التلقائي عن مندوب",
         "DRIVER_ACCEPTED_OFFER": "وافق المندوب على عرض التوصيل",
@@ -224,6 +254,7 @@
     "ACTION_CONFIRM": "تأكيد الطلب",
     "ACTION_START_PREPARING": "بدء التجهيز",
     "ACTION_MARK_READY": "جاهز للتسليم",
+    "ACTION_MARK_READY_PICKUP": "جاهز لاستلام العميل",
     "LATE_ALERT": "تأخير في التحضير",
     "DRIVER_VEHICLE": "نوع المركبة",
     "DRIVER_PLATE": "رقم اللوحة",

@@ -121,10 +121,10 @@ import { environment } from '../../../../../environments/environment';
  <p class="mt-1 text-sm font-bold text-[#004953]">{{ cancellationRequest.customerReason || ('ORDERS.PICKUP.CANCELLATION_REQUEST_DEFAULT' | translate) }}</p>
  </div>
  <div class="flex flex-wrap gap-2">
- <button type="button" class="primary-action !bg-emerald-600" (click)="decideCancellation(cancellationRequest.id, true)" [disabled]="isDecidingCancellation">
+ <button type="button" class="accent-action !border-rose-200 !bg-rose-50 !text-rose-700" (click)="decideCancellation(cancellationRequest.id, true)" [disabled]="isDecidingCancellation">
  {{ 'ORDERS.PICKUP.CANCELLATION_ACCEPT' | translate }}
  </button>
- <button type="button" class="accent-action !border-rose-200 !bg-rose-50 !text-rose-700" (click)="decideCancellation(cancellationRequest.id, false)" [disabled]="isDecidingCancellation">
+ <button type="button" class="primary-action" (click)="decideCancellation(cancellationRequest.id, false)" [disabled]="isDecidingCancellation">
  {{ 'ORDERS.PICKUP.CANCELLATION_REJECT' | translate }}
  </button>
  </div>
@@ -174,7 +174,7 @@ import { environment } from '../../../../../environments/environment';
  </button>
  <button *ngIf="canMarkReady()" type="button" class="teal-action" (click)="updateStatus('READY_FOR_PICKUP')" [disabled]="isUpdatingStatus">
  <span class="material-symbols-outlined text-[16px]">inventory_2</span>
- {{ 'ORDERS.ACTION_MARK_READY' | translate }}
+ {{ (isPickupOrder() ? 'ORDERS.ACTION_MARK_READY_PICKUP' : 'ORDERS.ACTION_MARK_READY') | translate }}
  </button>
  <button *ngIf="canConvertToDelivery()" type="button" class="accent-action" (click)="openConvertModal()" [disabled]="isConvertingToDelivery">
  <span class="material-symbols-outlined text-[16px]">local_shipping</span>
@@ -744,6 +744,11 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  canMarkReady(): boolean {
+ if (this.isPickupOrder() &&
+ ['DriverAssignmentInProgress', 'DriverAssigned', 'PickedUp', 'OnTheWay'].includes(this.order?.backendStatus ?? '')) {
+ return true;
+ }
+
  return this.order?.backendStatus === 'Preparing';
  }
 
@@ -764,7 +769,15 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  return false;
  }
 
- return this.order.backendStatus === 'ReadyForPickup'
+ const readyLike = [
+ 'ReadyForPickup',
+ 'DriverAssignmentInProgress',
+ 'DriverAssigned',
+ 'PickedUp',
+ 'OnTheWay'
+ ];
+
+ return readyLike.includes(this.order.backendStatus)
  && this.order.pickupOtpStatus === 'pending'
  && !this.isOtpLocked();
  }
@@ -825,9 +838,31 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  });
  }
 
- decideCancellation(requestId: string, accept: boolean): void {
+ async decideCancellation(requestId: string, accept: boolean): Promise<void> {
  if (!this.order || this.isDecidingCancellation) {
  return;
+ }
+
+ if (accept) {
+ const confirmed = await this.alertModalService.showConfirm(
+ this.currentLang === 'ar'
+ ? 'قبول الإلغاء سيلغي الطلب نهائيًا. هل أنت متأكد؟'
+ : 'Accepting will cancel this order permanently. Continue?',
+ this.currentLang === 'ar' ? 'تأكيد إلغاء الطلب' : 'Confirm order cancellation',
+ {
+ confirmText: this.currentLang === 'ar' ? 'نعم، ألغِ الطلب' : 'Yes, cancel order',
+ cancelText: this.currentLang === 'ar' ? 'رجوع' : 'Back',
+ type: 'danger',
+ titleIsTranslationKey: false,
+ messageIsTranslationKey: false,
+ confirmTextIsTranslationKey: false,
+ cancelTextIsTranslationKey: false
+ }
+ );
+
+ if (!confirmed) {
+ return;
+ }
  }
 
  const orderId = this.order.id;
@@ -1113,10 +1148,18 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  timelineStepTitleKey(step: OrderTimelineEntry): string {
+ if (this.isPickupOrder()) {
+ return `ORDERS.TIMELINE.STEPS_PICKUP.${step.status}.TITLE`;
+ }
+
  return `ORDERS.TIMELINE.STEPS.${step.status}.TITLE`;
  }
 
  timelineStepDescriptionKey(step: OrderTimelineEntry): string {
+ if (this.isPickupOrder()) {
+ return `ORDERS.TIMELINE.STEPS_PICKUP.${step.status}.DESCRIPTION`;
+ }
+
  return `ORDERS.TIMELINE.STEPS.${step.status}.DESCRIPTION`;
  }
 

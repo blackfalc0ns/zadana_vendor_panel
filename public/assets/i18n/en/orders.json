@@ -176,6 +176,36 @@
           "DESCRIPTION": "The order amount was refunded to the customer."
         }
       },
+      "STEPS_PICKUP": {
+        "NEW": {
+          "TITLE": "New order",
+          "DESCRIPTION": "A store-pickup order is waiting for your acceptance."
+        },
+        "CONFIRMED": {
+          "TITLE": "Confirmed",
+          "DESCRIPTION": "You accepted the pickup order and preparation started."
+        },
+        "IN_PROGRESS": {
+          "TITLE": "Preparing",
+          "DESCRIPTION": "Pickup order items are being prepared in the branch."
+        },
+        "READY_FOR_PICKUP": {
+          "TITLE": "Ready for customer pickup",
+          "DESCRIPTION": "The order is ready and waiting for the customer with the pickup code."
+        },
+        "DELIVERED": {
+          "TITLE": "Collected by customer",
+          "DESCRIPTION": "The customer collected the order from the branch."
+        },
+        "CANCELLED": {
+          "TITLE": "Cancelled",
+          "DESCRIPTION": "The pickup order was cancelled."
+        },
+        "REFUNDED": {
+          "TITLE": "Refunded",
+          "DESCRIPTION": "The pickup order amount was refunded to the customer."
+        }
+      },
       "NOTES": {
         "AUTO_DISPATCH_STARTED": "Automatic driver search started",
         "DRIVER_ACCEPTED_OFFER": "Driver accepted the delivery offer",
@@ -224,6 +254,7 @@
     "ACTION_CONFIRM": "Confirm Order",
     "ACTION_START_PREPARING": "Start Prep",
     "ACTION_MARK_READY": "Ready to Pick",
+    "ACTION_MARK_READY_PICKUP": "Ready for customer pickup",
     "LATE_ALERT": "Prep Delayed",
     "DRIVER_VEHICLE": "Vehicle Type",
     "DRIVER_PLATE": "Plate Number",
