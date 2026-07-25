@@ -370,7 +370,7 @@ import { environment } from '../../../../../environments/environment';
  <!-- Gradient Vertical Rail -->
  <div class="absolute top-4 bottom-4 start-[1.1rem] w-[2px] bg-gradient-to-b from-teal-500 via-teal-300 to-slate-100" [ngClass]="{'opacity-50':!currentOrder.timeline[0].isCompleted}"></div>
  
- <article *ngFor="let step of currentOrder.timeline; let i = index; let last = last" class="relative flex items-start gap-5 group" [ngClass]="{'pb-8':!last}">
+ <article *ngFor="let step of visibleTimelineSteps(currentOrder); let i = index; let last = last" class="relative flex items-start gap-5 group" [ngClass]="{'pb-8':!last}">
  
  <!-- Node -->
  <div class="relative z-10 flex flex-col items-center justify-start">
@@ -761,7 +761,36 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  isPickupOrder(): boolean {
- return this.order?.fulfillmentType === 'Pickup';
+ if (!this.order) {
+ return false;
+ }
+
+ if (this.order.fulfillmentType === 'Pickup') {
+ return true;
+ }
+
+ // Fallback when API omits fulfillmentType but pickup fields are present.
+ return !!this.order.pickupBranch
+ || !!this.order.pickupNoShowDeadlineUtc
+ || this.order.pickupOtpStatus === 'pending'
+ || this.order.pickupOtpStatus === 'verified'
+ || this.order.pickupOtpStatus === 'not_available';
+ }
+
+ visibleTimelineSteps(order: OrderDetail): OrderTimelineEntry[] {
+ const steps = order.timeline ?? [];
+ if (!this.isPickupOrder()) {
+ return steps;
+ }
+
+ const courierStatuses = new Set<OrderStatus>([
+ 'DRIVER_ASSIGNMENT_IN_PROGRESS',
+ 'DRIVER_ASSIGNED',
+ 'PICKED_UP',
+ 'OUT_FOR_DELIVERY'
+ ]);
+
+ return steps.filter((step) => !courierStatuses.has(step.status));
  }
 
  canVerifyCustomerPickup(): boolean {
@@ -1225,11 +1254,15 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  isActiveTimelineStep(index: number): boolean {
- const timeline = this.order?.timeline ?? [];
+ if (!this.order) {
+ return false;
+ }
+
+ const timeline = this.visibleTimelineSteps(this.order);
  const current = timeline[index];
  const next = timeline[index + 1];
 
- return!!current?.isCompleted &&!next?.isCompleted;
+ return !!current?.isCompleted && !next?.isCompleted;
  }
 
  translateTimelineNote(note: string): string {

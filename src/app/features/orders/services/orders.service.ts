@@ -466,7 +466,17 @@ export class OrdersService {
 
  private mapDetail(item: VendorOrderDetailApiModel): OrderDetail {
  const raw = item as VendorOrderDetailApiModel & Record<string, unknown>;
- const fulfillmentType = this.mapFulfillmentType(String(raw.fulfillmentType ?? raw['FulfillmentType'] ?? ''));
+ const pickupOtpStatus = this.mapPickupOtpStatus(raw.pickupOtpStatus ?? raw['PickupOtpStatus']);
+ const pickupNoShowDeadlineUtc = this.toOptionalUtcString(raw.pickupNoShowDeadlineUtc ?? raw['PickupNoShowDeadlineUtc']);
+ const pickupBranch = this.mapPickupBranch(raw.pickupBranch ?? raw['PickupBranch']);
+ const fulfillmentType = this.resolveFulfillmentType(
+ raw.fulfillmentType ?? raw['FulfillmentType'] ?? raw['fulfillment_type'],
+ {
+ pickupBranch,
+ pickupOtpStatus,
+ pickupNoShowDeadlineUtc
+ }
+ );
  const status = this.normalizeVendorStatusForFulfillment(
  this.mapBackendStatus(String(raw.status ?? raw['Status'] ?? '')),
  fulfillmentType
@@ -506,11 +516,11 @@ export class OrdersService {
  isLate: false,
  hasActiveIssue: status === 'CANCELLED',
  notes: (raw.notes ?? raw['Notes']) ? String(raw.notes ?? raw['Notes']) : undefined,
- driverName: driver?.name,
- driverPhone: driver?.phoneNumber ?? undefined,
- driverVehicleType: driver?.vehicleType,
- driverVehiclePlate: driver?.plateNumber,
- driverImage: driver?.imageUrl ?? undefined,
+ driverName: fulfillmentType === 'Pickup' ? undefined : driver?.name,
+ driverPhone: fulfillmentType === 'Pickup' ? undefined : (driver?.phoneNumber ?? undefined),
+ driverVehicleType: fulfillmentType === 'Pickup' ? undefined : driver?.vehicleType,
+ driverVehiclePlate: fulfillmentType === 'Pickup' ? undefined : driver?.plateNumber,
+ driverImage: fulfillmentType === 'Pickup' ? undefined : (driver?.imageUrl ?? undefined),
  items: items.map((orderItem) => this.mapOrderItem(orderItem)),
  timeline: this.buildFullVendorTimeline(
  status,
@@ -518,17 +528,21 @@ export class OrdersService {
  placedAtUtc,
  fulfillmentType
  ),
- canConfirmPickup: Boolean(raw.canConfirmPickup ?? raw['CanConfirmPickup'] ?? false),
- pickupOtpStatus: this.mapPickupOtpStatus(raw.pickupOtpStatus ?? raw['PickupOtpStatus']),
+ canConfirmPickup: fulfillmentType === 'Pickup'
+ ? false
+ : Boolean(raw.canConfirmPickup ?? raw['CanConfirmPickup'] ?? false),
+ pickupOtpStatus,
  pickupOtpFailedAttempts: Number(raw.pickupOtpFailedAttempts ?? raw['PickupOtpFailedAttempts'] ?? 0),
  pickupOtpLockedUntilUtc: this.toOptionalUtcString(raw.pickupOtpLockedUntilUtc ?? raw['PickupOtpLockedUntilUtc']),
- pickupNoShowDeadlineUtc: this.toOptionalUtcString(raw.pickupNoShowDeadlineUtc ?? raw['PickupNoShowDeadlineUtc']),
- pickupBranch: this.mapPickupBranch(raw.pickupBranch ?? raw['PickupBranch']),
+ pickupNoShowDeadlineUtc,
+ pickupBranch,
  pendingCancellationRequest: this.mapPendingCancellationRequest(raw),
  customerAddresses: this.mapCustomerAddresses(raw['customerAddresses'] ?? raw['CustomerAddresses']),
  vendorLocation: this.mapCoordinatePair(raw.vendorLocation ?? raw['VendorLocation']),
  customerLocation: this.mapCoordinatePair(raw.customerLocation ?? raw['CustomerLocation']),
- driverLiveLocation: this.mapDriverLiveLocation(raw.driverLiveLocation ?? raw['DriverLiveLocation'])
+ driverLiveLocation: fulfillmentType === 'Pickup'
+ ? undefined
+ : this.mapDriverLiveLocation(raw.driverLiveLocation ?? raw['DriverLiveLocation'])
  };
  }
 
@@ -858,6 +872,30 @@ export class OrdersService {
 
  private mapFulfillmentType(value: string): OrderFulfillmentType {
  return value.trim().toLowerCase() === 'pickup' ? 'Pickup' : 'Delivery';
+ }
+
+ private resolveFulfillmentType(
+ rawValue: unknown,
+ pickupSignals: {
+ pickupBranch?: PickupBranchInfo;
+ pickupOtpStatus?: PickupOtpStatus;
+ pickupNoShowDeadlineUtc?: string;
+ }
+ ): OrderFulfillmentType {
+ const mapped = this.mapFulfillmentType(String(rawValue ?? ''));
+ if (mapped === 'Pickup') {
+ return 'Pickup';
+ }
+
+ // Some responses omit/mislabel fulfillmentType; pickup payload fields are authoritative.
+ const hasPickupSignals =
+ !!pickupSignals.pickupBranch ||
+ !!pickupSignals.pickupNoShowDeadlineUtc ||
+ pickupSignals.pickupOtpStatus === 'pending' ||
+ pickupSignals.pickupOtpStatus === 'verified' ||
+ pickupSignals.pickupOtpStatus === 'not_available';
+
+ return hasPickupSignals ? 'Pickup' : 'Delivery';
  }
 
  private mapPickupOtpStatus(value: unknown): PickupOtpStatus | undefined {
