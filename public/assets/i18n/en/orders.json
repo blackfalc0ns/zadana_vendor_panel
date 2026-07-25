@@ -43,7 +43,37 @@
       "TIMING": "Timing",
       "ALL_TIMING": "All timing",
       "TIMING_LATE": "Delayed only",
-      "TIMING_ONTIME": "On time"
+      "TIMING_ONTIME": "On time",
+      "FULFILLMENT_TYPE": "Fulfillment",
+      "ALL_FULFILLMENT_TYPES": "All types"
+    },
+    "FULFILLMENT_TYPE": {
+      "DELIVERY": "Delivery",
+      "PICKUP": "Store pickup"
+    },
+    "PICKUP": {
+      "OVERVIEW_HINT": "Live pickup order status, customer details, and branch handoff in one place.",
+      "BRANCH_TITLE": "Pickup branch",
+      "NO_SHOW_TITLE": "Time left before no-show",
+      "CUSTOMER_HANDOFF_TITLE": "Customer pickup verification",
+      "CUSTOMER_HANDOFF_DESC": "Enter the 4-digit code the customer shows to confirm store pickup.",
+      "CONFIRM_CUSTOMER_PICKUP": "Confirm customer pickup",
+      "OTP_LOCKED": "OTP locked. Try again in {{time}}",
+      "OTP_ATTEMPTS": "Failed attempts: {{count}}",
+      "CONVERT_TO_DELIVERY": "Convert to courier delivery",
+      "CONVERT_MODAL_TITLE": "Convert order to delivery",
+      "CONVERT_MODAL_DESC": "Provide the customer delivery address ID and reason for conversion.",
+      "CONVERT_ADDRESS_ID": "Customer delivery address",
+      "CONVERT_ADDRESS_PLACEHOLDER": "Select customer address",
+      "CONVERT_REASON": "Reason",
+      "CONVERT_REASON_CUSTOMER": "Customer request",
+      "CONVERT_REASON_VENDOR": "Vendor cannot fulfill pickup",
+      "CONVERT_REASON_OTHER": "Other",
+      "CONVERT_SUBMIT": "Convert order",
+      "CANCELLATION_REQUEST_TITLE": "Pending cancellation request",
+      "CANCELLATION_REQUEST_DEFAULT": "The customer requested to cancel this pickup order.",
+      "CANCELLATION_ACCEPT": "Accept cancellation",
+      "CANCELLATION_REJECT": "Reject request"
     },
     "TABLE": {
       "TITLE": "Orders List",

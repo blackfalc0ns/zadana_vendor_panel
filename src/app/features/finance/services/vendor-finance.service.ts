@@ -21,6 +21,8 @@ interface FinanceSnapshotApiResponse {
   PayoutMethod?: string;
   holdAmount?: number;
   HoldAmount?: number;
+  codOwedBalance?: number;
+  CodOwedBalance?: number;
   financialLifecycleModeStr?: string;
   FinancialLifecycleModeStr?: string;
   kpis?: VendorFinanceSnapshot['kpis'];
@@ -158,6 +160,7 @@ export class VendorFinanceService {
       nextPayoutDate: String(source.nextPayoutDate ?? source.NextPayoutDate ?? ''),
       payoutMethod: String(source.payoutMethod ?? source.PayoutMethod ?? ''),
       holdAmount: Number(source.holdAmount ?? source.HoldAmount ?? 0),
+      codOwedBalance: Number(source.codOwedBalance ?? source.CodOwedBalance ?? 0),
       financialLifecycleModeStr: String(source.financialLifecycleModeStr ?? source.FinancialLifecycleModeStr ?? ''),
       kpis: source.kpis ?? source.Kpis ?? [],
       trend: source.trend ?? source.Trend ?? [],

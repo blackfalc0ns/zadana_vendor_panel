@@ -3,15 +3,21 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable, catchError, finalize, map, of, shareReplay, switchMap, tap, timeout } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
+ CustomerAddressOption,
  OrderDetail,
  OrderFulfillmentStatus,
+ OrderFulfillmentType,
  OrderItem,
  OrderListItem,
  OrderPaymentMethod,
  OrderPaymentStatus,
  OrderStatus,
  OrderTimelineEntry,
- PaginatedOrdersResponse
+ PaginatedOrdersResponse,
+ PendingCancellationRequest,
+ PickupBranchInfo,
+ PickupOtpStatus,
+ ConvertToDeliveryReason
 } from '../models/orders.models';
 
 interface VendorOrdersApiResponse {
@@ -28,6 +34,7 @@ interface VendorOrderListItemApiModel {
  customerName: string;
  customerPhone: string;
  status: string;
+ fulfillmentType?: string;
  paymentStatus: string;
  paymentMethod: string;
  totalAmount: number;
@@ -43,6 +50,7 @@ interface VendorOrderDetailApiModel {
  customerPhone: string;
  customerAddress: string;
  status: string;
+ fulfillmentType?: string;
  paymentStatus: string;
  paymentMethod: string;
  subtotal: number;
@@ -56,6 +64,21 @@ interface VendorOrderDetailApiModel {
  pickupOtp?: string | null;
  canConfirmPickup?: boolean;
  pickupOtpStatus?: string;
+ pickupOtpFailedAttempts?: number;
+ pickupOtpLockedUntilUtc?: string | null;
+ pickupNoShowDeadlineUtc?: string | null;
+ pickupBranch?: { name?: string; address?: string; hoursToday?: string } | null;
+ pendingCancellationRequest?: {
+ id?: string;
+ customerReason?: string;
+ requestedAtUtc?: string;
+ } | null;
+ cancellationRequests?: Array<{
+ id?: string;
+ status?: string;
+ customerReason?: string;
+ requestedAtUtc?: string;
+ }> | null;
  vendorLocation?: { latitude: number; longitude: number } | null;
  customerLocation?: { latitude: number; longitude: number } | null;
  driverLiveLocation?: {
@@ -139,6 +162,7 @@ export class OrdersService {
  pageNumber: number;
  pageSize: number;
  status?: OrderStatus | 'ALL';
+ fulfillmentType?: OrderFulfillmentType | 'ALL';
  searchTerm?: string;
  paymentMethod?: OrderPaymentMethod | 'ALL';
  lateState?: 'ALL' | 'LATE' | 'ONTIME';
@@ -251,7 +275,51 @@ export class OrdersService {
  { otpCode }
  ).pipe(
  switchMap(() => this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${orderId}`)),
- map((order) => this.mapDetail(order))
+ map((order) => this.mapDetail(order)),
+ tap(() => this.invalidateOrdersCache())
+ );
+ }
+
+ verifyCustomerPickupOtp(orderId: string, otpCode: string): Observable<OrderDetail> {
+ return this.http.post<{ orderId: string; status: string; message: string }>(
+ `${this.apiUrl}/${orderId}/verify-customer-pickup-otp`,
+ { otpCode }
+ ).pipe(
+ switchMap(() => this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${orderId}`)),
+ map((order) => this.mapDetail(order)),
+ tap(() => this.invalidateOrdersCache())
+ );
+ }
+
+ convertToDelivery(
+ orderId: string,
+ customerAddressId: string,
+ reason: ConvertToDeliveryReason
+ ): Observable<{ orderId: string; converted: boolean; status: string; message: string; paymentSessionUrl?: string | null }> {
+ return this.http.post<{
+ orderId: string;
+ converted: boolean;
+ status: string;
+ message: string;
+ paymentSessionUrl?: string | null;
+ }>(`${this.apiUrl}/${orderId}/convert-to-delivery`, { customerAddressId, reason }).pipe(
+ tap(() => this.invalidateOrdersCache())
+ );
+ }
+
+ decideCancellationRequest(
+ orderId: string,
+ requestId: string,
+ accept: boolean,
+ note?: string
+ ): Observable<OrderDetail> {
+ return this.http.post<{ orderId: string; message: string }>(
+ `${this.apiUrl}/${orderId}/cancellation-requests/${requestId}/decide`,
+ { accept, note: note ?? null }
+ ).pipe(
+ switchMap(() => this.http.get<VendorOrderDetailApiModel>(`${this.apiUrl}/${orderId}`)),
+ map((order) => this.mapDetail(order)),
+ tap(() => this.invalidateOrdersCache())
  );
  }
 
@@ -275,6 +343,7 @@ export class OrdersService {
  paymentMethodType: (orderData?.paymentMethodType || 'COD') as OrderPaymentMethod,
  paymentMethodLabel: orderData?.paymentMethodLabel || 'Manual',
  fulfillmentStatus: 'QUEUED' as OrderFulfillmentStatus,
+ fulfillmentType: 'Delivery' as OrderFulfillmentType,
  total: subtotal + deliveryFee + tax,
  subtotal,
  deliveryFee,
@@ -297,6 +366,7 @@ export class OrdersService {
 
  private applyFilters(items: OrderListItem[], params: {
  status?: OrderStatus | 'ALL';
+ fulfillmentType?: OrderFulfillmentType | 'ALL';
  searchTerm?: string;
  paymentMethod?: OrderPaymentMethod | 'ALL';
  lateState?: 'ALL' | 'LATE' | 'ONTIME';
@@ -305,6 +375,10 @@ export class OrdersService {
 
  if (params.status && params.status!== 'ALL') {
  filtered = filtered.filter((item) => item.status === params.status);
+ }
+
+ if (params.fulfillmentType && params.fulfillmentType !== 'ALL') {
+ filtered = filtered.filter((item) => item.fulfillmentType === params.fulfillmentType);
  }
 
  if (params.searchTerm?.trim()) {
@@ -369,6 +443,7 @@ export class OrdersService {
  paymentStatus: this.mapPaymentStatus(paymentStatusValue),
  paymentMethodType,
  fulfillmentStatus: this.mapFulfillmentStatus(status),
+ fulfillmentType: this.mapFulfillmentType(String(raw.fulfillmentType ?? raw['FulfillmentType'] ?? '')),
  paymentMethodLabel: this.mapPaymentMethodLabel(paymentMethodType),
  total: Number(raw.totalAmount ?? raw['TotalAmount'] ?? 0),
  itemCount: Number(raw.itemsCount ?? raw['ItemsCount'] ?? 0),
@@ -405,6 +480,7 @@ export class OrdersService {
  paymentStatus: this.mapPaymentStatus(String(raw.paymentStatus ?? raw['PaymentStatus'] ?? '')),
  paymentMethodType,
  fulfillmentStatus: this.mapFulfillmentStatus(status),
+ fulfillmentType: this.mapFulfillmentType(String(raw.fulfillmentType ?? raw['FulfillmentType'] ?? '')),
  paymentMethodLabel: this.mapPaymentMethodLabel(paymentMethodType),
  total: totalAmount,
  subtotal,
@@ -426,7 +502,13 @@ export class OrdersService {
  placedAtUtc
  ),
  canConfirmPickup: Boolean(raw.canConfirmPickup ?? raw['CanConfirmPickup'] ?? false),
- pickupOtpStatus: (raw.pickupOtpStatus ?? raw['PickupOtpStatus']) ? String(raw.pickupOtpStatus ?? raw['PickupOtpStatus']) : undefined,
+ pickupOtpStatus: this.mapPickupOtpStatus(raw.pickupOtpStatus ?? raw['PickupOtpStatus']),
+ pickupOtpFailedAttempts: Number(raw.pickupOtpFailedAttempts ?? raw['PickupOtpFailedAttempts'] ?? 0),
+ pickupOtpLockedUntilUtc: this.toOptionalUtcString(raw.pickupOtpLockedUntilUtc ?? raw['PickupOtpLockedUntilUtc']),
+ pickupNoShowDeadlineUtc: this.toOptionalUtcString(raw.pickupNoShowDeadlineUtc ?? raw['PickupNoShowDeadlineUtc']),
+ pickupBranch: this.mapPickupBranch(raw.pickupBranch ?? raw['PickupBranch']),
+ pendingCancellationRequest: this.mapPendingCancellationRequest(raw),
+ customerAddresses: this.mapCustomerAddresses(raw.customerAddresses ?? raw['CustomerAddresses']),
  vendorLocation: this.mapCoordinatePair(raw.vendorLocation ?? raw['VendorLocation']),
  customerLocation: this.mapCoordinatePair(raw.customerLocation ?? raw['CustomerLocation']),
  driverLiveLocation: this.mapDriverLiveLocation(raw.driverLiveLocation ?? raw['DriverLiveLocation'])
@@ -740,6 +822,112 @@ export class OrdersService {
 
  private mapPaymentMethodLabel(method: OrderPaymentMethod): string {
  return method === 'CARD' ? 'بطاقة بنكية' : 'نقدًا عند الاستلام';
+ }
+
+ private mapFulfillmentType(value: string): OrderFulfillmentType {
+ return value.trim().toLowerCase() === 'pickup' ? 'Pickup' : 'Delivery';
+ }
+
+ private mapPickupOtpStatus(value: unknown): PickupOtpStatus | undefined {
+ if (value === null || value === undefined || value === '') {
+ return undefined;
+ }
+
+ const normalized = String(value).trim().toLowerCase();
+ if (normalized === 'verified' || normalized === 'pending' || normalized === 'not_available' || normalized === 'not_applicable') {
+ return normalized as PickupOtpStatus;
+ }
+
+ return undefined;
+ }
+
+ private mapPickupBranch(value: unknown): PickupBranchInfo | undefined {
+ const raw = value as { name?: string; address?: string; hoursToday?: string; Name?: string; Address?: string; HoursToday?: string } | null | undefined;
+ if (!raw) {
+ return undefined;
+ }
+
+ const name = String(raw.name ?? raw.Name ?? '').trim();
+ const address = String(raw.address ?? raw.Address ?? '').trim();
+ if (!name && !address) {
+ return undefined;
+ }
+
+ return {
+ name,
+ address,
+ hoursToday: (raw.hoursToday ?? raw.HoursToday) ? String(raw.hoursToday ?? raw.HoursToday) : undefined
+ };
+ }
+
+ private mapCustomerAddresses(value: unknown): CustomerAddressOption[] {
+ if (!Array.isArray(value)) {
+ return [];
+ }
+
+ return value
+ .map((entry) => {
+ const item = entry as {
+ id?: string;
+ Id?: string;
+ label?: string;
+ Label?: string;
+ addressText?: string;
+ AddressText?: string;
+ };
+ const id = String(item.id ?? item.Id ?? '').trim();
+ if (!id) {
+ return null;
+ }
+
+ return {
+ id,
+ label: String(item.label ?? item.Label ?? 'Address'),
+ addressText: String(item.addressText ?? item.AddressText ?? '')
+ };
+ })
+ .filter((item): item is CustomerAddressOption => item !== null);
+ }
+
+ private mapPendingCancellationRequest(raw: VendorOrderDetailApiModel & Record<string, unknown>): PendingCancellationRequest | null | undefined {
+ const direct = raw.pendingCancellationRequest ?? raw['PendingCancellationRequest'] ?? raw['pendingCancellationRequest'];
+ if (direct && typeof direct === 'object') {
+ const item = direct as { id?: string; Id?: string; customerReason?: string; CustomerReason?: string; requestedAtUtc?: string; RequestedAtUtc?: string; createdAtUtc?: string; CreatedAtUtc?: string };
+ const id = String(item.id ?? item.Id ?? '').trim();
+ if (id) {
+ return {
+ id,
+ customerReason: (item.customerReason ?? item.CustomerReason) ? String(item.customerReason ?? item.CustomerReason) : undefined,
+ requestedAtUtc: (item.requestedAtUtc ?? item.RequestedAtUtc ?? item.createdAtUtc ?? item.CreatedAtUtc) ? String(item.requestedAtUtc ?? item.RequestedAtUtc ?? item.createdAtUtc ?? item.CreatedAtUtc) : undefined
+ };
+ }
+ }
+
+ const requests = raw.cancellationRequests ?? raw['CancellationRequests'];
+ if (Array.isArray(requests)) {
+ const pending = requests.find((entry) => String((entry as { status?: string; Status?: string }).status ?? (entry as { Status?: string }).Status ?? '').toLowerCase() === 'pending');
+ if (pending) {
+ const item = pending as { id?: string; Id?: string; customerReason?: string; CustomerReason?: string; requestedAtUtc?: string; RequestedAtUtc?: string };
+ const id = String(item.id ?? item.Id ?? '').trim();
+ if (id) {
+ return {
+ id,
+ customerReason: (item.customerReason ?? item.CustomerReason) ? String(item.customerReason ?? item.CustomerReason) : undefined,
+ requestedAtUtc: (item.requestedAtUtc ?? item.RequestedAtUtc) ? String(item.requestedAtUtc ?? item.RequestedAtUtc) : undefined
+ };
+ }
+ }
+ }
+
+ return undefined;
+ }
+
+ private toOptionalUtcString(value: unknown): string | undefined {
+ if (value === null || value === undefined || value === '') {
+ return undefined;
+ }
+
+ return String(value);
  }
 
  private mapFulfillmentStatus(status: OrderStatus): OrderFulfillmentStatus {

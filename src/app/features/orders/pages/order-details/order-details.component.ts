@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, NgZone, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, interval, switchMap } from 'rxjs';
 import { DriverTrackingMapComponent } from '../../components/driver-tracking-map/driver-tracking-map.component';
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
-import { OrderDetail, OrderStatus, OrderTimelineEntry } from '../../models/orders.models';
+import { OrderDetail, OrderStatus, OrderTimelineEntry, ConvertToDeliveryReason } from '../../models/orders.models';
 import { OrdersService } from '../../services/orders.service';
 import {
  OrderTrackingDriverLocation,
@@ -22,6 +23,7 @@ import { environment } from '../../../../../environments/environment';
  standalone: true,
  imports: [
  CommonModule,
+ FormsModule,
  RouterModule,
  TranslateModule,
  OrderStatusBadgeComponent,
@@ -47,7 +49,7 @@ import { environment } from '../../../../../environments/environment';
 
  <div class="flex items-center gap-2">
  <a
- *ngIf="orderId && isTrackingActive()"
+ *ngIf="orderId && isTrackingActive() && !isPickupOrder()"
  class="icon-shell"
  [routerLink]="['/orders', orderId]"
  fragment="tracking"
@@ -112,6 +114,23 @@ import { environment } from '../../../../../environments/environment';
  </section>
 
  <ng-container *ngIf="!isLoading && order as currentOrder">
+ <section *ngIf="currentOrder.pendingCancellationRequest as cancellationRequest" class="surface-card border border-amber-200 bg-amber-50/80">
+ <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+ <div>
+ <p class="eyebrow-label text-amber-700">{{ 'ORDERS.PICKUP.CANCELLATION_REQUEST_TITLE' | translate }}</p>
+ <p class="mt-1 text-sm font-bold text-[#004953]">{{ cancellationRequest.customerReason || ('ORDERS.PICKUP.CANCELLATION_REQUEST_DEFAULT' | translate) }}</p>
+ </div>
+ <div class="flex flex-wrap gap-2">
+ <button type="button" class="primary-action !bg-emerald-600" (click)="decideCancellation(cancellationRequest.id, true)" [disabled]="isDecidingCancellation">
+ {{ 'ORDERS.PICKUP.CANCELLATION_ACCEPT' | translate }}
+ </button>
+ <button type="button" class="accent-action !border-rose-200 !bg-rose-50 !text-rose-700" (click)="decideCancellation(cancellationRequest.id, false)" [disabled]="isDecidingCancellation">
+ {{ 'ORDERS.PICKUP.CANCELLATION_REJECT' | translate }}
+ </button>
+ </div>
+ </div>
+ </section>
+
  <div class="grid grid-cols-1 gap-4 lg:grid-cols-12">
  <div class="space-y-4 lg:col-span-8">
  <section class="surface-card overflow-hidden">
@@ -125,12 +144,23 @@ import { environment } from '../../../../../environments/environment';
  </h2>
  <app-order-status-badge
  [status]="currentOrder.status"
+ [fulfillmentType]="currentOrder.fulfillmentType"
  customClass="rounded-full border border-[#00626f]/10 bg-[#00626f]/5 px-3 py-1.5 text-[0.68rem] font-black"
  ></app-order-status-badge>
  </div>
  <p class="mt-2.5 max-w-2xl text-[0.82rem] leading-6 text-[#3f484a]">
- {{ currentOrder.notes || (currentLang === 'ar' ? 'عرض مباشر لحالة الطلب، بيانات العميل، وخط سير التوصيل.' : 'Live order status, customer data, and delivery progress in one place.') }}
+ {{ currentOrder.notes || (isPickupOrder() ? ('ORDERS.PICKUP.OVERVIEW_HINT' | translate) : (currentLang === 'ar' ? 'عرض مباشر لحالة الطلب، بيانات العميل، وخط سير التوصيل.' : 'Live order status, customer data, and delivery progress in one place.')) }}
  </p>
+ <div *ngIf="isPickupOrder() && currentOrder.pickupBranch" class="mt-3 rounded-2xl border border-violet-100 bg-violet-50/70 px-4 py-3">
+ <p class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-violet-700">{{ 'ORDERS.PICKUP.BRANCH_TITLE' | translate }}</p>
+ <p class="mt-1 text-sm font-extrabold text-[#004953]">{{ currentOrder.pickupBranch.name }}</p>
+ <p class="mt-1 text-[0.78rem] font-medium text-[#3f484a]">{{ currentOrder.pickupBranch.address }}</p>
+ <p *ngIf="currentOrder.pickupBranch.hoursToday" class="mt-1 text-[0.72rem] font-bold text-violet-700">{{ currentOrder.pickupBranch.hoursToday }}</p>
+ </div>
+ <div *ngIf="isPickupOrder() && currentOrder.pickupNoShowDeadlineUtc && !isOrderCompleted()" class="mt-3 rounded-2xl border border-amber-100 bg-amber-50/80 px-4 py-3">
+ <p class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-amber-700">{{ 'ORDERS.PICKUP.NO_SHOW_TITLE' | translate }}</p>
+ <p class="mt-1 text-sm font-extrabold text-amber-800 font-numeric">{{ formatCountdown(noShowRemainingMs) }}</p>
+ </div>
  </div>
 
  <div class="flex flex-wrap gap-2.5">
@@ -145,6 +175,10 @@ import { environment } from '../../../../../environments/environment';
  <button *ngIf="canMarkReady()" type="button" class="teal-action" (click)="updateStatus('READY_FOR_PICKUP')" [disabled]="isUpdatingStatus">
  <span class="material-symbols-outlined text-[16px]">inventory_2</span>
  {{ 'ORDERS.ACTION_MARK_READY' | translate }}
+ </button>
+ <button *ngIf="canConvertToDelivery()" type="button" class="accent-action" (click)="openConvertModal()" [disabled]="isConvertingToDelivery">
+ <span class="material-symbols-outlined text-[16px]">local_shipping</span>
+ {{ 'ORDERS.PICKUP.CONVERT_TO_DELIVERY' | translate }}
  </button>
  </div>
  </div>
@@ -219,7 +253,7 @@ import { environment } from '../../../../../environments/environment';
  </div>
  </section>
 
- <section id="tracking" class="tracking-card scroll-mt-24" *ngIf="isTrackingActive()">
+ <section id="tracking" class="tracking-card scroll-mt-24" *ngIf="isTrackingActive() && !isPickupOrder()">
  <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
  <div>
  <h3 class="section-title">
@@ -395,7 +429,7 @@ import { environment } from '../../../../../environments/environment';
  </div>
  </section>
 
- <section class="surface-card">
+ <section class="surface-card" *ngIf="!isPickupOrder()">
  <h3 class="section-title">
  <span class="material-symbols-outlined text-[20px] text-[#00626f]">delivery_truck_speed</span>
  {{ currentLang === 'ar' ? 'معلومات المندوب' : 'Driver details' }}
@@ -470,7 +504,52 @@ import { environment } from '../../../../../environments/environment';
  </ng-template>
  </section>
 
- <section class="otp-card" *ngIf="currentOrder.canConfirmPickup">
+ <section class="otp-card" *ngIf="canVerifyCustomerPickup()">
+ <div class="relative z-10">
+ <h3 class="text-lg font-extrabold text-white">
+ {{ 'ORDERS.PICKUP.CUSTOMER_HANDOFF_TITLE' | translate }}
+ </h3>
+ <p class="mt-2 text-[0.82rem] leading-6 text-[#d8f6fb]">
+ {{ 'ORDERS.PICKUP.CUSTOMER_HANDOFF_DESC' | translate }}
+ </p>
+ <p *ngIf="isOtpLocked()" class="mt-3 rounded-xl border border-rose-200/40 bg-rose-500/20 px-3 py-2 text-[0.78rem] font-bold text-rose-100">
+ {{ 'ORDERS.PICKUP.OTP_LOCKED' | translate:{ time: formatCountdown(otpLockoutRemainingMs) } }}
+ </p>
+ <p *ngIf="order?.pickupOtpFailedAttempts" class="mt-2 text-[0.72rem] font-bold text-[#d8f6fb]/90">
+ {{ 'ORDERS.PICKUP.OTP_ATTEMPTS' | translate:{ count: order?.pickupOtpFailedAttempts || 0 } }}
+ </p>
+
+ <div class="mt-5 flex justify-center gap-2" dir="ltr" *ngIf="!isOtpLocked()">
+ <input
+ *ngFor="let i of [0, 1, 2, 3]"
+ type="text"
+ inputmode="numeric"
+ pattern="[0-9]"
+ maxlength="1"
+ [attr.data-otp-index]="i"
+ [value]="otpDigits[i] || ''"
+ (input)="onOtpDigitInput($event, i)"
+ (keydown)="onOtpKeyDown($event, i)"
+ (paste)="onOtpPaste($event)"
+ class="otp-input"
+ placeholder="•"
+ />
+ </div>
+
+ <button type="button" class="otp-submit" (click)="verifyCustomerPickup()" [disabled]="isConfirmingPickup || otpDigits.join('').length < 4 || isOtpLocked()">
+ <span *ngIf="!isConfirmingPickup" class="flex items-center justify-center gap-2">
+ <span class="material-symbols-outlined text-[20px]">check_circle</span>
+ {{ 'ORDERS.PICKUP.CONFIRM_CUSTOMER_PICKUP' | translate }}
+ </span>
+ <span *ngIf="isConfirmingPickup" class="flex items-center justify-center gap-2">
+ <span class="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+ {{ 'COMMON.PROCESSING' | translate }}
+ </span>
+ </button>
+ </div>
+ </section>
+
+ <section class="otp-card" *ngIf="currentOrder.canConfirmPickup && !isPickupOrder()">
  <div class="relative z-10">
  <h3 class="text-lg font-extrabold text-white">
  {{ currentLang === 'ar' ? 'تسليم الطلب' : 'Pickup handoff' }}
@@ -510,6 +589,38 @@ import { environment } from '../../../../../environments/environment';
  </section>
  </div>
  </div>
+
+ <div *ngIf="showConvertModal" class="fixed inset-0 z-[120] flex items-center justify-center p-4">
+ <div class="absolute inset-0 bg-slate-900/45 backdrop-blur-sm" (click)="closeConvertModal()"></div>
+ <div class="relative w-full max-w-lg rounded-[1.4rem] border border-white/70 bg-white p-6 shadow-2xl" (click)="$event.stopPropagation()">
+ <h3 class="text-lg font-extrabold text-[#004953]">{{ 'ORDERS.PICKUP.CONVERT_MODAL_TITLE' | translate }}</h3>
+ <p class="mt-2 text-sm font-medium text-[#3f484a]">{{ 'ORDERS.PICKUP.CONVERT_MODAL_DESC' | translate }}</p>
+ <div class="mt-5 space-y-4">
+ <label class="block">
+ <span class="text-[0.72rem] font-black uppercase tracking-[0.12em] text-slate-500">{{ 'ORDERS.PICKUP.CONVERT_ADDRESS_ID' | translate }}</span>
+ <select *ngIf="(currentOrder.customerAddresses?.length || 0) > 0; else convertAddressManual" [(ngModel)]="convertAddressId" class="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#00626f]/40">
+ <option value="">{{ 'ORDERS.PICKUP.CONVERT_ADDRESS_PLACEHOLDER' | translate }}</option>
+ <option *ngFor="let address of currentOrder.customerAddresses" [value]="address.id">{{ address.label }} — {{ address.addressText }}</option>
+ </select>
+ <ng-template #convertAddressManual>
+ <input [(ngModel)]="convertAddressId" type="text" class="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#00626f]/40" />
+ </ng-template>
+ </label>
+ <label class="block">
+ <span class="text-[0.72rem] font-black uppercase tracking-[0.12em] text-slate-500">{{ 'ORDERS.PICKUP.CONVERT_REASON' | translate }}</span>
+ <select [(ngModel)]="convertReason" class="mt-2 h-11 w-full rounded-xl border border-slate-200 px-3 text-sm font-bold text-slate-800 outline-none focus:border-[#00626f]/40">
+ <option value="CustomerRequest">{{ 'ORDERS.PICKUP.CONVERT_REASON_CUSTOMER' | translate }}</option>
+ <option value="VendorUnablePickup">{{ 'ORDERS.PICKUP.CONVERT_REASON_VENDOR' | translate }}</option>
+ <option value="Other">{{ 'ORDERS.PICKUP.CONVERT_REASON_OTHER' | translate }}</option>
+ </select>
+ </label>
+ </div>
+ <div class="mt-6 flex gap-3">
+ <button type="button" class="flex-1 rounded-xl border border-slate-200 px-4 py-3 text-sm font-black text-slate-600" (click)="closeConvertModal()" [disabled]="isConvertingToDelivery">{{ 'COMMON.CANCEL' | translate }}</button>
+ <button type="button" class="flex-1 rounded-xl bg-[#00626f] px-4 py-3 text-sm font-black text-white" (click)="submitConvertToDelivery()" [disabled]="isConvertingToDelivery || !convertAddressId.trim()">{{ 'ORDERS.PICKUP.CONVERT_SUBMIT' | translate }}</button>
+ </div>
+ </div>
+ </div>
  </ng-container>
  </div>
  </div>
@@ -527,6 +638,13 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  currentLang = 'ar';
  isUpdatingStatus = false;
  isConfirmingPickup = false;
+ isConvertingToDelivery = false;
+ isDecidingCancellation = false;
+ showConvertModal = false;
+ convertAddressId = '';
+ convertReason: ConvertToDeliveryReason = 'VendorUnablePickup';
+ noShowRemainingMs = 0;
+ otpLockoutRemainingMs = 0;
  isLoading = true;
  loadErrorMessage = '';
  otpDigits: string[] = ['', '', '', ''];
@@ -536,6 +654,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  private fragmentSub: Subscription | null = null;
  private driverLocationSub: Subscription | null = null;
  private statusChangeSub: Subscription | null = null;
+ private countdownSub: Subscription | null = null;
  private trackedOrderId: string | null = null;
  private readonly POLL_INTERVAL_MS = 60000;
  private readonly TRACKING_FALLBACK_POLL_INTERVAL_MS = 30000;
@@ -613,6 +732,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  this.fragmentSub?.unsubscribe();
  this.stopPolling();
  this.stopRealtimeTracking();
+ this.stopCountdown();
  }
 
  canConfirm(): boolean {
@@ -628,10 +748,128 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  isDispatchInProgress(): boolean {
+ if (this.isPickupOrder()) {
+ return false;
+ }
+
  return this.order?.backendStatus === 'ReadyForPickup' || this.order?.backendStatus === 'DriverAssignmentInProgress';
  }
 
+ isPickupOrder(): boolean {
+ return this.order?.fulfillmentType === 'Pickup';
+ }
+
+ canVerifyCustomerPickup(): boolean {
+ if (!this.order || !this.isPickupOrder()) {
+ return false;
+ }
+
+ return this.order.backendStatus === 'ReadyForPickup'
+ && this.order.pickupOtpStatus === 'pending'
+ && !this.isOtpLocked();
+ }
+
+ isOtpLocked(): boolean {
+ return this.otpLockoutRemainingMs > 0;
+ }
+
+ canConvertToDelivery(): boolean {
+ if (!this.order || !this.isPickupOrder() || this.isOrderCompleted()) {
+ return false;
+ }
+
+ if (this.order.paymentStatus !== 'PAID') {
+ return false;
+ }
+
+ const allowedStatuses = ['PendingVendorAcceptance', 'Accepted', 'Preparing', 'ReadyForPickup'];
+ return allowedStatuses.includes(this.order.backendStatus ?? '');
+ }
+
+ openConvertModal(): void {
+ const addresses = this.currentOrder?.customerAddresses ?? [];
+ this.convertAddressId = addresses[0]?.id ?? '';
+ this.convertReason = 'VendorUnablePickup';
+ this.showConvertModal = true;
+ }
+
+ closeConvertModal(): void {
+ if (this.isConvertingToDelivery) {
+ return;
+ }
+
+ this.showConvertModal = false;
+ }
+
+ submitConvertToDelivery(): void {
+ if (!this.order || this.isConvertingToDelivery || !this.convertAddressId.trim()) {
+ return;
+ }
+
+ const orderId = this.order.id;
+ this.isConvertingToDelivery = true;
+
+ this.ordersService.convertToDelivery(orderId, this.convertAddressId.trim(), this.convertReason).subscribe({
+ next: (result) => {
+ this.cdr.markForCheck();
+ this.isConvertingToDelivery = false;
+ this.showConvertModal = false;
+ this.loadOrder(orderId);
+ void this.alertModalService.showAlert(result.message, 'COMMON.SUCCESS', 'success');
+ },
+ error: (error: HttpErrorResponse) => {
+ this.cdr.markForCheck();
+ this.isConvertingToDelivery = false;
+ void this.alertModalService.showAlert(this.resolveUpdateErrorMessage(error), 'COMMON.ERROR', 'danger');
+ }
+ });
+ }
+
+ decideCancellation(requestId: string, accept: boolean): void {
+ if (!this.order || this.isDecidingCancellation) {
+ return;
+ }
+
+ const orderId = this.order.id;
+ this.isDecidingCancellation = true;
+
+ this.ordersService.decideCancellationRequest(orderId, requestId, accept).subscribe({
+ next: (updated) => {
+ this.cdr.markForCheck();
+ this.order = this.applyVendorTrackingPolicy(updated);
+ this.isDecidingCancellation = false;
+ this.loadOrder(orderId);
+ },
+ error: (error: HttpErrorResponse) => {
+ this.cdr.markForCheck();
+ this.isDecidingCancellation = false;
+ void this.alertModalService.showAlert(this.resolveUpdateErrorMessage(error), 'COMMON.ERROR', 'danger');
+ }
+ });
+ }
+
+ formatCountdown(remainingMs: number): string {
+ if (remainingMs <= 0) {
+ return this.currentLang === 'ar' ? 'انتهى الوقت' : 'Expired';
+ }
+
+ const totalSeconds = Math.ceil(remainingMs / 1000);
+ const hours = Math.floor(totalSeconds / 3600);
+ const minutes = Math.floor((totalSeconds % 3600) / 60);
+ const seconds = totalSeconds % 60;
+
+ if (hours > 0) {
+ return `${hours}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+ }
+
+ return `${minutes}:${String(seconds).padStart(2, '0')}`;
+ }
+
  isTrackingActive(): boolean {
+ if (this.isPickupOrder()) {
+ return false;
+ }
+
  return this.canReceiveLiveDriverTracking(this.order);
  }
 
@@ -709,6 +947,35 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  });
  }
 
+ verifyCustomerPickup(): void {
+ const code = this.otpDigits.join('');
+ if (!this.order || this.isConfirmingPickup || code.length < 4 || this.isOtpLocked()) {
+ return;
+ }
+
+ const orderId = this.order.id;
+ this.isConfirmingPickup = true;
+
+ this.ordersService.verifyCustomerPickupOtp(orderId, code).subscribe({
+ next: (updated) => {
+ this.cdr.markForCheck();
+ this.order = this.applyVendorTrackingPolicy(updated);
+ this.isConfirmingPickup = false;
+ this.otpDigits = ['', '', '', ''];
+ this.loadOrder(orderId);
+ },
+ error: (error: HttpErrorResponse) => {
+ this.cdr.markForCheck();
+ this.isConfirmingPickup = false;
+ this.otpDigits = ['', '', '', ''];
+ this.loadOrder(orderId);
+ const detail = error.error?.detail;
+ const msg = typeof detail === 'string' && detail.trim() ? detail : (this.currentLang === 'ar' ? 'رمز غير صحيح' : 'Invalid code');
+ void this.alertModalService.showAlert(msg, 'COMMON.ERROR', 'danger');
+ }
+ });
+ }
+
  onOtpDigitInput(event: Event, index: number): void {
  const input = event.target as HTMLInputElement;
  const value = input.value.replace(/[^0-9]/g, '');
@@ -721,7 +988,11 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  if (this.otpDigits.join('').length === 4) {
+ if (this.canVerifyCustomerPickup()) {
+ this.verifyCustomerPickup();
+ } else {
  this.confirmPickup();
+ }
  }
  }
 
@@ -755,7 +1026,11 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  target?.focus();
 
  if (this.otpDigits.join('').length === 4) {
+ if (this.canVerifyCustomerPickup()) {
+ this.verifyCustomerPickup();
+ } else {
  this.confirmPickup();
+ }
  }
  }
 
@@ -1021,6 +1296,8 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  this.cdr.markForCheck();
  this.order = this.applyVendorTrackingPolicy(order);
  this.isLoading = false;
+ this.refreshCountdowns();
+ this.startCountdownIfNeeded();
 
  if (!this.order) {
  this.stopPolling();
@@ -1160,6 +1437,10 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  private canReceiveLiveDriverTracking(order: OrderDetail | null): boolean {
+ if (order?.fulfillmentType === 'Pickup') {
+ return false;
+ }
+
  return order?.backendStatus === 'DriverAssigned';
  }
 
@@ -1209,6 +1490,39 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  return this.translate.instant('COMMON.ERROR_OCCURRED');
+ }
+
+ private refreshCountdowns(): void {
+ const now = Date.now();
+ this.noShowRemainingMs = this.order?.pickupNoShowDeadlineUtc
+ ? Math.max(0, new Date(this.order.pickupNoShowDeadlineUtc).getTime() - now)
+ : 0;
+ this.otpLockoutRemainingMs = this.order?.pickupOtpLockedUntilUtc
+ ? Math.max(0, new Date(this.order.pickupOtpLockedUntilUtc).getTime() - now)
+ : 0;
+ }
+
+ private startCountdownIfNeeded(): void {
+ this.stopCountdown();
+
+ if (!this.order?.pickupNoShowDeadlineUtc && !this.order?.pickupOtpLockedUntilUtc) {
+ return;
+ }
+
+ this.countdownSub = interval(1000).subscribe(() => {
+ this.zone.run(() => {
+ this.refreshCountdowns();
+ this.cdr.markForCheck();
+ if (this.noShowRemainingMs <= 0 && this.otpLockoutRemainingMs <= 0) {
+ this.stopCountdown();
+ }
+ });
+ });
+ }
+
+ private stopCountdown(): void {
+ this.countdownSub?.unsubscribe();
+ this.countdownSub = null;
  }
 
  private getStatusLabel(status: OrderStatus): { ar: string; en: string } {

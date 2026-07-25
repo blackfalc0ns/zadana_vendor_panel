@@ -84,6 +84,8 @@ export interface VendorFinanceSnapshot {
   payoutMethod: string;
   holdAmount: number;
   financialLifecycleModeStr: string;
+  /** Cash collected at pickup that the vendor must remit to the platform. */
+  codOwedBalance: number;
   kpis: VendorFinanceKpi[];
   trend: VendorFinanceTrendPoint[];
   settlements: VendorSettlement[];

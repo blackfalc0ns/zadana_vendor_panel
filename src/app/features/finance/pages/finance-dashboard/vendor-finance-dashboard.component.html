@@ -164,6 +164,18 @@
           </div>
         </div>
       </div>
+
+      <!-- Cash collected at pickup owed to platform -->
+      <div *ngIf="(snapshot.codOwedBalance || 0) > 0" class="group relative overflow-hidden rounded-[20px] border border-amber-100 bg-amber-50/40 p-4 shadow-sm transition-all duration-500 hover:-translate-y-0.5 hover:shadow-md md:col-span-2 lg:col-span-1">
+        <div class="absolute inset-y-0 start-0 w-1 bg-amber-500"></div>
+        <div class="relative z-10 flex h-full flex-col justify-center">
+          <span class="mb-1.5 text-[0.65rem] font-black uppercase tracking-widest text-amber-700/80 ps-1.5">{{ 'VENDOR_FINANCE.OVERVIEW.CASH_TO_REMIT' | translate }}</span>
+          <div class="text-[1.3rem] font-black text-amber-800 font-inter ps-1.5">
+            {{ formatCurrency(snapshot.codOwedBalance || 0) }}
+          </div>
+          <p class="mt-1 ps-1.5 text-[0.65rem] font-semibold text-amber-700/70">{{ 'VENDOR_FINANCE.OVERVIEW.CASH_TO_REMIT_HINT' | translate }}</p>
+        </div>
+      </div>
     </div>
 
     @if (showBranchBreakdown) {

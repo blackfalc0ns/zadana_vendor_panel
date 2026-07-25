@@ -43,6 +43,7 @@ describe('VendorFinanceDashboardComponent', () => {
 
   const quarterSnapshot: VendorFinanceSnapshot = {
     availableBalance: 0,
+    codOwedBalance: 0,
     pendingSettlement: 0,
     nextPayoutDate: '2026-05-10',
     payoutMethod: 'Bank Transfer',

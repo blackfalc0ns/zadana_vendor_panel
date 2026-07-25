@@ -1,7 +1,7 @@
 import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { OrderStatus } from '../../models/orders.models';
+import { OrderStatus, OrderFulfillmentType } from '../../models/orders.models';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -9,9 +9,15 @@ import { OrderStatus } from '../../models/orders.models';
   standalone: true,
   imports: [CommonModule, TranslateModule],
   template: `
-    <span [ngClass]="getClasses()" class="inline-flex items-center gap-2 rounded-xl px-4 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.15em] border transition-all duration-500 shadow-sm backdrop-blur-md">
-      <span class="h-1.5 w-1.5 rounded-full shadow-[0_0_8px_currentColor]" [ngClass]="getDotClasses()"></span>
-      {{ 'ORDERS.STATUS_' + status | translate }}
+    <span class="inline-flex flex-wrap items-center gap-2">
+      <span *ngIf="fulfillmentType" [ngClass]="getFulfillmentClasses()" class="inline-flex items-center gap-2 rounded-xl px-3 py-1.5 text-[0.62rem] font-black uppercase tracking-[0.12em] border transition-all duration-500 shadow-sm backdrop-blur-md">
+        <span class="material-symbols-outlined text-[13px]">{{ fulfillmentType === 'Pickup' ? 'storefront' : 'local_shipping' }}</span>
+        {{ fulfillmentLabelKey | translate }}
+      </span>
+      <span [ngClass]="getClasses()" class="inline-flex items-center gap-2 rounded-xl px-4 py-1.5 text-[0.68rem] font-black uppercase tracking-[0.15em] border transition-all duration-500 shadow-sm backdrop-blur-md">
+        <span class="h-1.5 w-1.5 rounded-full shadow-[0_0_8px_currentColor]" [ngClass]="getDotClasses()"></span>
+        {{ 'ORDERS.STATUS_' + status | translate }}
+      </span>
     </span>
   `,
   styles: [`
@@ -20,6 +26,17 @@ import { OrderStatus } from '../../models/orders.models';
 })
 export class OrderStatusBadgeComponent {
   @Input({ required: true }) status!: OrderStatus;
+  @Input() fulfillmentType?: OrderFulfillmentType;
+
+  get fulfillmentLabelKey(): string {
+    return this.fulfillmentType === 'Pickup' ? 'ORDERS.FULFILLMENT_TYPE.PICKUP' : 'ORDERS.FULFILLMENT_TYPE.DELIVERY';
+  }
+
+  getFulfillmentClasses(): string {
+    return this.fulfillmentType === 'Pickup'
+      ? 'bg-violet-500/10 text-violet-700 border-violet-500/20'
+      : 'bg-sky-500/10 text-sky-700 border-sky-500/20';
+  }
 
   getClasses(): string {
     switch (this.status) {

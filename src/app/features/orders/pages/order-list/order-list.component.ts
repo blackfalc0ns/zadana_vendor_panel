@@ -7,7 +7,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { Subscription, debounceTime, filter } from 'rxjs';
 import { AlertsCenterService } from '../../../alerts/services/alerts-center.service';
 import { OrdersService } from '../../services/orders.service';
-import { OrderListItem, OrderStatus } from '../../models/orders.models';
+import { OrderListItem, OrderStatus, OrderFulfillmentType } from '../../models/orders.models';
 import { OrderStatusBadgeComponent } from '../../components/order-status-badge/order-status-badge.component';
 import { AppPanelHeaderComponent } from '../../../../shared/components/ui/layout/panel-header/panel-header.component';
 import { AppPageHeaderComponent } from '../../../../shared/components/ui/layout/page-header/page-header.component';
@@ -53,7 +53,7 @@ import { ToastService } from '../../../../core/notifications/services/toast.serv
           <h2 class="text-sm font-black text-slate-800">{{ 'ORDERS.FILTERS.TITLE' | translate }}</h2>
           <p class="text-[0.72rem] font-bold text-slate-500">{{ 'ORDERS.FILTERS.SUBTITLE' | translate }}</p>
         </div>
-        <div class="grid w-full items-center gap-3 md:grid-cols-2 lg:grid-cols-[minmax(200px,1.5fr)_repeat(3,minmax(120px,1fr))_auto]">
+        <div class="grid w-full items-center gap-3 md:grid-cols-2 lg:grid-cols-[minmax(200px,1.5fr)_repeat(4,minmax(120px,1fr))_auto]">
           <div class="relative group">
             <span class="absolute inset-y-0 start-4 flex items-center text-slate-400 group-focus-within:text-zadna-primary transition-colors">
               <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,6 +74,10 @@ import { ToastService } from '../../../../core/notifications/services/toast.serv
 
           <div>
             <app-searchable-select [(ngModel)]="filters.paymentMethod" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="[{value:'ALL', labelKey:'ORDERS.FILTERS.ALL_PAYMENT_METHODS'},{value:'CARD', labelKey:'ORDERS.FILTERS.PAYMENT_CARD'},{value:'COD', labelKey:'ORDERS.FILTERS.PAYMENT_COD'}]" [placeholder]="'ORDERS.FILTERS.PAYMENT_METHOD'"></app-searchable-select>
+          </div>
+
+          <div>
+            <app-searchable-select [(ngModel)]="filters.fulfillmentType" (ngModelChange)="onFiltersChange()" [searchable]="false" [options]="[{value:'ALL', labelKey:'ORDERS.FILTERS.ALL_FULFILLMENT_TYPES'},{value:'Delivery', labelKey:'ORDERS.FULFILLMENT_TYPE.DELIVERY'},{value:'Pickup', labelKey:'ORDERS.FULFILLMENT_TYPE.PICKUP'}]" [placeholder]="'ORDERS.FILTERS.FULFILLMENT_TYPE'"></app-searchable-select>
           </div>
 
           <div>
@@ -192,7 +196,7 @@ import { ToastService } from '../../../../core/notifications/services/toast.serv
                       </div>
                     </td>
                     <td class="px-6 py-4">
-                      <app-order-status-badge [status]="order.status"></app-order-status-badge>
+                      <app-order-status-badge [status]="order.status" [fulfillmentType]="order.fulfillmentType"></app-order-status-badge>
                     </td>
                     <td class="px-6 py-4">
                       <div class="flex items-center justify-center gap-1.5 opacity-40 transition-opacity group-hover:opacity-100">
@@ -227,7 +231,7 @@ import { ToastService } from '../../../../core/notifications/services/toast.serv
                         <span class="inline-flex h-2 w-2 rounded-full bg-rose-500 animate-pulse" [title]="'ORDERS.LATE_ALERT' | translate"></span>
                       }
                     </div>
-                    <app-order-status-badge [status]="order.status"></app-order-status-badge>
+                    <app-order-status-badge [status]="order.status" [fulfillmentType]="order.fulfillmentType"></app-order-status-badge>
                   </div>
 
                   <div class="mt-3">
@@ -311,6 +315,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
   currentLang = 'ar';
   filters = {
     status: 'ALL' as OrderStatus | 'ALL',
+    fulfillmentType: 'ALL' as OrderFulfillmentType | 'ALL',
     paymentMethod: 'ALL' as 'ALL' | 'CARD' | 'COD',
     lateState: 'ALL' as 'ALL' | 'LATE' | 'ONTIME'
   };
@@ -386,6 +391,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
       pageNumber: this.currentPage,
       pageSize: this.pageSize,
       status: this.filters.status === 'ALL' ? undefined : this.filters.status,
+      fulfillmentType: this.filters.fulfillmentType === 'ALL' ? undefined : this.filters.fulfillmentType,
       searchTerm: this.searchTerm,
       paymentMethod: this.filters.paymentMethod,
       lateState: this.filters.lateState
@@ -467,6 +473,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
     this.searchTerm = '';
     this.filters = {
       status: 'ALL',
+      fulfillmentType: 'ALL',
       paymentMethod: 'ALL',
       lateState: 'ALL'
     };

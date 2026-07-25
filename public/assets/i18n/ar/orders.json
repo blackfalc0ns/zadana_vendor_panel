@@ -43,7 +43,37 @@
       "TIMING": "الوقت",
       "ALL_TIMING": "كل الأوقات",
       "TIMING_LATE": "المتأخرة فقط",
-      "TIMING_ONTIME": "في الموعد"
+      "TIMING_ONTIME": "في الموعد",
+      "FULFILLMENT_TYPE": "نوع التنفيذ",
+      "ALL_FULFILLMENT_TYPES": "الكل"
+    },
+    "FULFILLMENT_TYPE": {
+      "DELIVERY": "توصيل",
+      "PICKUP": "استلام من التاجر"
+    },
+    "PICKUP": {
+      "OVERVIEW_HINT": "متابعة مباشرة لطلب الاستلام، بيانات العميل، وتسليم الطلب من الفرع.",
+      "BRANCH_TITLE": "فرع الاستلام",
+      "NO_SHOW_TITLE": "الوقت المتبقي قبل اعتبار عدم حضور",
+      "CUSTOMER_HANDOFF_TITLE": "تحقق استلام العميل",
+      "CUSTOMER_HANDOFF_DESC": "أدخل الرمز المكوّن من 4 أرقام الذي يعرضه العميل لتأكيد الاستلام من المتجر.",
+      "CONFIRM_CUSTOMER_PICKUP": "تأكيد استلام العميل",
+      "OTP_LOCKED": "الرمز مقفل. حاول مرة أخرى بعد {{time}}",
+      "OTP_ATTEMPTS": "محاولات فاشلة: {{count}}",
+      "CONVERT_TO_DELIVERY": "تحويل الطلب لتوصيل بمندوب",
+      "CONVERT_MODAL_TITLE": "تحويل الطلب إلى توصيل",
+      "CONVERT_MODAL_DESC": "أدخل معرّف عنوان التوصيل للعميل وسبب التحويل.",
+      "CONVERT_ADDRESS_ID": "عنوان توصيل العميل",
+      "CONVERT_ADDRESS_PLACEHOLDER": "اختر عنوان العميل",
+      "CONVERT_REASON": "السبب",
+      "CONVERT_REASON_CUSTOMER": "طلب العميل",
+      "CONVERT_REASON_VENDOR": "تعذّر تنفيذ الاستلام",
+      "CONVERT_REASON_OTHER": "سبب آخر",
+      "CONVERT_SUBMIT": "تحويل الطلب",
+      "CANCELLATION_REQUEST_TITLE": "طلب إلغاء بانتظار قرارك",
+      "CANCELLATION_REQUEST_DEFAULT": "العميل طلب إلغاء طلب الاستلام.",
+      "CANCELLATION_ACCEPT": "قبول الإلغاء",
+      "CANCELLATION_REJECT": "رفض الطلب"
     },
     "TABLE": {
       "TITLE": "قائمة الطلبات",

@@ -35,6 +35,24 @@ export type OrderFulfillmentStatus =
   | 'DELIVERED'
   | 'CANCELLED';
 
+export type OrderFulfillmentType = 'Delivery' | 'Pickup';
+
+export type PickupOtpStatus = 'not_applicable' | 'not_available' | 'pending' | 'verified';
+
+export interface PickupBranchInfo {
+  name: string;
+  address: string;
+  hoursToday?: string;
+}
+
+export interface PendingCancellationRequest {
+  id: string;
+  customerReason?: string;
+  requestedAtUtc?: string;
+}
+
+export type ConvertToDeliveryReason = 'CustomerRequest' | 'VendorUnablePickup' | 'AdminOverride' | 'Other';
+
 export interface OrderItem {
   id: string;
   nameAr: string;
@@ -74,6 +92,7 @@ export interface OrderListItem {
   paymentStatus: OrderPaymentStatus;
   paymentMethodType: OrderPaymentMethod;
   fulfillmentStatus: OrderFulfillmentStatus;
+  fulfillmentType: OrderFulfillmentType;
   paymentMethodLabel: string;
   total: number;
   itemCount: number;
@@ -107,7 +126,19 @@ export interface OrderDetail extends OrderListItem {
   driverCompanyEn?: string;
   estimatedDelivery?: string;
   canConfirmPickup?: boolean;
-  pickupOtpStatus?: string;
+  pickupOtpStatus?: PickupOtpStatus;
+  pickupOtpFailedAttempts?: number;
+  pickupOtpLockedUntilUtc?: string;
+  pickupNoShowDeadlineUtc?: string;
+  pickupBranch?: PickupBranchInfo;
+  pendingCancellationRequest?: PendingCancellationRequest | null;
+  customerAddresses?: CustomerAddressOption[];
+}
+
+export interface CustomerAddressOption {
+  id: string;
+  label: string;
+  addressText: string;
 }
 
 export interface PaginatedOrdersResponse {
