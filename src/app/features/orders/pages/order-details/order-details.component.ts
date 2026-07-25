@@ -515,8 +515,8 @@ import { environment } from '../../../../../environments/environment';
  <p *ngIf="isOtpLocked()" class="mt-3 rounded-xl border border-rose-200/40 bg-rose-500/20 px-3 py-2 text-[0.78rem] font-bold text-rose-100">
  {{ 'ORDERS.PICKUP.OTP_LOCKED' | translate:{ time: formatCountdown(otpLockoutRemainingMs) } }}
  </p>
- <p *ngIf="order?.pickupOtpFailedAttempts" class="mt-2 text-[0.72rem] font-bold text-[#d8f6fb]/90">
- {{ 'ORDERS.PICKUP.OTP_ATTEMPTS' | translate:{ count: order?.pickupOtpFailedAttempts || 0 } }}
+ <p *ngIf="currentOrder.pickupOtpFailedAttempts" class="mt-2 text-[0.72rem] font-bold text-[#d8f6fb]/90">
+ {{ 'ORDERS.PICKUP.OTP_ATTEMPTS' | translate:{ count: currentOrder.pickupOtpFailedAttempts || 0 } }}
  </p>
 
  <div class="mt-5 flex justify-center gap-2" dir="ltr" *ngIf="!isOtpLocked()">
@@ -787,7 +787,7 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  openConvertModal(): void {
- const addresses = this.currentOrder?.customerAddresses ?? [];
+ const addresses = this.order?.customerAddresses ?? [];
  this.convertAddressId = addresses[0]?.id ?? '';
  this.convertReason = 'VendorUnablePickup';
  this.showConvertModal = true;

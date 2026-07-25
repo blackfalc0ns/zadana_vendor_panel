@@ -508,7 +508,7 @@ export class OrdersService {
  pickupNoShowDeadlineUtc: this.toOptionalUtcString(raw.pickupNoShowDeadlineUtc ?? raw['PickupNoShowDeadlineUtc']),
  pickupBranch: this.mapPickupBranch(raw.pickupBranch ?? raw['PickupBranch']),
  pendingCancellationRequest: this.mapPendingCancellationRequest(raw),
- customerAddresses: this.mapCustomerAddresses(raw.customerAddresses ?? raw['CustomerAddresses']),
+ customerAddresses: this.mapCustomerAddresses(raw['customerAddresses'] ?? raw['CustomerAddresses']),
  vendorLocation: this.mapCoordinatePair(raw.vendorLocation ?? raw['VendorLocation']),
  customerLocation: this.mapCoordinatePair(raw.customerLocation ?? raw['CustomerLocation']),
  driverLiveLocation: this.mapDriverLiveLocation(raw.driverLiveLocation ?? raw['DriverLiveLocation'])
