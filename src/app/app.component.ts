@@ -58,8 +58,9 @@ export class AppComponent implements OnInit, OnDestroy {
     this.splashFallbackTimer = setTimeout(() => this.dismissSplash(), 1200);
     queueMicrotask(() => this.dismissSplash());
 
+    // Auth bootstrap runs in APP_INITIALIZER (cookie refresh + /me).
+    // Only load profile here once a session is already restored.
     if (this.authService.hasApiSession) {
-      void this.authService.initializeSession();
       this.vendorProfileService.loadProfile(true).subscribe();
     }
 

@@ -10,6 +10,7 @@ import { DATE_PIPE_DEFAULT_OPTIONS } from '@angular/common';
 
 import { routes } from './app.routes';
 import { vendorAuthInterceptor } from './core/auth/interceptors/vendor-auth.interceptor';
+import { provideVendorAuthBootstrap } from './core/auth/initializers/vendor-auth.initializer';
 import { ChunkLoadErrorHandler } from './core/services/chunk-load-error-handler';
 
 const TRANSLATION_ASSET_VERSION = '2026-07-24-category-leaf-1';
@@ -131,6 +132,7 @@ export const appConfig: ApplicationConfig = {
       useFactory: initializeTranslations,
       deps: [TranslateService, HttpClient],
       multi: true
-    }
+    },
+    provideVendorAuthBootstrap()
   ]
 };
