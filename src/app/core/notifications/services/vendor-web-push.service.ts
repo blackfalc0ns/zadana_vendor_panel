@@ -349,11 +349,8 @@ export class VendorWebPushService implements OnDestroy {
         return;
       }
 
-      // Keep the OS banner when the tab is hidden; use in-app toast when focused.
-      if (this.document.visibilityState === 'visible') {
-        displayEvent.preventDefault?.();
-      }
-
+      // Suppress OneSignal's own UI; AlertsCenter shows a single Windows notification.
+      displayEvent.preventDefault?.();
       this.foregroundPushSubject.next(payload);
     });
 

@@ -22,7 +22,6 @@ import {
  VendorOneSignalPushPayload,
  VendorWebPushService
 } from '../../../core/notifications/services/vendor-web-push.service';
-import { ToastService } from '../../../core/notifications/services/toast.service';
 import {
  AlertCenterItemVm,
  AlertSummaryVm,
@@ -166,7 +165,6 @@ export class AlertsCenterService {
  private readonly http: HttpClient,
  private readonly authService: VendorAuthService,
  private readonly notificationSoundService: VendorNotificationSoundService,
- private readonly toastService: ToastService,
  private readonly vendorWebPushService: VendorWebPushService,
  @Inject(DOCUMENT) private readonly document: Document
  ) {}
@@ -648,11 +646,8 @@ export class AlertsCenterService {
  continue;
  }
 
- if (!this.isDocumentVisible()) {
+ // Windows / browser notifications only — no in-app toast.
  this.showDesktopNotification(alert);
- } else {
- this.showInAppNotificationToast(alert);
- }
  this.notificationSoundService.playCurrent();
  }
  }
@@ -703,26 +698,6 @@ export class AlertsCenterService {
  }
 
  return true;
- }
-
- private showInAppNotificationToast(alert: AlertCenterItemVm): void {
- const isAr = (this.document.documentElement?.lang || 'ar').toLowerCase().startsWith('ar');
- const title = (isAr ? alert.title.ar : alert.title.en) || alert.title.ar || alert.title.en;
- const message = (isAr ? alert.summary.ar : alert.summary.en) || alert.summary.ar || alert.summary.en;
-
- this.toastService.show({
- title,
- message,
- type: alert.severity === 'critical' || alert.severity === 'warning' ? 'warning' : 'info',
- titleIsTranslationKey: false,
- source: 'action',
- durationMs: 7000,
- dedupeKey: `alert-toast:${alert.entityId || alert.id}`
- });
- }
-
- private isDocumentVisible(): boolean {
- return this.document.visibilityState === 'visible';
  }
 
  private uniqueAlerts(alerts: AlertCenterItemVm[]): AlertCenterItemVm[] {
