@@ -18,6 +18,10 @@ import {
 import { environment } from '../../../../environments/environment';
 import { VendorAuthService } from '../../../core/auth/services/vendor-auth.service';
 import { VendorNotificationSoundService } from '../../../core/notifications/services/vendor-notification-sound.service';
+import {
+ VendorOneSignalPushPayload,
+ VendorWebPushService
+} from '../../../core/notifications/services/vendor-web-push.service';
 import { ToastService } from '../../../core/notifications/services/toast.service';
 import {
  AlertCenterItemVm,
@@ -134,16 +138,19 @@ export class AlertsCenterService {
  private readonly lastLoadErrorSubject = new BehaviorSubject<string | null>(null);
  private pollSubscription?: Subscription;
  private authSubscription?: Subscription;
+ private oneSignalSubscription?: Subscription;
  private hubConnection?: SignalRHubConnection;
  private monitoringStarted = false;
  private monitoringInitialized = false;
  private unreadIds = new Set<string>();
+ private recentAnnouncementKeys = new Map<string, number>();
  private notificationsPermissionRequested = false;
  private reconnectingRealtime = false;
  private signalRSdkPromise?: Promise<SignalRBrowserSdk | null>;
  private hasLoadedInboxOnce = false;
  private refreshInFlight = false;
  private refreshQueued = false;
+ private readonly announcementDedupeWindowMs = 8000;
 
  private readonly serverAlerts$ = this.serverAlertsSubject.asObservable().pipe(shareReplay(1));
 
@@ -160,6 +167,7 @@ export class AlertsCenterService {
  private readonly authService: VendorAuthService,
  private readonly notificationSoundService: VendorNotificationSoundService,
  private readonly toastService: ToastService,
+ private readonly vendorWebPushService: VendorWebPushService,
  @Inject(DOCUMENT) private readonly document: Document
  ) {}
 
@@ -169,6 +177,10 @@ export class AlertsCenterService {
  }
 
  this.monitoringStarted = true;
+ this.oneSignalSubscription = this.vendorWebPushService.foregroundPushes$.subscribe((payload) => {
+ this.handleOneSignalForegroundPush(payload);
+ });
+
  this.authSubscription = this.authService.currentUser$.pipe(distinctUntilChanged((previous, current) => previous?.id === current?.id)).subscribe((user) => {
  if (!user?.id) {
  this.stopPolling();
@@ -176,6 +188,7 @@ export class AlertsCenterService {
  this.serverAlertsSubject.next([]);
  this.monitoringInitialized = false;
  this.unreadIds = new Set<string>();
+ this.recentAnnouncementKeys.clear();
  this.hasLoadedInboxOnce = false;
  this.initialLoadStatusSubject.next('idle');
  this.realtimeConnectionStateSubject.next('idle');
@@ -631,6 +644,10 @@ export class AlertsCenterService {
  }
 
  for (const alert of newlyArrived) {
+ if (!this.shouldAnnounceAlert(alert)) {
+ continue;
+ }
+
  if (!this.isDocumentVisible()) {
  this.showDesktopNotification(alert);
  } else {
@@ -638,6 +655,54 @@ export class AlertsCenterService {
  }
  this.notificationSoundService.playCurrent();
  }
+ }
+
+ private handleOneSignalForegroundPush(payload: VendorOneSignalPushPayload): void {
+ if (!this.isRelevantToActiveBranchScope(payload.dataObject, null)) {
+ return;
+ }
+
+ const alert = this.mapOneSignalPush(payload);
+ this.upsertRealtimeAlert(alert);
+ }
+
+ private mapOneSignalPush(payload: VendorOneSignalPushPayload): AlertCenterItemVm {
+ return this.mapNotification({
+ id: `onesignal-${payload.notificationId}`,
+ titleAr: payload.titleAr,
+ titleEn: payload.titleEn,
+ bodyAr: payload.bodyAr,
+ bodyEn: payload.bodyEn,
+ type: payload.type,
+ category: null,
+ referenceId: payload.referenceId,
+ data: null,
+ dataObject: payload.dataObject ?? null,
+ isRead: false,
+ createdAtUtc: payload.createdAtUtc
+ });
+ }
+
+ private shouldAnnounceAlert(alert: AlertCenterItemVm): boolean {
+ const key = `${alert.entityId || alert.id}:${alert.source}:${alert.title.ar}`;
+ const now = Date.now();
+ const previous = this.recentAnnouncementKeys.get(key);
+ if (previous && now - previous < this.announcementDedupeWindowMs) {
+ return false;
+ }
+
+ this.recentAnnouncementKeys.set(key, now);
+
+ // Opportunistic cleanup to keep the map small.
+ if (this.recentAnnouncementKeys.size > 80) {
+ for (const [entryKey, timestamp] of this.recentAnnouncementKeys) {
+ if (now - timestamp > this.announcementDedupeWindowMs) {
+ this.recentAnnouncementKeys.delete(entryKey);
+ }
+ }
+ }
+
+ return true;
  }
 
  private showInAppNotificationToast(alert: AlertCenterItemVm): void {
@@ -652,7 +717,7 @@ export class AlertsCenterService {
  titleIsTranslationKey: false,
  source: 'action',
  durationMs: 7000,
- dedupeKey: `alert-toast:${alert.id}`
+ dedupeKey: `alert-toast:${alert.entityId || alert.id}`
  });
  }
 

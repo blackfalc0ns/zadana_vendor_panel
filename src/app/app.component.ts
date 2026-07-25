@@ -67,6 +67,8 @@ export class AppComponent implements OnInit, OnDestroy {
     this.watchRouterEvents();
 
     queueMicrotask(() => {
+      // Bind OneSignal before alert monitoring so foreground push events are wired.
+      this.vendorWebPushService.initialize();
       this.alertsCenterService.startMonitoring();
       this.alertsRealtimeSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert: AlertCenterItemVm) => {
         this.cdr.markForCheck();
@@ -75,7 +77,6 @@ export class AppComponent implements OnInit, OnDestroy {
           this.vendorProfileService.loadProfile(true).subscribe();
         }
       });
-      this.vendorWebPushService.initialize();
     });
   }
 
