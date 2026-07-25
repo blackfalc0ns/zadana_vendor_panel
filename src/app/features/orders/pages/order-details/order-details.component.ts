@@ -1618,9 +1618,23 @@ export class OrderDetailsComponent implements OnInit, OnDestroy {
  }
 
  private resolveUpdateErrorMessage(error: HttpErrorResponse): string {
- const detail = error.error?.detail;
- if (typeof detail === 'string' && detail.trim()) {
+ const payload = error.error;
+ const detail = typeof payload?.detail === 'string' ? payload.detail.trim() : '';
+ if (detail) {
  return detail;
+ }
+
+ const title = typeof payload?.title === 'string' ? payload.title.trim() : '';
+ if (title) {
+ return title;
+ }
+
+ if (typeof payload === 'string' && payload.trim()) {
+ return payload.trim();
+ }
+
+ if (error.status === 0) {
+ return this.translate.instant('COMMON.API_ERRORS.NETWORK');
  }
 
  return this.translate.instant('COMMON.ERROR_OCCURRED');
