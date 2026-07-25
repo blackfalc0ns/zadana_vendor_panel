@@ -692,7 +692,11 @@ export class AlertsCenterService {
  queueMicrotask(() => this.refreshFromServer());
  }
  }),
- map((response) => response.items.map((item) => this.mapNotification(item)))
+ map((response) =>
+ response.items
+ .filter((item) => this.isRelevantToActiveBranchScope(item.dataObject, item.data))
+ .map((item) => this.mapNotification(item))
+ )
  ).subscribe({
  next: (alerts) => {
  this.hasLoadedInboxOnce = true;
@@ -772,6 +776,11 @@ export class AlertsCenterService {
  this.hubConnection.on('ReceiveNotification', (payload: RealtimeNotificationPayload) => {
  if (!payload?.id ||!payload.createdAtUtc) {
  this.debugLog('warn', 'Ignoring invalid vendor notification realtime payload.');
+ return;
+ }
+
+ if (!this.isRelevantToActiveBranchScope(payload.dataObject, payload.data)) {
+ this.debugLog('info', 'Ignoring vendor notification outside active branch scope.');
  return;
  }
 
@@ -1048,7 +1057,57 @@ export class AlertsCenterService {
  }
 
  private extractGuid(value: unknown): string | null {
- return typeof value === 'string' && value.trim() ? value.trim() : null;
+ if (typeof value === 'string' && value.trim()) {
+ return value.trim();
+ }
+
+ if (value && typeof value === 'object' && 'toString' in value) {
+ const text = `${value}`.trim();
+ return text && text !== '[object Object]' ? text : null;
+ }
+
+ return null;
+ }
+
+ /**
+ * Branch staff should only hear/see alerts for their active branch.
+ * Company-wide scopes still receive all alerts.
+ */
+ private isRelevantToActiveBranchScope(
+ dataObject?: Record<string, unknown> | null,
+ data?: string | null
+ ): boolean {
+ const activeScope = this.authService.currentUserSnapshot?.access?.activeScope;
+ const scopeType = `${activeScope?.scopeType ?? ''}`.toLowerCase();
+ const isBranchScope =
+ scopeType === 'vendorbranch' ||
+ scopeType === 'vendor_branch' ||
+ scopeType.endsWith('vendorbranch');
+
+ if (!isBranchScope) {
+ return true;
+ }
+
+ const activeBranchId = `${activeScope?.scopeEntityId ?? ''}`.trim().toLowerCase();
+ if (!activeBranchId) {
+ return true;
+ }
+
+ const parsedData = this.tryParseData(data);
+ const notificationBranchId = (
+ this.extractGuid(dataObject?.['branchId']) ??
+ this.extractGuid(dataObject?.['BranchId']) ??
+ this.extractGuid(parsedData?.['branchId']) ??
+ this.extractGuid(parsedData?.['BranchId']) ??
+ ''
+ ).toLowerCase();
+
+ // Legacy notifications without branchId stay visible.
+ if (!notificationBranchId) {
+ return true;
+ }
+
+ return notificationBranchId === activeBranchId;
  }
 
  private tryParseData(data?: string | null): Record<string, unknown> | null {
