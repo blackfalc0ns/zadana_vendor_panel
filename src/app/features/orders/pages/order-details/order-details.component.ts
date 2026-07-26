@@ -191,11 +191,11 @@ import { environment } from '../../../../../environments/environment';
  <p class="mt-2.5 max-w-2xl text-[0.82rem] leading-6 text-[#3f484a]">
  {{ currentOrder.notes || (isPickupOrder() ? ('ORDERS.PICKUP.OVERVIEW_HINT' | translate) : (currentLang === 'ar' ? 'عرض مباشر لحالة الطلب، بيانات العميل، وخط سير التوصيل.' : 'Live order status, customer data, and delivery progress in one place.')) }}
  </p>
- <div *ngIf="isPickupOrder() && currentOrder.pickupBranch" class="mt-3 rounded-2xl border border-violet-100 bg-violet-50/70 px-4 py-3">
- <p class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-violet-700">{{ 'ORDERS.PICKUP.BRANCH_TITLE' | translate }}</p>
+ <div *ngIf="isPickupOrder() && currentOrder.pickupBranch" class="mt-3 rounded-2xl border border-[#d7e4e6] bg-[#f4fafb] px-4 py-3">
+ <p class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-[#127c8c]">{{ 'ORDERS.PICKUP.BRANCH_TITLE' | translate }}</p>
  <p class="mt-1 text-sm font-extrabold text-[#004953]">{{ currentOrder.pickupBranch.name }}</p>
- <p class="mt-1 text-[0.78rem] font-medium text-[#3f484a]">{{ currentOrder.pickupBranch.address }}</p>
- <p *ngIf="currentOrder.pickupBranch.hoursToday" class="mt-1 text-[0.72rem] font-bold text-violet-700">{{ currentOrder.pickupBranch.hoursToday }}</p>
+ <p class="mt-1 text-[0.78rem] font-medium leading-5 text-[#3f484a]">{{ currentOrder.pickupBranch.address }}</p>
+ <p *ngIf="currentOrder.pickupBranch.hoursToday" class="mt-1 text-[0.72rem] font-bold text-[#127c8c]">{{ currentOrder.pickupBranch.hoursToday }}</p>
  </div>
  <div *ngIf="!isPickupOrder() && currentOrder.customerAddress" class="mt-3 rounded-2xl border border-sky-100 bg-sky-50/70 px-4 py-3">
  <p class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-sky-700">{{ 'ORDERS.DELIVERY_ADDRESS' | translate }}</p>
