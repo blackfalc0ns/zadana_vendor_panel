@@ -40,6 +40,7 @@ export class VendorAuthService {
   private readonly legacyRefreshTokenKey = 'vendor_refresh_token';
   private readonly userKey = 'vendor_current_user';
   private readonly draftKey = 'vendor_register_draft';
+  private readonly registrationTokenKey = 'vendor_registration_token';
   private readonly skipAuthHeader = 'X-Skip-Auth';
 
   private readonly currentUserSubject = new BehaviorSubject<VendorCurrentUser | null>(this.readStoredUser());
@@ -252,14 +253,22 @@ export class VendorAuthService {
   }
 
   verifyEmailOtp(identifier: string, otpCode: string): Observable<VendorCurrentUser> {
+    const registrationToken = this.getRegistrationToken();
     return from(this.acquireCsrfToken()).pipe(
       switchMap(() => this.http.post<VendorAuthResponse>(
         `${this.apiUrl}/verify-otp`,
-        { identifier, otpCode },
+        {
+          identifier,
+          otpCode,
+          ...(registrationToken ? { registrationToken } : {})
+        },
         { headers: this.createSkipAuthHeaders(), withCredentials: true }
       ))
     ).pipe(
-      tap((response) => this.persistSession(response)),
+      tap((response) => {
+        this.clearRegistrationToken();
+        this.persistSession(response);
+      }),
       map((response) => {
         if (!response.user) {
           throw new Error('Vendor user snapshot is missing from OTP verification response.');
@@ -271,11 +280,43 @@ export class VendorAuthService {
   }
 
   resendEmailOtp(identifier: string): Observable<string> {
-    return this.http.post<{ message?: string }>(
+    const registrationToken = this.getRegistrationToken();
+    return this.http.post<VendorAuthResponse>(
       `${this.apiUrl}/resend-otp`,
-      { identifier },
+      {
+        identifier,
+        ...(registrationToken ? { registrationToken } : {})
+      },
       { headers: this.createSkipAuthHeaders(), withCredentials: true }
-    ).pipe(map((response) => response.message || 'OTP resent successfully.'));
+    ).pipe(
+      tap((response) => {
+        if (response.registrationToken) {
+          this.saveRegistrationToken(response.registrationToken);
+        }
+      }),
+      map((response) => response.message || 'OTP resent successfully.')
+    );
+  }
+
+  getRegistrationToken(): string | null {
+    try {
+      const token = sessionStorage.getItem(this.registrationTokenKey)?.trim();
+      return token || null;
+    } catch {
+      return null;
+    }
+  }
+
+  hasRegistrationToken(): boolean {
+    return !!this.getRegistrationToken();
+  }
+
+  clearRegistrationToken(): void {
+    try {
+      sessionStorage.removeItem(this.registrationTokenKey);
+    } catch {
+      // ignore
+    }
   }
 
   bootstrapCurrentUser(): Observable<VendorCurrentUser> {
@@ -472,11 +513,25 @@ export class VendorAuthService {
 
   private persistRegistrationResponse(response: VendorAuthResponse): void {
     if (this.hasUsableAccessToken(response)) {
+      this.clearRegistrationToken();
       this.persistSession(response);
       return;
     }
 
     this.clearUnauthenticatedPublicFlowSession();
+    if (response.registrationToken?.trim()) {
+      this.saveRegistrationToken(response.registrationToken.trim());
+    } else {
+      this.clearRegistrationToken();
+    }
+  }
+
+  private saveRegistrationToken(token: string): void {
+    try {
+      sessionStorage.setItem(this.registrationTokenKey, token);
+    } catch {
+      // ignore
+    }
   }
 
   private persistUser(user: VendorCurrentUser): void {

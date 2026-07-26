@@ -130,6 +130,8 @@ export class LoginComponent implements OnInit, OnDestroy {
 
  if (params.get('resend') === '1' && identifier && !this.autoResendAttempted) {
  this.autoResendAttempted = true;
+ // Includes registrationToken automatically when present (new signup);
+ // falls back to legacy unverified-user resend when absent.
  this.resendVerifyEmailOtp();
  }
 
@@ -241,6 +243,7 @@ export class LoginComponent implements OnInit, OnDestroy {
  error: (error: unknown) => {
  if (this.isEmailVerificationRequired(error)) {
  const identifier = `${this.loginForm.get('email')?.value || ''}`.trim();
+ // Legacy unverified AspNetUsers only. New pending signups have no DB user / no registrationToken here.
  void this.router.navigate(['/verify-email'], {
  queryParams: identifier ? { identifier, resend: '1' } : { resend: '1' }
  });

@@ -34,6 +34,8 @@ export interface VendorAuthResponse {
   user?: VendorCurrentUser | null;
   isVerified?: boolean;
   message?: string | null;
+  /** Signed pending-registration JWT. Required for verify/resend OTP before account creation. */
+  registrationToken?: string | null;
 }
 
 export interface VendorRegisterDraft {

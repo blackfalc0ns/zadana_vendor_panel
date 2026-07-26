@@ -830,6 +830,11 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  const needsEmailVerification = response.isVerified === false ||
  !(response.accessToken || response.tokens?.accessToken);
  if (needsEmailVerification) {
+ if (!response.registrationToken?.trim() && !this.authService.hasRegistrationToken()) {
+ this.submissionError = this.translate.instant('ONBOARDING.ERR_REGISTRATION_TOKEN_MISSING');
+ return;
+ }
+
  void this.router.navigate(['/verify-email'], {
  queryParams: identifier ? { identifier, sent: '1' } : { sent: '1' }
  });
@@ -842,9 +847,9 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.cdr.markForCheck();
  this.isSubmitting = false;
  if (this.isExistingAccountError(error)) {
- const identifier = email;
- void this.router.navigate(['/verify-email'], {
- queryParams: identifier ? { identifier, resend: '1' } : { resend: '1' }
+ // Completed account already exists — go to login, not OTP.
+ void this.router.navigate(['/login'], {
+ queryParams: email ? { identifier: email } : undefined
  });
  return;
  }
