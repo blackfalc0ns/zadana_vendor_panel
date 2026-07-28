@@ -202,12 +202,12 @@
     <div class="bg-white rounded-[24px] border border-slate-200/70 shadow-sm overflow-hidden flex flex-col relative z-10">
       
       <!-- Sticky Master Navigation -->
-      <div class="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-slate-100 px-4 py-3 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div class="flex overflow-x-auto hide-scrollbar pb-1 md:pb-0 -mx-2 px-2 md:mx-0 md:px-0">
-          <div class="flex gap-2 min-w-max">
+      <div class="sticky top-0 z-20 bg-white/90 backdrop-blur-xl border-b border-slate-100 px-4 py-3 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <div class="dashboard-section-nav-track max-lg:overflow-x-auto max-lg:hide-scrollbar max-lg:-mx-2 max-lg:px-2 max-lg:pb-1 lg:overflow-visible">
+          <div class="dashboard-section-nav-list flex gap-2 max-lg:min-w-max lg:flex-wrap lg:w-full">
             @for (item of sectionNav; track item.id) {
               <button type="button" (click)="setActiveTab(item.id)"
-                class="px-4 py-2 text-xs font-bold rounded-xl transition-all duration-200 select-none"
+                class="dashboard-section-nav-tab px-4 py-2 text-xs font-bold rounded-xl transition-all duration-200 select-none max-lg:shrink-0 lg:min-w-0 lg:flex-1"
                 [class.bg-slate-800]="activeTabId === item.id"
                 [class.text-white]="activeTabId === item.id"
                 [class.shadow-md]="activeTabId === item.id"

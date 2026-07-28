@@ -11,6 +11,29 @@
   display: none; /* Chrome, Safari and Opera */
 }
 
+.dashboard-section-nav-track {
+  width: 100%;
+}
+
+@media (max-width: 1023px) {
+  .dashboard-section-nav-track {
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .dashboard-section-nav-tab {
+    scroll-snap-align: start;
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 1024px) {
+  .dashboard-section-nav-tab {
+    text-align: center;
+    white-space: normal;
+  }
+}
+
 /* Base animations */
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(5px); }
