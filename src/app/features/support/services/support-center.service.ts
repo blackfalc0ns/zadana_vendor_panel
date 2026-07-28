@@ -34,8 +34,10 @@ export interface PlatformContactChannel {
   key: string;
   labelKey: string;
   value: string;
+  displayValue?: string;
   href: string;
   icon: string;
+  external: boolean;
 }
 interface VendorSupportTicketsListResponseApi {
   items: VendorSupportTicketVm[];
@@ -152,13 +154,79 @@ export class SupportCenterService {
 
  return channels
  .filter((channel) => !!channel.value?.trim() && !!channel.href?.trim())
- .map((channel) => ({
+ .map((channel) => {
+ const value = channel.value!.trim();
+ const href = channel.href!.trim();
+ const displayValue = this.resolveContactDisplay(channel.key, value);
+
+ return {
  key: channel.key,
  labelKey: channel.labelKey,
- value: channel.value!.trim(),
- href: channel.href!.trim(),
- icon: channel.icon
- }));
+ value,
+ displayValue,
+ href,
+ icon: channel.icon,
+ external: channel.key !== 'phone' && channel.key !== 'email'
+ };
+ });
+ }
+
+ private resolveContactDisplay(key: string, value: string): string | undefined {
+ switch (key) {
+ case 'phone':
+ return this.formatPhoneDisplay(value);
+ case 'email':
+ return value;
+ case 'whatsapp':
+ return this.extractWhatsAppDisplay(value) ?? undefined;
+ default:
+ return this.extractSocialHandle(value) ?? undefined;
+ }
+ }
+
+ private formatPhoneDisplay(phone: string): string {
+ const digits = phone.replace(/\D/g, '');
+ if (digits.startsWith('966') && digits.length >= 11) {
+ const local = digits.slice(3);
+ return `+966 ${local.slice(0, 2)} ${local.slice(2, 5)} ${local.slice(5)}`.replace(/\s+$/, '');
+ }
+
+ return phone.startsWith('+') ? phone : phone;
+ }
+
+ private extractWhatsAppDisplay(value: string): string | null {
+ const waMatch = value.match(/wa\.me\/(\+?\d+)/i);
+ if (waMatch?.[1]) {
+ return this.formatPhoneDisplay(waMatch[1]);
+ }
+
+ const digits = value.replace(/\D/g, '');
+ if (digits.length >= 10) {
+ return this.formatPhoneDisplay(digits.startsWith('966') ? `+${digits}` : digits);
+ }
+
+ return this.extractSocialHandle(value);
+ }
+
+ private extractSocialHandle(value: string): string | null {
+ try {
+ const normalized = /^https?:\/\//i.test(value) ? value : `https://${value}`;
+ const parsed = new URL(normalized);
+ const segments = parsed.pathname.split('/').filter(Boolean);
+ const handle = segments[0]?.replace(/^@/, '');
+
+ if (!handle) {
+ return null;
+ }
+
+ if (['p', 'user', 'channel', 'c', 'intent'].includes(handle.toLowerCase())) {
+ return null;
+ }
+
+ return `@${handle}`;
+ } catch {
+ return null;
+ }
  }
 
  getTickets(): Observable<VendorSupportTicketVm[]> {

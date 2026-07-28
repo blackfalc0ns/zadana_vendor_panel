@@ -317,5 +317,22 @@
       "LOAD_ERROR": "We could not load the Terms & Conditions. Refresh the page and try again.",
       "FOOTER": "Zadana — Vendor Terms & Conditions · Version 1.0"
     }
+  },
+  "SUPPORT_CENTER": {
+    "CONTACT": {
+      "KICKER": "Direct contact",
+      "TITLE": "Support & Contact",
+      "SUBTITLE": "Reach the Zadana team through the channels below — tap an icon to call or visit.",
+      "PHONE": "Phone",
+      "EMAIL": "Email",
+      "WHATSAPP": "WhatsApp",
+      "INSTAGRAM": "Instagram",
+      "TWITTER": "X",
+      "TIKTOK": "TikTok",
+      "SNAPCHAT": "Snapchat",
+      "FACEBOOK": "Facebook",
+      "YOUTUBE": "YouTube",
+      "LINKEDIN": "LinkedIn"
+    }
   }
 }

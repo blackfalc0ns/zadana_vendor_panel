@@ -34,27 +34,21 @@
         </p>
       </div>
 
-      <div class="grid gap-3 p-5 sm:grid-cols-2 xl:grid-cols-3">
+      <div class="contact-channels-grid">
         @for (channel of contactChannels; track channel.key) {
           <a
             [href]="channel.href"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="group flex items-center gap-3 rounded-[18px] border border-slate-200/70 bg-slate-50/70 px-4 py-3.5 transition-all hover:-translate-y-0.5 hover:border-zadna-primary/25 hover:bg-white hover:shadow-md">
-            <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-[14px] border border-white bg-white text-zadna-primary shadow-sm">
-              <span class="material-symbols-outlined text-[20px]">{{ channel.icon }}</span>
+            [attr.target]="channel.external ? '_blank' : null"
+            [attr.rel]="channel.external ? 'noopener noreferrer' : null"
+            class="contact-channel-card contact-channel-card--{{ channel.key }}"
+            [attr.aria-label]="channel.labelKey | translate">
+            <span class="contact-channel-card__icon">
+              <span class="material-symbols-outlined">{{ channel.icon }}</span>
             </span>
-            <span class="min-w-0 flex-1">
-              <span class="block text-[0.68rem] font-black uppercase tracking-[0.12em] text-slate-400">
-                {{ channel.labelKey | translate }}
-              </span>
-              <span class="mt-0.5 block truncate text-[0.84rem] font-black text-slate-800" dir="ltr">
-                {{ channel.value }}
-              </span>
-            </span>
-            <span class="material-symbols-outlined text-[18px] text-slate-300 transition group-hover:text-zadna-primary">
-              open_in_new
-            </span>
+            <span class="contact-channel-card__label">{{ channel.labelKey | translate }}</span>
+            @if (channel.displayValue) {
+              <span class="contact-channel-card__meta" dir="ltr">{{ channel.displayValue }}</span>
+            }
           </a>
         }
       </div>
