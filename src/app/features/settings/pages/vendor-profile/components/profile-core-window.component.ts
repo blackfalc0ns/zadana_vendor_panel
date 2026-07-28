@@ -12,6 +12,7 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
   selector: 'app-profile-core-window',
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, TranslateModule, SearchableSelectComponent, PhoneInputComponent, AppPageSectionShellComponent],
+  styleUrl: './profile-core-window.component.scss',
   template: `
     <ng-template #reviewBadge let-field="field">
       <ng-container *ngIf="getFieldReviewItem(field) as item">
@@ -33,15 +34,14 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
     </ng-template>
 
     <div [formGroup]="form" class="space-y-6">
-      <div id="store-section">
+      <div id="store-section" class="store-section-stack">
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.STORE'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.STORE_HINT'"
           wrapperClass="overflow-visible"
-          bodyClass="flex flex-col gap-6 px-5 py-5">
-        <div class="grid gap-6 lg:grid-cols-2">
-        <div class="relative min-w-0 rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
-          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+          bodyClass="grid gap-6 px-5 py-5 lg:grid-cols-2">
+        <div class="profile-panel-card profile-panel-card--raised">
+          <div class="border-b border-slate-100 px-6 py-4 rounded-t-[1.5rem]">
             <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.STORE_BASICS' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5">
@@ -75,7 +75,7 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
               </p>
             </label>
 
-            <label class="relative z-20 block">
+            <label class="profile-select-field block">
               <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   {{ 'SETTINGS_PROFILE.FIELDS.BUSINESS_TYPE' | translate }} <span class="text-rose-500 font-extrabold">*</span>
@@ -95,8 +95,8 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
           </div>
         </div>
 
-        <div class="relative min-w-0 rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
-          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+        <div class="profile-panel-card">
+          <div class="border-b border-slate-100 px-6 py-4 rounded-t-[1.5rem]">
             <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.SUPPORT_CHANNELS' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5">
@@ -134,10 +134,13 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
             </label>
           </div>
         </div>
-        </div>
+        </app-page-section-shell>
 
-        <div class="relative min-w-0 rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
-          <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
+        <app-page-section-shell
+          wrapperClass="overflow-visible"
+          bodyClass="px-5 py-5">
+        <div id="store-description-section" class="profile-panel-card">
+          <div class="border-b border-slate-100 px-6 py-4 rounded-t-[1.5rem]">
             <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.STORE_DESCRIPTION' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5 md:grid-cols-2">
@@ -241,7 +244,7 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
             <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.CONTACT_PROFILE' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5 md:grid-cols-2">
-            <label class="relative z-20 block">
+            <label class="profile-select-field block">
               <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   {{ 'SETTINGS_PROFILE.FIELDS.REGION' | translate }} <span class="text-rose-500 font-extrabold">*</span>
@@ -259,7 +262,7 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
               ></app-searchable-select>
             </label>
 
-            <label class="relative z-30 block">
+            <label class="profile-select-field block">
               <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   {{ 'SETTINGS_PROFILE.FIELDS.CITY' | translate }} <span class="text-rose-500 font-extrabold">*</span>

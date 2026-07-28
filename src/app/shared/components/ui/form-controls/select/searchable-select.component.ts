@@ -46,7 +46,7 @@ export interface SearchableSelectOption<T = any> {
         </button>
 
         @if (isOpen && !disabled) {
-          <div class="absolute inset-x-0 top-full z-[120] mt-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl origin-top animate-in fade-in zoom-in-95 duration-200">
+          <div class="absolute inset-x-0 top-full z-[200] mt-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-xl origin-top animate-in fade-in zoom-in-95 duration-200">
             @if (searchable) {
               <div class="relative">
                 <svg class="absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
