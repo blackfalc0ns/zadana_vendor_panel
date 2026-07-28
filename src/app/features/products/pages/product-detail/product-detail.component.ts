@@ -201,7 +201,7 @@ import { AlertModalService } from '../../../../core/notifications/services/alert
  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
  </svg>
  <p class="text-[0.72rem] font-black leading-relaxed text-cyan-900">
- {{ currentLang === 'ar' ? 'السعر موحد من الفرع الرئيسي. هذا الفرع يقدر يعدل المخزون فقط.' : 'Pricing is controlled by the main branch. This branch can update stock only.' }}
+ {{ currentLang === 'ar' ? 'تعديل السعر متاح للفرع الرئيسي أو الفرع اللي أضاف المنتج أول مرة. هذا الفرع يقدر يعدل المخزون فقط.' : 'Price can be edited by the main branch or the branch that first added the product. This branch can update stock only.' }}
  </p>
  </div>
  }
