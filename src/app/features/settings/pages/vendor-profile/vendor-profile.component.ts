@@ -176,7 +176,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  </div>
 
  <form [formGroup]="profileForm" class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">
- <div class="min-w-0 space-y-4">
+ <div class="min-w-0 space-y-4 overflow-visible">
  <app-profile-core-window
  *ngIf="isWindowActive('basics')"
  [form]="profileForm"

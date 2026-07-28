@@ -37,8 +37,10 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.STORE'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.STORE_HINT'"
-          bodyClass="grid gap-6 px-5 py-5 lg:grid-cols-2">
-        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+          wrapperClass="overflow-visible"
+          bodyClass="flex flex-col gap-6 px-5 py-5">
+        <div class="grid gap-6 lg:grid-cols-2">
+        <div class="relative min-w-0 rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
           <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
             <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.STORE_BASICS' | translate }}</span>
           </div>
@@ -73,7 +75,7 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
               </p>
             </label>
 
-            <label class="block">
+            <label class="relative z-20 block">
               <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   {{ 'SETTINGS_PROFILE.FIELDS.BUSINESS_TYPE' | translate }} <span class="text-rose-500 font-extrabold">*</span>
@@ -93,7 +95,7 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
           </div>
         </div>
 
-        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+        <div class="relative min-w-0 rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
           <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
             <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.SUPPORT_CHANNELS' | translate }}</span>
           </div>
@@ -132,8 +134,9 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
             </label>
           </div>
         </div>
+        </div>
 
-        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md lg:col-span-2">
+        <div class="relative min-w-0 rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
           <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
             <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.STORE_DESCRIPTION' | translate }}</span>
           </div>
@@ -168,8 +171,9 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.OWNER'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.OWNER_HINT'"
+          wrapperClass="overflow-visible"
           bodyClass="grid gap-6 px-5 py-5">
-        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+        <div class="relative min-w-0 rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
           <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
             <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.OWNER_DETAILS' | translate }}</span>
           </div>
@@ -230,13 +234,14 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.CONTACT'"
           [subtitle]="'SETTINGS_PROFILE.SECTIONS.CONTACT_HINT'"
+          wrapperClass="overflow-visible relative z-20"
           bodyClass="grid gap-6 px-5 py-5">
-        <div class="rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
+        <div class="relative min-w-0 rounded-[1.5rem] border border-white/60 bg-white/40 backdrop-blur-xl shadow-sm transition-shadow hover:shadow-md">
           <div class="border-b border-white/40 bg-white/50 px-6 py-4 rounded-t-[1.5rem]">
             <span class="text-[0.75rem] font-black uppercase tracking-wider text-slate-700">{{ 'SETTINGS_PROFILE.UI.CONTACT_PROFILE' | translate }}</span>
           </div>
           <div class="grid gap-4 p-5 md:grid-cols-2">
-            <label class="block">
+            <label class="relative z-20 block">
               <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   {{ 'SETTINGS_PROFILE.FIELDS.REGION' | translate }} <span class="text-rose-500 font-extrabold">*</span>
@@ -254,7 +259,7 @@ import { VendorReviewItem } from '../../../models/vendor-profile.models';
               ></app-searchable-select>
             </label>
 
-            <label class="block">
+            <label class="relative z-30 block">
               <div class="mb-1.5 flex flex-wrap items-center justify-between gap-2">
                 <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
                   {{ 'SETTINGS_PROFILE.FIELDS.CITY' | translate }} <span class="text-rose-500 font-extrabold">*</span>
