@@ -140,7 +140,8 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  </section>
 
  <!-- Merged Command Center and Window Switcher -->
- <div class="mb-8 rounded-[2rem] border border-white/80 bg-white/70 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] overflow-hidden transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)]">
+ <div class="mb-8 rounded-[2rem] border border-white/80 bg-white/70 backdrop-blur-2xl shadow-[0_8px_30px_rgb(0,0,0,0.06)] transition-all duration-300 hover:shadow-[0_8px_40px_rgb(0,0,0,0.08)]">
+ <div class="overflow-hidden rounded-t-[2rem]">
  <app-profile-command-center
  [currentLang]="currentLang"
  [displayStoreName]="displayStoreName"
@@ -164,15 +165,18 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  (save)="saveProfile()"
  (storeAvailabilityToggle)="toggleStoreAvailabilityFromHeader()"
  (submit)="submitForReview()" />
+ </div>
 
  <div class="h-px bg-gradient-to-r from-transparent via-slate-200/80 to-transparent mx-4 sm:mx-8"></div>
 
+ <div class="min-w-0 rounded-b-[2rem]">
  <app-profile-window-switcher
  [currentLang]="currentLang"
  [windows]="workspaceWindows"
  [activeWindowId]="activeWindowId"
  [counts]="workspaceWindowCounts"
  (windowChange)="setActiveWindow($event)" />
+ </div>
  </div>
 
  <form [formGroup]="profileForm" class="grid gap-4 xl:grid-cols-[minmax(0,1fr)_340px]">

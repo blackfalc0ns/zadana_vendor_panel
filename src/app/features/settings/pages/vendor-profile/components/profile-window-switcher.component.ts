@@ -9,12 +9,13 @@ import { ProfileWorkspaceWindow, ProfileWorkspaceWindowId } from '../vendor-prof
   imports: [CommonModule, NgClass],
   styleUrl: './profile-window-switcher.component.scss',
   template: `
-    <nav class="profile-window-switcher bg-white/40 backdrop-blur-xl" aria-label="Tabs">
-      <button
-        *ngFor="let window of windows; let first = first; let last = last"
-        type="button"
-        (click)="windowChange.emit(window.id)"
-        class="profile-window-switcher__tab group focus:z-10 focus:outline-none"
+    <div class="profile-window-switcher-track">
+      <nav class="profile-window-switcher" aria-label="Tabs">
+        <button
+          *ngFor="let window of windows; let first = first; let last = last"
+          type="button"
+          (click)="windowChange.emit(window.id)"
+          class="profile-window-switcher__tab group focus:z-10 focus:outline-none"
         [ngClass]="{
           'text-zadna-primary bg-white/80 shadow-sm': activeWindowId === window.id,
           'text-slate-500 hover:bg-white/60 hover:text-slate-700': activeWindowId !== window.id,
@@ -43,8 +44,11 @@ import { ProfileWorkspaceWindow, ProfileWorkspaceWindowId } from '../vendor-prof
 
         <span aria-hidden="true" class="absolute inset-x-2 bottom-0 hidden h-1 rounded-full transition-all duration-300 lg:inset-x-0 lg:block lg:rounded-none"
           [ngClass]="activeWindowId === window.id ? 'bg-gradient-to-r from-zadna-primary to-teal-400 shadow-[0_-2px_10px_rgba(20,184,166,0.3)]' : 'bg-transparent group-hover:bg-slate-200/50'"></span>
-      </button>
-    </nav>
+        </button>
+
+        <span class="profile-window-switcher__spacer" aria-hidden="true"></span>
+      </nav>
+    </div>
   `
 })
 export class ProfileWindowSwitcherComponent {

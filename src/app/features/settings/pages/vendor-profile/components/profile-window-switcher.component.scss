@@ -4,19 +4,42 @@
   width: 100%;
 }
 
-.profile-window-switcher {
-  display: flex;
-  gap: 0.5rem;
+.profile-window-switcher-track {
   width: 100%;
   max-width: 100%;
-  overflow-x: auto;
-  padding: 0.75rem;
-  scroll-snap-type: x mandatory;
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
+  min-width: 0;
+}
 
-  &::-webkit-scrollbar {
+@media (max-width: 1023px) {
+  .profile-window-switcher-track {
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    touch-action: pan-x;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+
+  .profile-window-switcher-track::-webkit-scrollbar {
     display: none;
+  }
+}
+
+.profile-window-switcher {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgb(255 255 255 / 0.4);
+  backdrop-filter: blur(24px);
+}
+
+@media (max-width: 1023px) {
+  .profile-window-switcher {
+    width: max-content;
+    min-width: 100%;
   }
 }
 
@@ -24,7 +47,7 @@
   position: relative;
   display: flex;
   flex: 0 0 auto;
-  min-width: 9.5rem;
+  flex-shrink: 0;
   scroll-snap-align: start;
   flex-direction: column;
   align-items: center;
@@ -49,16 +72,24 @@
   gap: 0.35rem;
 }
 
+.profile-window-switcher__spacer {
+  flex: 0 0 0.75rem;
+  width: 0.75rem;
+}
+
 @media (min-width: 1024px) {
+  .profile-window-switcher-track {
+    overflow: visible;
+  }
+
   .profile-window-switcher {
+    width: 100%;
     gap: 0;
     padding: 0;
-    overflow-x: visible;
   }
 
   .profile-window-switcher__tab {
     min-width: 0;
-    max-width: none;
     flex: 1 1 0;
     flex-direction: row;
     border-radius: 0;
@@ -72,5 +103,9 @@
     font-size: 0.85rem;
     white-space: nowrap;
     text-overflow: ellipsis;
+  }
+
+  .profile-window-switcher__spacer {
+    display: none;
   }
 }
