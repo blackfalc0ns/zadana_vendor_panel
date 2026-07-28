@@ -15,23 +15,25 @@ export interface PillTabItem extends QuickTabVm {
   standalone: true,
   imports: [CommonModule, NgClass, TranslateModule],
   template: `
-    <div [ngClass]="resolvedContainerClass" role="tablist" [attr.aria-orientation]="'horizontal'">
-      @for (tab of tabs; track tab.value; let index = $index) {
-        <button
-          #tabButton
-          type="button"
-          (click)="selectTab(tab.value)"
-          (keydown)="onTabKeydown($event, index)"
-          [ngClass]="tab.value === activeValue ? resolvedActiveTabClass : resolvedInactiveTabClass"
-          [disabled]="tab.disabled"
-          [attr.role]="'tab'"
-          [attr.tabindex]="tab.value === activeValue ? 0 : -1"
-          [attr.aria-selected]="tab.value === activeValue"
-          [attr.aria-label]="tab.ariaLabel || null"
-          class="rounded-full border px-5 py-2.5 text-[0.74rem] font-black transition-all disabled:cursor-not-allowed disabled:opacity-45">
-          {{ (tab.translateLabel ?? true) ? (tab.label | translate) : tab.label }}
-        </button>
-      }
+    <div class="w-full max-w-full overflow-x-auto pb-1 scroll-smooth [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:overflow-visible">
+      <div [ngClass]="resolvedContainerClass" role="tablist" [attr.aria-orientation]="'horizontal'">
+        @for (tab of tabs; track tab.value; let index = $index) {
+          <button
+            #tabButton
+            type="button"
+            (click)="selectTab(tab.value)"
+            (keydown)="onTabKeydown($event, index)"
+            [ngClass]="tab.value === activeValue ? resolvedActiveTabClass : resolvedInactiveTabClass"
+            [disabled]="tab.disabled"
+            [attr.role]="'tab'"
+            [attr.tabindex]="tab.value === activeValue ? 0 : -1"
+            [attr.aria-selected]="tab.value === activeValue"
+            [attr.aria-label]="tab.ariaLabel || null"
+            class="shrink-0 whitespace-nowrap rounded-full border px-5 py-2.5 text-[0.74rem] font-black transition-all disabled:cursor-not-allowed disabled:opacity-45">
+            {{ (tab.translateLabel ?? true) ? (tab.label | translate) : tab.label }}
+          </button>
+        }
+      </div>
     </div>
   `
 })
@@ -47,7 +49,7 @@ export class AppPillTabsComponent {
   @Output() activeValueChange = new EventEmitter<string>();
 
   get resolvedContainerClass(): string {
-    return this.containerClass || 'flex flex-wrap items-center gap-3';
+    return this.containerClass || 'flex min-w-max items-center gap-2 flex-nowrap lg:min-w-0 lg:flex-wrap lg:gap-3';
   }
 
   get resolvedActiveTabClass(): string {

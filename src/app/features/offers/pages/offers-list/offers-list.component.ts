@@ -193,18 +193,21 @@ import {
  <app-panel-header
  [title]="getActiveViewTitle()"
  [subtitle]="getActiveViewSubtitle()"
+ contentClass="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between"
  >
- <div actions class="flex flex-wrap items-center gap-3">
+ <div actions class="flex w-full min-w-0 flex-col gap-3 sm:flex-row sm:items-center">
+ <div class="min-w-0 flex-1">
  <app-pill-tabs
  [tabs]="views"
  [activeValue]="activeView"
  (activeValueChange)="onViewChange($event)">
  </app-pill-tabs>
+ </div>
 
  <button
  type="button"
  (click)="isFiltersExpanded =!isFiltersExpanded"
- class="inline-flex items-center gap-3 self-start rounded-full border border-slate-200/70 bg-white px-5 py-2.5 text-[0.74rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary"
+ class="inline-flex shrink-0 items-center gap-3 self-start rounded-full border border-slate-200/70 bg-white px-5 py-2.5 text-[0.74rem] font-black text-slate-700 shadow-sm transition-all hover:border-zadna-primary/20 hover:text-zadna-primary"
  [ngClass]="isFiltersExpanded ? 'border-zadna-primary/20 bg-teal-50 text-zadna-primary' : ''">
  <svg class="h-4.5 w-4.5 transition-transform" [ngClass]="isFiltersExpanded ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M3 5h18M6 12h12M10 19h4"></path>
@@ -220,7 +223,7 @@ import {
  <div class="overflow-x-auto">
  @if (activeView === 'direct') {
  @if (filteredProductOffers.length > 0) {
- <table class="w-full min-w-[980px] text-start">
+ <table class="hidden md:table w-full min-w-[980px] text-start">
  <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
  <tr>
  <th class="px-6 py-4 text-start">{{ 'OFFERS.TABLE.PRODUCT' | translate }}</th>
@@ -272,6 +275,45 @@ import {
  }
  </tbody>
  </table>
+ <div class="md:hidden grid grid-cols-1 gap-4 p-4">
+ @for (product of pagedProductOffers; track product.id) {
+ <div class="flex flex-col rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all hover:border-zadna-primary/30">
+ <div class="flex items-start gap-3">
+ <div class="h-14 w-14 shrink-0 overflow-hidden rounded-[16px] border border-slate-100 bg-slate-50">
+ <img [src]="product.imageUrl || 'assets/images/placeholders/product.svg'" class="h-full w-full object-cover">
+ </div>
+ <div class="min-w-0 flex-1">
+ <div class="truncate text-[0.86rem] font-black text-slate-900">{{ currentLang === 'ar' ? product.nameAr : product.nameEn }}</div>
+ <div class="text-[0.72rem] font-bold text-slate-400">{{ currentLang === 'ar' ? (product.brandNameAr || ('COMMON.BRAND_GENERAL' | translate)) : (product.brandNameEn || ('COMMON.BRAND_GENERAL' | translate)) }}</div>
+ <span class="mt-2 inline-flex rounded-lg bg-slate-100 px-2 py-0.5 text-[0.65rem] font-black text-slate-600">
+ {{ currentLang === 'ar' ? (product.categoryNameAr || ('COMMON.NO_DATA' | translate)) : (product.categoryNameEn || ('COMMON.NO_DATA' | translate)) }}
+ </span>
+ </div>
+ </div>
+ <div class="mt-3 grid grid-cols-2 gap-3 rounded-xl bg-slate-50/50 p-3">
+ <div class="flex flex-col">
+ <span class="text-[0.65rem] font-bold text-slate-400">{{ 'OFFERS.TABLE.FINAL_PRICE' | translate }}</span>
+ <span class="mt-0.5 text-[0.9rem] font-black text-slate-900">{{ product.sellingPrice | number:'1.2-2' }} {{ 'COMMON.EGP' | translate }}</span>
+ <span class="text-[0.72rem] font-bold text-slate-400 line-through">{{ product.compareAtPrice | number:'1.2-2' }}</span>
+ </div>
+ <div class="flex flex-col items-end text-end">
+ <span class="text-[0.65rem] font-bold text-slate-400">{{ 'OFFERS.TABLE.STOCK' | translate }}</span>
+ <span class="mt-0.5 text-[0.9rem] font-black text-slate-700">{{ product.stockQty }}</span>
+ <span class="mt-1 inline-flex rounded-full bg-orange-100 px-2 py-0.5 text-[0.65rem] font-black text-orange-700">
+ {{ 'PRODUCTS.OFFER_BADGE' | translate:{ value: product.discountPercentage || 0 } }}
+ </span>
+ </div>
+ </div>
+ <div class="mt-4 flex justify-end border-t border-slate-100 pt-3">
+ <a
+ [routerLink]="['/products', product.id]"
+ class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-[0.76rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:bg-zadna-primary/5 hover:text-zadna-primary">
+ {{ 'OFFERS.EDIT_OFFER' | translate }}
+ </a>
+ </div>
+ </div>
+ }
+ </div>
  } @else {
  <div class="m-4 min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
  <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">local_offer</span>
@@ -282,7 +324,7 @@ import {
 
  @if (activeView === 'coupons') {
  @if (filteredCoupons.length > 0) {
- <table class="w-full min-w-[980px] text-start">
+ <table class="hidden md:table w-full min-w-[980px] text-start">
  <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
  <tr>
  <th class="px-6 py-4 text-start">{{ 'OFFERS.TABLE.COUPON_CODE' | translate }}</th>
@@ -318,6 +360,35 @@ import {
  }
  </tbody>
  </table>
+ <div class="md:hidden grid grid-cols-1 gap-4 p-4">
+ @for (coupon of pagedCoupons; track coupon.id) {
+ <div class="flex flex-col rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all hover:border-zadna-primary/30">
+ <div class="flex items-start justify-between gap-3">
+ <div class="min-w-0">
+ <div class="text-[0.86rem] font-black text-slate-900">{{ coupon.code }}</div>
+ <div class="mt-1 text-[0.72rem] font-bold text-slate-400">{{ coupon.title }}</div>
+ </div>
+ <span class="inline-flex shrink-0 rounded-full px-2.5 py-1 text-[0.68rem] font-black"
+ [ngClass]="coupon.isActive ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'">
+ {{ coupon.isActive ? ('COMMON.STATUS_ACTIVE' | translate) : ('COMMON.STATUS_INACTIVE' | translate) }}
+ </span>
+ </div>
+ <div class="mt-3 grid grid-cols-2 gap-3 rounded-xl bg-slate-50/50 p-3">
+ <div class="flex flex-col">
+ <span class="text-[0.65rem] font-bold text-slate-400">{{ 'OFFERS.TABLE.DISCOUNT_VALUE' | translate }}</span>
+ <span class="mt-0.5 text-[0.82rem] font-black text-slate-900">{{ formatCouponValue(coupon) }}</span>
+ <span class="mt-1 text-[0.68rem] font-bold text-slate-500">{{ 'OFFERS.TABLE.MIN_ORDER' | translate }}: {{ coupon.minOrder }} {{ 'COMMON.EGP' | translate }}</span>
+ </div>
+ <div class="flex flex-col items-end text-end">
+ <span class="text-[0.65rem] font-bold text-slate-400">{{ 'OFFERS.TABLE.ENDS_AT' | translate }}</span>
+ <span class="mt-0.5 text-[0.75rem] font-bold" [ngClass]="isEndingSoon(coupon.endsAt) ? 'text-orange-600' : 'text-slate-700'">{{ coupon.endsAt }}</span>
+ <span class="mt-1 text-[0.68rem] font-bold text-slate-500">{{ formatUsageLabel(coupon) }}</span>
+ </div>
+ </div>
+ <div class="mt-2 text-[0.72rem] font-bold text-slate-600">{{ currentLang === 'ar' ? 'لكل عميل' : 'Per user' }}: {{ formatPerUserLimit(coupon) }}</div>
+ </div>
+ }
+ </div>
  } @else {
  <div class="m-4 min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
  <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">sell</span>
@@ -328,7 +399,7 @@ import {
 
  @if (activeView === 'categories') {
  @if (filteredCategoryCampaigns.length > 0) {
- <table class="w-full min-w-[980px] text-start">
+ <table class="hidden md:table w-full min-w-[980px] text-start">
  <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
  <tr>
  <th class="px-6 py-4 text-start">{{ 'OFFERS.TABLE.CATEGORY' | translate }}</th>
@@ -361,6 +432,37 @@ import {
  }
  </tbody>
  </table>
+ <div class="md:hidden grid grid-cols-1 gap-4 p-4">
+ @for (campaign of pagedCategoryCampaigns; track campaign.id) {
+ <div class="flex flex-col rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all hover:border-zadna-primary/30">
+ <div class="flex items-start justify-between gap-3">
+ <div class="min-w-0">
+ <div class="text-[0.82rem] font-black text-slate-900">{{ currentLang === 'ar' ? campaign.categoryNameAr : campaign.categoryNameEn }}</div>
+ <div class="mt-1 text-[0.8rem] font-black text-slate-900">{{ currentLang === 'ar' ? campaign.headlineAr : campaign.headlineEn }}</div>
+ <div class="mt-1 text-[0.72rem] font-bold text-slate-400">{{ currentLang === 'ar' ? campaign.noteAr : campaign.noteEn }}</div>
+ </div>
+ <span class="inline-flex shrink-0 rounded-full bg-sky-100 px-2.5 py-1 text-[0.68rem] font-black text-sky-700">{{ campaign.discountPercentage }}%</span>
+ </div>
+ <div class="mt-3 grid grid-cols-2 gap-3 rounded-xl bg-slate-50/50 p-3">
+ <div class="flex flex-col">
+ <span class="text-[0.65rem] font-bold text-slate-400">{{ 'OFFERS.TABLE.INCLUDED_PRODUCTS' | translate }}</span>
+ <span class="mt-0.5 text-[0.82rem] font-black text-slate-700">{{ campaign.productsIncluded }}</span>
+ </div>
+ <div class="flex flex-col items-end text-end">
+ <span class="text-[0.65rem] font-bold text-slate-400">{{ 'OFFERS.TABLE.ENDS_AT' | translate }}</span>
+ <span class="mt-0.5 text-[0.75rem] font-bold text-slate-700">{{ campaign.endsAt }}</span>
+ </div>
+ </div>
+ <div class="mt-4 flex justify-end border-t border-slate-100 pt-3">
+ <a
+ routerLink="/products"
+ class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-[0.76rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:bg-zadna-primary/5 hover:text-zadna-primary">
+ {{ 'OFFERS.REVIEW_PRODUCTS' | translate }}
+ </a>
+ </div>
+ </div>
+ }
+ </div>
  } @else {
  <div class="m-4 min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
  <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">category</span>
@@ -371,7 +473,7 @@ import {
 
  @if (activeView === 'clearance') {
  @if (filteredClearanceOffers.length > 0) {
- <table class="w-full min-w-[980px] text-start">
+ <table class="hidden md:table w-full min-w-[980px] text-start">
  <thead class="bg-slate-50/80 text-[0.68rem] font-black uppercase tracking-[0.14em] text-slate-500">
  <tr>
  <th class="px-6 py-4 text-start">{{ 'OFFERS.TABLE.PRODUCT' | translate }}</th>
@@ -420,6 +522,48 @@ import {
  }
  </tbody>
  </table>
+ <div class="md:hidden grid grid-cols-1 gap-4 p-4">
+ @for (item of pagedClearanceOffers; track item.productId) {
+ <div class="flex flex-col rounded-2xl border border-slate-100 bg-white p-4 shadow-sm transition-all hover:border-zadna-primary/30">
+ <div class="flex items-start gap-3">
+ <div class="h-14 w-14 shrink-0 overflow-hidden rounded-[16px] border border-slate-100 bg-slate-50">
+ <img [src]="item.imageUrl || 'assets/images/placeholders/product.svg'" class="h-full w-full object-cover">
+ </div>
+ <div class="min-w-0 flex-1">
+ <div class="truncate text-[0.86rem] font-black text-slate-900">{{ currentLang === 'ar' ? item.nameAr : item.nameEn }}</div>
+ <span class="mt-2 inline-flex rounded-lg bg-slate-100 px-2 py-0.5 text-[0.65rem] font-black text-slate-600">
+ {{ currentLang === 'ar' ? (item.categoryNameAr || ('COMMON.NO_DATA' | translate)) : (item.categoryNameEn || ('COMMON.NO_DATA' | translate)) }}
+ </span>
+ <div class="mt-2">
+ <span class="inline-flex rounded-full px-2 py-0.5 text-[0.68rem] font-black"
+ [ngClass]="item.urgency === 'critical' ? 'bg-rose-100 text-rose-700' : 'bg-orange-100 text-orange-700'">
+ {{ item.stockQty <= 5 ? ('OFFERS.LAST_PIECES_BADGE' | translate) : ('OFFERS.LOW_STOCK_BADGE' | translate) }}
+ </span>
+ </div>
+ </div>
+ </div>
+ <div class="mt-3 grid grid-cols-2 gap-3 rounded-xl bg-slate-50/50 p-3">
+ <div class="flex flex-col">
+ <span class="text-[0.65rem] font-bold text-slate-400">{{ 'OFFERS.TABLE.FINAL_PRICE' | translate }}</span>
+ <span class="mt-0.5 text-[0.9rem] font-black text-slate-900">{{ item.sellingPrice | number:'1.2-2' }} {{ 'COMMON.EGP' | translate }}</span>
+ <span class="text-[0.72rem] font-bold text-slate-400 line-through">{{ item.compareAtPrice | number:'1.2-2' }}</span>
+ </div>
+ <div class="flex flex-col items-end text-end">
+ <span class="text-[0.65rem] font-bold text-slate-400">{{ 'OFFERS.TABLE.STOCK_LEFT' | translate }}</span>
+ <span class="mt-0.5 text-[0.9rem] font-black" [ngClass]="item.urgency === 'critical' ? 'text-rose-700' : 'text-orange-700'">{{ item.stockQty }}</span>
+ <span class="mt-1 text-[0.68rem] font-black text-slate-700">{{ item.discountPercentage }}%</span>
+ </div>
+ </div>
+ <div class="mt-4 flex justify-end border-t border-slate-100 pt-3">
+ <a
+ [routerLink]="['/products', item.productId]"
+ class="inline-flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-[0.76rem] font-black text-slate-700 transition hover:border-zadna-primary/20 hover:bg-zadna-primary/5 hover:text-zadna-primary">
+ {{ 'OFFERS.ACTIVATE_CLEARANCE' | translate }}
+ </a>
+ </div>
+ </div>
+ }
+ </div>
  } @else {
  <div class="m-4 min-h-[320px] rounded-[1.35rem] border border-dashed border-slate-200 bg-slate-50/35 px-6 py-16 text-center flex flex-col items-center justify-center">
  <span class="material-symbols-outlined mb-5 text-[28px] leading-none text-[#8bbfca]">inventory_2</span>
