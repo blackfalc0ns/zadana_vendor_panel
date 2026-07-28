@@ -28,6 +28,7 @@ export class HeaderComponent implements OnInit {
  @Input() userName: string = 'User';
  @Input() userRole: string = 'Vendor';
  @Input() initials: string = 'U';
+ @Input() isMobileMenuOpen = false;
 
  currentWorkspaceName = '';
  currentWorkspaceTypeKey = 'STAFF_BRANCHES.BRANCH_TYPES.PRIMARY';
@@ -36,6 +37,7 @@ export class HeaderComponent implements OnInit {
 
  @Output() languageSwitch = new EventEmitter<void>();
  @Output() logoutAction = new EventEmitter<void>();
+ @Output() toggleSidebar = new EventEmitter<void>();
 
  @ViewChild('alertsContainer') alertsContainer?: ElementRef<HTMLElement>;
  @ViewChild('searchContainer') searchContainer?: ElementRef<HTMLElement>;
@@ -119,6 +121,10 @@ export class HeaderComponent implements OnInit {
 
  onLogout(): void {
  this.logoutAction.emit();
+ }
+
+ onToggleSidebar(): void {
+ this.toggleSidebar.emit();
  }
 
  private syncWorkspaceContext(user: VendorCurrentUser | null): void {
