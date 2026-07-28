@@ -165,7 +165,7 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  (storeAvailabilityToggle)="toggleStoreAvailabilityFromHeader()"
  (submit)="submitForReview()" />
 
- <div class="h-px bg-gradient-to-r from-transparent via-slate-200/80 to-transparent mx-8"></div>
+ <div class="h-px bg-gradient-to-r from-transparent via-slate-200/80 to-transparent mx-4 sm:mx-8"></div>
 
  <app-profile-window-switcher
  [currentLang]="currentLang"

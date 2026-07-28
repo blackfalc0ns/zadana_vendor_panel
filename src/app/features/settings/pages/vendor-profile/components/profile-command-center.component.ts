@@ -8,7 +8,7 @@ import { TranslateModule } from '@ngx-translate/core';
  standalone: true,
  imports: [CommonModule, NgClass, TranslateModule],
  template: `
- <section class="p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 bg-white/40 backdrop-blur-3xl relative overflow-hidden">
+ <section class="p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 sm:gap-6 bg-white/40 backdrop-blur-3xl relative overflow-hidden">
  <!-- Decorative BG -->
  <div class="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-zadna-primary/10 to-teal-400/5 rounded-full blur-3xl pointer-events-none"></div>
  <div class="absolute -bottom-24 -left-24 w-64 h-64 bg-gradient-to-tr from-zadna-primary/10 to-indigo-400/5 rounded-full blur-3xl pointer-events-none"></div>
@@ -19,8 +19,8 @@ import { TranslateModule } from '@ngx-translate/core';
  <span class="material-symbols-outlined text-[28px]">storefront</span>
  </div>
  <div class="min-w-0">
- <div class="flex items-center gap-2">
- <h1 class="truncate text-[1.35rem] font-black text-slate-900 tracking-tight">{{ displayStoreName }}</h1>
+ <div class="flex flex-wrap items-center gap-2">
+ <h1 class="truncate text-[1.15rem] sm:text-[1.35rem] font-black text-slate-900 tracking-tight">{{ displayStoreName }}</h1>
  <span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.68rem] font-bold shadow-sm" [ngClass]="reviewStateBadgeClasses">
  <span class="h-1.5 w-1.5 rounded-full shadow-sm" [ngClass]="reviewStateDotClass"></span>
  {{ reviewStateLabel }}
@@ -47,13 +47,13 @@ import { TranslateModule } from '@ngx-translate/core';
  </div>
 
  <!-- Review Readiness Compact -->
- <div class="flex-1 lg:max-w-md xl:max-w-lg lg:mx-6 rounded-[1.25rem] bg-white/60 backdrop-blur-xl border border-white shadow-sm p-3.5 relative z-10">
+ <div class="w-full lg:flex-1 lg:max-w-md xl:max-w-lg lg:mx-6 rounded-[1.25rem] bg-white/60 backdrop-blur-xl border border-white shadow-sm p-3 sm:p-3.5 relative z-10">
  <div class="flex items-center justify-between mb-3">
  <div class="flex items-center gap-1.5">
  <span class="material-symbols-outlined text-[16px] text-zadna-primary">task_alt</span>
  <span class="text-[0.7rem] font-bold text-slate-700">{{ 'SETTINGS_PROFILE.COMMAND_CENTER.READINESS' | translate }}</span>
  </div>
- <div class="flex items-center gap-2.5 text-[0.65rem] font-bold">
+ <div class="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-[0.62rem] sm:text-[0.65rem] font-bold">
  <span [ngClass]="missingDocumentsCount > 0 ? 'text-rose-600' : 'text-slate-400'">{{ missingDocumentsCount }} {{ 'SETTINGS_PROFILE.COMMAND_CENTER.MISSING' | translate }}</span>
  <span class="text-sky-600">{{ submittedItems }} {{ 'SETTINGS_PROFILE.COMMAND_CENTER.IN_REVIEW' | translate }}</span>
  <span class="text-emerald-600">{{ approvedItems }} {{ 'SETTINGS_PROFILE.COMMAND_CENTER.APPROVED' | translate }}</span>
@@ -68,12 +68,12 @@ import { TranslateModule } from '@ngx-translate/core';
  </div>
 
  <!-- Actions -->
- <div class="flex items-center gap-3 shrink-0 relative z-10">
+ <div class="grid w-full grid-cols-[2.85rem_minmax(0,1fr)] gap-2 sm:flex sm:w-auto sm:items-center sm:gap-3 shrink-0 relative z-10">
  <button
  type="button"
  (click)="save.emit()"
  [disabled]="saveDisabled"
- class="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] border border-white bg-white/80 backdrop-blur-md px-5 text-[0.8rem] font-bold text-slate-700 shadow-sm transition-all hover:bg-white hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:opacity-50">
+ class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-[14px] border border-white bg-white/80 backdrop-blur-md text-[0.8rem] font-bold text-slate-700 shadow-sm transition-all hover:bg-white hover:shadow-md hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-slate-200 disabled:opacity-50 sm:w-auto sm:px-5">
  <span *ngIf="isSaving" class="h-4 w-4 animate-spin rounded-full border-2 border-slate-500 border-t-slate-700"></span>
  <span *ngIf="!isSaving" class="material-symbols-outlined text-[18px]">save</span>
  <span class="hidden sm:inline">{{ 'SETTINGS_PROFILE.COMMAND_CENTER.SAVE' | translate }}</span>
@@ -83,10 +83,10 @@ import { TranslateModule } from '@ngx-translate/core';
  type="button"
  (click)="submit.emit()"
  [disabled]="submitDisabled"
- class="inline-flex h-11 items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-slate-900 to-slate-800 px-6 text-[0.8rem] font-bold text-white shadow-lg shadow-slate-900/20 transition-all hover:from-slate-800 hover:to-slate-700 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+ class="inline-flex h-11 w-full min-w-0 items-center justify-center gap-2 rounded-[14px] bg-gradient-to-r from-slate-900 to-slate-800 px-4 sm:px-6 text-[0.76rem] sm:text-[0.8rem] font-bold text-white shadow-lg shadow-slate-900/20 transition-all hover:from-slate-800 hover:to-slate-700 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
  <span *ngIf="isSubmittingReview" class="h-4 w-4 animate-spin rounded-full border-2 border-white/25 border-t-white"></span>
  <span *ngIf="!isSubmittingReview" class="material-symbols-outlined text-[18px]">send</span>
- {{ submitReviewLabel }}
+ <span class="truncate">{{ submitReviewLabel }}</span>
  </button>
  </div>
  </section>
