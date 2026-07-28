@@ -34,7 +34,7 @@ import {
  SupportTicketStatus,
  VendorSupportTicketVm
 } from '../../models/support-center.models';
-import { SupportCenterService } from '../../services/support-center.service';
+import { SupportCenterService, PlatformContactChannel } from '../../services/support-center.service';
 import { CreateTicketDraft, ReferenceFilters, SupportFilters } from './support-center.page.models';
 
 @Component({
@@ -80,6 +80,7 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
  flashMessage = '';
  flashTone: 'success' | 'info' = 'success';
  orderOptions: SearchableSelectOption<string>[] = [];
+ contactChannels: PlatformContactChannel[] = [];
 
  tickets: VendorSupportTicketVm[] = [];
  referenceArticles: SupportReferenceArticleVm[] = [];
@@ -119,6 +120,7 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
  private querySub?: Subscription;
  private orderOptionsSub?: Subscription;
  private realtimeSupportSub?: Subscription;
+ private platformContactSub?: Subscription;
  private lastFilterSignatures: Record<SupportCenterView, string> = {
  support: '',
  reference: ''
@@ -179,6 +181,10 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
  });
 
  this.loadOrderOptions();
+ this.platformContactSub = this.supportCenterService.getPlatformContact().subscribe((settings) => {
+ this.cdr.markForCheck();
+ this.contactChannels = this.supportCenterService.buildPlatformContactChannels(settings);
+ });
  this.realtimeSupportSub = this.alertsCenterService.getRealtimeAlerts().subscribe((alert) => {
  this.cdr.markForCheck();
  if (alert.source === 'support') {
@@ -194,6 +200,7 @@ export class SupportCenterPageComponent implements OnInit, DoCheck, OnDestroy {
  this.querySub?.unsubscribe();
  this.orderOptionsSub?.unsubscribe();
  this.realtimeSupportSub?.unsubscribe();
+ this.platformContactSub?.unsubscribe();
  }
 
  ngDoCheck(): void {

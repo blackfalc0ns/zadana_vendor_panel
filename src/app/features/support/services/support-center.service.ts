@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { environment } from '../../../../environments/environment';
 import {
@@ -16,6 +16,27 @@ import {
   cloneSupportTickets
 } from '../models/support-center.models';
 
+export interface PlatformContactSettings {
+  supportEmail?: string | null;
+  supportPhone?: string | null;
+  whatsAppUrl?: string | null;
+  instagramUrl?: string | null;
+  twitterUrl?: string | null;
+  tikTokUrl?: string | null;
+  snapchatUrl?: string | null;
+  facebookUrl?: string | null;
+  youTubeUrl?: string | null;
+  linkedInUrl?: string | null;
+  updatedAtUtc?: string | null;
+}
+
+export interface PlatformContactChannel {
+  key: string;
+  labelKey: string;
+  value: string;
+  href: string;
+  icon: string;
+}
 interface VendorSupportTicketsListResponseApi {
   items: VendorSupportTicketVm[];
   page: number;
@@ -24,18 +45,123 @@ interface VendorSupportTicketsListResponseApi {
 }
 
 @Injectable({
-  providedIn: 'root'
+ providedIn: 'root'
 })
 export class SupportCenterService {
-  private readonly apiUrl = `${environment.apiUrl}/vendor/support/tickets`;
-  private readonly ticketsSubject = new BehaviorSubject<VendorSupportTicketVm[]>([]);
-  private readonly referenceArticles = this.buildReferenceArticles();
+ private readonly apiUrl = `${environment.apiUrl}/vendor/support/tickets`;
+ private readonly platformContactUrl = `${environment.apiUrl}/public/platform-contact`;
+ private readonly ticketsSubject = new BehaviorSubject<VendorSupportTicketVm[]>([]);
+ private readonly referenceArticles = this.buildReferenceArticles();
+ private readonly skipAuthHeaders = new HttpHeaders({ 'X-Skip-Auth': 'true' });
 
-  constructor(private readonly http: HttpClient) {
-    this.loadTickets();
-  }
+ constructor(private readonly http: HttpClient) {
+ this.loadTickets();
+ }
 
-  getTickets(): Observable<VendorSupportTicketVm[]> {
+ getPlatformContact(): Observable<PlatformContactSettings | null> {
+ return this.http.get<PlatformContactSettings>(this.platformContactUrl, {
+ headers: this.skipAuthHeaders
+ }).pipe(
+ catchError(() => of(null))
+ );
+ }
+
+ buildPlatformContactChannels(settings: PlatformContactSettings | null): PlatformContactChannel[] {
+ if (!settings) {
+ return [];
+ }
+
+ const channels: Array<{
+ key: string;
+ labelKey: string;
+ value?: string | null;
+ href?: string | null;
+ icon: string;
+ }> = [
+ {
+ key: 'phone',
+ labelKey: 'SUPPORT_CENTER.CONTACT.PHONE',
+ value: settings.supportPhone,
+ href: settings.supportPhone ? `tel:${settings.supportPhone.replace(/\s+/g, '')}` : null,
+ icon: 'call'
+ },
+ {
+ key: 'email',
+ labelKey: 'SUPPORT_CENTER.CONTACT.EMAIL',
+ value: settings.supportEmail,
+ href: settings.supportEmail ? `mailto:${settings.supportEmail}` : null,
+ icon: 'mail'
+ },
+ {
+ key: 'whatsapp',
+ labelKey: 'SUPPORT_CENTER.CONTACT.WHATSAPP',
+ value: settings.whatsAppUrl,
+ href: settings.whatsAppUrl,
+ icon: 'chat'
+ },
+ {
+ key: 'instagram',
+ labelKey: 'SUPPORT_CENTER.CONTACT.INSTAGRAM',
+ value: settings.instagramUrl,
+ href: settings.instagramUrl,
+ icon: 'photo_camera'
+ },
+ {
+ key: 'twitter',
+ labelKey: 'SUPPORT_CENTER.CONTACT.TWITTER',
+ value: settings.twitterUrl,
+ href: settings.twitterUrl,
+ icon: 'alternate_email'
+ },
+ {
+ key: 'tiktok',
+ labelKey: 'SUPPORT_CENTER.CONTACT.TIKTOK',
+ value: settings.tikTokUrl,
+ href: settings.tikTokUrl,
+ icon: 'music_note'
+ },
+ {
+ key: 'snapchat',
+ labelKey: 'SUPPORT_CENTER.CONTACT.SNAPCHAT',
+ value: settings.snapchatUrl,
+ href: settings.snapchatUrl,
+ icon: 'camera'
+ },
+ {
+ key: 'facebook',
+ labelKey: 'SUPPORT_CENTER.CONTACT.FACEBOOK',
+ value: settings.facebookUrl,
+ href: settings.facebookUrl,
+ icon: 'public'
+ },
+ {
+ key: 'youtube',
+ labelKey: 'SUPPORT_CENTER.CONTACT.YOUTUBE',
+ value: settings.youTubeUrl,
+ href: settings.youTubeUrl,
+ icon: 'play_circle'
+ },
+ {
+ key: 'linkedin',
+ labelKey: 'SUPPORT_CENTER.CONTACT.LINKEDIN',
+ value: settings.linkedInUrl,
+ href: settings.linkedInUrl,
+ icon: 'work'
+ }
+ ];
+
+ return channels
+ .filter((channel) => !!channel.value?.trim() && !!channel.href?.trim())
+ .map((channel) => ({
+ key: channel.key,
+ labelKey: channel.labelKey,
+ value: channel.value!.trim(),
+ href: channel.href!.trim(),
+ icon: channel.icon
+ }));
+ }
+
+ getTickets(): Observable<VendorSupportTicketVm[]> {
     return this.ticketsSubject.pipe(map((tickets) => cloneSupportTickets(tickets)));
   }
 

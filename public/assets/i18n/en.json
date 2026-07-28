@@ -1604,6 +1604,21 @@
       "REFERENCE_COUNT": "Reference Articles",
       "REFERENCE_COUNT_HINT": "Quick guides and policies you can review before opening a new case."
     },
+    "CONTACT": {
+      "KICKER": "Direct contact",
+      "TITLE": "Support & Contact",
+      "SUBTITLE": "Reach the Zadana team by phone or through the available social channels.",
+      "PHONE": "Support phone",
+      "EMAIL": "Email",
+      "WHATSAPP": "WhatsApp",
+      "INSTAGRAM": "Instagram",
+      "TWITTER": "X / Twitter",
+      "TIKTOK": "TikTok",
+      "SNAPCHAT": "Snapchat",
+      "FACEBOOK": "Facebook",
+      "YOUTUBE": "YouTube",
+      "LINKEDIN": "LinkedIn"
+    },
     "FILTERS": {
       "TITLE": "Filters",
       "SUBTITLE": "Refine the current view by status, category, priority, or article type.",
