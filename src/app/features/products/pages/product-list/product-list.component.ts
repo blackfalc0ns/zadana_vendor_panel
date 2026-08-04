@@ -768,6 +768,12 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
  onPageChange(page: number): void {
  this.currentPage = page;
+ this.router.navigate([], {
+ relativeTo: this.route,
+ queryParams: { page },
+ queryParamsHandling: 'merge',
+ replaceUrl: true
+ });
  this.loadProducts();
  }
 
@@ -855,7 +861,10 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
  openProductDetails(product: VendorProduct, event?: Event): void {
  event?.stopPropagation();
- void this.router.navigate(['/products', product.id]);
+ void this.router.navigate(['/products', product.id], {
+ queryParams: { page: this.currentPage },
+ queryParamsHandling: 'merge'
+ });
  }
 
  async deleteProduct(product: VendorProduct, event?: Event): Promise<void> {
@@ -903,15 +912,15 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
  private applyQueryParams(): void {
  const params = this.route.snapshot.queryParamMap;
- const productSearch = params.get('productSearch')?.trim();
+ const page = Number(params.get('page'));
  const stockState = params.get('stockState');
  const offerState = params.get('offerState');
  const packageTypeId = params.get('packageTypeId');
  const measurementUnitId = params.get('measurementUnitId');
  const measurementValue = params.get('measurementValue');
 
- if (productSearch) {
- this.searchTerm = productSearch;
+ if (Number.isInteger(page) && page > 0) {
+ this.currentPage = page;
  }
 
  if (stockState === 'low' || stockState === 'out' || stockState === 'healthy') {

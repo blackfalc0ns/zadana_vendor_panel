@@ -505,7 +505,8 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
  this.cdr.markForCheck();
  this.alertModalService.success(msg);
  this.router.navigate(['/products'], {
- queryParams: { productSearch: this.getProductName() },
+ queryParams: { page: this.route.snapshot.queryParamMap.get('page') || 1 },
+ queryParamsHandling: 'merge',
  replaceUrl: true
  });
  });
