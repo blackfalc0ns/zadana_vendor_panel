@@ -122,6 +122,7 @@ import {
 
             <div class="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
               <input
+                #logoFileInput
                 id="profileLogoInput"
                 type="file"
                 accept="image/jpeg,image/png"
@@ -129,7 +130,7 @@ import {
                 (change)="logoSelected.emit($event)">
               <button
                 type="button"
-                (click)="logoInput.click()"
+                (click)="logoFileInput.click()"
                 [disabled]="uploadingLogo"
                 class="inline-flex items-center justify-center gap-1.5 rounded-[12px] bg-slate-900 px-4 py-2 text-[0.8rem] font-bold text-white shadow-md transition-all hover:bg-slate-800 disabled:opacity-60">
                 <span *ngIf="uploadingLogo" class="h-4 w-4 animate-spin rounded-full border-2 border-slate-500 border-t-white"></span>
@@ -239,10 +240,6 @@ export class ProfileReviewWindowComponent {
   @Output() uploadClick = new EventEmitter<VendorLegalDocumentType>();
   @Output() documentSelected = new EventEmitter<{ event: Event; type: VendorLegalDocumentType }>();
   @Output() logoSelected = new EventEmitter<Event>();
-
-  get logoInput(): HTMLInputElement {
-    return document.getElementById('profileLogoInput') as HTMLInputElement;
-  }
 
   get identityNumberLabelKey(): string {
     const nationality = (this.form?.get('nationality')?.value || '').toString().trim().toUpperCase();
