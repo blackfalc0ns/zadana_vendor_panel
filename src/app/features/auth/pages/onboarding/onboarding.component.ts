@@ -388,7 +388,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
  nextStep(): void {
  const currentGroup = this.getNavStepGroup(this.currentStep);
- if (currentGroup.invalid) {
+ if (currentGroup.invalid && !this.isEditMode) {
  currentGroup.markAllAsTouched();
  return;
  }
@@ -422,7 +422,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  if (step > this.currentStep) {
  for (let id = 1; id < step; id++) {
  const group = this.getNavStepGroup(id);
- if (group.invalid) {
+ if (group.invalid && !this.isEditMode) {
  group.markAllAsTouched();
  this.currentStep = id;
  return;
@@ -718,10 +718,12 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  return;
  }
 
+ if (!this.isEditMode) {
  const invalidStep = this.stepItems.find((step) => this.getNavStepGroup(step.id).invalid);
  if (invalidStep) {
  this.currentStep = invalidStep.id;
  return;
+ }
  }
 
  if (this.isEditMode) {
@@ -1401,11 +1403,34 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }
 
  private relaxEditModeValidators(): void {
+ const step1 = this.getStepGroup(1);
+ step1.get('contactPhone')?.setValidators([Validators.required, Validators.maxLength(20)]);
+ step1.get('ownerEmail')?.setValidators([Validators.required, Validators.email, Validators.maxLength(256)]);
+ step1.get('ownerPhone')?.setValidators([Validators.required, Validators.maxLength(20)]);
+ ['contactPhone', 'ownerEmail', 'ownerPhone'].forEach((field) => {
+ step1.get(field)?.updateValueAndValidity({ emitEvent: false });
+ });
+
  const step2 = this.getStepGroup(2);
  step2.get('branchLatitude')?.clearValidators();
  step2.get('branchLatitude')?.updateValueAndValidity();
  step2.get('branchLongitude')?.clearValidators();
  step2.get('branchLongitude')?.updateValueAndValidity();
+
+ const step3 = this.getStepGroup(3);
+ step3.get('idNumber')?.setValidators([Validators.required]);
+ step3.get('commercialRegistrationNumber')?.setValidators([Validators.required]);
+ step3.get('expiryDate')?.setValidators([Validators.required]);
+ step3.get('taxId')?.setValidators([Validators.required]);
+ ['idNumber', 'commercialRegistrationNumber', 'expiryDate', 'taxId'].forEach((field) => {
+ step3.get(field)?.updateValueAndValidity({ emitEvent: false });
+ });
+
+ const step4 = this.getStepGroup(4);
+ step4.get('iban')?.setValidators([Validators.required]);
+ step4.get('swiftCode')?.setValidators([Validators.required, Validators.maxLength(11)]);
+ step4.get('iban')?.updateValueAndValidity({ emitEvent: false });
+ step4.get('swiftCode')?.updateValueAndValidity({ emitEvent: false });
 
  const step5 = this.getStepGroup(5);
  ['hasCRDoc', 'hasTaxDoc', 'hasLicenseDoc'].forEach((field) => {
