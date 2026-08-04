@@ -903,11 +903,16 @@ export class ProductListComponent implements OnInit, OnDestroy {
 
  private applyQueryParams(): void {
  const params = this.route.snapshot.queryParamMap;
+ const productSearch = params.get('productSearch')?.trim();
  const stockState = params.get('stockState');
  const offerState = params.get('offerState');
  const packageTypeId = params.get('packageTypeId');
  const measurementUnitId = params.get('measurementUnitId');
  const measurementValue = params.get('measurementValue');
+
+ if (productSearch) {
+ this.searchTerm = productSearch;
+ }
 
  if (stockState === 'low' || stockState === 'out' || stockState === 'healthy') {
  this.filters.stock = stockState;

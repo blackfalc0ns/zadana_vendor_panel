@@ -504,7 +504,10 @@ export class ProductDetailComponent implements OnInit, OnDestroy {
  this.translate.get('PRODUCTS.UPDATE_SUCCESS').subscribe(msg => {
  this.cdr.markForCheck();
  this.alertModalService.success(msg);
- this.router.navigate(['/products']);
+ this.router.navigate(['/products'], {
+ queryParams: { productSearch: this.getProductName() },
+ replaceUrl: true
+ });
  });
  },
  error: () => {
