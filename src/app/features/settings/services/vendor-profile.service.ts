@@ -46,6 +46,36 @@ interface VendorWorkspaceApi {
   nationality?: string | null;
   payoutCycle?: string | null;
   payoutDay?: string | null;
+  pendingChanges?: {
+    store?: {
+      commercialRegistrationNumber?: string | null;
+      commercialRegisterDocumentUrl?: string | null;
+    } | null;
+    owner?: {
+      ownerName: string;
+      ownerEmail: string;
+      ownerPhone: string;
+      idNumber?: string | null;
+      nationality?: string | null;
+    } | null;
+    legal?: {
+      commercialRegistrationNumber: string;
+      commercialRegistrationExpiryDate?: string | null;
+      taxId?: string | null;
+      licenseNumber?: string | null;
+      commercialRegisterDocumentUrl?: string | null;
+      taxDocumentUrl?: string | null;
+      licenseDocumentUrl?: string | null;
+    } | null;
+    banking?: {
+      bankName: string;
+      accountHolderName: string;
+      iban: string;
+      swiftCode?: string | null;
+      payoutCycle?: string | null;
+      payoutDay?: string | null;
+    } | null;
+  } | null;
   status: string;
   accountStatus: string;
   rejectionReason?: string | null;
@@ -699,6 +729,12 @@ export class VendorProfileService {
     }));
     const reviewState = workspace.reviewState
       ?? (workspace.commercialAccessEnabled ? 'Verified' : 'AwaitingSubmission');
+    const pending = workspace.pendingChanges;
+    const pendingOwner = pending?.owner;
+    const pendingLegal = pending?.legal;
+    const pendingBanking = pending?.banking;
+    const pendingStore = pending?.store;
+    const primaryBankAccount = workspace.primaryBankAccount;
 
     return {
       status: workspace.status || '',
@@ -714,28 +750,36 @@ export class VendorProfileService {
       nationalAddress: workspace.nationalAddress || '',
       branchLatitude: workspace.primaryBranchLatitude ?? null,
       branchLongitude: workspace.primaryBranchLongitude ?? null,
-      ownerName: workspace.ownerName || '',
-      ownerEmail: workspace.ownerEmail || '',
-      ownerPhone: workspace.ownerPhone || '',
-      idNumber: workspace.idNumber || '',
-      nationality: workspace.nationality || '',
-      taxId: workspace.taxId || '',
-      commercialRegistrationNumber: workspace.commercialRegistrationNumber || '',
-      expiryDate: workspace.commercialRegistrationExpiryDate ? workspace.commercialRegistrationExpiryDate.slice(0, 10) : '',
-      licenseNumber: workspace.licenseNumber || '',
-      bankName: workspace.primaryBankAccount?.bankName || '',
-      iban: workspace.primaryBankAccount?.iban || '',
-      swiftCode: workspace.primaryBankAccount?.swiftCode || '',
-      payoutCycle: workspace.payoutCycle || '',
-      payoutDay: this.normalizePayoutDay(workspace.payoutDay),
+      ownerName: pendingOwner?.ownerName || workspace.ownerName || '',
+      ownerEmail: pendingOwner?.ownerEmail || workspace.ownerEmail || '',
+      ownerPhone: pendingOwner?.ownerPhone || workspace.ownerPhone || '',
+      idNumber: pendingOwner ? (pendingOwner.idNumber || '') : (workspace.idNumber || ''),
+      nationality: pendingOwner ? (pendingOwner.nationality || '') : (workspace.nationality || ''),
+      taxId: pendingLegal ? (pendingLegal.taxId || '') : (workspace.taxId || ''),
+      commercialRegistrationNumber: pendingLegal?.commercialRegistrationNumber
+        || pendingStore?.commercialRegistrationNumber
+        || workspace.commercialRegistrationNumber
+        || '',
+      expiryDate: pendingLegal
+        ? (pendingLegal.commercialRegistrationExpiryDate?.slice(0, 10) || '')
+        : (workspace.commercialRegistrationExpiryDate ? workspace.commercialRegistrationExpiryDate.slice(0, 10) : ''),
+      licenseNumber: pendingLegal ? (pendingLegal.licenseNumber || '') : (workspace.licenseNumber || ''),
+      bankName: pendingBanking?.bankName || primaryBankAccount?.bankName || '',
+      iban: pendingBanking?.iban || primaryBankAccount?.iban || '',
+      swiftCode: pendingBanking ? (pendingBanking.swiftCode || '') : (primaryBankAccount?.swiftCode || ''),
+      payoutCycle: pendingBanking ? (pendingBanking.payoutCycle || '') : (workspace.payoutCycle || ''),
+      payoutDay: this.normalizePayoutDay(pendingBanking?.payoutDay || workspace.payoutDay),
       hasLogo: !!workspace.logoUrl,
       logoUrl: workspace.logoUrl || null,
-      hasCRDoc: !!workspace.commercialRegisterDocumentUrl,
-      hasTaxDoc: !!workspace.taxDocumentUrl,
-      hasLicenseDoc: !!workspace.licenseDocumentUrl,
-      commercialRegisterDocumentUrl: workspace.commercialRegisterDocumentUrl || null,
-      taxDocumentUrl: workspace.taxDocumentUrl || null,
-      licenseDocumentUrl: workspace.licenseDocumentUrl || null,
+      hasCRDoc: !!(pendingLegal?.commercialRegisterDocumentUrl || pendingStore?.commercialRegisterDocumentUrl || workspace.commercialRegisterDocumentUrl),
+      hasTaxDoc: !!(pendingLegal?.taxDocumentUrl || workspace.taxDocumentUrl),
+      hasLicenseDoc: !!(pendingLegal?.licenseDocumentUrl || workspace.licenseDocumentUrl),
+      commercialRegisterDocumentUrl: pendingLegal?.commercialRegisterDocumentUrl
+        || pendingStore?.commercialRegisterDocumentUrl
+        || workspace.commercialRegisterDocumentUrl
+        || null,
+      taxDocumentUrl: pendingLegal?.taxDocumentUrl || workspace.taxDocumentUrl || null,
+      licenseDocumentUrl: pendingLegal?.licenseDocumentUrl || workspace.licenseDocumentUrl || null,
       reviewStatus: workspace.status === 'Active' ? 'active' : 'pending',
       reviewState,
       rejectionReason: workspace.rejectionReason || null,

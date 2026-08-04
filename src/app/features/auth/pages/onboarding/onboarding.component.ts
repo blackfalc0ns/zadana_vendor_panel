@@ -1869,9 +1869,11 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  storeNameEn: step1.businessNameEn,
  businessType: step1.businessType,
  supportPhone: step1.contactPhone,
- supportEmail: step1.ownerEmail,
+ // The store contact email is separate from the owner's email. Keep the
+ // current store value while an owner-email approval is still pending.
+ supportEmail: profile.supportEmail || step1.ownerEmail,
  descriptionAr: step1.description,
- descriptionEn: step1.description,
+ descriptionEn: profile.descriptionEn || step1.description,
  ownerName: step1.ownerName,
  ownerEmail: step1.ownerEmail,
  ownerPhone: step1.ownerPhone,
