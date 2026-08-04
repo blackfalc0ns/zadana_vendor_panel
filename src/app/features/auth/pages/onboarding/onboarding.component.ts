@@ -1973,7 +1973,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.isSubmitting = false;
  const currentBizName = this.isRTL ? step1.businessNameAr : step1.businessNameEn;
  localStorage.setItem('onboarding_biz_name', currentBizName || this.translate.instant('COMMON.DEFAULT_VENDOR_NAME'));
- void this.router.navigate(['/submission-success']);
+ void this.router.navigate(['/submission-success'], { queryParams: { mode: 'edit' } });
  },
  error: (error) => {
  this.cdr.markForCheck();

@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit, ChangeDetectionStrategy, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription, catchError, interval, of, startWith, switchMap } from 'rxjs';
 import { AppButtonComponent } from '../../../../shared/components/ui/button/button.component';
@@ -32,6 +32,7 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   private profileRefreshSub?: Subscription;
 
   today = new Date();
+  isEditMode = false;
   applicationId = this.resolveApplicationId();
   businessName = '';
   reviewState = 'Submitted';
@@ -44,6 +45,7 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   lastCheckedAt: Date | null = null;
 
   constructor(
+    private route: ActivatedRoute,
     private router: Router,
     private translate: TranslateService,
     private authService: VendorAuthService,
@@ -51,6 +53,8 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
+    this.isEditMode = this.route.snapshot.queryParamMap.get('mode') === 'edit';
+
     if (this.authService.isVendorStaffSession) {
       void this.router.navigate(['/dashboard']);
       return;
@@ -112,6 +116,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get statusLabelKey(): string {
+    if (this.isEditMode) {
+      return 'ONBOARDING.SUCCESS_PAGE.EDIT_SAVED_STATUS';
+    }
+
     if (this.isActive) {
       return 'ONBOARDING.SUCCESS_PAGE.STATUS_ACTIVE';
     }
@@ -139,6 +147,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get heroTitleKey(): string {
+    if (this.isEditMode) {
+      return 'ONBOARDING.SUCCESS_PAGE.EDIT_SAVED_HERO_TITLE';
+    }
+
     if (this.isActive) {
       return 'ONBOARDING.SUCCESS_PAGE.ACTIVE_HERO_TITLE';
     }
@@ -155,6 +167,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get heroDescriptionKey(): string {
+    if (this.isEditMode) {
+      return 'ONBOARDING.SUCCESS_PAGE.EDIT_SAVED_HERO_DESCRIPTION';
+    }
+
     if (this.isActive) {
       return 'ONBOARDING.SUCCESS_PAGE.ACTIVE_HERO_DESCRIPTION';
     }
@@ -171,6 +187,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get stampLabelKey(): string {
+    if (this.isEditMode) {
+      return 'ONBOARDING.SUCCESS_PAGE.EDIT_SAVED_STAMP';
+    }
+
     if (this.isActive) {
       return 'ONBOARDING.SUCCESS_PAGE.ACTIVE_STAMP';
     }
@@ -187,6 +207,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get hintTitleKey(): string {
+    if (this.isEditMode) {
+      return 'ONBOARDING.SUCCESS_PAGE.EDIT_SAVED_HINT_TITLE';
+    }
+
     if (this.isActive) {
       return 'ONBOARDING.SUCCESS_PAGE.ACTIVE_HINT_TITLE';
     }
@@ -199,6 +223,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get hintKey(): string {
+    if (this.isEditMode) {
+      return 'ONBOARDING.SUCCESS_PAGE.EDIT_SAVED_HINT';
+    }
+
     if (this.isActive) {
       return 'ONBOARDING.SUCCESS_PAGE.ACTIVE_HINT';
     }
@@ -211,6 +239,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get statusBadgeVariant(): StatusChipTone {
+    if (this.isEditMode) {
+      return 'success';
+    }
+
     if (this.isActive) {
       return 'success';
     }
@@ -227,6 +259,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get stateClass(): string {
+    if (this.isEditMode) {
+      return 'is-saved';
+    }
+
     if (this.isActive) {
       return 'is-active';
     }
@@ -243,6 +279,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get statusIcon(): string {
+    if (this.isEditMode) {
+      return 'task_alt';
+    }
+
     if (this.isActive) {
       return 'verified';
     }
@@ -259,6 +299,10 @@ export class SubmissionSuccessComponent implements OnInit, OnDestroy {
   }
 
   get summaryStatusClass(): string {
+    if (this.isEditMode) {
+      return 'text-emerald-600';
+    }
+
     if (this.isActive) {
       return 'text-emerald-600';
     }

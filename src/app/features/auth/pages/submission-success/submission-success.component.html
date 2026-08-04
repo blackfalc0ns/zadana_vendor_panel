@@ -90,7 +90,7 @@
     </section>
 
     <section class="status-note" [ngClass]="stateClass">
-      <span class="material-symbols-outlined">{{ isActive ? 'task_alt' : (showEditButton ? 'rule' : 'schedule') }}</span>
+          <span class="material-symbols-outlined">{{ isEditMode ? 'task_alt' : (isActive ? 'task_alt' : (showEditButton ? 'rule' : 'schedule')) }}</span>
       <div>
         <h2 class="panel-title">{{ hintTitleKey | translate }}</h2>
         <p class="panel-copy">{{ hintKey | translate }}</p>
