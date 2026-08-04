@@ -1903,7 +1903,44 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  hasLicenseDoc:!!(licenseDocumentUrl || profile.licenseDocumentUrl)
  } as VendorProfile;
 
+ const isDirty = (group: FormGroup, fields: string[]): boolean =>
+ fields.some((field) => group.get(field)?.dirty === true);
+
+ const storeControlsDirty = isDirty(this.getStepGroup(1), [
+ 'businessNameAr',
+ 'businessNameEn',
+ 'businessType',
+ 'contactPhone',
+ 'description'
+ ]);
+ const ownerControlsDirty = isDirty(this.getStepGroup(1), [
+ 'ownerName',
+ 'ownerEmail',
+ 'ownerPhone'
+ ]) || isDirty(this.getStepGroup(3), ['idNumber', 'nationality']);
+ const contactControlsDirty = isDirty(this.getStepGroup(2), [
+ 'region',
+ 'city',
+ 'nationalAddress',
+ 'branchLatitude',
+ 'branchLongitude'
+ ]);
+ const legalControlsDirty = isDirty(this.getStepGroup(3), [
+ 'commercialRegistrationNumber',
+ 'expiryDate',
+ 'taxId',
+ 'licenseNumber'
+ ]);
+ const bankingControlsDirty = isDirty(this.getStepGroup(4), [
+ 'bankName',
+ 'iban',
+ 'swiftCode',
+ 'paymentCycle',
+ 'payoutDay'
+ ]);
+
  const storeChanged =
+ storeControlsDirty ||
  profile.storeNameAr!== nextProfile.storeNameAr ||
  profile.storeNameEn!== nextProfile.storeNameEn ||
  profile.businessType!== nextProfile.businessType ||
@@ -1914,6 +1951,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.storeLogo!== null;
 
  const ownerChanged =
+ ownerControlsDirty ||
  profile.ownerName!== nextProfile.ownerName ||
  profile.ownerEmail!== nextProfile.ownerEmail ||
  profile.ownerPhone!== nextProfile.ownerPhone ||
@@ -1921,6 +1959,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  profile.nationality!== nextProfile.nationality;
 
  const contactChanged =
+ contactControlsDirty ||
  profile.region!== nextProfile.region ||
  profile.city!== nextProfile.city ||
  profile.nationalAddress!== nextProfile.nationalAddress ||
@@ -1928,6 +1967,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  (nextProfile.branchLongitude!= null ? Number(profile.branchLongitude)!== Number(nextProfile.branchLongitude) : profile.branchLongitude!= null);
 
  const legalChanged =
+ legalControlsDirty ||
  profile.commercialRegistrationNumber!== nextProfile.commercialRegistrationNumber ||
  this.formatDateForInput(profile.expiryDate)!== this.formatDateForInput(nextProfile.expiryDate) ||
  profile.taxId!== nextProfile.taxId ||
@@ -1937,6 +1977,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.licenseDocument!== null;
 
  const bankingChanged =
+ bankingControlsDirty ||
  profile.bankName!== nextProfile.bankName ||
  profile.iban!== nextProfile.iban ||
  profile.swiftCode!== nextProfile.swiftCode ||
