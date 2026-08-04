@@ -61,6 +61,54 @@ type RegistrationUploadTokenResponse = {
 
 const ONBOARDING_SUBMISSION_TIMEOUT_MS = 45000;
 
+type OnboardingProfileSection = 'store' | 'owner' | 'contact' | 'legal' | 'banking';
+
+const COMPLIANCE_SECTION_REVIEW_CODES: Record<OnboardingProfileSection, string[]> = {
+ store: [
+ 'step1.businessNameAr',
+ 'step1.businessNameEn',
+ 'step1.businessType',
+ 'step1.contactPhone',
+ 'step1.description',
+ 'step5.logo'
+ ],
+ owner: [
+ 'step1.ownerName',
+ 'step1.ownerEmail',
+ 'step1.ownerPhone',
+ 'step3.idNumber',
+ 'step3.nationality'
+ ],
+ contact: [
+ 'step2.region',
+ 'step2.city',
+ 'step2.nationalAddress',
+ 'step2.branchLatitude',
+ 'step2.branchLongitude'
+ ],
+ legal: [
+ 'step3.commercialRegistrationNumber',
+ 'step3.expiryDate',
+ 'step3.taxId',
+ 'step3.licenseNumber',
+ 'step5.commercial',
+ 'step5.tax',
+ 'step5.license'
+ ],
+ banking: [
+ 'step4.bankName',
+ 'step4.paymentCycle',
+ 'step4.iban',
+ 'step4.swiftCode'
+ ]
+};
+
+const COMPLIANCE_ACTION_REVIEW_STATUSES = new Set([
+ 'changesrequested',
+ 'rejected',
+ 'pendingvendor'
+]);
+
 @Component({
  changeDetection: ChangeDetectionStrategy.OnPush,
  selector: 'app-onboarding',
@@ -1855,6 +1903,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  const step2 = this.getStepGroup(2).getRawValue();
  const step3 = this.getStepGroup(3).getRawValue();
  const step4 = this.getStepGroup(4).getRawValue();
+ const isComplianceResubmissionBeforeSave = this.isComplianceReviewResubmission(profile);
 
  forkJoin({
  logoUrl: this.storeLogo ? this.uploadFile(this.storeLogo, 'uploads/vendors/logos', this.trackUpload('logo')) : of<string | null>(null),
@@ -1938,8 +1987,14 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  'paymentCycle',
  'payoutDay'
  ]);
+ const forceStoreSubmission = this.shouldSubmitComplianceSection(profile, 'store');
+ const forceOwnerSubmission = this.shouldSubmitComplianceSection(profile, 'owner');
+ const forceContactSubmission = this.shouldSubmitComplianceSection(profile, 'contact');
+ const forceLegalSubmission = this.shouldSubmitComplianceSection(profile, 'legal');
+ const forceBankingSubmission = this.shouldSubmitComplianceSection(profile, 'banking');
 
  const storeChanged =
+ forceStoreSubmission ||
  storeControlsDirty ||
  profile.storeNameAr!== nextProfile.storeNameAr ||
  profile.storeNameEn!== nextProfile.storeNameEn ||
@@ -1951,6 +2006,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.storeLogo!== null;
 
  const ownerChanged =
+ forceOwnerSubmission ||
  ownerControlsDirty ||
  profile.ownerName!== nextProfile.ownerName ||
  profile.ownerEmail!== nextProfile.ownerEmail ||
@@ -1959,6 +2015,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  profile.nationality!== nextProfile.nationality;
 
  const contactChanged =
+ forceContactSubmission ||
  contactControlsDirty ||
  profile.region!== nextProfile.region ||
  profile.city!== nextProfile.city ||
@@ -1967,6 +2024,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  (nextProfile.branchLongitude!= null ? Number(profile.branchLongitude)!== Number(nextProfile.branchLongitude) : profile.branchLongitude!= null);
 
  const legalChanged =
+ forceLegalSubmission ||
  legalControlsDirty ||
  profile.commercialRegistrationNumber!== nextProfile.commercialRegistrationNumber ||
  this.formatDateForInput(profile.expiryDate)!== this.formatDateForInput(nextProfile.expiryDate) ||
@@ -1977,6 +2035,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.licenseDocument!== null;
 
  const bankingChanged =
+ forceBankingSubmission ||
  bankingControlsDirty ||
  profile.bankName!== nextProfile.bankName ||
  profile.iban!== nextProfile.iban ||
@@ -1986,6 +2045,7 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
 
  return {
  nextProfile,
+ isComplianceResubmissionBeforeSave,
  dirtySections: {
  store: storeChanged,
  owner: ownerChanged,
@@ -1997,14 +2057,14 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  }),
  switchMap(({ nextProfile, dirtySections }) =>
  this.profileService.updateOnboardingProfileSelective(nextProfile, dirtySections).pipe(
- map((savedProfile) => ({ savedProfile, dirtySections }))
+ map((savedProfile) => ({ savedProfile, dirtySections, isComplianceResubmissionBeforeSave }))
  )
  ),
- switchMap(({ savedProfile, dirtySections }) => {
+ switchMap(({ savedProfile, dirtySections, isComplianceResubmissionBeforeSave }) => {
  // Active vendors send sensitive owner/legal/banking edits through approval.
  // Rejected or pending-review vendors update the compliance file directly and resubmit it.
  const requiresAdminApproval = dirtySections.owner || dirtySections.legal || dirtySections.banking;
- const isComplianceResubmission = this.isComplianceReviewResubmission(savedProfile);
+ const isComplianceResubmission = isComplianceResubmissionBeforeSave || this.isComplianceReviewResubmission(savedProfile);
  return requiresAdminApproval && !isComplianceResubmission
  ? of(savedProfile)
  : this.profileService.submitForReview();
@@ -2036,7 +2096,63 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  || normalizedStatus === 'pendingreview'
  || normalizedReviewState === 'rejected'
  || normalizedReviewState === 'changesrequested'
- || (normalizedStatus !== 'active' && hasRequestedChanges);
+ || hasRequestedChanges
+ || this.isCommercialRegistrationExpired(profile);
+ }
+
+ private shouldSubmitComplianceSection(profile: VendorProfile, section: OnboardingProfileSection): boolean {
+ const sectionCodes = COMPLIANCE_SECTION_REVIEW_CODES[section];
+
+ return this.hasRequiredActionForCodes(profile, sectionCodes)
+ || this.hasOpenReviewItemForCodes(profile, sectionCodes)
+ || (section === 'legal' && this.isCommercialRegistrationExpired(profile));
+ }
+
+ private hasRequiredActionForCodes(profile: VendorProfile, targetCodes: string[]): boolean {
+ return (profile.requiredActions || []).some((action) =>
+ targetCodes.some((targetCode) => this.reviewCodeMatches(action.code, targetCode))
+ );
+ }
+
+ private hasOpenReviewItemForCodes(profile: VendorProfile, targetCodes: string[]): boolean {
+ return (profile.reviewItems || []).some((item) =>
+ this.isOpenComplianceReviewStatus(item.status)
+ && targetCodes.some((targetCode) => this.reviewCodeMatches(item.code, targetCode))
+ );
+ }
+
+ private isOpenComplianceReviewStatus(status: string | null | undefined): boolean {
+ const normalizedStatus = (status || '').replace(/[\s_-]/g, '').toLowerCase();
+ return COMPLIANCE_ACTION_REVIEW_STATUSES.has(normalizedStatus);
+ }
+
+ private reviewCodeMatches(code: string | null | undefined, targetCode: string): boolean {
+ const normalizedCode = (code || '').trim().toLowerCase();
+ const normalizedTarget = targetCode.trim().toLowerCase();
+
+ if (!normalizedCode) {
+ return false;
+ }
+
+ return normalizedCode === normalizedTarget
+ || normalizedCode.endsWith(`.${normalizedTarget}`)
+ || normalizedCode.split('.').pop() === normalizedTarget.split('.').pop();
+ }
+
+ private isCommercialRegistrationExpired(profile: VendorProfile): boolean {
+ const normalizedExpiryDate = this.formatDateForInput(profile.expiryDate);
+ if (!normalizedExpiryDate) {
+ return false;
+ }
+
+ const expiryDate = new Date(`${normalizedExpiryDate}T00:00:00`);
+ if (Number.isNaN(expiryDate.getTime())) {
+ return false;
+ }
+
+ const today = new Date();
+ today.setHours(0, 0, 0, 0);
+ return expiryDate < today;
  }
 
  private uploadFile(
