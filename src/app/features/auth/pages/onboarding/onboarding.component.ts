@@ -2001,11 +2001,11 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  )
  ),
  switchMap(({ savedProfile, dirtySections }) => {
- // Owner, legal, and banking changes are stored as pending admin-approval
- // requests. They must not be blocked by the compliance resubmission endpoint
- // while those requests are still waiting for approval.
+ // Active vendors send sensitive owner/legal/banking edits through approval.
+ // Rejected or pending-review vendors update the compliance file directly and resubmit it.
  const requiresAdminApproval = dirtySections.owner || dirtySections.legal || dirtySections.banking;
- return requiresAdminApproval
+ const isComplianceResubmission = this.isComplianceReviewResubmission(savedProfile);
+ return requiresAdminApproval && !isComplianceResubmission
  ? of(savedProfile)
  : this.profileService.submitForReview();
  }),
@@ -2024,6 +2024,19 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  this.submissionError = this.resolveSubmissionError(error);
  }
  });
+ }
+
+ private isComplianceReviewResubmission(profile: VendorProfile): boolean {
+ const normalizedStatus = (profile.status || '').replace(/[\s_-]/g, '').toLowerCase();
+ const normalizedReviewState = (profile.reviewState || '').replace(/[\s_-]/g, '').toLowerCase();
+ const hasRequestedChanges = (profile.requiredActions?.length || 0) > 0
+ || (profile.reviewSummary?.changesRequestedItems || 0) > 0;
+
+ return normalizedStatus === 'rejected'
+ || normalizedStatus === 'pendingreview'
+ || normalizedReviewState === 'rejected'
+ || normalizedReviewState === 'changesrequested'
+ || (normalizedStatus !== 'active' && hasRequestedChanges);
  }
 
  private uploadFile(
