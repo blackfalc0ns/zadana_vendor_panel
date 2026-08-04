@@ -202,6 +202,8 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  [lastDecisionText]="lastDecisionText"
  [reviewProgressPercent]="reviewProgressPercent"
  [missingDocumentsCount]="currentProfile.missingDocumentsCount"
+ [logoUrl]="currentProfile.logoUrl || null"
+ [uploadingLogo]="uploadingLogo"
  [nationalityOptions]="nationalityOptions"
  [legalDocumentCards]="legalDocumentCards"
  [uploadingDocumentType]="uploadingDocumentType"
@@ -211,7 +213,8 @@ type LegalDocumentCardLike = Omit<LegalDocumentCard, 'inputId'> & { inputId?: st
  [reviewItemStatusLabel]="reviewItemStatusLabelFn"
  [reviewItemStatusBadgeClasses]="reviewItemStatusBadgeClassesOptionalFn"
  (uploadClick)="triggerLegalDocumentInput($event)"
- (documentSelected)="onLegalDocumentSelected($event.event, $event.type)" />
+ (documentSelected)="onLegalDocumentSelected($event.event, $event.type)"
+ (logoSelected)="onLogoSelected($event)" />
 
  <app-profile-operations-window
  *ngIf="isWindowActive('operations')"
@@ -395,6 +398,7 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  isSavingNotifications = false;
  isSubmittingReview = false;
  uploadingDocumentType: VendorLegalDocumentType | null = null;
+ uploadingLogo = false;
  pageNotice = '';
  pageError = '';
  isProfileLoading = false;
@@ -1114,6 +1118,50 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
  this.currentLang === 'ar'
  ? 'ما قدرنا رفع المستند الحين.'
  : 'Unable to upload the document right now.'
+ );
+ }
+ });
+ }
+
+ onLogoSelected(event: Event): void {
+ const input = event.target as HTMLInputElement;
+ const file = input.files?.[0];
+
+ if (!file) {
+ return;
+ }
+
+ if (!this.isLogoFile(file)) {
+ this.pageNotice = '';
+ this.pageError = this.currentLang === 'ar'
+ ? 'ارفع الشعار بصيغة JPG أو PNG فقط.'
+ : 'Please upload the logo as a JPG or PNG image.';
+ input.value = '';
+ return;
+ }
+
+ this.uploadingLogo = true;
+ this.pageNotice = '';
+ this.pageError = '';
+
+ this.profileService.uploadLogo(file).pipe(finalize(() => {
+ this.uploadingLogo = false;
+ input.value = '';
+ this.cdr.markForCheck();
+ })).subscribe({
+ next: () => {
+ this.cdr.markForCheck();
+ this.pageNotice = this.currentLang === 'ar'
+ ? 'تم تحديث شعار المتجر بنجاح.'
+ : 'Store logo updated successfully.';
+ },
+ error: (error) => {
+ this.cdr.markForCheck();
+ this.pageError = this.resolveErrorMessage(
+ error,
+ this.currentLang === 'ar'
+ ? 'ما قدرنا نحدّث الشعار الحين.'
+ : 'Unable to update the logo right now.'
  );
  }
  });
@@ -2084,6 +2132,12 @@ export class VendorProfileComponent implements OnInit, OnDestroy {
 
  private isPdfFile(file: File): boolean {
  return file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+ }
+
+ private isLogoFile(file: File): boolean {
+ const fileName = file.name.toLowerCase();
+ return ['image/jpeg', 'image/png'].includes(file.type)
+ || /\.(jpe?g|png)$/.test(fileName);
  }
 
  private resolveErrorMessage(error: unknown, fallback: string): string {

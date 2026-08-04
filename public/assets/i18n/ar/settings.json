@@ -28,6 +28,8 @@
       "VERIFICATION_SUMMARY": "ملخص التحقق",
       "BANK_PROFILE": "ملف البنك",
       "REQUIRED_DOCUMENTS": "المستندات المطلوبة",
+      "STORE_LOGO": "شعار المتجر",
+      "STORE_LOGO_HINT": "يمكنك تغيير شعار المتجر في أي وقت. الصيغ المدعومة: JPG وPNG.",
       "SAVE_SECTION": "حفظ هذا القسم",
       "SET_24_HOURS": "تعيين 24 ساعة",
       "OPEN_24_HOURS": "مفتوح 24 ساعة"
@@ -179,13 +181,18 @@
       "UPLOADING": "جارِ الرفع",
       "REUPLOAD": "إعادة رفع",
       "REPLACE": "استبدال",
-      "UPLOAD_PDF": "رفع ملف PDF"
+      "UPLOAD_PDF": "رفع ملف PDF",
+      "UPLOAD_LOGO": "رفع الشعار",
+      "REPLACE_LOGO": "تغيير الشعار"
     },
     "MESSAGES": {
       "NO_FINAL_DECISION": "لم يصدر قرار نهائي بعد",
       "PDF_ONLY": "لازم ترفع المستندات الرسمية بصيغة PDF.",
       "DOCUMENT_UPLOADED": "رفعنا المستند وزامنّاه مع طابور المراجعة.",
       "DOCUMENT_UPLOAD_FAILED": "ما قدرنا رفع المستند الحين.",
+      "LOGO_ONLY": "ارفع الشعار بصيغة JPG أو PNG فقط.",
+      "LOGO_UPLOADED": "تم تحديث شعار المتجر بنجاح.",
+      "LOGO_UPLOAD_FAILED": "ما قدرنا نحدّث الشعار الحين.",
       "SAVE_INVALID": "كمل الحقول المطلوبة قبل حفظ الملف.",
       "SAVE_SUCCESS": "حفظنا التغييرات وزامناها بنجاح.",
       "SAVE_STORE_SUCCESS": "حفظنا بيانات المتجر وأرسلناها للمراجعة.",

@@ -97,6 +97,51 @@ import {
         </app-page-section-shell>
       </div>
 
+      <div id="store-logo-section">
+        <app-page-section-shell
+          [title]="'SETTINGS_PROFILE.UI.STORE_LOGO'"
+          [subtitle]="'SETTINGS_PROFILE.UI.STORE_LOGO_HINT'"
+          bodyClass="px-5 py-5">
+          <div class="flex flex-col gap-5 rounded-[1.5rem] border border-white/60 bg-white/40 p-5 backdrop-blur-xl shadow-sm sm:flex-row sm:items-center sm:justify-between">
+            <div class="flex min-w-0 items-center gap-4">
+              <div class="flex h-20 w-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                <img
+                  *ngIf="logoUrl; else emptyLogo"
+                  [src]="logoUrl"
+                  [alt]="'SETTINGS_PROFILE.UI.STORE_LOGO' | translate"
+                  class="h-full w-full object-contain p-2">
+                <ng-template #emptyLogo>
+                  <span class="material-symbols-outlined text-[32px] text-slate-300">storefront</span>
+                </ng-template>
+              </div>
+              <div class="min-w-0">
+                <p class="text-sm font-bold text-slate-900">{{ 'SETTINGS_PROFILE.UI.STORE_LOGO' | translate }}</p>
+                <p class="mt-1 text-xs leading-5 text-slate-500">{{ 'SETTINGS_PROFILE.UI.STORE_LOGO_HINT' | translate }}</p>
+              </div>
+            </div>
+
+            <div class="flex shrink-0 flex-col items-stretch gap-2 sm:items-end">
+              <input
+                id="profileLogoInput"
+                type="file"
+                accept="image/jpeg,image/png"
+                class="hidden"
+                (change)="logoSelected.emit($event)">
+              <button
+                type="button"
+                (click)="logoInput.click()"
+                [disabled]="uploadingLogo"
+                class="inline-flex items-center justify-center gap-1.5 rounded-[12px] bg-slate-900 px-4 py-2 text-[0.8rem] font-bold text-white shadow-md transition-all hover:bg-slate-800 disabled:opacity-60">
+                <span *ngIf="uploadingLogo" class="h-4 w-4 animate-spin rounded-full border-2 border-slate-500 border-t-white"></span>
+                <span *ngIf="!uploadingLogo" class="material-symbols-outlined text-[18px]">{{ logoUrl ? 'upload_file' : 'add_circle' }}</span>
+                {{ (logoUrl ? 'SETTINGS_PROFILE.ACTIONS.REPLACE_LOGO' : 'SETTINGS_PROFILE.ACTIONS.UPLOAD_LOGO') | translate }}
+              </button>
+              <span class="text-[0.68rem] font-semibold text-slate-400">JPG / PNG</span>
+            </div>
+          </div>
+        </app-page-section-shell>
+      </div>
+
       <div id="documents-section">
         <app-page-section-shell
           [title]="'SETTINGS_PROFILE.SECTIONS.DOCUMENTS'"
@@ -111,6 +156,13 @@ import {
           </div>
 
           <div class="grid gap-4 p-6">
+            <input
+              *ngFor="let document of legalDocumentCards"
+              [id]="document.inputId"
+              type="file"
+              accept="application/pdf"
+              class="hidden"
+              (change)="documentSelected.emit({ event: $event, type: document.type })">
             <article
               *ngFor="let document of legalDocumentCards"
               class="flex flex-col gap-4 rounded-[1.25rem] border border-white/80 bg-white/60 p-5 shadow-sm transition-all hover:shadow-md hover:bg-white hover:-translate-y-0.5 md:flex-row md:items-center md:justify-between group">
@@ -176,6 +228,8 @@ export class ProfileReviewWindowComponent {
   @Input() nationalityOptions: SearchableSelectOption[] = [];
   @Input() legalDocumentCards: any[] = [];
   @Input() uploadingDocumentType: VendorLegalDocumentType | null = null;
+  @Input() logoUrl: string | null = null;
+  @Input() uploadingLogo = false;
   @Input() fieldClass!: (controlName: string, mode?: 'context' | 'ltr' | 'rtl') => string;
   @Input() documentActionLabel!: (document: any) => string;
   @Input() documentCardClasses!: (document: any) => string;
@@ -184,6 +238,11 @@ export class ProfileReviewWindowComponent {
 
   @Output() uploadClick = new EventEmitter<VendorLegalDocumentType>();
   @Output() documentSelected = new EventEmitter<{ event: Event; type: VendorLegalDocumentType }>();
+  @Output() logoSelected = new EventEmitter<Event>();
+
+  get logoInput(): HTMLInputElement {
+    return document.getElementById('profileLogoInput') as HTMLInputElement;
+  }
 
   get identityNumberLabelKey(): string {
     const nationality = (this.form?.get('nationality')?.value || '').toString().trim().toUpperCase();

@@ -470,6 +470,25 @@ export class VendorProfileService {
     );
   }
 
+  uploadLogo(file: File): Observable<VendorProfile> {
+    if (!this.authService.hasApiSession) {
+      return throwError(() => new Error('SESSION_EXPIRED'));
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('directory', 'uploads/vendors/logos');
+
+    return this.http.post<{ url: string }>(`${environment.apiUrl}/files/upload`, formData).pipe(
+      switchMap((response) => this.updateStore({
+        ...this.profileSubject.value,
+        logoUrl: response.url,
+        hasLogo: !!response.url
+      })),
+      switchMap(() => this.fetchProfile())
+    );
+  }
+
   private updateStore(profile: VendorProfile): Observable<VendorWorkspaceApi> {
     return this.http.put<ApiEnvelope<VendorWorkspaceApi>>(`${this.apiUrl}/store`, {
       businessNameAr: profile.storeNameAr,

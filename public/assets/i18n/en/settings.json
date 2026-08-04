@@ -51,6 +51,8 @@
       "VERIFICATION_SUMMARY": "Verification summary",
       "BANK_PROFILE": "Bank profile",
       "REQUIRED_DOCUMENTS": "Required documents",
+      "STORE_LOGO": "Store logo",
+      "STORE_LOGO_HINT": "You can change the store logo at any time. Supported formats: JPG and PNG.",
       "SAVE_SECTION": "Save this section",
       "SET_24_HOURS": "Set 24 hours",
       "OPEN_24_HOURS": "Open 24 hours"
@@ -170,13 +172,18 @@
       "UPLOADING": "Uploading",
       "REUPLOAD": "Re-upload",
       "REPLACE": "Replace",
-      "UPLOAD_PDF": "Upload PDF"
+      "UPLOAD_PDF": "Upload PDF",
+      "UPLOAD_LOGO": "Upload logo",
+      "REPLACE_LOGO": "Change logo"
     },
     "MESSAGES": {
       "NO_FINAL_DECISION": "No final decision yet",
       "PDF_ONLY": "Official documents must be uploaded as PDF files.",
       "DOCUMENT_UPLOADED": "The document was uploaded and synced to the admin review queue.",
       "DOCUMENT_UPLOAD_FAILED": "Unable to upload the document right now.",
+      "LOGO_ONLY": "Please upload the logo as a JPG or PNG image.",
+      "LOGO_UPLOADED": "Store logo updated successfully.",
+      "LOGO_UPLOAD_FAILED": "Unable to update the logo right now.",
       "SAVE_INVALID": "Please complete the required fields before saving the profile.",
       "SAVE_SUCCESS": "Profile changes were saved and synced to the admin workspace.",
       "SAVE_STORE_SUCCESS": "Store details were saved and sent to admin review.",
