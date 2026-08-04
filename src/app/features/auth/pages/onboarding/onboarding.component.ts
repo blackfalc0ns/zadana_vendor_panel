@@ -1928,9 +1928,19 @@ export class OnboardingComponent implements OnInit, AfterViewInit, OnDestroy {
  };
  }),
  switchMap(({ nextProfile, dirtySections }) =>
- this.profileService.updateOnboardingProfileSelective(nextProfile, dirtySections)
+ this.profileService.updateOnboardingProfileSelective(nextProfile, dirtySections).pipe(
+ map((savedProfile) => ({ savedProfile, dirtySections }))
+ )
  ),
- switchMap(() => this.profileService.submitForReview()),
+ switchMap(({ savedProfile, dirtySections }) => {
+ // Owner, legal, and banking changes are stored as pending admin-approval
+ // requests. They must not be blocked by the compliance resubmission endpoint
+ // while those requests are still waiting for approval.
+ const requiresAdminApproval = dirtySections.owner || dirtySections.legal || dirtySections.banking;
+ return requiresAdminApproval
+ ? of(savedProfile)
+ : this.profileService.submitForReview();
+ }),
  timeout({ first: ONBOARDING_SUBMISSION_TIMEOUT_MS })
  ).subscribe({
  next: () => {
